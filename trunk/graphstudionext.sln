@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "graphstudionext", "graphstudionext.vcxproj", "{51117F20-9323-4EEE-964D-760C818DF80D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug-64|Win32 = Debug-64|Win32
+		Release|Win32 = Release|Win32
+		Release-64|Win32 = Release-64|Win32
+		Template|Win32 = Template|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{51117F20-9323-4EEE-964D-760C818DF80D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{51117F20-9323-4EEE-964D-760C818DF80D}.Debug|Win32.Build.0 = Debug|Win32
+		{51117F20-9323-4EEE-964D-760C818DF80D}.Debug-64|Win32.ActiveCfg = Debug-64|Win32
+		{51117F20-9323-4EEE-964D-760C818DF80D}.Debug-64|Win32.Build.0 = Debug-64|Win32
+		{51117F20-9323-4EEE-964D-760C818DF80D}.Release|Win32.ActiveCfg = Release|Win32
+		{51117F20-9323-4EEE-964D-760C818DF80D}.Release|Win32.Build.0 = Release|Win32
+		{51117F20-9323-4EEE-964D-760C818DF80D}.Release-64|Win32.ActiveCfg = Release-64|Win32
+		{51117F20-9323-4EEE-964D-760C818DF80D}.Release-64|Win32.Build.0 = Release-64|Win32
+		{51117F20-9323-4EEE-964D-760C818DF80D}.Template|Win32.ActiveCfg = Template|Win32
+		{51117F20-9323-4EEE-964D-760C818DF80D}.Template|Win32.Build.0 = Template|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
