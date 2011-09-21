@@ -1,0 +1,340 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug-64|Win32">
+      <Configuration>Debug-64</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-64|Win32">
+      <Configuration>Release-64</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Template|Win32">
+      <Configuration>Template</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{51117F20-9323-4EEE-964D-760C818DF80D}</ProjectGuid>
+    <RootNamespace>graphstudionext</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+    <ProjectName>graphstudionext</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-64|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-64|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-64|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug-64|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-64|Win32'">.\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-64|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-64|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-64|Win32'">.\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release-64|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release-64|Win32'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>false</ValidateAllParameters>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>strmbasd.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>false</ValidateAllParameters>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>strmbasemt.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-64|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>false</ValidateAllParameters>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>strmbasd.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-64|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>false</ValidateAllParameters>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>.\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>strmbase.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>.\bin\graphstudionext64.exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="res\bitmap_clock_active_hi.bmp" />
+    <None Include="res\bitmap_clock_active_lo.bmp" />
+    <None Include="res\bitmap_clock_inactive_hi.bmp" />
+    <None Include="res\bitmap_clock_inactive_lo.bmp" />
+    <None Include="res\bitmap_logo.bmp" />
+    <None Include="res\bitmap_tree.bmp" />
+    <None Include="res\bitmap_volume.bmp" />
+    <None Include="res\bitmap_volume2.bmp" />
+    <None Include="res\graphstudio.ico" />
+    <None Include="res\graphstudio.rc2" />
+    <None Include="res\graphstudioDoc.ico" />
+    <None Include="res\Toolbar.bmp" />
+    <None Include="res\toolbar1.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="graphstudionext.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="interfaces\monofilters.h" />
+    <ClInclude Include="src\display_graph.h" />
+    <ClInclude Include="src\display_view.h" />
+    <ClInclude Include="src\graphDoc.h" />
+    <ClInclude Include="src\graphstudio.h" />
+    <ClInclude Include="src\graphView.h" />
+    <ClInclude Include="src\MainFrm.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="src\stdafx.h" />
+    <ClInclude Include="src\ConfirmForm.h" />
+    <ClInclude Include="src\DecPerformanceForm.h" />
+    <ClInclude Include="src\EventsForm.h" />
+    <ClInclude Include="src\FavoritesForm.h" />
+    <ClInclude Include="src\FileSinkForm.h" />
+    <ClInclude Include="src\FileSrcForm.h" />
+    <ClInclude Include="src\FiltersForm.h" />
+    <ClInclude Include="src\GraphConstructionForm.h" />
+    <ClInclude Include="src\MeritForm.h" />
+    <ClInclude Include="src\NewGroupForm.h" />
+    <ClInclude Include="src\ProgressForm.h" />
+    <ClInclude Include="src\RemoteGraphForm.h" />
+    <ClInclude Include="src\RenderUrlForm.h" />
+    <ClInclude Include="src\ScheduleForm.h" />
+    <ClInclude Include="src\SeekForm.h" />
+    <ClInclude Include="src\TextInfoForm.h" />
+    <ClInclude Include="src\VolumeBarForm.h" />
+    <ClInclude Include="src\BufferNegotiationPage.h" />
+    <ClInclude Include="src\CustomPage.h" />
+    <ClInclude Include="src\FilterACMPage.h" />
+    <ClInclude Include="src\FilterDetailsPage.h" />
+    <ClInclude Include="src\FilterVCMPage.h" />
+    <ClInclude Include="src\PropertyForm.h" />
+    <ClInclude Include="src\WMADecPage.h" />
+    <ClInclude Include="src\bits.h" />
+    <ClInclude Include="src\dsutil.h" />
+    <ClInclude Include="src\filename_list.h" />
+    <ClInclude Include="src\mru_list.h" />
+    <ClInclude Include="src\mtypes_ext.h" />
+    <ClInclude Include="src\object_details.h" />
+    <ClInclude Include="src\xml_parser.h" />
+    <ClInclude Include="src\BrowserControl.h" />
+    <ClInclude Include="src\EVR_VideoWindow.h" />
+    <ClInclude Include="src\filter_list.h" />
+    <ClInclude Include="src\prop_tree.h" />
+    <ClInclude Include="src\schedule_list.h" />
+    <ClInclude Include="src\seeking_bar.h" />
+    <ClInclude Include="src\title_bar.h" />
+    <ClInclude Include="src\url_label.h" />
+    <ClInclude Include="src\filters\time_measure\filter_time.h" />
+    <ClInclude Include="src\filters\dump\filter_dump.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\display_graph.cpp" />
+    <ClCompile Include="src\display_view.cpp" />
+    <ClCompile Include="src\graphDoc.cpp" />
+    <ClCompile Include="src\graphstudio.cpp" />
+    <ClCompile Include="src\graphView.cpp" />
+    <ClCompile Include="src\MainFrm.cpp" />
+    <ClCompile Include="src\ConfirmForm.cpp" />
+    <ClCompile Include="src\DecPerformanceForm.cpp" />
+    <ClCompile Include="src\EventsForm.cpp" />
+    <ClCompile Include="src\FavoritesForm.cpp" />
+    <ClCompile Include="src\FileSinkForm.cpp" />
+    <ClCompile Include="src\FileSrcForm.cpp" />
+    <ClCompile Include="src\FiltersForm.cpp" />
+    <ClCompile Include="src\GraphConstructionForm.cpp" />
+    <ClCompile Include="src\MeritForm.cpp" />
+    <ClCompile Include="src\NewGroupForm.cpp" />
+    <ClCompile Include="src\ProgressForm.cpp" />
+    <ClCompile Include="src\RemoteGraphForm.cpp" />
+    <ClCompile Include="src\RenderUrlForm.cpp" />
+    <ClCompile Include="src\ScheduleForm.cpp" />
+    <ClCompile Include="src\SeekForm.cpp" />
+    <ClCompile Include="src\TextInfoForm.cpp" />
+    <ClCompile Include="src\VolumeBarForm.cpp" />
+    <ClCompile Include="src\BufferNegotiationPage.cpp" />
+    <ClCompile Include="src\CustomPage.cpp" />
+    <ClCompile Include="src\FilterACMPage.cpp" />
+    <ClCompile Include="src\FilterDetailsPage.cpp" />
+    <ClCompile Include="src\FilterVCMPage.cpp" />
+    <ClCompile Include="src\PropertyForm.cpp" />
+    <ClCompile Include="src\WMADecPage.cpp" />
+    <ClCompile Include="src\bits.cpp" />
+    <ClCompile Include="src\dsutil.cpp" />
+    <ClCompile Include="src\filename_list.cpp" />
+    <ClCompile Include="src\guid_list.cpp" />
+    <ClCompile Include="src\mru_list.cpp" />
+    <ClCompile Include="src\object_details.cpp" />
+    <ClCompile Include="src\graph_config_xml.cpp" />
+    <ClCompile Include="src\xml_parser.cpp" />
+    <ClCompile Include="src\BrowserControl.cpp" />
+    <ClCompile Include="src\EVR_VideoWindow.cpp" />
+    <ClCompile Include="src\filter_list.cpp" />
+    <ClCompile Include="src\prop_tree.cpp" />
+    <ClCompile Include="src\schedule_list.cpp" />
+    <ClCompile Include="src\seeking_bar.cpp" />
+    <ClCompile Include="src\title_bar.cpp" />
+    <ClCompile Include="src\url_label.cpp" />
+    <ClCompile Include="src\filters\time_measure\filter_time.cpp" />
+    <ClCompile Include="src\filters\dump\filter_dump.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="graphstudionext.rc" _x007B_8856F961-340A-11D0-A96B-00C04FD705A2_x007D_="CBrowserControl" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

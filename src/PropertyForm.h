@@ -1,0 +1,135 @@
+//-----------------------------------------------------------------------------
+//
+//	MONOGRAM GraphStudio
+//
+//	Author : Igor Janos
+//
+//-----------------------------------------------------------------------------
+#pragma once
+
+class CPropertyForm;
+class CPageSite;
+class CPageContainer;
+
+//-----------------------------------------------------------------------------
+//
+//	CPageContainer class
+//
+//-----------------------------------------------------------------------------
+class CPageContainer : public CUnknown
+{
+public:
+	CPropertyForm			*form;
+	CArray<CPageSite*>		pages;
+	int						current;
+
+public:
+	CPageContainer(CPropertyForm *parent);
+	virtual ~CPageContainer();
+
+	void Clear();
+	void ActivatePage(int i);
+	void DeactivatePage(int i);
+	int AddPage(IPropertyPage *page);
+};
+
+
+//-----------------------------------------------------------------------------
+//
+//	CPageSite class
+//
+//-----------------------------------------------------------------------------
+class CPageSite : 
+	public CUnknown,
+	public IPropertyPageSite
+{
+public:
+	CPageContainer				*parent;
+	CComPtr<IPropertyPage>		page;
+	bool						active;
+
+	// page properties
+	CString						title;
+	CSize						size;
+
+public:
+	CPageSite(LPUNKNOWN pUnk, CPageContainer *container);
+	virtual ~CPageSite();
+
+	DECLARE_IUNKNOWN;
+	STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
+
+	// IPropertyPageSite
+	STDMETHODIMP OnStatusChange(DWORD dwFlags);
+    STDMETHODIMP GetLocaleID(LCID *pLocaleID);
+	STDMETHODIMP GetPageContainer(IUnknown **ppUnk);
+	STDMETHODIMP TranslateAccelerator(MSG *pMsg);
+
+	// I/O
+	int CloseSite();
+	int Deactivate();
+	int Activate(HWND owner, CRect &rc);
+	int AssignPage(IPropertyPage *page);
+};
+
+
+//-----------------------------------------------------------------------------
+//
+//	CPropertyForm class
+//
+//-----------------------------------------------------------------------------
+class CPropertyForm : public CDialog
+{
+protected:
+	DECLARE_DYNAMIC(CPropertyForm)
+	DECLARE_MESSAGE_MAP()
+
+	virtual void DoDataExchange(CDataExchange* pDX); 
+
+public:
+	CTabCtrl				tabs;
+	CButton					button_apply;
+	CButton					button_ok;
+	CButton					button_close;
+
+	// control alignment helpers
+	int						tab_x, tab_y, tab_cx, tab_cy;
+	int						button_bottom_offset;
+	int						bok_cx, bcancel_cx, bapply_cx;
+
+	// we're associated with this object (filter/pin)
+	IUnknown				*object;
+	IUnknown				*filter;
+
+	CGraphView				*view;
+
+	CPageContainer			*container;
+
+public:
+	CPropertyForm(CWnd* pParent = NULL);  
+	virtual ~CPropertyForm();
+
+	enum { IDD = IDD_DIALOG_PROPERTYPAGE };
+
+	// activate property page for objects
+	int DisplayPages(IUnknown *obj, IUnknown *filt, CString title, CGraphView *view);
+	int AnalyzeObject(IUnknown *obj);
+	int LoadPinPage(IPin *pin);
+
+	// check for DMO pages
+	int AnalyzeDMO(IUnknown *obj);
+
+	void OnDestroy();
+	void ResizeToFit(CSize size);
+	void OnSize(UINT nType, int cx, int cy);
+	void OnClose();
+	afx_msg void OnTabSelected(NMHDR *pNMHDR, LRESULT *pResult);
+
+	virtual BOOL PreTranslateMessage(MSG *pMsg) {
+		return __super::PreTranslateMessage(pMsg);
+	}
+
+	void OnOK();
+	void OnCancel();
+	afx_msg void OnBnClickedButtonApply();
+};
