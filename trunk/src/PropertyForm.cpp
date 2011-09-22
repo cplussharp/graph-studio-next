@@ -337,7 +337,7 @@ int CPropertyForm::AnalyzeDMO(IUnknown *obj)
 	if (FAILED(hr)) {
 	
 		// or try to enumerate through the types
-		while (dmo_type == -1) {
+		while (dmo_type == -1 && hr != DMO_E_NO_MORE_ITEMS) {
 			hr = dmo->GetInputType(0, i++, &dmt);
 			if (hr == NOERROR) {
 
