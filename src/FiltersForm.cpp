@@ -75,7 +75,7 @@ BOOL CFiltersForm::DoCreateDialog()
 
 	// create buttons
 	CRect	rc;
-	rc.SetRect(0, 0, 125, 23);
+	rc.SetRect(0, 0, 100, 23);
 	combo_categories.Create(WS_CHILD | WS_VISIBLE | CBS_SORT | CBS_DROPDOWNLIST, rc, &title, IDC_COMBO_CATEGORIES);
 	combo_merit.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, rc, &title, IDC_COMBO_MERIT);
 	btn_registry.Create(_T("Registry Check"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_REGISTRY);
@@ -150,6 +150,9 @@ void CFiltersForm::OnInitialize()
 			}
 		}
 	}
+
+    btn_unregister.SetShield(TRUE);
+    btn_merit.SetShield(TRUE);
 }
 
 void CFiltersForm::OnComboCategoriesChange()
@@ -213,7 +216,7 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 
 	// compute anchor lines
 	int	right_x = rc.Width() - 320;
-	int merit_combo_width = 180;
+	int merit_combo_width = 130;
 
 	title.GetClientRect(&rc2);
 	title.SetWindowPos(NULL, 0, 0, cx, rc2.Height(), SWP_SHOWWINDOW);
@@ -231,9 +234,9 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 
 	// combo boxes
 	combo_categories.GetWindowRect(&rc2);
-	combo_categories.SetWindowPos(NULL, 4, 6, right_x-2*8 - 8-merit_combo_width, rc2.Height(), SWP_SHOWWINDOW);
+	combo_categories.SetWindowPos(NULL, 4, 6, right_x - 8 - merit_combo_width, rc2.Height(), SWP_SHOWWINDOW);
 	combo_merit.GetWindowRect(&rc2);
-	combo_merit.SetWindowPos(NULL, right_x-4 - merit_combo_width, 6, merit_combo_width, rc2.Height(), SWP_SHOWWINDOW);
+	combo_merit.SetWindowPos(NULL, right_x - merit_combo_width, 6, merit_combo_width, rc2.Height(), SWP_SHOWWINDOW);
 
 	// buttons
 	btn_registry.GetWindowRect(&rc2);
@@ -559,8 +562,48 @@ void CFiltersForm::OnLocateClick()
 	}
 }
 
+BOOL IsUserAdmin(VOID)
+/*++ 
+Routine Description: This routine returns TRUE if the caller's
+process is a member of the Administrators local group. Caller is NOT
+expected to be impersonating anyone and is expected to be able to
+open its own process and process token. 
+Arguments: None. 
+Return Value: 
+   TRUE - Caller has Administrators local group. 
+   FALSE - Caller does not have Administrators local group. --
+*/ 
+{
+BOOL b;
+SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
+PSID AdministratorsGroup; 
+b = AllocateAndInitializeSid(
+    &NtAuthority,
+    2,
+    SECURITY_BUILTIN_DOMAIN_RID,
+    DOMAIN_ALIAS_RID_ADMINS,
+    0, 0, 0, 0, 0, 0,
+    &AdministratorsGroup); 
+if(b) 
+{
+    if (!CheckTokenMembership( NULL, AdministratorsGroup, &b)) 
+    {
+         b = FALSE;
+    } 
+    FreeSid(AdministratorsGroup); 
+}
+
+return(b);
+}
+
 void CFiltersForm::OnUnregisterClick()
 {
+    if(!IsUserAdmin())
+    {
+        AfxMessageBox(TEXT("Admin rights required to unregister a filter.\nPlease restart the program as admin."));
+        return;
+    }
+
 	DSUtil::FilterTemplate *filter = GetSelected();
 	if (filter) {
 
@@ -651,6 +694,12 @@ void CFiltersForm::OnUnregisterClick()
 
 void CFiltersForm::OnMeritClick()
 {
+    if(!IsUserAdmin())
+    {
+        AfxMessageBox(TEXT("Admin rights required to change the merit of a filter.\nPlease restart the program as admin."));
+        return;
+    }
+
 	DSUtil::FilterTemplate *filter = GetSelected();
 	if (filter) {
 
