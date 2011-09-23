@@ -37,6 +37,8 @@ public:
 	GraphStudio::TitleBar		title;
 	GraphStudio::PropertyTree	tree_details;
 	GraphStudio::PropItem		info;
+    CMFCLinkCtrl                m_search_online;
+    CToolTipCtrl*               m_pToolTip;
 
 	// enumerated stuff
 	DSUtil::FilterCategories	categories;

@@ -41,26 +41,29 @@ END_MESSAGE_MAP()
 
 CFiltersForm::CFiltersForm(CWnd* pParent) : 
 	CDialog(CFiltersForm::IDD, pParent),
-	info(CString(_T("root")))
+	info(CString(_T("root"))), m_pToolTip(NULL)
 {
 
 }
 
 CFiltersForm::~CFiltersForm()
 {
+    if(m_pToolTip)
+        delete m_pToolTip;
 }
 
 void CFiltersForm::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_TITLEBAR, title);
-	DDX_Control(pDX, IDC_LIST_FILTERS, list_filters);
-	DDX_Control(pDX, IDC_BUTTON_INSERT, btn_insert);
-	DDX_Control(pDX, IDC_BUTTON_LOCATE, btn_locate);
-	DDX_Control(pDX, IDC_BUTTON_MERIT, btn_merit);
-	DDX_Control(pDX, IDC_BUTTON_PROPERTYPAGE, btn_propertypage);
-	DDX_Control(pDX, IDC_BUTTON_UNREGISTER, btn_unregister);
-	DDX_Control(pDX, IDC_CHECK_FAVORITE, check_favorite);
+    CDialog::DoDataExchange(pDX);
+    DDX_Control(pDX, IDC_TITLEBAR, title);
+    DDX_Control(pDX, IDC_LIST_FILTERS, list_filters);
+    DDX_Control(pDX, IDC_BUTTON_INSERT, btn_insert);
+    DDX_Control(pDX, IDC_BUTTON_LOCATE, btn_locate);
+    DDX_Control(pDX, IDC_BUTTON_MERIT, btn_merit);
+    DDX_Control(pDX, IDC_BUTTON_PROPERTYPAGE, btn_propertypage);
+    DDX_Control(pDX, IDC_BUTTON_UNREGISTER, btn_unregister);
+    DDX_Control(pDX, IDC_CHECK_FAVORITE, check_favorite);
+    DDX_Control(pDX, IDC_MFCLINK_SEARCH_ONLINE, m_search_online);
 }
 
 BOOL CFiltersForm::DoCreateDialog()
@@ -71,7 +74,6 @@ BOOL CFiltersForm::DoCreateDialog()
 	// prepare titlebar
 	title.ModifyStyle(0, WS_CLIPCHILDREN);
 	title.ModifyStyleEx(0, WS_EX_CONTROLPARENT);
-
 
 	// create buttons
 	CRect	rc;
@@ -153,6 +155,16 @@ void CFiltersForm::OnInitialize()
 
     btn_unregister.SetShield(TRUE);
     btn_merit.SetShield(TRUE);
+
+    //Set up the tooltip
+    m_pToolTip = new CToolTipCtrl;
+    if(!m_pToolTip->Create(this))
+    {
+        TRACE("Unable To create ToolTip\n");
+        return;
+    }
+
+    m_pToolTip->Activate(TRUE);
 }
 
 void CFiltersForm::OnComboCategoriesChange()
@@ -207,6 +219,7 @@ bool CFiltersForm::CanBeDisplayed(DSUtil::FilterTemplate &filter)
 	}
 }
 
+#define MIN_WIDTH_RIGHT 320
 
 void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 {
@@ -215,7 +228,13 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 	GetClientRect(&rc);
 
 	// compute anchor lines
-	int	right_x = rc.Width() - 320;
+	int	right_x = rc.Width() / 2;
+    int right_width = right_x;
+    if(right_x < MIN_WIDTH_RIGHT)
+    {
+        right_x = rc.Width() - MIN_WIDTH_RIGHT;
+        right_width = MIN_WIDTH_RIGHT;
+    }
 	int merit_combo_width = 130;
 
 	title.GetClientRect(&rc2);
@@ -230,7 +249,7 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 	tree_details.SetWindowPos(NULL, right_x, details_top, rc.Width()-right_x, rc.Height() - 100-details_top, SWP_SHOWWINDOW);
 
 	check_favorite.GetWindowRect(&rc2);
-	check_favorite.SetWindowPos(NULL, right_x+8, rc.Height()-100+8, rc.Width()-128-right_x, rc2.Height(), SWP_SHOWWINDOW);
+    check_favorite.SetWindowPos(NULL, right_x+8, rc.Height()-100+8, rc2.Width(), rc2.Height(), SWP_SHOWWINDOW);
 
 	// combo boxes
 	combo_categories.GetWindowRect(&rc2);
@@ -251,6 +270,8 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 	btn_locate.SetWindowPos(NULL, rc.Width() - 8 - rc2.Width(), rc.Height() - 2*(8+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW);
 	btn_unregister.SetWindowPos(NULL, rc.Width() - 8 - rc2.Width(), rc.Height() - 1*(8+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW);
 
+    m_search_online.GetWindowRect(&rc2);
+    m_search_online.SetWindowPos(NULL, right_x + right_width / 2 - rc2.Width() / 2, rc.Height()-100+8, rc2.Width(), btn_height, SWP_SHOWWINDOW);
 
 	// invalidate all controls
 	title.Invalidate();
@@ -266,6 +287,7 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 	list_filters.Invalidate();
 	tree_details.Invalidate();
 
+    m_search_online.Invalidate();
 }
 
 void CFiltersForm::OnMeasureItem(int nIDCtl, LPMEASUREITEMSTRUCT item)
@@ -338,6 +360,10 @@ BOOL CFiltersForm::PreTranslateMessage(MSG *pmsg)
 			return TRUE;
 		}
 	}
+
+    if (NULL != m_pToolTip)
+        m_pToolTip->RelayEvent(pmsg);
+
 	return __super::PreTranslateMessage(pmsg);
 }
 
@@ -386,6 +412,18 @@ void CFiltersForm::OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult)
 			} else {
 				check_favorite.SetCheck(FALSE);
 			}
+
+            // create search url
+            LPOLESTR str;
+            StringFromCLSID(filter->clsid, &str);
+		    CString	str_clsid(str);
+            CString str_name = filter->name;
+            str_name.Replace(' ', '+');
+            CString url;
+            CString file = filter->file.Mid(CPath(filter->file).FindFileName());
+            url.Format(TEXT("http://www.google.com/search?q=%s+OR+\\\"%s\\\"+OR+%s"), str_clsid, str_name, file);
+            m_search_online.SetURL(url);
+            if (str) CoTaskMemFree(str);
 		}
 		/*
 		list_details.DeleteAllItems();
