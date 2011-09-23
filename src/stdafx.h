@@ -53,6 +53,8 @@
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
 #include <afxtempl.h>
+#include <afxlinkctrl.h>
+
 #include <streams.h>
 #include <initguid.h>
 #include <dvdmedia.h>

@@ -162,6 +162,7 @@
 #define IDC_EXPLORER1                   1091
 #define IDC_EXPLORER2                   1092
 #define IDC_SYSLINK1                    1093
+#define IDC_MFCLINK_SEARCH_ONLINE       1096
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_RENDERER0              6000
@@ -247,9 +248,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        167
+#define _APS_NEXT_RESOURCE_VALUE        168
 #define _APS_NEXT_COMMAND_VALUE         32862
-#define _APS_NEXT_CONTROL_VALUE         1094
+#define _APS_NEXT_CONTROL_VALUE         1097
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
