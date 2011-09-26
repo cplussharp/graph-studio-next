@@ -44,7 +44,9 @@ public:
 	// most recently used list
 	GraphStudio::MRUList		mru;
 
-	// enumerated audio & video renderers
+	// enumerated audio & video sources/renderers
+    DSUtil::FilterTemplates		audio_sources;
+	DSUtil::FilterTemplates		video_sources;
 	DSUtil::FilterTemplates		audio_renderers;
 	DSUtil::FilterTemplates		video_renderers;
 
@@ -105,6 +107,8 @@ public:
 	void UpdateRenderersMenu();
 	void UpdatePreferredVideoRenderersMenu();
 
+    void OnAudioSourceClick(UINT nID);
+	void OnVideoSourceClick(UINT nID);
 	void OnAudioRendererClick(UINT nID);
 	void OnVideoRendererClick(UINT nID);
 	void OnFavoriteFilterClick(UINT nID);
