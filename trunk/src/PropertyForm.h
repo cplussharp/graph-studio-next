@@ -115,6 +115,7 @@ public:
 	int DisplayPages(IUnknown *obj, IUnknown *filt, CString title, CGraphView *view);
 	int AnalyzeObject(IUnknown *obj);
 	int LoadPinPage(IPin *pin);
+    int LoadInterfacePage(IUnknown *obj, const CString& strTitle);
 
 	// check for DMO pages
 	int AnalyzeDMO(IUnknown *obj);

@@ -290,6 +290,8 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
 		// check for DMO pages
 		AnalyzeDMO(obj);
 
+        // Interfaces
+        LoadInterfacePage(obj, TEXT("Interfaces"));
 
 		// let's enumerate all pins
 		CComPtr<IEnumPins>		epins;
@@ -312,6 +314,7 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
 	if (SUCCEEDED(obj->QueryInterface(IID_IPin, (void**)&pin))) {
 		LoadPinPage(pin);
 		pin = NULL;
+        LoadInterfacePage(obj, TEXT("Interfaces"));
 	}
 	
 	filter = NULL;
@@ -559,6 +562,35 @@ int CPropertyForm::LoadPinPage(IPin *pin)
 	stream_config = NULL;
 
 	return 0;
+}
+
+int CPropertyForm::LoadInterfacePage(IUnknown *obj, const CString& strTitle)
+{
+	// display the details page
+	CComPtr<IPropertyPage>	page;
+	CInterfaceDetailsPage	*details_page;
+	HRESULT					hr;
+
+	details_page = new CInterfaceDetailsPage(NULL, &hr, strTitle);
+	if (details_page) {
+		details_page->AddRef();
+
+		hr = details_page->QueryInterface(IID_IPropertyPage, (void**)&page);
+		if (SUCCEEDED(hr)) {
+			// assign the object
+			hr = page->SetObjects(1, &obj);
+			if (SUCCEEDED(hr)) {
+				// and add the page to our container
+				container->AddPage(page);
+			}
+		}
+		page = NULL;
+
+		// don't care anymore
+		details_page->Release();
+	}
+
+    return 0;
 }
 
 //-----------------------------------------------------------------------------

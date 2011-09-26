@@ -19,14 +19,16 @@ namespace GraphStudio
 	PropItem::PropItem(CString n) :
 		name(n),
 		value(_T("")),
-		type(TYPE_STRUCT)
+		type(TYPE_STRUCT),
+        expand(true)
 	{
 	}
 
 	PropItem::PropItem(CString n, GUID guid) :
 		name(n),
 		value(_T("")),
-		type(TYPE_GUID)
+		type(TYPE_GUID),
+        expand(false)
 	{
 		// convert to string
 		LPOLESTR	str = NULL;
@@ -38,35 +40,48 @@ namespace GraphStudio
 
 	PropItem::PropItem(CString n, int val) :
 		name(n),
-		type(TYPE_INT)
+		type(TYPE_INT),
+        expand(false)
 	{
 		value.Format(_T("%d"), val);
 	}
 
 	PropItem::PropItem(CString n, RECT rc) :
 		name(n),
-		type(TYPE_RECT)
+		type(TYPE_RECT),
+        expand(false)
 	{
 		value.Format(_T("[%d, %d, %d, %d]"), rc.left, rc.top, rc.right, rc.bottom);
 	}
 
 	PropItem::PropItem(CString n, __int64 i) :
 		name(n),
-		type(TYPE_INT)
+		type(TYPE_INT),
+        expand(false)
 	{
 		value.Format(_T("%I64d"), i);
 	}
 
 	PropItem::PropItem(CString n, CString str) :
 		name(n),
-		type(TYPE_INT)
+		type(TYPE_STRING),
+        expand(false)
 	{
+		value = str;
+	}
+
+    PropItem::PropItem(CString n, CString str, bool isUrl) :
+		name(n),
+        expand(false)
+	{
+        type = isUrl ? TYPE_URL : TYPE_STRING;
 		value = str;
 	}
 
 	PropItem::PropItem(CString n, bool val) :
 		name(n),
-		type(TYPE_INT)
+		type(TYPE_BOOL),
+        expand(false)
 	{
 		value = (val ? _T("TRUE") : _T("FALSE"));
 	}
@@ -254,7 +269,8 @@ namespace GraphStudio
 		}
 
 		// rozbalime
-		tree.Expand(item, TVE_EXPAND);
+        if(node->expand)
+		    tree.Expand(item, TVE_EXPAND);
 	}
 
 	void PropertyTree::RepositionControls()

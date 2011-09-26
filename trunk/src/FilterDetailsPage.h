@@ -78,6 +78,28 @@ public:
 
 
 
+//-----------------------------------------------------------------------------
+//
+//	CInterfaceDetailsPage class
+//
+//-----------------------------------------------------------------------------
+class CInterfaceDetailsPage : public CDetailsPage
+{
+public:
+	CInterfaceScanner*			pInterfaces;
+
+public:
+	CInterfaceDetailsPage(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR strTitle);
+	virtual ~CInterfaceDetailsPage();
+	
+    virtual HRESULT OnConnect(IUnknown *pUnknown);
+    virtual HRESULT OnDisconnect();
+	virtual void OnBuildTree();
+
+};
+
+
+
 
 
 

@@ -110,6 +110,7 @@ using namespace std;
 #include "ConfirmForm.h"
 #include "MeritForm.h"
 
+#include "InterfaceScanner.h"
 #include "CustomPage.h"
 #include "FilterDetailsPage.h"
 #include "FilterVCMPage.h"
