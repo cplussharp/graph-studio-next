@@ -168,3 +168,46 @@ void CPinDetailsPage::OnBuildTree()
 	}
 }
 
+
+
+//-----------------------------------------------------------------------------
+//
+//	CInterfaceDetailsPage class
+//
+//-----------------------------------------------------------------------------
+
+CInterfaceDetailsPage::CInterfaceDetailsPage(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR strTitle) :
+	CDetailsPage(pUnk, phr, strTitle),
+	pInterfaces(NULL)
+{
+	// retval
+	if (phr) *phr = NOERROR;
+
+}
+
+CInterfaceDetailsPage::~CInterfaceDetailsPage()
+{
+	if(pInterfaces) delete pInterfaces;
+}
+
+HRESULT CInterfaceDetailsPage::OnConnect(IUnknown *pUnknown)
+{
+    pInterfaces = new CInterfaceScanner(pUnknown);
+	return NOERROR;
+}
+
+HRESULT CInterfaceDetailsPage::OnDisconnect()
+{
+    if(pInterfaces)
+    {
+        delete pInterfaces;
+        pInterfaces = NULL;
+    }
+	return NOERROR;
+}
+
+void CInterfaceDetailsPage::OnBuildTree()
+{
+	pInterfaces->GetDetails(&info);
+}
+

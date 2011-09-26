@@ -234,6 +234,7 @@
     <ClInclude Include="src\graphDoc.h" />
     <ClInclude Include="src\graphstudio.h" />
     <ClInclude Include="src\graphView.h" />
+    <ClInclude Include="src\InterfaceScanner.h" />
     <ClInclude Include="src\MainFrm.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="src\stdafx.h" />
@@ -285,6 +286,7 @@
     <ClCompile Include="src\graphDoc.cpp" />
     <ClCompile Include="src\graphstudio.cpp" />
     <ClCompile Include="src\graphView.cpp" />
+    <ClCompile Include="src\InterfaceScanner.cpp" />
     <ClCompile Include="src\MainFrm.cpp" />
     <ClCompile Include="src\ConfirmForm.cpp" />
     <ClCompile Include="src\DecPerformanceForm.cpp" />
