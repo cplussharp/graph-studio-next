@@ -163,6 +163,8 @@ namespace DSUtil
 		int EnumerateCompatible(MediaTypes &mtypes, DWORD min_merit, bool need_output, bool exact);
 
 		// enumerating filters
+        int EnumerateAudioSources();
+		int EnumerateVideoSources();
 		int EnumerateAudioRenderers();
 		int EnumerateVideoRenderers();
 

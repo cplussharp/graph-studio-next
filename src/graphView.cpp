@@ -53,8 +53,10 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_GRAPH_MAKEGRAPHSCREENSHOT, &CGraphView::OnGraphScreenshot)
 	ON_COMMAND(ID_GRAPH_USECLOCK, &CGraphView::OnUseClock)
 	ON_COMMAND_RANGE(ID_LIST_MRU_FILE0, ID_LIST_MRU_FILE0+10, &CGraphView::OnDummyEvent)
-	ON_COMMAND_RANGE(ID_AUDIO_RENDERER0, ID_AUDIO_RENDERER0+100, &CGraphView::OnDummyEvent)
-	ON_COMMAND_RANGE(ID_VIDEO_RENDERER0, ID_VIDEO_RENDERER0+100, &CGraphView::OnDummyEvent)
+    ON_COMMAND_RANGE(ID_AUDIO_SOURCE0, ID_AUDIO_SOURCE0+50, &CGraphView::OnDummyEvent)
+	ON_COMMAND_RANGE(ID_VIDEO_SOURCE0, ID_VIDEO_SOURCE0+50, &CGraphView::OnDummyEvent)
+	ON_COMMAND_RANGE(ID_AUDIO_RENDERER0, ID_AUDIO_RENDERER0+50, &CGraphView::OnDummyEvent)
+	ON_COMMAND_RANGE(ID_VIDEO_RENDERER0, ID_VIDEO_RENDERER0+50, &CGraphView::OnDummyEvent)
 	ON_COMMAND_RANGE(ID_FAVORITE_FILTER, ID_FAVORITE_FILTER+500, &CGraphView::OnDummyEvent)
 	ON_COMMAND_RANGE(ID_PREFERRED_VIDEO_RENDERER, ID_PREFERRED_VIDEO_RENDERER+100, &CGraphView::OnDummyEvent)
 
@@ -347,10 +349,16 @@ LRESULT CGraphView::OnWmCommand(WPARAM wParam, LPARAM lParam)
 
 	int		id = LOWORD(wParam);
 
-	if (id >= ID_AUDIO_RENDERER0 && id < ID_AUDIO_RENDERER0 + 100) {
+    if (id >= ID_AUDIO_SOURCE0 && id < ID_AUDIO_SOURCE0 + 50) {
+		OnAudioSourceClick(id);
+	} else
+	if (id >= ID_VIDEO_SOURCE0 && id < ID_VIDEO_SOURCE0 + 50) {
+		OnVideoSourceClick(id);
+	} else
+	if (id >= ID_AUDIO_RENDERER0 && id < ID_AUDIO_RENDERER0 + 50) {
 		OnAudioRendererClick(id);
 	} else
-	if (id >= ID_VIDEO_RENDERER0 && id < ID_VIDEO_RENDERER0 + 100) {
+	if (id >= ID_VIDEO_RENDERER0 && id < ID_VIDEO_RENDERER0 + 50) {
 		OnVideoRendererClick(id);
 	} else
 	if (id >= ID_PREFERRED_VIDEO_RENDERER && id < ID_PREFERRED_VIDEO_RENDERER + 100) {
@@ -457,40 +465,68 @@ void CGraphView::UpdateRenderersMenu()
 {
 	int		i;
 
-	audio_renderers.filters.RemoveAll();
-	video_renderers.filters.RemoveAll();
-
+	audio_sources.EnumerateAudioSources();
+	video_sources.EnumerateVideoSources();
 	audio_renderers.EnumerateAudioRenderers();
 	video_renderers.EnumerateVideoRenderers();
 
 	CMenu	*mainmenu  = GetParentFrame()->GetMenu();
 	CMenu	*graphmenu = mainmenu->GetSubMenu(2);
-	CMenu	audio_menu, video_menu;
+	CMenu	audio_source_menu, video_source_menu, audio_render_menu, video_render_menu;
+
+    // fill in audio sources
+	audio_source_menu.CreatePopupMenu();
+	for (i=0; i<audio_sources.filters.GetCount(); i++) {
+		DSUtil::FilterTemplate	&filter = audio_sources.filters[i];
+        if(!filter.file_exists) continue;
+		audio_source_menu.InsertMenu(i, MF_STRING, ID_AUDIO_SOURCE0 + i, filter.name);
+	}
+
+	graphmenu->ModifyMenu(ID_GRAPH_INSERTAUDIOSOURCE, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
+						  (UINT_PTR)audio_source_menu.m_hMenu, _T("Insert Audio Source"));
+
+	audio_source_menu.Detach();
+
+	// fill in video sources
+	video_source_menu.CreatePopupMenu();
+
+	for (i=0; i<video_sources.filters.GetCount(); i++) {
+		DSUtil::FilterTemplate	&filter = video_sources.filters[i];
+        if(!filter.file_exists) continue;
+		video_source_menu.InsertMenu(i, MF_STRING, ID_VIDEO_SOURCE0 + i, filter.name);
+	}
+
+	graphmenu->ModifyMenu(ID_GRAPH_INSERTVIDEOSOURCE, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
+						  (UINT_PTR)video_source_menu.m_hMenu, _T("Insert Video Source"));
+
+	video_source_menu.Detach();
 
 	// fill in audio renderers
-	audio_menu.CreatePopupMenu();
+	audio_render_menu.CreatePopupMenu();
 	for (i=0; i<audio_renderers.filters.GetCount(); i++) {
 		DSUtil::FilterTemplate	&filter = audio_renderers.filters[i];
-		audio_menu.InsertMenu(i, MF_STRING, ID_AUDIO_RENDERER0 + i, filter.name);
+        if(!filter.file_exists) continue;
+		audio_render_menu.InsertMenu(i, MF_STRING, ID_AUDIO_RENDERER0 + i, filter.name);
 	}
 
 	graphmenu->ModifyMenu(ID_GRAPH_INSERTAUDIORENDERER, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
-						  (UINT_PTR)audio_menu.m_hMenu, _T("Insert Audio Renderer"));
+						  (UINT_PTR)audio_render_menu.m_hMenu, _T("Insert Audio Renderer"));
 
-	audio_menu.Detach();
+	audio_render_menu.Detach();
 
 	// fill in video renderers
-	video_menu.CreatePopupMenu();
+	video_render_menu.CreatePopupMenu();
 
 	for (i=0; i<video_renderers.filters.GetCount(); i++) {
 		DSUtil::FilterTemplate	&filter = video_renderers.filters[i];
-		video_menu.InsertMenu(i, MF_STRING, ID_VIDEO_RENDERER0 + i, filter.name);
+        if(!filter.file_exists) continue;
+		video_render_menu.InsertMenu(i, MF_STRING, ID_VIDEO_RENDERER0 + i, filter.name);
 	}
 
 	graphmenu->ModifyMenu(ID_GRAPH_INSERTVIDEORENDERER, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
-						  (UINT_PTR)video_menu.m_hMenu, _T("Insert Video Renderer"));
+						  (UINT_PTR)video_render_menu.m_hMenu, _T("Insert Video Renderer"));
 
-	video_menu.Detach();
+	video_render_menu.Detach();
 
 	UpdatePreferredVideoRenderersMenu();
 }
@@ -1421,6 +1457,21 @@ void CGraphView::OnViewIncreasezoomlevel()
 	DoZoom(zl);
 }
 
+void CGraphView::OnAudioSourceClick(UINT nID)
+{
+	int	n = nID - ID_AUDIO_SOURCE0;
+	if (n < 0 || n >= audio_sources.filters.GetCount()) return ;
+
+	InsertFilterFromTemplate(audio_sources.filters[n]);
+}
+
+void CGraphView::OnVideoSourceClick(UINT nID)
+{
+	int	n = nID - ID_VIDEO_SOURCE0;
+	if (n < 0 || n >= video_sources.filters.GetCount()) return ;
+
+	InsertFilterFromTemplate(video_sources.filters[n]);
+}
 
 void CGraphView::OnAudioRendererClick(UINT nID)
 {

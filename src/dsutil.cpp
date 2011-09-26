@@ -803,6 +803,24 @@ namespace DSUtil
 		return E_FAIL;
 	}
 
+    int FilterTemplates::EnumerateAudioSources()
+	{
+		filters.RemoveAll();
+		int ret = Enumerate(CLSID_AudioInputDeviceCategory);
+		if (ret < 0) return ret;
+		SortByName();
+		return ret;
+	}
+
+    int FilterTemplates::EnumerateVideoSources()
+	{
+		filters.RemoveAll();
+        int ret = Enumerate(CLSID_VideoInputDeviceCategory);
+		if (ret < 0) return ret;
+		SortByName();
+		return ret;
+	}
+
 	int FilterTemplates::EnumerateAudioRenderers()
 	{
 		filters.RemoveAll();

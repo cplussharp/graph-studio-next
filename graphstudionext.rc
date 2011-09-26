@@ -162,6 +162,10 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Insert File Source (Async.)", ID_GRAPH_INSERTFILESOURCE
         MENUITEM "Insert File Writer",          ID_GRAPH_INSERTFILEWRITER
+        MENUITEM SEPARATOR
+        MENUITEM "Insert Audio Source",         ID_GRAPH_INSERTAUDIOSOURCE
+        MENUITEM "Insert Video Source",         ID_GRAPH_INSERTVIDEOSOURCE
+        MENUITEM SEPARATOR
         MENUITEM "Insert Audio Renderer",       ID_GRAPH_INSERTAUDIORENDERER
         MENUITEM "Insert Video Renderer",       ID_GRAPH_INSERTVIDEORENDERER
         MENUITEM SEPARATOR
