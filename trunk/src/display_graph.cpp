@@ -997,7 +997,7 @@ namespace GraphStudio
 		if (ret == 0 && instance != NULL && !is_configured) {
 
 			// now check for a few interfaces
-			int r = ConfigureInsertedFilter(instance);
+			int r = ConfigureInsertedFilter(instance, name);
 			if (r < 0) {
 				instance = NULL;
 			}
@@ -1337,7 +1337,7 @@ namespace GraphStudio
 			if (SUCCEEDED(hr)) {
 				
 				// now check for a few interfaces
-				int ret = ConfigureInsertedFilter(instance);
+				int ret = ConfigureInsertedFilter(instance, names[i]);
 				if (ret < 0) {
 					instance = NULL;
 				}

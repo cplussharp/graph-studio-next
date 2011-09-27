@@ -333,7 +333,7 @@ void CFiltersForm::OnBnClickedButtonInsert()
 		    } else {
 			
 			    // now check for a few interfaces
-			    int ret = ConfigureInsertedFilter(instance);
+			    int ret = ConfigureInsertedFilter(instance, filter->name);
 			    if (ret < 0) {
 				    instance = NULL;
 			    }
@@ -536,7 +536,7 @@ void CFiltersForm::OnBnClickedButtonPropertypage()
 }
 
 
-int ConfigureInsertedFilter(IBaseFilter *filter)
+int ConfigureInsertedFilter(IBaseFilter *filter, const CString& filterName)
 {
 	int	ret = 0;
 	HRESULT hr;
@@ -547,7 +547,7 @@ int ConfigureInsertedFilter(IBaseFilter *filter)
 	CComPtr<IFileSourceFilter>	fs;
 	hr = filter->QueryInterface(IID_IFileSourceFilter, (void**)&fs);
 	if (SUCCEEDED(hr)) {
-		CFileSrcForm		src_form;
+		CFileSrcForm		src_form(filterName);
 		ret = src_form.DoModal();
 		if (ret == IDOK) {
 			hr = fs->Load((LPCOLESTR)src_form.result_file, NULL);
@@ -570,7 +570,7 @@ int ConfigureInsertedFilter(IBaseFilter *filter)
 	CComPtr<IFileSinkFilter>	fsink;
 	hr = filter->QueryInterface(IID_IFileSinkFilter, (void**)&fsink);
 	if (SUCCEEDED(hr)) {
-		CFileSinkForm		sink_form;
+		CFileSinkForm		sink_form(filterName);
 		ret = sink_form.DoModal();
 		if (ret == IDOK) {
 			hr = fsink->SetFileName((LPCOLESTR)sink_form.result_file, NULL);
