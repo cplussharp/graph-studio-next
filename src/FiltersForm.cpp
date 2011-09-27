@@ -314,35 +314,43 @@ void CFiltersForm::OnItemDblClk(int item)
 void CFiltersForm::OnBnClickedButtonInsert()
 {
 	DSUtil::FilterTemplate *filter = GetSelected();
-	if (filter) {
 
-		// now create an instance of this filter
-		CComPtr<IBaseFilter>	instance;
-		HRESULT					hr;
+    POSITION pos = list_filters.GetFirstSelectedItemPosition();
+	while (pos)
+    {
+		int item = list_filters.GetNextSelectedItem(pos);
+		DSUtil::FilterTemplate *filter = (DSUtil::FilterTemplate*)list_filters.GetItemData(item);
+		
+        if (filter)
+        {
+		    // now create an instance of this filter
+		    CComPtr<IBaseFilter>	instance;
+		    HRESULT					hr;
 
-		hr = filter->CreateInstance(&instance);
-		if (FAILED(hr)) {
-			// display error message
-		} else {
+		    hr = filter->CreateInstance(&instance);
+		    if (FAILED(hr)) {
+			    // display error message
+		    } else {
 			
-			// now check for a few interfaces
-			int ret = ConfigureInsertedFilter(instance);
-			if (ret < 0) {
-				instance = NULL;
-			}
+			    // now check for a few interfaces
+			    int ret = ConfigureInsertedFilter(instance);
+			    if (ret < 0) {
+				    instance = NULL;
+			    }
 
-			if (instance) {
-				// add the filter to graph
-				hr = view->graph.AddFilter(instance, filter->name);
-				if (FAILED(hr)) {
-					// display error message
-				} else {
-					view->graph.SmartPlacement();
-					view->Invalidate();
-				}
-			}
-		}
-		instance = NULL;
+			    if (instance) {
+				    // add the filter to graph
+				    hr = view->graph.AddFilter(instance, filter->name);
+				    if (FAILED(hr)) {
+					    // display error message
+				    } else {
+					    view->graph.SmartPlacement();
+					    view->Invalidate();
+				    }
+			    }
+		    }
+		    instance = NULL;
+	    }
 	}
 }
 
