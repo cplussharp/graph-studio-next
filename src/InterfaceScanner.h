@@ -1,10 +1,13 @@
 #pragma once
 
+typedef void (*ptGetInterfaceDetails)(GraphStudio::PropItem* group, IUnknown* pUnk);
+
 class CInterfaceInfo
 {
 public:
     CInterfaceInfo();
     CInterfaceInfo(const CString& guid, const CString& name, const CString& header, const CString& url);
+    CInterfaceInfo(const CString& guid, const CString& name, const CString& header, const CString& url, ptGetInterfaceDetails detailsFunc);
     CInterfaceInfo(const CInterfaceInfo& info);
     virtual ~CInterfaceInfo(void) {}
 
@@ -19,6 +22,7 @@ protected:
     CString m_name;
     CString m_header;
     CString m_url;
+    ptGetInterfaceDetails m_getDetailsFunc;
 };
 
 
