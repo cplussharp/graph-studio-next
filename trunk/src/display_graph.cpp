@@ -1316,6 +1316,7 @@ namespace GraphStudio
 	{
 		CArray<CLSID>	clsid;
 		CArray<CString>	names;
+        CArray<LPSTREAM> filterPersistData;
 		int				i;
 
 		for (i=0; i<filters.GetCount(); i++) {
@@ -1323,6 +1324,35 @@ namespace GraphStudio
 			if (filter->selected) {
 				clsid.Add(filter->clsid);
 				names.Add(filter->name);
+
+                // get persist data to get a real clone
+                CComQIPtr<IPersistStream> pI = filter->filter;
+                if(!pI)
+                {
+                    filterPersistData.Add(NULL);
+                    continue;
+                }
+
+                LPSTREAM lpStream;
+                HRESULT hr = CreateStreamOnHGlobal(NULL, TRUE, &lpStream);
+                if(FAILED(hr))
+                {
+                    filterPersistData.Add(NULL);
+                    continue;
+                }
+
+                hr = pI->Save(lpStream, TRUE);
+                if(FAILED(hr))
+                {
+                    lpStream->Release();
+                    filterPersistData.Add(NULL);
+                    continue;
+                }
+
+                LARGE_INTEGER pos = {0};
+                lpStream->Seek(pos, STREAM_SEEK_SET, NULL);
+
+                filterPersistData.Add(lpStream);
 			}
 		}
 
@@ -1340,6 +1370,7 @@ namespace GraphStudio
 				int ret = ConfigureInsertedFilter(instance, names[i]);
 				if (ret < 0) {
 					instance = NULL;
+                    continue;
 				}
 
 				if (instance) {
@@ -1347,13 +1378,26 @@ namespace GraphStudio
 					hr = AddFilter(instance, names[i]);
 					if (FAILED(hr)) {
 						// display error message
+                        continue;
 					}
-				}
 
+                    if(filterPersistData[i] && ret == 0)
+                    {
+                        CComQIPtr<IPersistStream> pI = instance;
+                        if(!pI) continue;
+
+                        pI->Load(filterPersistData[i]);
+                    }
+				}
 				instance = NULL;
 			}
 
 		}
+
+        // cleanup IPersistStream-Data
+        for(i=0;i<filterPersistData.GetCount();i++)
+            if(filterPersistData[i])
+                filterPersistData[i]->Release();
 	}
 
 	void DisplayGraph::SmartPlacement()
