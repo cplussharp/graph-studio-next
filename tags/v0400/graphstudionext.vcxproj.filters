@@ -1,0 +1,389 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Interfaces">
+      <UniqueIdentifier>{9360c502-dcea-40fa-b880-9f185959ff70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{2bb3900d-1c1b-4688-a143-13d411cc39a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dialogs">
+      <UniqueIdentifier>{e56fe88e-46eb-43d5-a988-02e30744b1e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Property Pages">
+      <UniqueIdentifier>{a7ec0638-03f1-46f6-84a5-845b20e4164a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{b7e8370c-27f0-40ef-aabb-1cf48a698008}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XML">
+      <UniqueIdentifier>{1b91ea3d-9eb5-4073-8cef-4f83ba77306c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Visual Components">
+      <UniqueIdentifier>{8535dff1-2a34-43f2-b701-ff6fe8e01bc0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Filters">
+      <UniqueIdentifier>{6fe365f3-cb32-45a3-aa0e-29619db92455}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Filters\filter_time">
+      <UniqueIdentifier>{b3a7d91f-1838-44f6-ade9-26c723c541ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Filters\filter_dump">
+      <UniqueIdentifier>{b515c804-d262-4b4e-a641-dfa00b4ec4c4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\bitmap_clock_active_hi.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\bitmap_clock_active_lo.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\bitmap_clock_inactive_hi.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\bitmap_clock_inactive_lo.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\bitmap_logo.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\bitmap_tree.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\bitmap_volume.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\bitmap_volume2.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\graphstudio.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\graphstudio.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\Toolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\toolbar1.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\graphstudioDoc.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="graphstudionext.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="interfaces\monofilters.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\display_graph.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\display_view.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphDoc.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphstudio.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphView.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MainFrm.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stdafx.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ConfirmForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DecPerformanceForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EventsForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FavoritesForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileSinkForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileSrcForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FiltersForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GraphConstructionForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MeritForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\NewGroupForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ProgressForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RemoteGraphForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RenderUrlForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ScheduleForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SeekForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TextInfoForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VolumeBarForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BufferNegotiationPage.h">
+      <Filter>Property Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CustomPage.h">
+      <Filter>Property Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FilterACMPage.h">
+      <Filter>Property Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FilterDetailsPage.h">
+      <Filter>Property Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FilterVCMPage.h">
+      <Filter>Property Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PropertyForm.h">
+      <Filter>Property Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WMADecPage.h">
+      <Filter>Property Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bits.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dsutil.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filename_list.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mru_list.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mtypes_ext.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\object_details.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\xml_parser.h">
+      <Filter>XML</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BrowserControl.h">
+      <Filter>Visual Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EVR_VideoWindow.h">
+      <Filter>Visual Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filter_list.h">
+      <Filter>Visual Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prop_tree.h">
+      <Filter>Visual Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\schedule_list.h">
+      <Filter>Visual Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\seeking_bar.h">
+      <Filter>Visual Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\title_bar.h">
+      <Filter>Visual Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\url_label.h">
+      <Filter>Visual Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filters\time_measure\filter_time.h">
+      <Filter>Filters\filter_time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filters\dump\filter_dump.h">
+      <Filter>Filters\filter_dump</Filter>
+    </ClInclude>
+    <ClInclude Include="src\InterfaceScanner.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\display_graph.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\display_view.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphDoc.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphstudio.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphView.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainFrm.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ConfirmForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DecPerformanceForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EventsForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FavoritesForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileSinkForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileSrcForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FiltersForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GraphConstructionForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MeritForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NewGroupForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ProgressForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RemoteGraphForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderUrlForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ScheduleForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SeekForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TextInfoForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VolumeBarForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BufferNegotiationPage.cpp">
+      <Filter>Property Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CustomPage.cpp">
+      <Filter>Property Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FilterACMPage.cpp">
+      <Filter>Property Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FilterDetailsPage.cpp">
+      <Filter>Property Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FilterVCMPage.cpp">
+      <Filter>Property Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PropertyForm.cpp">
+      <Filter>Property Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WMADecPage.cpp">
+      <Filter>Property Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bits.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dsutil.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filename_list.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\guid_list.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mru_list.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\object_details.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graph_config_xml.cpp">
+      <Filter>XML</Filter>
+    </ClCompile>
+    <ClCompile Include="src\xml_parser.cpp">
+      <Filter>XML</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BrowserControl.cpp">
+      <Filter>Visual Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EVR_VideoWindow.cpp">
+      <Filter>Visual Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filter_list.cpp">
+      <Filter>Visual Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\prop_tree.cpp">
+      <Filter>Visual Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\schedule_list.cpp">
+      <Filter>Visual Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\seeking_bar.cpp">
+      <Filter>Visual Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\title_bar.cpp">
+      <Filter>Visual Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\url_label.cpp">
+      <Filter>Visual Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filters\time_measure\filter_time.cpp">
+      <Filter>Filters\filter_time</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filters\dump\filter_dump.cpp">
+      <Filter>Filters\filter_dump</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InterfaceScanner.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
