@@ -554,7 +554,7 @@ int ConfigureInsertedFilter(IBaseFilter *filter, const CString& filterName)
 			if (FAILED(hr)) {
 				MessageBox(NULL, _T("Cannot load specified file"), _T("Error"), MB_ICONERROR);
 			}
-			ret = 0;
+			ret = 1;
 		} else {
 			// cancel the filter
 			ret = -1;
@@ -577,7 +577,7 @@ int ConfigureInsertedFilter(IBaseFilter *filter, const CString& filterName)
 			if (FAILED(hr)) {
 				MessageBox(NULL, _T("Cannot write specified file"), _T("Error"), MB_ICONERROR);
 			}
-			ret = 0;
+			ret = 1;
 		} else {
 			// cancel the filter
 			ret = -1;
