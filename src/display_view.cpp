@@ -564,7 +564,7 @@ namespace GraphStudio
 		if (SUCCEEDED(hr)){
 			
 			// now check for a few interfaces
-			int ret = ConfigureInsertedFilter(instance);
+			int ret = ConfigureInsertedFilter(instance, _T("File Writre"));
 			if (ret < 0) {
 				instance = NULL;
 			}
@@ -614,7 +614,7 @@ namespace GraphStudio
 		if (SUCCEEDED(hr)){
 			
 			// now check for a few interfaces
-			int ret = ConfigureInsertedFilter(instance);
+			int ret = ConfigureInsertedFilter(instance, _T("Dump"));
 			if (ret < 0) {
 				instance = NULL;
 			}
@@ -659,7 +659,7 @@ namespace GraphStudio
 		} else {
 			
 			// now check for a few interfaces
-			int ret = ConfigureInsertedFilter(instance);
+			int ret = ConfigureInsertedFilter(instance, _T("Null Renderer"));
 			if (ret < 0) {
 				instance = NULL;
 			}
@@ -854,7 +854,7 @@ namespace GraphStudio
 		if (SUCCEEDED(hr)) {
 
 			// now check for a few interfaces
-			int ret = ConfigureInsertedFilter(instance);
+            int ret = ConfigureInsertedFilter(instance, templ.name);
 			if (ret < 0) {
 				instance = NULL;
 			}

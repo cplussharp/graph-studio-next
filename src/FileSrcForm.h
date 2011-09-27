@@ -29,13 +29,15 @@ public:
 	CComboBox				combo_url;
 
 	CString					result_file;
+    CString                 filter_name;
 
 	// list of recent URLs/Files
 	GraphStudio::FilenameList		file_list;
 	GraphStudio::FilenameList		url_list;
 
 public:
-	CFileSrcForm(CWnd* pParent = NULL);   
+	CFileSrcForm(CWnd* pParent = NULL);  
+    CFileSrcForm(const CString& filterName, CWnd* pParent = NULL); 
 	virtual ~CFileSrcForm();
 
 	// Dialog Data

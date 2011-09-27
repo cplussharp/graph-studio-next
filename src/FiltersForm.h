@@ -96,6 +96,6 @@ public:
 	afx_msg void OnMeritClick();
 };
 
-int ConfigureInsertedFilter(IBaseFilter *filter);
+int ConfigureInsertedFilter(IBaseFilter *filter, const CString& strFilterName);
 
 

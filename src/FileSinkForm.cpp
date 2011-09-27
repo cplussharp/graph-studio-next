@@ -34,6 +34,12 @@ CFileSinkForm::CFileSinkForm(CWnd* pParent)	:
 
 }
 
+CFileSinkForm::CFileSinkForm(const CString& filterName, CWnd* pParent)	: 
+    CDialog(CFileSinkForm::IDD, pParent), filter_name(filterName)
+{
+
+}
+
 CFileSinkForm::~CFileSinkForm()
 {
 }
@@ -53,6 +59,16 @@ BOOL CFileSinkForm::OnInitDialog()
 {
 	BOOL ret = __super::OnInitDialog();
 	if (!ret) return FALSE;
+
+    if(filter_name.GetLength() > 0)
+    {
+        CString strTitle;
+        GetWindowText(strTitle);
+        strTitle += _T(" (");
+        strTitle += filter_name;
+        strTitle += _T(")");
+        SetWindowText(strTitle);
+    }
 
 	// load saved lists
 	file_list.LoadList(_T("Sink-FileCache"));

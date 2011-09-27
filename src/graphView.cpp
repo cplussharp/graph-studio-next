@@ -1187,7 +1187,7 @@ void CGraphView::OnGraphInsertFileSource()
 		return ;
 	} else {
 		
-		int ret = ConfigureInsertedFilter(instance);
+		int ret = ConfigureInsertedFilter(instance, _T("File Source (Async.)"));
 		if (ret < 0) {
 			instance = NULL;
 		}
@@ -1215,18 +1215,18 @@ void CGraphView::OnGraphInsertFileSink()
 	hr = CoCreateInstance(CLSID_FileWriter, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
 	if (FAILED(hr)) {
 		// display error message
-		MessageBox(_T("Cannot create File Sink"), _T("Error"), MB_ICONERROR);
+		MessageBox(_T("Cannot create File Writer"), _T("Error"), MB_ICONERROR);
 		return ;
 	} else {
 		
-		int ret = ConfigureInsertedFilter(instance);
+		int ret = ConfigureInsertedFilter(instance, _T("File Writer"));
 		if (ret < 0) {
 			instance = NULL;
 		}
 
 		if (instance) {
 			// add the filter to graph
-			hr = graph.AddFilter(instance, _T("File Sink"));
+			hr = graph.AddFilter(instance, _T("File Writer"));
 			if (FAILED(hr)) {
 				// display error message
 			} else {
@@ -1527,7 +1527,7 @@ int CGraphView::InsertFilterFromFavorite(GraphStudio::FavoriteFilter *filter)
 	if (SUCCEEDED(hr)) {
 
 		// now check for a few interfaces
-		int ret = ConfigureInsertedFilter(instance);
+        int ret = ConfigureInsertedFilter(instance, filter->name);
 		if (ret < 0) {
 			instance = NULL;
 		}
@@ -1562,7 +1562,7 @@ int CGraphView::InsertFilterFromTemplate(DSUtil::FilterTemplate &filter)
 	} else {
 		
 		// now check for a few interfaces
-		int ret = ConfigureInsertedFilter(instance);
+		int ret = ConfigureInsertedFilter(instance, filter.name);
 		if (ret < 0) {
 			instance = NULL;
 		}
