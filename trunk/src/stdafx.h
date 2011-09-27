@@ -59,6 +59,7 @@
 #include <initguid.h>
 #include <dvdmedia.h>
 #include <dmodshow.h>
+#include <medparam.h>
 #include <mmreg.h>
 #include <ks.h>
 #include <ksmedia.h>
