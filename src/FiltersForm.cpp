@@ -313,8 +313,6 @@ void CFiltersForm::OnItemDblClk(int item)
 
 void CFiltersForm::OnBnClickedButtonInsert()
 {
-	DSUtil::FilterTemplate *filter = GetSelected();
-
     POSITION pos = list_filters.GetFirstSelectedItemPosition();
 	while (pos)
     {
@@ -650,92 +648,108 @@ void CFiltersForm::OnUnregisterClick()
         return;
     }
 
-	DSUtil::FilterTemplate *filter = GetSelected();
-	if (filter) {
+	POSITION pos = list_filters.GetFirstSelectedItemPosition();
+    int sel = list_filters.GetSelectionMark();
+    bool changed = false;
+	while (pos)
+    {
+		int item = list_filters.GetNextSelectedItem(pos);
+		DSUtil::FilterTemplate *filter = (DSUtil::FilterTemplate*)list_filters.GetItemData(item);
+		
+        if (filter)
+        {
+		    HRESULT				hr;
 
-		HRESULT				hr;
+		    // DMOs do it differently
+		    if (filter->type == DSUtil::FilterTemplate::FT_DMO) {
 
-		// DMOs do it differently
-		if (filter->type == DSUtil::FilterTemplate::FT_DMO) {
+			    hr = DMOUnregister(filter->clsid, filter->category);
+			    if (SUCCEEDED(hr)) {
+                    changed = true;
+				    MessageBox(_T("Unregister succeeded."), _T("Information"));
+			    } else {
+				    CString		msg;
+				    msg.Format(_T("Unregister failed: 0x%08x"), hr);
+				    MessageBox(msg, _T("Error"), MB_ICONERROR);
+			    }
 
-			hr = DMOUnregister(filter->clsid, filter->category);
-			if (SUCCEEDED(hr)) {
-				MessageBox(_T("Unregister succeeded."), _T("Information"));
-			} else {
-				CString		msg;
-				msg.Format(_T("Unregister failed: 0x%08x"), hr);
-				MessageBox(msg, _T("Error"), MB_ICONERROR);
-			}
+		    } else
+		    if (filter->type == DSUtil::FilterTemplate::FT_FILTER) {
 
-		} else
-		if (filter->type == DSUtil::FilterTemplate::FT_FILTER) {
+			    /*
+				    We either call DllUnregisterServer in the file.
+				    Or simply delete the entries if the file is no longer 
+				    available.
+			    */
 
-			/*
-				We either call DllUnregisterServer in the file.
-				Or simply delete the entries if the file is no longer 
-				available.
-			*/
-
-			CString		fn = filter->file;
-			fn = fn.MakeLower();
+			    CString		fn = filter->file;
+			    fn = fn.MakeLower();
 			
-			if (fn.Find(_T("quartz.dll")) >= 0 ||
-				fn.Find(_T("qdvd.dll")) >= 0 ||
-				fn.Find(_T("qdv.dll")) >= 0 ||
-				fn.Find(_T("qedit.dll")) >= 0 || 
-				fn.Find(_T("qasf.dll")) >= 0 ||
-				fn.Find(_T("qcap.dll")) >= 0
-				) {
+			    if (fn.Find(_T("quartz.dll")) >= 0 ||
+				    fn.Find(_T("qdvd.dll")) >= 0 ||
+				    fn.Find(_T("qdv.dll")) >= 0 ||
+				    fn.Find(_T("qedit.dll")) >= 0 || 
+				    fn.Find(_T("qasf.dll")) >= 0 ||
+				    fn.Find(_T("qcap.dll")) >= 0
+				    ) {
 
-				// we simply won't let the users unregister these files...
-				// If they really try to do this, perhaps they should be
-				// doing something else than computers...
-				MessageBox(_T("This file is essential to the system.\nPermission denied."), _T("Warning"), MB_ICONWARNING);
-				return ;
-			}
+				    // we simply won't let the users unregister these files...
+				    // If they really try to do this, perhaps they should be
+				    // doing something else than computers...
+				    MessageBox(_T("This file is essential to the system.\nPermission denied."), _T("Warning"), MB_ICONWARNING);
+				    return ;
+			    }
 
-			// ask the user for confirmation
-			if (!ConfirmUnregisterFilter(filter->name)) {
-				return ;
-			}
+			    // ask the user for confirmation
+			    if (!ConfirmUnregisterFilter(filter->name)) {
+				    return ;
+			    }
 
-			HMODULE		library = LoadLibrary(fn);
-			if (library) {
+			    HMODULE		library = LoadLibrary(fn);
+			    if (library) {
 	
-				DllUnregisterServerProc		unreg = (DllUnregisterServerProc)GetProcAddress(library, "DllUnregisterServer");
-				if (unreg) {
-					hr = unreg();
-					if (SUCCEEDED(hr)) {
-						MessageBox(_T("Unregister succeeded."), _T("Information"));
-					} else {
-						CString		msg;
-						msg.Format(_T("Unregister failed: 0x%08x"), hr);
-						MessageBox(msg, _T("Error"), MB_ICONERROR);
-					}
-				}
-				FreeLibrary(library);
+				    DllUnregisterServerProc		unreg = (DllUnregisterServerProc)GetProcAddress(library, "DllUnregisterServer");
+				    if (unreg) {
+					    hr = unreg();
+					    if (SUCCEEDED(hr)) {
+                            changed = true;
+						    MessageBox(_T("Unregister succeeded."), _T("Information"));
+					    } else {
+						    CString		msg;
+						    msg.Format(_T("Unregister failed: 0x%08x"), hr);
+						    MessageBox(msg, _T("Error"), MB_ICONERROR);
+					    }
+				    }
+				    FreeLibrary(library);
 
-			} else {
+			    } else {
 
-				// dirty removing...
-				hr = DSUtil::UnregisterFilter(filter->clsid, filter->category);
-				if (SUCCEEDED(hr)) {
-					hr = DSUtil::UnregisterCOM(filter->clsid);
-				}
-				if (SUCCEEDED(hr)) {
-					MessageBox(_T("Unregister succeeded."), _T("Information"));
-				} else {
-					CString		msg;
-					msg.Format(_T("Unregister failed: 0x%08x"), hr);
-					MessageBox(msg, _T("Error"), MB_ICONERROR);
-				}
-			}
-
-		}
-
-		// reload the filters
-		OnComboCategoriesChange();
+				    // dirty removing...
+				    hr = DSUtil::UnregisterFilter(filter->clsid, filter->category);
+				    if (SUCCEEDED(hr)) {
+					    hr = DSUtil::UnregisterCOM(filter->clsid);
+				    }
+				    if (SUCCEEDED(hr)) {
+                        changed = true;
+					    MessageBox(_T("Unregister succeeded."), _T("Information"));
+				    } else {
+					    CString		msg;
+					    msg.Format(_T("Unregister failed: 0x%08x"), hr);
+					    MessageBox(msg, _T("Error"), MB_ICONERROR);
+				    }
+			    }
+		    }
+        }
 	}
+
+    // reload the filters
+    if(changed)
+    {
+	    OnComboCategoriesChange();
+        list_filters.SetItemState(sel, LVIS_SELECTED, LVIS_SELECTED);
+        list_filters.SetSelectionMark(sel);
+        list_filters.EnsureVisible(sel, TRUE);
+    }
 }
 
 void CFiltersForm::OnMeritClick()
