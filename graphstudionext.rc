@@ -486,16 +486,18 @@ BEGIN
     PUSHBUTTON      "Stop",IDC_BUTTON_STOP,288,180,60,14
 END
 
-IDD_DIALOG_UNREGCONFIRM DIALOGEX 0, 0, 238, 88
+IDD_DIALOG_UNREGCONFIRM DIALOGEX 0, 0, 238, 100
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Confirmation"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "No",IDCANCEL,120,66,50,14
-    PUSHBUTTON      "Yes",IDOK,66,66,50,14
+    DEFPUSHBUTTON   "No",IDCANCEL,120,79,50,14
+    PUSHBUTTON      "Yes",IDOK,66,79,50,14
     LTEXT           "You are about to unregister the following filter from the system :",IDC_STATIC,6,6,208,8
     CTEXT           "Static",IDC_STATIC_FILTER,6,24,228,12
-    LTEXT           "Are you sure you want to continue?",IDC_STATIC,6,48,116,8
+    LTEXT           "Are you sure you want to continue?",IDC_STATIC,6,61,116,8
+    CONTROL         "Unregister complete filter file. (remove all filters for this file)",IDC_CHECK_UNREGALL,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,46,207,10
 END
 
 IDD_DIALOG_MERITCHANGE DIALOGEX 0, 0, 244, 130
@@ -818,7 +820,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 231
         TOPMARGIN, 7
-        BOTTOMMARGIN, 81
+        BOTTOMMARGIN, 93
     END
 
     IDD_DIALOG_MERITCHANGE, DIALOG

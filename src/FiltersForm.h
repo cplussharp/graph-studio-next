@@ -26,7 +26,7 @@ protected:
 public:
 	CComboBox					combo_categories;
 	CComboBox					combo_merit;
-	CButton						btn_registry;
+	CButton						btn_register;
 	CButton						btn_insert;
 	CButton						btn_propertypage;
 	CButton						btn_unregister;
@@ -93,6 +93,7 @@ public:
 	void OnBnClickedCheckFavorite();
 	void OnLocateClick();
 	void OnUnregisterClick();
+    void OnRegisterClick();
 	afx_msg void OnMeritClick();
 };
 

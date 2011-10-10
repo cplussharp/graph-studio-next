@@ -10,6 +10,7 @@
 
 
 typedef HRESULT (_stdcall *DllUnregisterServerProc)(); 
+typedef HRESULT (_stdcall *DllRegisterServerProc)(); 
 
 
 //-----------------------------------------------------------------------------
@@ -30,6 +31,7 @@ BEGIN_MESSAGE_MAP(CFiltersForm, CDialog)
 	ON_BN_CLICKED(IDC_CHECK_FAVORITE, &CFiltersForm::OnBnClickedCheckFavorite)
 	ON_BN_CLICKED(IDC_BUTTON_LOCATE, &CFiltersForm::OnLocateClick)
 	ON_BN_CLICKED(IDC_BUTTON_UNREGISTER, &CFiltersForm::OnUnregisterClick)
+    ON_BN_CLICKED(IDC_BUTTON_REGISTER, &CFiltersForm::OnRegisterClick)
 	ON_BN_CLICKED(IDC_BUTTON_MERIT, &CFiltersForm::OnMeritClick)
 END_MESSAGE_MAP()
 
@@ -80,15 +82,13 @@ BOOL CFiltersForm::DoCreateDialog()
 	rc.SetRect(0, 0, 100, 23);
 	combo_categories.Create(WS_CHILD | WS_VISIBLE | CBS_SORT | CBS_DROPDOWNLIST, rc, &title, IDC_COMBO_CATEGORIES);
 	combo_merit.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, rc, &title, IDC_COMBO_MERIT);
-	btn_registry.Create(_T("Registry Check"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_REGISTRY);
+	btn_register.Create(_T("Register"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_REGISTER);
 
 	tree_details.Create(NULL, WS_CHILD | WS_VISIBLE, rc, this, IDC_TREE);
 
 	combo_categories.SetFont(GetFont());
 	combo_merit.SetFont(GetFont());
-	btn_registry.SetFont(GetFont());
-
-	btn_registry.EnableWindow(FALSE);
+	btn_register.SetFont(GetFont());
 
 	tree_details.Initialize();
 
@@ -153,6 +153,7 @@ void CFiltersForm::OnInitialize()
 		}
 	}
 
+    btn_register.SetShield(TRUE);
     btn_unregister.SetShield(TRUE);
     btn_merit.SetShield(TRUE);
 
@@ -258,10 +259,10 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 	combo_merit.SetWindowPos(NULL, right_x - merit_combo_width, 6, merit_combo_width, rc2.Height(), SWP_SHOWWINDOW);
 
 	// buttons
-	btn_registry.GetWindowRect(&rc2);
+	btn_register.GetWindowRect(&rc2);
 	int	btn_height = rc2.Height();
 
-	btn_registry.SetWindowPos(NULL, rc.Width() - 4 - rc2.Width(), 5, rc2.Width(), btn_height, SWP_SHOWWINDOW);
+	btn_register.SetWindowPos(NULL, rc.Width() - 4 - rc2.Width(), 5, rc2.Width(), btn_height, SWP_SHOWWINDOW);
 	btn_insert.GetWindowRect(&rc2);
 	btn_insert.SetWindowPos(NULL, right_x+8, rc.Height() - 2*(8+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW);
 	btn_propertypage.SetWindowPos(NULL, right_x+8, rc.Height() - 1*(8+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW);
@@ -277,7 +278,7 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 	title.Invalidate();
 	//combo_categories.Invalidate();
 	//combo_merit.Invalidate();
-	btn_registry.Invalidate();
+	btn_register.Invalidate();
 	btn_insert.Invalidate();
 	btn_propertypage.Invalidate();
 	btn_locate.Invalidate();
@@ -697,26 +698,34 @@ void CFiltersForm::OnUnregisterClick()
 				    // If they really try to do this, perhaps they should be
 				    // doing something else than computers...
 				    MessageBox(_T("This file is essential to the system.\nPermission denied."), _T("Warning"), MB_ICONWARNING);
-				    return ;
+				    continue;
 			    }
 
 			    // ask the user for confirmation
-			    if (!ConfirmUnregisterFilter(filter->name)) {
-				    return ;
+                BOOL unregisterAll;
+			    if (!ConfirmUnregisterFilter(filter->name, &unregisterAll)) {
+				    continue;
 			    }
 
+                // prepare dll search path
+                CString libPath = fn;
+                PathRemoveFileSpec (libPath.GetBuffer()); 
+                libPath.ReleaseBuffer(); 
+                SetDllDirectory(libPath);
+
 			    HMODULE		library = LoadLibrary(fn);
-			    if (library) {
-	
+			    if (library && unregisterAll) {
 				    DllUnregisterServerProc		unreg = (DllUnregisterServerProc)GetProcAddress(library, "DllUnregisterServer");
 				    if (unreg) {
 					    hr = unreg();
 					    if (SUCCEEDED(hr)) {
                             changed = true;
-						    MessageBox(_T("Unregister succeeded."), _T("Information"));
+                            CString		msg;
+                            msg.Format(_T("Unregister '%s' succeeded."), PathFindFileName(fn));
+						    MessageBox(msg, _T("Information"));
 					    } else {
 						    CString		msg;
-						    msg.Format(_T("Unregister failed: 0x%08x"), hr);
+                            msg.Format(_T("Unregister '%s' failed: 0x%08x"), PathFindFileName(fn), hr);
 						    MessageBox(msg, _T("Error"), MB_ICONERROR);
 					    }
 				    }
@@ -731,10 +740,12 @@ void CFiltersForm::OnUnregisterClick()
 				    }
 				    if (SUCCEEDED(hr)) {
                         changed = true;
-					    MessageBox(_T("Unregister succeeded."), _T("Information"));
+                        CString		msg;
+                        msg.Format(_T("Unregister '%s' succeeded."), filter->name);
+					    MessageBox(msg, _T("Information"));
 				    } else {
 					    CString		msg;
-					    msg.Format(_T("Unregister failed: 0x%08x"), hr);
+					    msg.Format(_T("Unregister '%s' failed: 0x%08x"), filter->name, hr);
 					    MessageBox(msg, _T("Error"), MB_ICONERROR);
 				    }
 			    }
@@ -809,4 +820,85 @@ void CFiltersForm::OnMeritClick()
 			}
 		}
 	}
+}
+
+void CFiltersForm::OnRegisterClick()
+{
+    if(!IsUserAdmin())
+    {
+        AfxMessageBox(TEXT("Admin rights required to register a filter.\nPlease restart the program as admin."));
+        return;
+    }
+
+    CString	filter = _T("Filter Files (*.dll,*.ocx,*.ax)|*.dll;*.ocx;*.ax|All Files|*.*|");
+
+	CFileDialog dlg(TRUE,NULL,NULL,OFN_ALLOWMULTISELECT|OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
+
+    int ret = dlg.DoModal();
+    if (ret != IDOK) return;
+
+    bool changed = false;
+    int sel = list_filters.GetSelectionMark();
+
+    POSITION pos = dlg.GetStartPosition();
+    CString firstFilterFile;
+    while(pos)
+    {
+        CString filename = dlg.GetNextPathName(pos);
+        firstFilterFile = filename;
+
+        // prepare dll search path
+        CString libPath = filename;
+        PathRemoveFileSpec (libPath.GetBuffer()); 
+        libPath.ReleaseBuffer(); 
+        SetDllDirectory(libPath);
+
+        HMODULE	library = LoadLibrary(filename);
+		if (library)
+        {
+			DllRegisterServerProc reg = (DllUnregisterServerProc)GetProcAddress(library, "DllRegisterServer");
+			if (reg)
+            {
+				HRESULT hr = reg();
+				if (SUCCEEDED(hr))
+                {
+                    changed = true;
+                    CString	msg;
+                    msg.Format(_T("Register '%s' succeeded."), PathFindFileName(filename));
+					MessageBox(msg, _T("Information"));
+				} else {
+					CString	msg;
+					msg.Format(_T("Register '%s' failed: 0x%08x"), PathFindFileName(filename), hr);
+					MessageBox(msg, _T("Error"), MB_ICONERROR);
+				}
+			}
+			FreeLibrary(library);
+		} 
+    }
+
+    // reload the filters
+    if(changed)
+    {
+	    OnComboCategoriesChange();
+
+        DSUtil::FilterTemplate*	filter;
+        for (int i=0;i < list_filters.GetItemCount();i++)
+        {
+            filter = (DSUtil::FilterTemplate*)(list_filters.GetItemData(i));
+            if (filter->file.CompareNoCase(firstFilterFile) == 0)
+            {
+                list_filters.SetItemState(i, LVIS_SELECTED, LVIS_SELECTED);
+                list_filters.SetSelectionMark(i);
+                list_filters.EnsureVisible(i, TRUE);
+                return;
+            }
+        }
+
+        if(sel >= 0)
+        {
+            list_filters.SetItemState(sel, LVIS_SELECTED, LVIS_SELECTED);
+            list_filters.SetSelectionMark(sel);
+            list_filters.EnsureVisible(sel, TRUE);
+        }
+    }
 }

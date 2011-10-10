@@ -25,7 +25,8 @@ END_MESSAGE_MAP()
 
 CConfirmDialog::CConfirmDialog(CWnd* pParent)	: 
 	CDialog(CConfirmDialog::IDD, pParent)
-{
+        , m_bUnregisterAll(TRUE)
+    {
 
 }
 
@@ -35,8 +36,9 @@ CConfirmDialog::~CConfirmDialog()
 
 void CConfirmDialog::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_STATIC_FILTER, label_filter);
+    CDialog::DoDataExchange(pDX);
+    DDX_Control(pDX, IDC_STATIC_FILTER, label_filter);
+    DDX_Check(pDX, IDC_CHECK_UNREGALL, m_bUnregisterAll);
 }
 
 BOOL CConfirmDialog::OnInitDialog()
@@ -54,11 +56,16 @@ BOOL CConfirmDialog::OnInitDialog()
 
 
 
-bool ConfirmUnregisterFilter(CString name)
+bool ConfirmUnregisterFilter(CString name, BOOL* pbUnregisterAll)
 {
 	CConfirmDialog		dlg;
 	dlg.filter_name = name;
-	if (dlg.DoModal() == IDOK) return true;
+
+	if (dlg.DoModal() == IDOK)
+    {
+        if(pbUnregisterAll) *pbUnregisterAll = dlg.m_bUnregisterAll;
+        return true;
+    }
 	return false;
 }
 
