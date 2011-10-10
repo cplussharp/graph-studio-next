@@ -34,7 +34,8 @@ public:
 	enum { IDD = IDD_DIALOG_UNREGCONFIRM };
 
 	virtual BOOL OnInitDialog();
+    BOOL m_bUnregisterAll;
 };
 
 
-bool ConfirmUnregisterFilter(CString name);
+bool ConfirmUnregisterFilter(CString name, BOOL* pbUnregisterAll);

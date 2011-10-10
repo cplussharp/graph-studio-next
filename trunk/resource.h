@@ -46,7 +46,7 @@
 #define IDC_COMBO_CATEGORIES            1001
 #define IDC_LIST_FILTERS                1002
 #define IDC_COMBO_MERIT                 1003
-#define IDC_BUTTON_REGISTRY             1004
+#define IDC_BUTTON_REGISTER             1004
 #define IDC_LIST_DETAILS                1005
 #define IDC_CHECK_FAVORITE              1006
 #define IDC_BUTTON_PROPERTYPAGE         1007
@@ -163,6 +163,8 @@
 #define IDC_EXPLORER2                   1092
 #define IDC_SYSLINK1                    1093
 #define IDC_MFCLINK_SEARCH_ONLINE       1096
+#define IDC_CHECK1                      1097
+#define IDC_CHECK_UNREGALL              1097
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -254,7 +256,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        168
 #define _APS_NEXT_COMMAND_VALUE         32864
-#define _APS_NEXT_CONTROL_VALUE         1097
+#define _APS_NEXT_CONTROL_VALUE         1098
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
