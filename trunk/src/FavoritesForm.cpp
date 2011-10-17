@@ -89,7 +89,7 @@ void CFavoritesForm::OnInitialize()
 
 void CFavoritesForm::OnAddFilters()
 {
-	view->OnGraphInsertfilter();
+	view->OnGraphInsertFilter();
 }
 
 void CFavoritesForm::OnSize(UINT nType, int cx, int cy)

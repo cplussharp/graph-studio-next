@@ -93,7 +93,8 @@ public:
 	void OnNewClick();
 	void OnSeekClick();
 	void OnRenderFileClick();
-	void OnGraphInsertfilter();
+	void OnGraphInsertFilter();
+    void OnGraphInsertFilterFromFile();
 	void OnClearMRUClick();
 	void OnMRUClick(UINT nID);
 	void OnGraphScreenshot();

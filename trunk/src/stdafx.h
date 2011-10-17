@@ -107,6 +107,7 @@ using namespace std;
 #include "MainFrm.h"
 #include "graphDoc.h"
 #include "FiltersForm.h"
+#include "FilterFromFile.h"
 #include "volumebarform.h"
 #include "ConfirmForm.h"
 #include "MeritForm.h"
