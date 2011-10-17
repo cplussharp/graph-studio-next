@@ -43,6 +43,7 @@
 #define IDD_DIALOG_BUFFERNEG            163
 #define IDD_DIALOG_WMADECODER           164
 #define IDD_DIALOG_CONSTRUCTION         165
+#define IDD_DIALOG_FILTERFROMFILE       166
 #define IDC_COMBO_CATEGORIES            1001
 #define IDC_LIST_FILTERS                1002
 #define IDC_COMBO_MERIT                 1003
@@ -163,8 +164,8 @@
 #define IDC_EXPLORER2                   1092
 #define IDC_SYSLINK1                    1093
 #define IDC_MFCLINK_SEARCH_ONLINE       1096
-#define IDC_CHECK1                      1097
 #define IDC_CHECK_UNREGALL              1097
+#define IDC_COMBO_CLSID                 1098
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -249,14 +250,15 @@
 #define ID_DELETE_FILTER                32861
 #define ID_GRAPH_INSERTAUDIOSOURCE      32862
 #define ID_GRAPH_INSERTVIDEOSOURCE      32863
+#define ID_GRAPH_INSERTFILTERFROMFILE   32864
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        168
-#define _APS_NEXT_COMMAND_VALUE         32864
-#define _APS_NEXT_CONTROL_VALUE         1098
+#define _APS_NEXT_COMMAND_VALUE         32865
+#define _APS_NEXT_CONTROL_VALUE         1099
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

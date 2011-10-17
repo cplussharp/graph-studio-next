@@ -47,7 +47,8 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_FILE_RENDERURL, &CGraphView::OnRenderUrlClick)
 	ON_COMMAND(ID_FILE_CONNECTTOREMOTEGRAPH, &CGraphView::OnConnectRemote)
 	ON_COMMAND(ID_FILE_DISCONNECTFROMREMOTEGRAPH, &CGraphView::OnDisconnectRemote)
-	ON_COMMAND(ID_GRAPH_INSERTFILTER, &CGraphView::OnGraphInsertfilter)
+	ON_COMMAND(ID_GRAPH_INSERTFILTER, &CGraphView::OnGraphInsertFilter)
+    ON_COMMAND(ID_GRAPH_INSERTFILTERFROMFILE, &CGraphView::OnGraphInsertFilterFromFile)
 	ON_COMMAND(ID_VIEW_GRAPHEVENTS, &CGraphView::OnViewGraphEvents)
 	ON_COMMAND(ID_LIST_MRU_CLEAR, &CGraphView::OnClearMRUClick)
 	ON_COMMAND(ID_GRAPH_MAKEGRAPHSCREENSHOT, &CGraphView::OnGraphScreenshot)
@@ -915,7 +916,7 @@ void CGraphView::OnGraphComplete()
 	}	
 }
 
-void CGraphView::OnGraphInsertfilter()
+void CGraphView::OnGraphInsertFilter()
 {
 	if (!form_filters) {	
 		form_filters = new CFiltersForm();
@@ -925,6 +926,49 @@ void CGraphView::OnGraphInsertfilter()
 
 	// display the form
 	form_filters->ShowWindow(SW_SHOW);
+}
+
+void CGraphView::OnGraphInsertFilterFromFile()
+{
+	CFilterFromFile dlg(this);
+    int ret = dlg.DoModal();
+    if(IDOK == ret && dlg.filterFactory != NULL)
+    {
+        CComPtr<IBaseFilter> instance;
+        HRESULT hr = dlg.filterFactory->CreateInstance(NULL, IID_IBaseFilter, (void**)&instance);
+        if(FAILED(hr))
+        {
+            CString msg;
+            msg.Format(_T("Error creating instance of filter (hr = 0x%08x)"), hr);
+            MessageBox(msg, _T("Error"), MB_ICONERROR);
+        }
+        else
+        {
+            // Get Filter name
+            FILTER_INFO filterInfo = {0};   
+            instance->QueryFilterInfo(&filterInfo);
+            CString filterName = filterInfo.achName;
+            if(filterName == _T(""))
+                filterName = PathFindFileName(dlg.result_file);
+
+            // now check for a few interfaces
+            int ret = ConfigureInsertedFilter(instance, filterName);
+		    if (ret < 0) {
+			    instance = NULL;
+		    }
+
+		    if (instance) {
+			    // add the filter to graph
+			    hr = graph.AddFilter(instance, filterName);
+			    if (FAILED(hr)) {
+				    // display error message
+			    } else {
+				    graph.SmartPlacement();
+				    Invalidate();
+			    }
+		    }
+        }
+    }
 }
 
 void CGraphView::OnDeleteSelection()

@@ -232,6 +232,7 @@
     <ClInclude Include="interfaces\monofilters.h" />
     <ClInclude Include="src\display_graph.h" />
     <ClInclude Include="src\display_view.h" />
+    <ClInclude Include="src\FilterFromFile.h" />
     <ClInclude Include="src\graphDoc.h" />
     <ClInclude Include="src\graphstudio.h" />
     <ClInclude Include="src\graphView.h" />
@@ -284,6 +285,7 @@
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp" />
     <ClCompile Include="src\display_view.cpp" />
+    <ClCompile Include="src\FilterFromFile.cpp" />
     <ClCompile Include="src\graphDoc.cpp" />
     <ClCompile Include="src\graphstudio.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

@@ -236,6 +236,9 @@
     <ClInclude Include="src\InterfaceScanner.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\FilterFromFile.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -384,6 +387,9 @@
     </ClCompile>
     <ClCompile Include="src\InterfaceScanner.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FilterFromFile.cpp">
+      <Filter>Dialogs</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
