@@ -1197,6 +1197,7 @@ void CGraphView::OnGraphPaused()
 void CGraphView::OnViewTextInformation()
 {
 	form_textinfo->ShowWindow(SW_SHOW);
+    form_textinfo->OnBnClickedButtonRefresh();
 }
 
 void CGraphView::OnDropFiles(HDROP hDropInfo)

@@ -20,6 +20,7 @@ BEGIN_MESSAGE_MAP(CTextInfoForm, CDialog)
 	ON_WM_SIZE()
 	ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CTextInfoForm::OnBnClickedButtonRefresh)
 	ON_BN_CLICKED(IDC_BUTTON_COPYTEXT, &CTextInfoForm::OnBnClickedButtonCopytext)
+    ON_CBN_SELCHANGE(IDC_COMBO_REPORTTYPE, &CTextInfoForm::OnBnClickedButtonRefresh)
 END_MESSAGE_MAP()
 
 
