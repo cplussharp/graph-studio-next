@@ -64,4 +64,5 @@ public:
 	void Echo(CString t);
 	void DisplayReport();
 	afx_msg void OnBnClickedButtonCopytext();
+    afx_msg void OnClickedButtonSave();
 };

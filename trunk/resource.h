@@ -51,9 +51,9 @@
 #define IDC_LIST_DETAILS                1005
 #define IDC_CHECK_FAVORITE              1006
 #define IDC_BUTTON_PROPERTYPAGE         1007
+#define IDC_BUTTON_COPYTEXT             1007
 #define IDC_BUTTON3                     1008
 #define IDC_BUTTON_UNREGISTER           1008
-#define IDC_BUTTON_COPYTEXT             1008
 #define IDC_BUTTON_SAVE                 1008
 #define IDC_BUTTON_INSERT               1009
 #define IDC_BUTTON_MEDIATYPES           1010

@@ -21,6 +21,7 @@ BEGIN_MESSAGE_MAP(CTextInfoForm, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CTextInfoForm::OnBnClickedButtonRefresh)
 	ON_BN_CLICKED(IDC_BUTTON_COPYTEXT, &CTextInfoForm::OnBnClickedButtonCopytext)
     ON_CBN_SELCHANGE(IDC_COMBO_REPORTTYPE, &CTextInfoForm::OnBnClickedButtonRefresh)
+    ON_BN_CLICKED(IDC_BUTTON_SAVE, &CTextInfoForm::OnClickedButtonSave)
 END_MESSAGE_MAP()
 
 
@@ -396,4 +397,34 @@ void CTextInfoForm::OnBnClickedButtonCopytext()
 	GlobalUnlock(hClipboardData);
 	SetClipboardData(CF_UNICODETEXT, hClipboardData);
 	CloseClipboard();	
+}
+
+
+void CTextInfoForm::OnClickedButtonSave()
+{
+	CString	filter;
+	CString	filename;
+
+	filter = _T("Log Files (*.log,*.txt)|*.log;*.txt|All Files (*.*)|*.*|");
+
+	CFileDialog dlg(FALSE,_T("log"),NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_PATHMUSTEXIST,filter);
+    int ret = dlg.DoModal();
+
+	filename = dlg.GetPathName();
+	if (ret == IDOK)
+    {
+		CPath path(filename);
+		if (path.GetExtension() == _T(""))
+        {
+			path.AddExtension(_T(".log"));
+			filename = CString(path);
+		}
+
+        CFile file(filename, CFile::modeCreate|CFile::modeWrite);
+        
+        CString	text;
+        edit_report.GetWindowText(text);
+        CT2CA outputText(text, CP_UTF8);
+        file.Write(outputText, ::strlen(outputText));
+    }
 }
