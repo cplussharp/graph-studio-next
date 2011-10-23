@@ -810,6 +810,44 @@ namespace GraphStudio
 		SetClipboardData(CF_BITMAP, tempbitmap.GetSafeHandle());
 		CloseClipboard();
 
+        // ask for file
+        CString	filter;
+	    CString	filename;
+	    filter = _T("PNG (*.png)|*.png|JPEG (*.jpg,*.jpeg)|*.jpg;*.jpeg|GIF (*.gif)|*.gif|TIFF (*.tiff,*.tif)|*.tiff;*.tif|Bitmap (*.bmp)|*.bmp|All Files (*.*)|*.*|");
+
+	    CFileDialog dlg(FALSE,_T("png"),NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_PATHMUSTEXIST,filter);
+        int ret = dlg.DoModal();
+
+	    filename = dlg.GetPathName();
+	    if (ret == IDOK)
+        {
+            GUID format = Gdiplus::ImageFormatPNG;
+		    CPath path(filename);
+		    if (path.GetExtension() == _T(""))
+            {
+			    path.AddExtension(_T(".png"));
+			    filename = CString(path);
+            }
+            else
+            {
+                CString ext = path.GetExtension();
+                ext.MakeLower();
+                if(ext == _T(".jpg") || ext == _T(".jpeg"))
+                    format = Gdiplus::ImageFormatJPEG;
+                else if(ext == _T(".gif"))
+                    format = Gdiplus::ImageFormatGIF;
+                else if(ext == _T(".bmp"))
+                    format = Gdiplus::ImageFormatBMP;
+                else if(ext == _T(".tiff") || ext == _T(".tif"))
+                    format = Gdiplus::ImageFormatTIFF;
+            }
+
+            CImage img;
+            img.Attach(tempbitmap);
+            img.Save(filename, format);
+        }
+
+        // free resources
 		tempdc.SelectObject(old);
 		tempbitmap.DeleteObject();
 		tempdc.DeleteDC();
