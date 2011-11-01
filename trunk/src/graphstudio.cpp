@@ -6,6 +6,7 @@
 //
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
+#include "graphstudio.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -158,3 +159,11 @@ void CgraphstudioApp::OnAppAbout()
 
 // CgraphstudioApp message handlers
 
+
+
+int CgraphstudioApp::ExitInstance()
+{
+    CMediaInfo::FreeInfoCache();
+
+    return CWinApp::ExitInstance();
+}

@@ -116,6 +116,7 @@ public:
 	int AnalyzeObject(IUnknown *obj);
 	int LoadPinPage(IPin *pin);
     int LoadInterfacePage(IUnknown *obj, const CString& strTitle);
+    int LoadMediaInfoPage(IUnknown *obj);
 
 	// check for DMO pages
 	int AnalyzeDMO(IUnknown *obj);

@@ -39,6 +39,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_BUTTON_SEEK, &CGraphView::OnSeekClick)
 	ON_COMMAND(ID_OPTIONS_DIRECT, &CGraphView::OnOptionsDirectConnectClick)
 	ON_COMMAND(ID_OPTIONS_EXACTMATCH, &CGraphView::OnOptionsExactMatchClick)
+    ON_COMMAND(ID_OPTIONS_USEMEDIAINFO, &CGraphView::OnOptionsUseMediaInfoClick)
 	ON_COMMAND(ID_FILE_NEW, &CGraphView::OnNewClick)
 	ON_COMMAND(ID_FILE_OPEN, &CGraphView::OnFileOpenClick)
 	ON_COMMAND(ID_FILE_SAVE, &CGraphView::OnFileSaveClick)
@@ -70,6 +71,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON_DIRECT, &CGraphView::OnUpdateDirectConnect)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_DIRECT, &CGraphView::OnUpdateOptionsDirectConnect)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_EXACTMATCH, &CGraphView::OnUpdateOptionsExactMatch)
+    ON_UPDATE_COMMAND_UI(ID_OPTIONS_USEMEDIAINFO, &CGraphView::OnUpdateOptionsUseMediaInfo)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON_PLAY, &CGraphView::OnUpdatePlayButton)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON_PAUSE, &CGraphView::OnUpdatePauseButton)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON_STOP, &CGraphView::OnUpdateStopButton)
@@ -403,9 +405,9 @@ void CGraphView::UpdatePreferredVideoRenderersMenu()
 	CMenu	*mainmenu  = GetParentFrame()->GetMenu();
 	CMenu	*optionsmenu = mainmenu->GetSubMenu(4);
 
-	if (optionsmenu->GetMenuItemCount() > 6) {
-		optionsmenu->RemoveMenu(6, MF_BYPOSITION);
-		optionsmenu->RemoveMenu(6, MF_BYPOSITION);
+	if (optionsmenu->GetMenuItemCount() > 7) {
+		optionsmenu->RemoveMenu(7, MF_BYPOSITION);
+		optionsmenu->RemoveMenu(7, MF_BYPOSITION);
 	}
 
 	return ;
@@ -1693,6 +1695,16 @@ void CGraphView::OnUpdateOptionsExactMatch(CCmdUI *pCmdUI)
 void CGraphView::OnUpdateOptionsAbortrender(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(render_params.abort_timeout);
+}
+
+void CGraphView::OnUpdateOptionsUseMediaInfo(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(render_params.use_media_info);
+}
+
+void CGraphView::OnOptionsUseMediaInfoClick()
+{
+	render_params.use_media_info = !render_params.use_media_info;
 }
 
 

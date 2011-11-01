@@ -45,7 +45,8 @@ public:
 	void OnBnClickedButtonRefresh();
 
 	// report parts
-	void DoFilterList();
+	void DoFilterList(int level);
+    void DoFileInfos(int level);
 	void DoConnectionDetails(int level, int offset);
 	void DoPinDetails(GraphStudio::Pin *pin, int level, int offset);
 	void DoMediaTypeDetails(AM_MEDIA_TYPE *pmt, int level, int offset);

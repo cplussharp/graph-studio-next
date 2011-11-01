@@ -2572,6 +2572,8 @@ namespace GraphStudio
 		preferred_video_renderer = _T("");
 		video_renderers = NULL;
 
+        use_media_info = true;
+
 		// load bitmaps
 		BOOL ok;	
 		ok = bmp_volume_hi.LoadBitmap(IDB_BITMAP_VOLUME_HI);					if (!ok) return ;

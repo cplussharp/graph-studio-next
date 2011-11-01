@@ -107,6 +107,8 @@ namespace GraphStudio
 		CString						preferred_video_renderer;		// display name
 		DSUtil::FilterTemplates		*video_renderers;				// list of filters we consider video renderers
 
+        bool            use_media_info;
+
 	public:
 		RenderParameters();
 		virtual ~RenderParameters();

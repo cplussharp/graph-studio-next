@@ -203,7 +203,6 @@ void GetInterfaceInfoIMediaSeeking(GraphStudio::PropItem* group, IUnknown* pUnk)
     CComQIPtr<IMediaSeeking> pI = pUnk;
     if(pI)
     {
-        DWORD val;
         LONGLONG valEarliest, valLatest;
         HRESULT hr = pI->GetAvailable(&valEarliest,&valLatest);
         if(SUCCEEDED(hr))

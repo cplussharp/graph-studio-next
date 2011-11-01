@@ -31,7 +31,8 @@ LPCTSTR	ReportNames[] =
 	_T("Graph Report (Level 2)"),
 	_T("Graph Report (Level 3)"),
 	_T("Graph Report (Level 4)"),
-	_T("Graph Report (Level 5)")
+	_T("Graph Report (Level 5)"),
+    _T("Graph Report (Level 6)")
 };
 int ReportNamesCount = sizeof(ReportNames)/sizeof(ReportNames[0]);
 
@@ -95,8 +96,9 @@ void CTextInfoForm::DoSimpleReport()
 	int level = combo_reporttype.GetCurSel();
 
 	lines.RemoveAll();
-	DoFilterList();
+	DoFilterList(level);
 	DoConnectionDetails(level, 0);
+    DoFileInfos(level);
 
 	DisplayReport();
 }
@@ -106,7 +108,7 @@ void CTextInfoForm::Echo(CString t)
 	lines.Add(t);
 }
 
-void CTextInfoForm::DoFilterList()
+void CTextInfoForm::DoFilterList(int level)
 {
 	CString t;
 	Echo(_T("--------------------------------------------------"));
@@ -118,7 +120,87 @@ void CTextInfoForm::DoFilterList()
 		Echo(t);
 
 		if (filter->file_name != _T("")) {
-			t = _T("      File: ") + filter->file_name;		Echo(t);
+			t = _T("      CurFile: ") + filter->file_name;
+            Echo(t);
+		}
+
+        if(level > 2)
+        {
+		    CString	type;
+		    switch (filter->filter_type) {
+		    case GraphStudio::Filter::FILTER_DMO:		type = _T("DMO"); break;
+		    case GraphStudio::Filter::FILTER_WDM:		type = _T("WDM"); break;
+		    case GraphStudio::Filter::FILTER_STANDARD:	type = _T("Standard"); break;
+		    case GraphStudio::Filter::FILTER_UNKNOWN:	type = _T("Unknown"); break;
+		    }
+
+            if(type != _T(""))
+            {
+		        t = _T("      Type:    ") + type;
+                Echo(t);
+            }
+
+            if(filter->clsid_str != _T(""))
+            {
+                t = _T("      CLSID:   ") + filter->clsid_str;
+                Echo(t);
+            }
+
+            if(level > 3)
+            {
+                GraphStudio::PropItem group(_T("Filter Details"));
+                GraphStudio::GetFilterDetails(filter->clsid, &group);
+
+                for(int i=0;i<group.GetCount();i++)
+                {
+                    if(group.GetItem(i)->name == _T("File"))
+                    {
+                        for(int j=0;j<group.GetItem(i)->GetCount();j++)
+                        {
+                            if(group.GetItem(i)->GetItem(j)->name == _T("File Name"))
+                            {
+                                t = _T("      File:    ") + group.GetItem(i)->GetItem(j)->value;
+                                Echo(t);
+                            }
+                            if(group.GetItem(i)->GetItem(j)->name == _T("File Path"))
+                            {
+                                t = _T("      Path:    ") + group.GetItem(i)->GetItem(j)->value;
+                                Echo(t);
+                            }
+                            else if(group.GetItem(i)->GetItem(j)->name == _T("Version Info"))
+                            {
+                                if(group.GetItem(i)->GetItem(j)->GetCount() > 0)
+                                {
+                                    t = _T("      Version: ") + group.GetItem(i)->GetItem(j)->GetItem(0)->value;
+                                    Echo(t);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+	}
+	Echo(_T(""));
+}
+
+void CTextInfoForm::DoFileInfos(int level)
+{
+    if(level < 5 || !view->render_params.use_media_info) return;
+	CString t;
+	Echo(_T("--------------------------------------------------"));
+	Echo(_T("  Media Files"));
+	Echo(_T("--------------------------------------------------"));
+	for (int i=0; i<view->graph.filters.GetCount(); i++) {
+		GraphStudio::Filter	*filter = view->graph.filters[i];
+		if (filter->file_name != _T(""))
+        {
+            CMediaInfo* mi = CMediaInfo::GetInfoForFile(filter->file_name);
+            if(mi != NULL)
+            {
+                Echo(mi->GetText());
+                Echo(_T(""));
+            }
 		}
 	}
 	Echo(_T(""));

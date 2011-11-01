@@ -189,6 +189,7 @@ BEGIN
         MENUITEM "DirectConnect Mode",          ID_OPTIONS_DIRECT
         MENUITEM "Exact Match Lookup Mode",     ID_OPTIONS_EXACTMATCH
         MENUITEM "Abort Render After 10 Seconds", ID_OPTIONS_ABORTRENDER
+        MENUITEM "Use MediaInfo",   ID_OPTIONS_USEMEDIAINFO
         MENUITEM SEPARATOR
         MENUITEM "Preferred Video Renderer",    ID_OPTIONS_PREFERREDVIDEORENDERER
     END
