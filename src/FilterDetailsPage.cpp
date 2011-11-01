@@ -211,3 +211,44 @@ void CInterfaceDetailsPage::OnBuildTree()
 	pInterfaces->GetDetails(&info);
 }
 
+//-----------------------------------------------------------------------------
+//
+//	CMediaInfoPage class
+//
+//-----------------------------------------------------------------------------
+
+CMediaInfoPage* CMediaInfoPage::CreateInstance(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR pszFile)
+{
+    CMediaInfo* info = CMediaInfo::GetInfoForFile(pszFile);
+    if(info == NULL) return NULL;
+    return new CMediaInfoPage(pUnk, phr, info);
+}
+
+CMediaInfoPage::CMediaInfoPage(LPUNKNOWN pUnk, HRESULT *phr, CMediaInfo* pInfo) :
+	CDetailsPage(pUnk, phr, _T("MediaInfo")),
+	m_pInfo(pInfo)
+{
+	// retval
+	if (phr) *phr = NOERROR;
+
+}
+
+CMediaInfoPage::~CMediaInfoPage()
+{
+}
+
+HRESULT CMediaInfoPage::OnConnect(IUnknown *pUnknown)
+{
+	return NOERROR;
+}
+
+HRESULT CMediaInfoPage::OnDisconnect()
+{
+	return NOERROR;
+}
+
+void CMediaInfoPage::OnBuildTree()
+{
+	m_pInfo->GetDetails(&info);
+}
+

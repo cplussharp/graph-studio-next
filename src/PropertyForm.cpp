@@ -293,6 +293,10 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
         // Interfaces
         LoadInterfacePage(obj, TEXT("Interfaces"));
 
+        // MediaInfo
+        if(view->render_params.use_media_info)
+            LoadMediaInfoPage(obj);
+
 		// let's enumerate all pins
 		CComPtr<IEnumPins>		epins;
 		hr = filter->EnumPins(&epins);
@@ -589,6 +593,46 @@ int CPropertyForm::LoadInterfacePage(IUnknown *obj, const CString& strTitle)
 		// don't care anymore
 		details_page->Release();
 	}
+
+    return 0;
+}
+
+int CPropertyForm::LoadMediaInfoPage(IUnknown *obj)
+{
+	// display the details page
+	CComPtr<IPropertyPage>	page;
+	CMediaInfoPage	        *details_page;
+
+    CComQIPtr<IFileSourceFilter> pI = obj;
+    if(pI)
+    {
+        LPOLESTR strFile;
+        HRESULT hr = pI->GetCurFile(&strFile, NULL);
+        if(hr == S_OK && strFile != NULL)
+        {
+            details_page = CMediaInfoPage::CreateInstance(NULL, &hr, CString(strFile));
+	        if (details_page) {
+		        details_page->AddRef();
+
+		        hr = details_page->QueryInterface(IID_IPropertyPage, (void**)&page);
+		        if (SUCCEEDED(hr)) {
+			        // assign the object
+			        hr = page->SetObjects(1, &obj);
+			        if (SUCCEEDED(hr)) {
+				        // and add the page to our container
+				        container->AddPage(page);
+			        }
+		        }
+		        page = NULL;
+
+		        // don't care anymore
+		        details_page->Release();
+	        }
+        }
+
+        if(strFile)
+            CoTaskMemFree(strFile);
+    }
 
     return 0;
 }

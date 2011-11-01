@@ -191,6 +191,8 @@ public:
 	void OnUpdateOptionsDirectConnect(CCmdUI *pCmdUI);
 	void OnOptionsExactMatchClick();
 	void OnUpdateOptionsExactMatch(CCmdUI *pCmdUI);
+    void OnOptionsUseMediaInfoClick();
+    void OnUpdateOptionsUseMediaInfo(CCmdUI *pCmdUI);
 
 	afx_msg void OnViewProgressview();
 	afx_msg void OnFileSaveasxml();

@@ -57,7 +57,7 @@ void CBufferNegotiationPage::OnSetClick()
 	edit_latency.GetWindowText(t);
 
 	int				latency_ms;
-	if (_stscanf(t.GetBuffer(), _T("%d"), &latency_ms) != 1) {
+	if (_stscanf_s(t.GetBuffer(), _T("%d"), &latency_ms) != 1) {
 		MessageBox(_T("Value must be an integer"));
 		return ;
 	}

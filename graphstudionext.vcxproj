@@ -239,6 +239,8 @@
     <ClInclude Include="src\InterfaceScanner.h" />
     <ClInclude Include="src\MainFrm.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="src\MediaInfo.h" />
+    <ClInclude Include="src\MediaInfoDLL.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\ConfirmForm.h" />
     <ClInclude Include="src\DecPerformanceForm.h" />
@@ -302,6 +304,7 @@
     <ClCompile Include="src\FileSrcForm.cpp" />
     <ClCompile Include="src\FiltersForm.cpp" />
     <ClCompile Include="src\GraphConstructionForm.cpp" />
+    <ClCompile Include="src\MediaInfo.cpp" />
     <ClCompile Include="src\MeritForm.cpp" />
     <ClCompile Include="src\NewGroupForm.cpp" />
     <ClCompile Include="src\ProgressForm.cpp" />

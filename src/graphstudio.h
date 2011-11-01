@@ -28,6 +28,7 @@ public:
 
 	virtual BOOL InitInstance();
 	afx_msg void OnAppAbout();
+    virtual int ExitInstance();
 };
 
 extern CgraphstudioApp theApp;

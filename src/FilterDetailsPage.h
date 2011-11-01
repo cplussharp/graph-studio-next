@@ -99,6 +99,28 @@ public:
 };
 
 
+//-----------------------------------------------------------------------------
+//
+//	CMediaInfoPage class
+//
+//-----------------------------------------------------------------------------
+class CMediaInfoPage : public CDetailsPage
+{
+protected:
+	CMediaInfo*			m_pInfo;
+    CMediaInfoPage(LPUNKNOWN pUnk, HRESULT *phr, CMediaInfo* pInfo);
+
+public:
+	static CMediaInfoPage* CreateInstance(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR pszFile);
+	virtual ~CMediaInfoPage();
+	
+    virtual HRESULT OnConnect(IUnknown *pUnknown);
+    virtual HRESULT OnDisconnect();
+	virtual void OnBuildTree();
+
+};
+
+
 
 
 
