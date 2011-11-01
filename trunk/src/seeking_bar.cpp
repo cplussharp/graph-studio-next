@@ -6,6 +6,7 @@
 //
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
+#include "seeking_bar.h"
 
 
 
@@ -147,6 +148,7 @@ BEGIN_MESSAGE_MAP(CSeekingBar, CDialogBar)
 	ON_WM_CTLCOLOR()
 	ON_WM_TIMER()
 	ON_WM_HSCROLL()
+    ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 CSeekingBar::CSeekingBar()
@@ -245,7 +247,7 @@ void MakeNiceTime(int time_ms, CString &v)
 	m = time_ms / 60;		time_ms -= m*60;
 	s = time_ms;
 
-	v.Format(_T("%.2d:%.2d:%.2d"), h, m, s);
+	v.Format(_T("%.2d:%.2d:%.2d.%.2d"), h, m, s, ms / 10);
 }
 
 void CSeekingBar::UpdateGraphPosition()
@@ -329,3 +331,15 @@ void CSeekingBar::OnTimer(UINT_PTR id)
 	}
 }
 
+
+
+void CSeekingBar::OnSize(UINT nType, int cx, int cy)
+{
+    CDialogBar::OnSize(nType, cx, cy);
+
+    int lblSize = 140;
+    if(seekbar.GetSafeHwnd() != NULL)
+        seekbar.SetWindowPos(NULL, 0, 2, cx - lblSize - 5, 20, SWP_SHOWWINDOW);
+    if(label_time.GetSafeHwnd() != NULL)
+        label_time.SetWindowPos(NULL, cx - lblSize, 6, 0,0, SWP_SHOWWINDOW | SWP_NOSIZE);
+}
