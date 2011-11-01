@@ -94,5 +94,6 @@ public:
 	void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar);
 	void UpdateGraphPosition();
 	void PerformSeek();
+    afx_msg void OnSize(UINT nType, int cx, int cy);
 };
 
