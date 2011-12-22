@@ -31,6 +31,103 @@ namespace DSUtil
 		return ret;
 	}
 
+    //-------------------------------------------------------------------------
+	//
+	//	ClassFactory class
+	//
+	//-------------------------------------------------------------------------
+    int CClassFactory::m_cLocked = 0;
+    
+    CClassFactory::CClassFactory(const CFactoryTemplate *pTemplate)
+    : CBaseObject(NAME("Class Factory")), m_cRef(0), m_pTemplate(pTemplate)
+    {
+    }  
+    
+    STDMETHODIMP CClassFactory::QueryInterface(REFIID riid,void **ppv)
+    {
+        CheckPointer(ppv,E_POINTER)
+        ValidateReadWritePtr(ppv,sizeof(PVOID));
+        *ppv = NULL;
+        
+        if ((riid == IID_IUnknown) || (riid == IID_IClassFactory)) {
+            *ppv = (LPVOID) this;
+            
+            ((LPUNKNOWN) *ppv)->AddRef();
+            return NOERROR;
+        }
+    
+        return ResultFromScode(E_NOINTERFACE);
+    }  
+    
+    STDMETHODIMP_(ULONG) CClassFactory::AddRef()
+    {
+        return ++m_cRef;
+    }
+    
+    STDMETHODIMP_(ULONG) CClassFactory::Release()
+    {
+        if (--m_cRef == 0) {
+            delete this;
+            return 0;
+        } else {
+            return m_cRef;
+        }
+    }
+    
+    STDMETHODIMP CClassFactory::CreateInstance(LPUNKNOWN pUnkOuter, REFIID riid, void **pv)
+    {
+        CheckPointer(pv,E_POINTER)
+        ValidateReadWritePtr(pv,sizeof(void *));
+    
+        if (pUnkOuter != NULL) {
+            if (IsEqualIID(riid,IID_IUnknown) == FALSE) {
+                return ResultFromScode(E_NOINTERFACE);
+            }
+        }
+    
+        HRESULT hr = NOERROR;
+        CUnknown *pObj = m_pTemplate->CreateInstance(pUnkOuter, &hr);
+    
+        if (pObj == NULL) {
+            if (SUCCEEDED(hr)) {
+                hr = E_OUTOFMEMORY;
+            }
+            return hr;
+        }
+    
+        if (FAILED(hr)) {
+            delete pObj;
+            return hr;
+        }
+        
+        pObj->NonDelegatingAddRef();
+        hr = pObj->NonDelegatingQueryInterface(riid, pv);
+        pObj->NonDelegatingRelease();
+     
+        if (SUCCEEDED(hr)) {
+            ASSERT(*pv);
+        }
+    
+        return hr;
+    }
+    
+    STDMETHODIMP CClassFactory::LockServer(BOOL fLock)
+    {
+        if (fLock) {
+            m_cLocked++;
+        } else {
+            m_cLocked--;
+        }
+        return NOERROR;
+    }
+
+    void CClassFactory::Register()
+    {
+        DWORD dwRegister;
+        HRESULT hr = CoRegisterClassObject(*m_pTemplate->m_ClsID, this, CLSCTX_INPROC_SERVER, REGCLS_MULTI_SEPARATE, &dwRegister);
+    }
+
+
 	//-------------------------------------------------------------------------
 	//
 	//	URI class
@@ -867,6 +964,360 @@ namespace DSUtil
 		return ret;
 	}
 
+    int FilterTemplates::EnumerateInternalFilters()
+    {
+        filters.RemoveAll();
+
+        FilterTemplate filter;
+        filter.name = _T("Dump Filter");
+        filter.clsid = CLSID_MonoDump;
+        filters.Add(filter);
+
+        filter.name = _T("Time Measure Filter");
+        filter.clsid = CLSID_MonoTimeMeasure;
+        filters.Add(filter);
+
+        return filters.GetCount();
+    }
+
+    int FilterTemplates::EnumerateAudioDecoder()
+    {
+        filters.RemoveAll();
+
+        DSUtil::FilterTemplates			all_filters;
+	    int								i, j, k;
+
+	    all_filters.Enumerate(CLSID_LegacyAmFilterCategory);
+	    for (i=0; i<all_filters.filters.GetCount(); i++) {
+		    DSUtil::FilterTemplate	&filter = all_filters.filters[i];
+
+		    // now check the pins
+		    bool	audio_in = false;
+		    bool	audio_out = false;
+
+		    for (j=0; j<filter.input_pins.GetCount(); j++) {
+			    DSUtil::PinTemplate	&pin = filter.input_pins[j];
+
+			    // check media types
+			    for (k=0; k<pin.types; k++) {
+				    if (pin.major[k] == MEDIATYPE_Audio &&
+					    !DSUtil::IsAudioUncompressed(pin.minor[k])
+					    ) {
+					    // at least one compressed input
+					    audio_in = true;
+				    }
+				    if (audio_in) break;
+			    }	
+			    if (audio_in) break;
+		    }
+
+		    for (j=0; j<filter.output_pins.GetCount(); j++) {
+			    DSUtil::PinTemplate	&pin = filter.output_pins[j];
+
+			    // check media types
+			    for (k=0; k<pin.types; k++) {
+				    if (pin.major[k] == MEDIATYPE_Audio &&
+					    DSUtil::IsAudioUncompressed(pin.minor[k])
+					    ) {
+					    // at least one uncompressed output
+					    audio_out = true;
+				    }
+				    if (audio_out) break;
+			    }	
+			    if (audio_out) break;
+		    }
+
+		    // if it has audio in and out, we can take it for a audio decoder
+		    if (audio_in && audio_out) {
+			    filters.Add(filter);
+		    }
+	    }
+
+	    // we also display DMOs
+	    all_filters.filters.RemoveAll();
+        all_filters.EnumerateDMO(DMOCATEGORY_AUDIO_DECODER);
+	    for (i=0; i<all_filters.filters.GetCount(); i++) {
+		    filters.Add(all_filters.filters[i]);
+	    }
+
+        return filters.GetCount();
+    }
+
+    int FilterTemplates::EnumerateVideoDecoder()
+    {
+        filters.RemoveAll();
+
+        DSUtil::FilterTemplates			all_filters;
+	    int								i, j, k;
+
+	    all_filters.Enumerate(CLSID_LegacyAmFilterCategory);
+	    for (i=0; i<all_filters.filters.GetCount(); i++) {
+		    DSUtil::FilterTemplate	&filter = all_filters.filters[i];
+
+		    // now check the pins
+		    bool	video_in = false;
+		    bool	video_out = false;
+
+		    for (j=0; j<filter.input_pins.GetCount(); j++) {
+			    DSUtil::PinTemplate	&pin = filter.input_pins[j];
+
+			    // check media types
+			    for (k=0; k<pin.types; k++) {
+				    if (pin.major[k] == MEDIATYPE_Video &&
+					    !DSUtil::IsVideoUncompressed(pin.minor[k])
+					    ) {
+					    // at least one compressed input
+					    video_in = true;
+				    }
+				    if (video_in) break;
+			    }	
+			    if (video_in) break;
+		    }
+
+		    for (j=0; j<filter.output_pins.GetCount(); j++) {
+			    DSUtil::PinTemplate	&pin = filter.output_pins[j];
+
+			    // check media types
+			    for (k=0; k<pin.types; k++) {
+				    if (pin.major[k] == MEDIATYPE_Video &&
+					    DSUtil::IsVideoUncompressed(pin.minor[k])
+					    ) {
+					    // at least one uncompressed output
+					    video_out = true;
+				    }
+				    if (video_out) break;
+			    }	
+			    if (video_out) break;
+		    }
+
+		    // if it has video in and out, we can take it for a video encoder
+		    if (video_in && video_out) {
+			    filters.Add(filter);
+		    }
+	    }
+
+	    // we also display DMOs
+	    all_filters.filters.RemoveAll();
+        all_filters.EnumerateDMO(DMOCATEGORY_VIDEO_DECODER);
+	    for (i=0; i<all_filters.filters.GetCount(); i++) {
+		    filters.Add(all_filters.filters[i]);
+	    }
+
+        return filters.GetCount();
+    }
+
+    int FilterTemplates::EnumerateAudioEncoder()
+    {
+        filters.RemoveAll();
+
+        DSUtil::FilterTemplates			all_filters;
+	    int								i, j, k;
+
+	    all_filters.Enumerate(CLSID_LegacyAmFilterCategory);
+	    for (i=0; i<all_filters.filters.GetCount(); i++) {
+		    DSUtil::FilterTemplate	&filter = all_filters.filters[i];
+
+		    // now check the pins
+		    bool	audio_in = false;
+		    bool	audio_out = false;
+
+		    for (j=0; j<filter.input_pins.GetCount(); j++) {
+			    DSUtil::PinTemplate	&pin = filter.input_pins[j];
+
+			    // check media types
+			    for (k=0; k<pin.types; k++) {
+				    if (pin.major[k] == MEDIATYPE_Audio &&
+					    DSUtil::IsAudioUncompressed(pin.minor[k])
+					    ) {
+					    // at least one compressed input
+					    audio_in = true;
+				    }
+				    if (audio_in) break;
+			    }	
+			    if (audio_in) break;
+		    }
+
+		    for (j=0; j<filter.output_pins.GetCount(); j++) {
+			    DSUtil::PinTemplate	&pin = filter.output_pins[j];
+
+			    // check media types
+			    for (k=0; k<pin.types; k++) {
+				    if (pin.major[k] == MEDIATYPE_Audio &&
+					    !DSUtil::IsAudioUncompressed(pin.minor[k])
+					    ) {
+					    // at least one uncompressed output
+					    audio_out = true;
+				    }
+				    if (audio_out) break;
+			    }	
+			    if (audio_out) break;
+		    }
+
+		    // if it has audio in and out, we can take it for a audio encoder
+		    if (audio_in && audio_out) {
+			    filters.Add(filter);
+		    }
+	    }
+
+        // search in the right categorie
+        all_filters.filters.RemoveAll();
+        all_filters.Enumerate(CLSID_AudioCompressorCategory);
+        for (i=0; i<all_filters.filters.GetCount(); i++) {
+		    filters.Add(all_filters.filters[i]);
+	    }
+
+	    // we also display DMOs
+	    all_filters.filters.RemoveAll();
+        all_filters.EnumerateDMO(DMOCATEGORY_AUDIO_ENCODER);
+	    for (i=0; i<all_filters.filters.GetCount(); i++) {
+		    filters.Add(all_filters.filters[i]);
+	    }
+
+        return filters.GetCount();
+    }
+
+    int FilterTemplates::EnumerateVideoEncoder()
+    {
+        filters.RemoveAll();
+
+        DSUtil::FilterTemplates			all_filters;
+	    int								i, j, k;
+
+	    all_filters.Enumerate(CLSID_LegacyAmFilterCategory);
+	    for (i=0; i<all_filters.filters.GetCount(); i++) {
+		    DSUtil::FilterTemplate	&filter = all_filters.filters[i];
+
+		    // now check the pins
+		    bool	video_in = false;
+		    bool	video_out = false;
+
+		    for (j=0; j<filter.input_pins.GetCount(); j++) {
+			    DSUtil::PinTemplate	&pin = filter.input_pins[j];
+
+			    // check media types
+			    for (k=0; k<pin.types; k++) {
+				    if (pin.major[k] == MEDIATYPE_Video &&
+					    !DSUtil::IsVideoUncompressed(pin.minor[k])
+					    ) {
+					    // at least one compressed input
+					    video_in = true;
+				    }
+				    if (video_in) break;
+			    }	
+			    if (video_in) break;
+		    }
+
+		    for (j=0; j<filter.output_pins.GetCount(); j++) {
+			    DSUtil::PinTemplate	&pin = filter.output_pins[j];
+
+			    // check media types
+			    for (k=0; k<pin.types; k++) {
+				    if (pin.major[k] == MEDIATYPE_Video &&
+					    !DSUtil::IsVideoUncompressed(pin.minor[k])
+					    ) {
+					    // at least one uncompressed output
+					    video_out = true;
+				    }
+				    if (video_out) break;
+			    }	
+			    if (video_out) break;
+		    }
+
+		    // if it has video in and out, we can take it for a video decoder
+		    if (video_in && video_out) {
+			    filters.Add(filter);
+		    }
+	    }
+
+        // search in the right categorie
+        all_filters.filters.RemoveAll();
+        all_filters.Enumerate(CLSID_VideoCompressorCategory);
+        for (i=0; i<all_filters.filters.GetCount(); i++) {
+		    filters.Add(all_filters.filters[i]);
+	    }
+
+	    // we also display DMOs
+	    all_filters.filters.RemoveAll();
+        all_filters.EnumerateDMO(DMOCATEGORY_VIDEO_ENCODER);
+	    for (i=0; i<all_filters.filters.GetCount(); i++) {
+		    filters.Add(all_filters.filters[i]);
+	    }
+
+        return filters.GetCount();
+    }
+
+    int FilterTemplates::EnumerateDemuxer()
+    {
+        filters.RemoveAll();
+
+        DSUtil::FilterTemplates			all_filters;
+	    int								i, j, k;
+
+	    all_filters.Enumerate(CLSID_LegacyAmFilterCategory);
+	    for (i=0; i<all_filters.filters.GetCount(); i++) {
+		    DSUtil::FilterTemplate	&filter = all_filters.filters[i];
+
+		    // now check the pins
+		    bool	stream_in = false;
+
+		    for (j=0; j<filter.input_pins.GetCount(); j++) {
+			    DSUtil::PinTemplate	&pin = filter.input_pins[j];
+
+			    // check media types
+			    for (k=0; k<pin.types; k++) {
+				    if (pin.major[k] == MEDIATYPE_Stream) {
+					    stream_in = true;
+				    }
+				    if (stream_in) break;
+			    }	
+			    if (stream_in) break;
+		    }
+
+		    // if it has stream out, we can take it for a muxer
+		    if (stream_in) {
+			    filters.Add(filter);
+		    }
+	    }
+
+        return filters.GetCount();
+    }
+
+    int FilterTemplates::EnumerateMuxer()
+    {
+        filters.RemoveAll();
+
+        DSUtil::FilterTemplates			all_filters;
+	    int								i, j, k;
+
+	    all_filters.Enumerate(CLSID_LegacyAmFilterCategory);
+	    for (i=0; i<all_filters.filters.GetCount(); i++) {
+		    DSUtil::FilterTemplate	&filter = all_filters.filters[i];
+
+		    // now check the pins
+		    bool	stream_out = false;
+
+		    for (j=0; j<filter.output_pins.GetCount(); j++) {
+			    DSUtil::PinTemplate	&pin = filter.output_pins[j];
+
+			    // check media types
+			    for (k=0; k<pin.types; k++) {
+				    if (pin.major[k] == MEDIATYPE_Stream) {
+					    stream_out = true;
+				    }
+				    if (stream_out) break;
+			    }	
+			    if (stream_out) break;
+		    }
+
+		    // if it has stream out, we can take it for a muxer
+		    if (stream_out) {
+			    filters.Add(filter);
+		    }
+	    }
+
+        return filters.GetCount();
+    }
+
 	int FilterTemplates::EnumerateDMO(GUID clsid)
 	{
 
@@ -1382,6 +1833,32 @@ namespace DSUtil
 			subtype == MEDIASUBTYPE_YVYU ||
 			subtype == MEDIASUBTYPE_IYUV ||
 			subtype == Monogram::MEDIASUBTYPE_I420 ||
+			subtype == MEDIASUBTYPE_CLJR ||
+			subtype == MEDIASUBTYPE_UYVY ||
+			subtype == MEDIASUBTYPE_P010 ||
+			subtype == MEDIASUBTYPE_P016 ||
+			subtype == MEDIASUBTYPE_P208 ||
+			subtype == MEDIASUBTYPE_P210 ||
+			subtype == MEDIASUBTYPE_P216 ||
+			subtype == MEDIASUBTYPE_Y210 ||
+			subtype == MEDIASUBTYPE_Y216 ||
+			subtype == MEDIASUBTYPE_P408 ||
+			subtype == MEDIASUBTYPE_NV11 ||
+			subtype == MEDIASUBTYPE_AI44 ||
+			subtype == MEDIASUBTYPE_IA44 ||
+			subtype == MEDIASUBTYPE_AYUV ||
+			subtype == GUID_NULL
+			) {
+			return true;
+		}
+
+		return false;
+	}
+
+    bool IsAudioUncompressed(GUID subtype)
+	{
+		if (subtype == MEDIASUBTYPE_PCM ||
+			subtype == MEDIASUBTYPE_IEEE_FLOAT ||
 			subtype == GUID_NULL
 			) {
 			return true;

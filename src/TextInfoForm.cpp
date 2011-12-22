@@ -120,11 +120,12 @@ void CTextInfoForm::DoFilterList(int level)
 		Echo(t);
 
 		if (filter->file_name != _T("")) {
-			t = _T("      CurFile: ") + filter->file_name;
+			CString	short_fn = PathFindFileName(filter->file_name);
+			t = _T("      File: ") + short_fn;
             Echo(t);
 		}
 
-        if(level > 2)
+        if(level >= 0)
         {
 		    CString	type;
 		    switch (filter->filter_type) {
@@ -211,24 +212,27 @@ void CTextInfoForm::DoConnectionDetails(int level, int offset)
 	CString		ofs, t;
 	for (int i=0; i<offset; i++) ofs += _T(" ");
 
-	Echo(ofs + _T("--------------------------------------------------"));
-	Echo(ofs + _T("  Connections"));
-	Echo(ofs + _T("--------------------------------------------------"));
+	if (level > 0)
+	{
+		Echo(ofs + _T("--------------------------------------------------"));
+		Echo(ofs + _T("  Connections"));
+		Echo(ofs + _T("--------------------------------------------------"));
 	
-	int index=0;
-	for (int i=0; i<view->graph.filters.GetCount(); i++) {
-		GraphStudio::Filter	*filter = view->graph.filters[i];
+		int index=0;
+		for (int i=0; i<view->graph.filters.GetCount(); i++) {
+			GraphStudio::Filter	*filter = view->graph.filters[i];
 
-		for (int j=0; j<filter->output_pins.GetCount(); j++) {
-			GraphStudio::Pin *opin = filter->output_pins[j];
-			GraphStudio::Pin *peer = opin->peer;
-			if (opin->connected && peer) {
-				t.Format(_T("%3d. [%s]/(%s) -> [%s]/(%s)"), (index+1), filter->name, opin->name, peer->filter->name, peer->name);
-				Echo(ofs + t);
-				if (level > 0) { 
-					DoPinDetails(opin, level, offset+6);
+			for (int j=0; j<filter->output_pins.GetCount(); j++) {
+				GraphStudio::Pin *opin = filter->output_pins[j];
+				GraphStudio::Pin *peer = opin->peer;
+				if (opin->connected && peer) {
+					t.Format(_T("%3d. [%s]/(%s) -> [%s]/(%s)"), (index+1), filter->name, opin->name, peer->filter->name, peer->name);
+					Echo(ofs + t);
+					if (level > 0) { 
+						DoPinDetails(opin, level, offset+6);
+					}
+					index++;
 				}
-				index++;
 			}
 		}
 	}

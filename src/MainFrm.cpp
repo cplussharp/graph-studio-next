@@ -103,6 +103,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 
+    // Register Internal Filters for COM-Creation
+    (new DSUtil::CClassFactory(&CMonoTimeMeasure::g_Template))->Register();
+    (new DSUtil::CClassFactory(&CMonoDump::g_Template))->Register();
+
 	// TODO: Remove this if you don't want tool tips
 	return 0;
 }

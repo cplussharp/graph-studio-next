@@ -14,7 +14,6 @@
 #define new DEBUG_NEW
 #endif
 
-
 //-----------------------------------------------------------------------------
 //
 //	CGraphView class
@@ -59,6 +58,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND_RANGE(ID_VIDEO_SOURCE0, ID_VIDEO_SOURCE0+50, &CGraphView::OnDummyEvent)
 	ON_COMMAND_RANGE(ID_AUDIO_RENDERER0, ID_AUDIO_RENDERER0+50, &CGraphView::OnDummyEvent)
 	ON_COMMAND_RANGE(ID_VIDEO_RENDERER0, ID_VIDEO_RENDERER0+50, &CGraphView::OnDummyEvent)
+    ON_COMMAND_RANGE(ID_INTERNAL_FILTER0, ID_INTERNAL_FILTER0+50, &CGraphView::OnDummyEvent)
 	ON_COMMAND_RANGE(ID_FAVORITE_FILTER, ID_FAVORITE_FILTER+500, &CGraphView::OnDummyEvent)
 	ON_COMMAND_RANGE(ID_PREFERRED_VIDEO_RENDERER, ID_PREFERRED_VIDEO_RENDERER+100, &CGraphView::OnDummyEvent)
 
@@ -364,6 +364,9 @@ LRESULT CGraphView::OnWmCommand(WPARAM wParam, LPARAM lParam)
 	if (id >= ID_VIDEO_RENDERER0 && id < ID_VIDEO_RENDERER0 + 50) {
 		OnVideoRendererClick(id);
 	} else
+        if (id >= ID_INTERNAL_FILTER0 && id < ID_INTERNAL_FILTER0 + 50) {
+		OnInternalFilterClick(id);
+	} else
 	if (id >= ID_PREFERRED_VIDEO_RENDERER && id < ID_PREFERRED_VIDEO_RENDERER + 100) {
 		OnPreferredVideoRendererClick(id);
 	} else
@@ -472,10 +475,11 @@ void CGraphView::UpdateRenderersMenu()
 	video_sources.EnumerateVideoSources();
 	audio_renderers.EnumerateAudioRenderers();
 	video_renderers.EnumerateVideoRenderers();
+    internal_filters.EnumerateInternalFilters();
 
 	CMenu	*mainmenu  = GetParentFrame()->GetMenu();
 	CMenu	*graphmenu = mainmenu->GetSubMenu(2);
-	CMenu	audio_source_menu, video_source_menu, audio_render_menu, video_render_menu;
+	CMenu	audio_source_menu, video_source_menu, audio_render_menu, video_render_menu, internal_filter_menu;
 
     // fill in audio sources
 	audio_source_menu.CreatePopupMenu();
@@ -530,6 +534,19 @@ void CGraphView::UpdateRenderersMenu()
 						  (UINT_PTR)video_render_menu.m_hMenu, _T("Insert Video Renderer"));
 
 	video_render_menu.Detach();
+
+    // fill in internal filters
+	internal_filter_menu.CreatePopupMenu();
+
+	for (i=0; i<internal_filters.filters.GetCount(); i++) {
+		DSUtil::FilterTemplate	&filter = internal_filters.filters[i];
+		internal_filter_menu.InsertMenu(i, MF_STRING, ID_INTERNAL_FILTER0 + i, filter.name);
+	}
+
+	graphmenu->ModifyMenu(ID_GRAPH_INSERTINTERNALFILTER, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
+						  (UINT_PTR)internal_filter_menu.m_hMenu, _T("Insert Internal Filter"));
+
+	internal_filter_menu.Detach();
 
 	UpdatePreferredVideoRenderersMenu();
 }
@@ -803,11 +820,12 @@ void CGraphView::OnFileOpenClick()
 	filter =  _T("");
 	filter += _T("GraphEdit Files (grf)|*.grf|");
 	filter += _T("GraphStudio XML Files (xml)|*.xml|");
-	filter += _T("Video Files (avi,mp4,mpg,mpeg,ts,mkv,ogg,ogm,pva,evo,flv,mov,hdmov,ifo,vob,rm,rmvb,wmv,asf)|*.avi;*.mp4;*.mpg;*.mpeg;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
-	filter += _T("Audio Files (aac,ac3,mp3,wma,mka,ogg,mpc,flac,ape,wav,ra,wv,m4a,tta,dts,spx,mp2,ofr,ofs,mpa)|*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
+	filter += _T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
+	filter += _T("Audio Files |*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
 	filter += _T("All Files|*.*|");
 
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
+    dlg.m_ofn.nFilterIndex = 5;
     int ret = dlg.DoModal();
 
 	filename = dlg.GetPathName();
@@ -827,11 +845,12 @@ void CGraphView::OnFileAddmediafile()
 	CString		filename;
 
 	filter =  _T("");
-	filter += _T("Video Files (avi,mp4,mpg,mpeg,ts,mkv,ogg,ogm,pva,evo,flv,mov,hdmov,ifo,vob,rm,rmvb,wmv,asf)|*.avi;*.mp4;*.mpg;*.mpeg;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
-	filter += _T("Audio Files (aac,ac3,mp3,wma,mka,ogg,mpc,flac,ape,wav,ra,wv,m4a,tta,dts,spx,mp2,ofr,ofs,mpa)|*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
+	filter += _T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
+	filter += _T("Audio Files |*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
 	filter += _T("All Files|*.*|");
 
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
+    dlg.m_ofn.nFilterIndex = 3;
     int ret = dlg.DoModal();
 
 	filename = dlg.GetPathName();
@@ -881,11 +900,12 @@ void CGraphView::OnRenderFileClick()
 	CString		filename;
 
 	filter =  _T("");
-	filter += _T("Video Files (avi,mp4,mpg,mpeg,ts,mkv,ogg,ogm,pva,evo,flv,mov,hdmov,ifo,vob,rm,rmvb,wmv,asf)|*.avi;*.mp4;*.mpg;*.mpeg;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
-	filter += _T("Audio Files (aac,ac3,mp3,wma,mka,ogg,mpc,flac,ape,wav,ra,wv,m4a,tta,dts,spx,mp2,ofr,ofs,mpa)|*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
+	filter += _T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
+	filter += _T("Audio Files |*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
 	filter += _T("All Files|*.*|");
 
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
+	dlg.m_ofn.nFilterIndex = 3;
     int ret = dlg.DoModal();
 
 	filename = dlg.GetPathName();
@@ -1534,6 +1554,14 @@ void CGraphView::OnVideoRendererClick(UINT nID)
 	if (n < 0 || n >= video_renderers.filters.GetCount()) return ;
 
 	InsertFilterFromTemplate(video_renderers.filters[n]);
+}
+
+void CGraphView::OnInternalFilterClick(UINT nID)
+{
+	int	n = nID - ID_INTERNAL_FILTER0;
+	if (n < 0 || n >= internal_filters.filters.GetCount()) return ;
+
+	InsertFilterFromTemplate(internal_filters.filters[n]);
 }
 
 void CGraphView::OnFavoriteFilterClick(UINT nID)

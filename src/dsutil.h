@@ -25,6 +25,36 @@ namespace DSUtil
 
 	typedef CArray<CMediaType>	MediaTypes;
 
+    //-------------------------------------------------------------------------
+	//
+	//	ClassFactory class
+	//
+	//-------------------------------------------------------------------------
+
+    class CClassFactory : public IClassFactory, public CBaseObject
+    {
+    private:
+        const CFactoryTemplate *const m_pTemplate;
+        ULONG m_cRef;
+        static int m_cLocked;
+
+    public:
+        CClassFactory(const CFactoryTemplate *);
+        
+        STDMETHODIMP QueryInterface(REFIID riid, void ** ppv);
+        STDMETHODIMP_(ULONG)AddRef();
+        STDMETHODIMP_(ULONG)Release();
+        
+        STDMETHODIMP CreateInstance(LPUNKNOWN pUnkOuter, REFIID riid, void **pv);
+        STDMETHODIMP LockServer(BOOL fLock);
+
+        void Register();
+    
+        static BOOL IsLocked() {
+            return (m_cLocked > 0);
+        };
+    };  
+
 	//-------------------------------------------------------------------------
 	//
 	//	URI class
@@ -167,6 +197,13 @@ namespace DSUtil
 		int EnumerateVideoSources();
 		int EnumerateAudioRenderers();
 		int EnumerateVideoRenderers();
+        int EnumerateInternalFilters();
+        int EnumerateAudioDecoder();
+        int EnumerateVideoDecoder();
+        int EnumerateAudioEncoder();
+        int EnumerateVideoEncoder();
+        int EnumerateMuxer();
+        int EnumerateDemuxer();
 
 		// vyhladavanie
 		int Find(CString name, FilterTemplate *filter);
@@ -219,6 +256,7 @@ namespace DSUtil
 	HRESULT ConnectPin(IGraphBuilder *gb, IPin *output, IBaseFilter *input, bool direct=false);
 
 	bool IsVideoUncompressed(GUID subtype);
+    bool IsAudioUncompressed(GUID subtype);
 
 	CString get_next_token(CString &str, CString separator);
 

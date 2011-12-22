@@ -16,9 +16,11 @@ static const GUID CLSID_MonoTimeMeasure =
 static const GUID IID_IMonoTimeMeasure = 
 { 0xb278651d, 0x1678, 0x4add, { 0x94, 0x1a, 0xe, 0xfd, 0xad, 0x41, 0xf9, 0x30 } };
 
+struct __declspec(uuid("B278651D-1678-4add-941A-0EFDAD41F930")) UUID_IMonoTimeMeasure;
+
 DECLARE_INTERFACE_(IMonoTimeMeasure, IUnknown)
 {
-	STDMETHOD(GetStats)(__int64 *runtime_ns, __int64 *frames) PURE;
+	STDMETHOD(GetStats)(__int64 *runtime_ns, __int64 *frames, __int64* realtime_ns) PURE;
 };
 
 
@@ -36,6 +38,7 @@ public:
 	__int64			start_time;
 	__int64			stop_time;
 	__int64			frames_done;
+    __int64         real_time;
 
 	// counter frequency
 	LARGE_INTEGER	frequency;
@@ -59,6 +62,9 @@ public:
 	__int64 GetTimeNS();
 
 	// IMonoTimeMeasure
-	STDMETHODIMP GetStats(__int64 *runtime_ns, __int64 *frames);
+	STDMETHODIMP GetStats(__int64 *runtime_ns, __int64 *frames, __int64* realtime_ns);
+
+    static const CFactoryTemplate g_Template;
+    static CUnknown * WINAPI CreateInstance(LPUNKNOWN punk, HRESULT *phr);
 };
 

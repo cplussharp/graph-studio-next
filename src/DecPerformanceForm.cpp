@@ -21,6 +21,7 @@ BEGIN_MESSAGE_MAP(CDecPerformanceForm, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_BROWSE, &CDecPerformanceForm::OnBrowseClick)
 	ON_BN_CLICKED(IDC_BUTTON_START, &CDecPerformanceForm::OnStartClick)
 	ON_BN_CLICKED(IDC_BUTTON_STOP, &CDecPerformanceForm::OnStopClick)
+    ON_CBN_SELCHANGE(IDC_COMBO_TYPE, &CDecPerformanceForm::OnCbnSelChange)
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -35,6 +36,10 @@ CDecPerformanceForm::CDecPerformanceForm(CWnd* pParent) :
 	running = false;
 	time_filter = NULL;
 	perf_operation = false;
+    null_renderer.clsid = DSUtil::CLSID_NullRenderer;
+    null_renderer.name = _T("Null Renderer");
+    time_filter_template.clsid = CLSID_MonoTimeMeasure;
+    time_filter_template.name = _T("Time Measure Filter");
 }
 
 CDecPerformanceForm::~CDecPerformanceForm()
@@ -58,6 +63,7 @@ void CDecPerformanceForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_PASSES, edit_passes);
 	DDX_Control(pDX, IDC_SPIN_PASSES, btn_spin);
 	DDX_Control(pDX, IDC_LIST_RESULTS, list_results);
+	DDX_Control(pDX, IDC_COMBO_TYPE, cb_type);
 }
 
 BOOL CDecPerformanceForm::DoCreateDialog()
@@ -90,28 +96,19 @@ void CDecPerformanceForm::OnInitialize()
 	ex_style = ex_style | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER;
 	list_results.SetExtendedStyle(ex_style);
 
-	list_results.InsertColumn(0, _T("#"), LVCFMT_LEFT, 40);
-	list_results.InsertColumn(1, _T("Work Time"), LVCFMT_LEFT, 120);
-	list_results.InsertColumn(2, _T("FPS"), LVCFMT_LEFT, 100);
-
+	list_results.InsertColumn(0, _T("#"), LVCFMT_RIGHT, 36);
+	list_results.InsertColumn(1, _T("Work Time"), LVCFMT_LEFT, 80);
+	list_results.InsertColumn(2, _T("FPS"), LVCFMT_RIGHT, 100);
+    list_results.InsertColumn(3, _T("Rate"), LVCFMT_RIGHT, 100);
+    list_results.InsertColumn(4, _T("Real Time"), LVCFMT_LEFT, 80);
+    list_results.InsertColumn(5, _T("Frames"), LVCFMT_RIGHT, 80);
 
 	// now create the list of renderers
-	cb_renderers.AddString(_T("Null Renderer"));
-	DSUtil::FilterTemplates	*renderers = &view->video_renderers;
-	for (i=0; i<renderers->filters.GetCount(); i++) {
-		cb_renderers.AddString(renderers->filters[i].name);
-	}
-	cb_renderers.SetCurSel(0);
-
-	// create the list of video decoders
-	ScanVideoDecoders();
-	for (i=0; i<decoders.GetCount(); i++) {
-		int index = cb_decoders.AddString(decoders[i].name);
-		cb_decoders.SetItemDataPtr(index, (void*)&decoders[i]);
-	}
-	if (decoders.GetCount() > 0) {
-		cb_decoders.SetCurSel(0);
-	}
+	cb_type.AddString(_T("Audio"));
+	cb_type.AddString(_T("Video"));
+	cb_type.SetCurSel(1);
+	
+    OnCbnSelChange();
 
 	phase_count = 3;
 
@@ -120,69 +117,6 @@ void CDecPerformanceForm::OnInitialize()
 	edit_passes.SetWindowText(str);
 	btn_spin.SetRange(1, 10);
 	btn_spin.SetPos(phase_count);
-}
-
-void CDecPerformanceForm::ScanVideoDecoders()
-{
-	// now find all filters that have both input and output pins
-	// and support video media type.
-	decoders.RemoveAll();
-
-	DSUtil::FilterTemplates			all_filters;
-	int								i, j, k;
-
-	all_filters.Enumerate(CLSID_LegacyAmFilterCategory);
-	for (i=0; i<all_filters.filters.GetCount(); i++) {
-		DSUtil::FilterTemplate	&filter = all_filters.filters[i];
-
-		// now check the pins
-		bool	video_in = false;
-		bool	video_out = false;
-
-		for (j=0; j<filter.input_pins.GetCount(); j++) {
-			DSUtil::PinTemplate	&pin = filter.input_pins[j];
-
-			// check media types
-			for (k=0; k<pin.types; k++) {
-				if (pin.major[k] == MEDIATYPE_Video &&
-					!DSUtil::IsVideoUncompressed(pin.minor[k])
-					) {
-					// at least one compressed input
-					video_in = true;
-				}
-				if (video_in) break;
-			}	
-			if (video_in) break;
-		}
-
-		for (j=0; j<filter.output_pins.GetCount(); j++) {
-			DSUtil::PinTemplate	&pin = filter.output_pins[j];
-
-			// check media types
-			for (k=0; k<pin.types; k++) {
-				if (pin.major[k] == MEDIATYPE_Video &&
-					DSUtil::IsVideoUncompressed(pin.minor[k])
-					) {
-					// at least one uncompressed output
-					video_out = true;
-				}
-				if (video_out) break;
-			}	
-			if (video_out) break;
-		}
-
-		// if it has video in and out, we can take it for a video decoder
-		if (video_in && video_out) {
-			decoders.Add(filter);
-		}
-	}
-
-	// we also display DMOs
-	all_filters.filters.RemoveAll();
-	all_filters.EnumerateDMO(DMOCATEGORY_VIDEO_DECODER);
-	for (i=0; i<all_filters.filters.GetCount(); i++) {
-		decoders.Add(all_filters.filters[i]);
-	}
 }
 
 void CDecPerformanceForm::OnSize(UINT nType, int cx, int cy)
@@ -205,17 +139,59 @@ void CDecPerformanceForm::OnBrowseClick()
 	CString		filename;
 
 	filter =  _T("");
-	filter += _T("Video Files (avi,mp4,mpg,mpeg,ts,mkv,ogg,ogm,pva,evo,flv,mov,hdmov,ifo,vob,rm,rmvb,wmv,asf)|*.avi;*.mp4;*.mpg;*.mpeg;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
-	filter += _T("Audio Files (aac,ac3,mp3,wma,mka,ogg,mpc,flac,ape,wav,ra,wv,m4a,tta,dts,spx,mp2,ofr,ofs,mpa)|*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
+    filter += _T("Audio Files |*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
+	filter += _T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
 	filter += _T("All Files|*.*|");
 
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
+    dlg.m_ofn.nFilterIndex = cb_type.GetCurSel() + 1;
     int ret = dlg.DoModal();
 
 	filename = dlg.GetPathName();
 	if (ret == IDOK) {
 		cb_files.SetWindowText(filename);
 	}	
+}
+
+void CDecPerformanceForm::OnCbnSelChange()
+{
+    cb_renderers.ResetContent();
+    cb_decoders.ResetContent();
+
+    DSUtil::FilterTemplates	*renderers;
+
+    if(!cb_type.GetCurSel())
+    {
+        // Audio Renderer
+	    renderers = &view->audio_renderers;
+
+	    // create the list of Audio decoders
+        decoders.EnumerateAudioDecoder();
+    }
+    else
+    {
+        // Video Renderer
+	    renderers = &view->video_renderers;
+
+        // create the list of Video decoders
+        decoders.EnumerateVideoDecoder();
+    }
+
+    int index = cb_renderers.AddString(_T("Null Renderer"));
+    cb_renderers.SetItemDataPtr(index, (void*)&null_renderer);
+    for (int i=0; i<renderers->filters.GetCount(); i++) {
+		index = cb_renderers.AddString(renderers->filters[i].name);
+        cb_renderers.SetItemDataPtr(index, (void*)&renderers->filters[i]);
+	}
+	cb_renderers.SetCurSel(0);
+
+    for (int i=0; i<decoders.filters.GetCount(); i++) {
+		index = cb_decoders.AddString(decoders.filters[i].name);
+		cb_decoders.SetItemDataPtr(index, (void*)&decoders.filters[i]);
+	}
+	if (decoders.filters.GetCount() > 0) {
+		cb_decoders.SetCurSel(0);
+	}
 }
 
 void CDecPerformanceForm::Start()
@@ -264,6 +240,7 @@ void CDecPerformanceForm::Start()
 	phase_cur			= 0;
 	runtime_total_ns	= 0;
 	frames_total		= 0;
+    realtime_total_ns   = 0;
 	running				= true;
 
 	view->OnPlayClick();
@@ -289,10 +266,10 @@ void MakeNiceTime(__int64 timens, CString &ret)
 	// convert to milliseconds
 	timens /= 1000000;
 
-	__int64			h = timens / (3600 * 1000);		timens -= h*(3600*1000);
-	__int64			m = timens / (  60 * 1000);		timens -= m*(  60*1000);
-	__int64			s = timens / (   1 * 1000);		timens -= s*(   1*1000);
-	__int64			ms= timens;
+	int			h = timens / (3600 * 1000);		timens -= h*(3600*1000);
+	int			m = timens / (  60 * 1000);		timens -= m*(  60*1000);
+	int			s = timens / (   1 * 1000);		timens -= s*(   1*1000);
+	int			ms= timens;
 
 	ret.Format(_T("%.02d:%.02d:%.02d.%.03d"), h, m, s, ms);
 }
@@ -312,26 +289,37 @@ void CDecPerformanceForm::OnPhaseComplete()
 	// retrieve the stats
 	__int64		runtime_ns;
 	__int64		frames;
+    __int64     realtime_ns;
 
-	time_filter->GetStats(&runtime_ns, &frames);
+	time_filter->GetStats(&runtime_ns, &frames, &realtime_ns);
 	if (runtime_ns <= 0) runtime_ns = 1;				// avoid division by zero.
 
 	runtime_total_ns	+= runtime_ns;
 	frames_total		+= frames;
+    realtime_total_ns   += realtime_ns;
 
 	// save the results
 	double		fps = (frames * 1000000000.0) / (double)runtime_ns;
 	CString		phase_idx_str;
 	CString		runtime_str;
 	CString		fps_str;
+    CString     realtime_str;
+    CString     rate_str;
+    CString     frames_str;
 
 	phase_idx_str.Format(_T("%d"), phase_cur);
 	MakeNiceTime(runtime_ns, runtime_str);
 	fps_str.Format(_T("%7.4f FPS"), (float)(fps));
+    rate_str.Format(_T("x%7.4f"), (double(realtime_ns) / double(runtime_ns)));
+    MakeNiceTime(realtime_ns, realtime_str);
+    frames_str.Format(_T("%d"), frames);
 
 	list_results.InsertItem(phase_cur-1, phase_idx_str);
 	list_results.SetItemText(phase_cur-1, 1, runtime_str);
 	list_results.SetItemText(phase_cur-1, 2, fps_str);
+    list_results.SetItemText(phase_cur-1, 3, rate_str);
+    list_results.SetItemText(phase_cur-1, 4, realtime_str);
+    list_results.SetItemText(phase_cur-1, 5, frames_str);
 
 	if (phase_cur >= phase_count) {
 	
@@ -342,14 +330,22 @@ void CDecPerformanceForm::OnPhaseComplete()
 		phase_idx_str	= _T("Avg.");
 		fps				= (frames_total * 1000000000.0) / (double)runtime_total_ns;
 		runtime_ns		= runtime_total_ns / phase_count;
+        realtime_ns     = realtime_total_ns / phase_count;
+        frames          = frames_total / phase_count;
 
 		MakeNiceTime(runtime_ns, runtime_str);
 		fps_str.Format(_T("%7.4f FPS"), (float)(fps));
+        rate_str.Format(_T("x%7.4f"), (double(realtime_ns) / double(runtime_ns)));
+        MakeNiceTime(realtime_ns, realtime_str);
+        frames_str.Format(_T("%d"), frames);
 
 		int cnt = list_results.GetItemCount();
 		list_results.InsertItem(cnt, phase_idx_str);
 		list_results.SetItemText(cnt, 1, runtime_str);
 		list_results.SetItemText(cnt, 2, fps_str);
+        list_results.SetItemText(cnt, 3, rate_str);
+        list_results.SetItemText(cnt, 4, realtime_str);
+        list_results.SetItemText(cnt, 5, frames_str);
 
 	} else {
 
@@ -387,13 +383,13 @@ int CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
 		int		idx = cb_decoders.GetCurSel();
 		if (idx < 0) { hr = E_FAIL; break; }
 
-		DSUtil::FilterTemplate		*filter_template = (DSUtil::FilterTemplate*)cb_decoders.GetItemDataPtr(idx);
-		if (!filter_template) { hr = E_FAIL; break; }
+		DSUtil::FilterTemplate		*filter_template_decoder = (DSUtil::FilterTemplate*)cb_decoders.GetItemDataPtr(idx);
+		if (!filter_template_decoder) { hr = E_FAIL; break; }
 
 		// and insert it into the graph
-		ret = filter_template->CreateInstance(&decoder);
+		ret = filter_template_decoder->CreateInstance(&decoder);
 		if (ret < 0) { hr = E_FAIL; break; }
-		hr = gb->AddFilter(decoder, filter_template->name.GetBuffer());
+		hr = gb->AddFilter(decoder, filter_template_decoder->name.GetBuffer());
 		if (FAILED(hr)) break;
 
 		// 3. Now connect the source with the decoder
@@ -402,37 +398,26 @@ int CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
 
 		// 4. Insert the time measure filter
 		hr = NOERROR;
-		CMonoTimeMeasure	*timeflt = new CMonoTimeMeasure(NULL, &hr);
-		if (!timeflt || FAILED(hr)) { hr = E_FAIL; break; }
-		timeflt->NonDelegatingQueryInterface(IID_IBaseFilter, (void**)&time);
-		timeflt->NonDelegatingQueryInterface(IID_IMonoTimeMeasure, (void**)&time_filter);
-		hr = gb->AddFilter(time, L"Time Measure Filter");
+        hr = time_filter_template.CreateInstance(&time);
+		if (FAILED(hr)) { hr = E_FAIL; break; }
+        time->QueryInterface(IID_IMonoTimeMeasure, (void**)&time_filter);
+        hr = gb->AddFilter(time, time_filter_template.name);
 		if (FAILED(hr)) break;
 		hr = DSUtil::ConnectFilters(gb, decoder, time);
 		if (FAILED(hr)) break;
 
 		// 5. Insert the renderer filter
 		idx = cb_renderers.GetCurSel();
-		if (idx == 0) {
-			// create the NULL Renderer
-			hr = CoCreateInstance(DSUtil::CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&renderer);
-			if (FAILED(hr)) break;
-			hr = gb->AddFilter(renderer, L"Null Renderer");
-			if (FAILED(hr)) break;
-		} else {
-			// instantiate the video renderer
-			idx -= 1;
-			if (idx >= 0 && idx < view->video_renderers.filters.GetCount()) {
-				DSUtil::FilterTemplate	&ren_template = view->video_renderers.filters[idx];
-				hr = ren_template.CreateInstance(&renderer);
-				if (FAILED(hr)) break;
-				hr = gb->AddFilter(renderer, ren_template.name.GetBuffer());
-				if (FAILED(hr)) break;
-			} else {
-				hr = E_FAIL;
-				break;
-			}
-		}
+		if (idx < 0) { hr = E_FAIL; break; }
+
+		DSUtil::FilterTemplate		*filter_template_renderer = (DSUtil::FilterTemplate*)cb_renderers.GetItemDataPtr(idx);
+		if (!filter_template_renderer) { hr = E_FAIL; break; }
+
+		// and insert it into the graph
+		ret = filter_template_renderer->CreateInstance(&renderer);
+		if (ret < 0) { hr = E_FAIL; break; }
+		hr = gb->AddFilter(renderer, filter_template_renderer->name.GetBuffer());
+		if (FAILED(hr)) break;
 
 		// connect the time filter
 		hr = DSUtil::ConnectFilters(gb, time, renderer);

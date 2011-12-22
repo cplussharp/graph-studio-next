@@ -149,6 +149,8 @@
 #define IDC_BUTTON_START                1075
 #define IDC_BUTTON_STOP                 1076
 #define IDC_STATIC_FILTER               1077
+#define IDC_COMBO_RENDERER2             1077
+#define IDC_COMBO_TYPE                  1077
 #define IDC_COMBO_NEW                   1078
 #define IDC_LIST3                       1081
 #define IDC_LIST_CAPS                   1081
@@ -172,7 +174,8 @@
 #define ID_VIDEO_SOURCE0                6050
 #define ID_AUDIO_RENDERER0              6100
 #define ID_VIDEO_RENDERER0              6150
-#define ID_FAVORITE_FILTER              6200
+#define ID_INTERNAL_FILTER0             6200
+#define ID_FAVORITE_FILTER              6250
 #define ID_STREAM_SELECT                6800
 #define ID_PREFERRED_VIDEO_RENDERER     8000
 #define ID_COMPATIBLE_FILTER            9000
@@ -251,15 +254,16 @@
 #define ID_GRAPH_INSERTAUDIOSOURCE      32862
 #define ID_GRAPH_INSERTVIDEOSOURCE      32863
 #define ID_GRAPH_INSERTFILTERFROMFILE   32864
-#define ID_OPTIONS_USEMEDIAINFO 32865
+#define ID_OPTIONS_USEMEDIAINFO         32865
+#define ID_GRAPH_INSERTINTERNALFILTER   32866
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        168
-#define _APS_NEXT_COMMAND_VALUE         32866
-#define _APS_NEXT_CONTROL_VALUE         1099
+#define _APS_NEXT_COMMAND_VALUE         32867
+#define _APS_NEXT_CONTROL_VALUE         1100
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

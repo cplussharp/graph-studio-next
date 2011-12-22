@@ -7,6 +7,23 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
+const CFactoryTemplate CMonoTimeMeasure::g_Template = {
+		L"Time Measure Filter",
+        &CLSID_MonoTimeMeasure,
+		CMonoTimeMeasure::CreateInstance,
+		NULL,
+		NULL
+	};
+
+CUnknown* CMonoTimeMeasure::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
+{
+    CMonoTimeMeasure* pNewObject = new CMonoTimeMeasure(punk, phr);
+    if (NULL == pNewObject) {
+        *phr = E_OUTOFMEMORY;
+    }
+
+    return pNewObject;
+}
 
 //-----------------------------------------------------------------------------
 //
@@ -35,7 +52,7 @@ STDMETHODIMP CMonoTimeMeasure::NonDelegatingQueryInterface(REFIID riid, void ** 
 
 HRESULT CMonoTimeMeasure::CheckInputType(const CMediaType* mtIn)
 {
-	if (mtIn->majortype != MEDIATYPE_Video) return E_FAIL;
+	if (mtIn->majortype != MEDIATYPE_Video && mtIn->majortype != MEDIATYPE_Audio) return E_FAIL;
 	return NOERROR;
 }
 
@@ -43,6 +60,11 @@ HRESULT CMonoTimeMeasure::Transform(IMediaSample *pSample)
 {
 	stop_time = GetTimeNS();
 	frames_done ++;
+
+    REFERENCE_TIME timeStart, timeEnd;
+    if(SUCCEEDED(pSample->GetTime(&timeStart, &timeEnd)))
+        real_time += timeEnd - timeStart;
+
 	return NOERROR;
 }
 
@@ -51,6 +73,7 @@ HRESULT CMonoTimeMeasure::StartStreaming()
 	frames_done = 0;
 	start_time = GetTimeNS();
 	stop_time = GetTimeNS();
+    real_time = 0;
 	return NOERROR;
 }
 
@@ -71,15 +94,15 @@ __int64 CMonoTimeMeasure::GetTimeNS()
 	return llMulDiv(time.QuadPart, 1000*1000*1000, frequency.QuadPart, 0);
 }
 
-STDMETHODIMP CMonoTimeMeasure::GetStats(__int64 *runtime_ns, __int64 *frames)
+STDMETHODIMP CMonoTimeMeasure::GetStats(__int64 *runtime_ns, __int64 *frames, __int64* realtime_ns)
 {
 	// return the statistics
-
 	__int64		time = stop_time - start_time;
 	if (time < 0) time = 0;
 
 	if (runtime_ns) *runtime_ns = time;
 	if (frames) *frames = frames_done;
+    if (realtime_ns) *realtime_ns = real_time * 100;
 
 	return NOERROR;
 }

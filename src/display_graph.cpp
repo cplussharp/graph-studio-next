@@ -2572,7 +2572,7 @@ namespace GraphStudio
 		preferred_video_renderer = _T("");
 		video_renderers = NULL;
 
-        use_media_info = true;
+        use_media_info = false;
 
 		// load bitmaps
 		BOOL ok;	

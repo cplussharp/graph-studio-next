@@ -52,5 +52,8 @@ public:
 	// open and close the dump file
 	virtual HRESULT OnStartStreaming();
 	virtual HRESULT OnStopStreaming();
+
+    static const CFactoryTemplate g_Template;
+    static CUnknown * WINAPI CreateInstance(LPUNKNOWN punk, HRESULT *phr);
 };
 

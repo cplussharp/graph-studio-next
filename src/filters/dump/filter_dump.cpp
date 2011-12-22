@@ -7,6 +7,24 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
+const CFactoryTemplate CMonoDump::g_Template = {
+		L"Dump Filter",
+        &CLSID_MonoDump,
+		CMonoDump::CreateInstance,
+		NULL,
+		NULL
+	};
+
+CUnknown* CMonoDump::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
+{
+    CMonoDump* pNewObject = new CMonoDump(punk, phr);
+    if (NULL == pNewObject) {
+        *phr = E_OUTOFMEMORY;
+    }
+
+    return pNewObject;
+}
+
 //-----------------------------------------------------------------------------
 //
 //	CMonoDump class
