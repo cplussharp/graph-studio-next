@@ -49,6 +49,7 @@ public:
 	DSUtil::FilterTemplates		video_sources;
 	DSUtil::FilterTemplates		audio_renderers;
 	DSUtil::FilterTemplates		video_renderers;
+    DSUtil::FilterTemplates		internal_filters;
 
 	enum {
 		TIMER_GRAPH_STATE = 1,
@@ -112,6 +113,7 @@ public:
 	void OnVideoSourceClick(UINT nID);
 	void OnAudioRendererClick(UINT nID);
 	void OnVideoRendererClick(UINT nID);
+    void OnInternalFilterClick(UINT nID);
 	void OnFavoriteFilterClick(UINT nID);
 	void OnPreferredVideoRendererClick(UINT nID);
 	int InsertFilterFromTemplate(DSUtil::FilterTemplate &filter);
