@@ -148,7 +148,29 @@ namespace GraphStudio
 		}
 		inline void Put_ByteAlign_Zero() { int32 bl=(bits)&0x07; if (bl<8) { PutBits(0,8-bl); } WriteBits(); }
 		inline void Put_ByteAlign_One() { int32 bl=(bits)&0x07; if (bl<8) {	PutBits(0xffffff,8-bl); } WriteBits(); }
-
 	};
+
+
+    class CBitStreamReader
+    {
+    public:
+        CBitStreamReader(UINT8* buf, int size);
+        inline UINT32 ByteAligned() const { return m_bitsLeft == 8 ? 1 : 0; }
+        inline UINT32 IsEnd() const { return m_p >= m_end ? 1 : 0; }
+        inline int Pos() const { return (m_p - m_start); }
+        
+        UINT32 ReadU(int n);
+        UINT32 ReadU1();
+        inline UINT32 ReadU8() {return ReadU(8);}
+        UINT16 ReadU16();
+        UINT32 ReadUE();
+        INT32 ReadSE();
+
+    private:
+        UINT8* m_start;
+        UINT8* m_p;
+        UINT8* m_end;
+        int m_bitsLeft;
+    };
 
 };

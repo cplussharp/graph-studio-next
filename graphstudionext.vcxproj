@@ -236,6 +236,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="src\MediaInfo.h" />
     <ClInclude Include="src\MediaInfoDLL.h" />
+    <ClInclude Include="src\moreuuids.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\ConfirmForm.h" />
     <ClInclude Include="src\DecPerformanceForm.h" />

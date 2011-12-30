@@ -50,7 +50,10 @@ namespace GraphStudio
 
 
 
-
+    // from MainConcept Demo Codec SDK
+    // {8D2D71CB-243F-45E3-B2D8-5FD7967EC09B}
+    static const GUID MEDIASUBTYPE_MC_H264 =
+	{ 0x8D2D71CB, 0x243F, 0x45E3, { 0xB2, 0xD8, 0x5F, 0xD7, 0x96, 0x7E, 0xC0, 0x9B } };
 
 
 

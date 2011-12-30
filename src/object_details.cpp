@@ -544,6 +544,11 @@ namespace GraphStudio
 			MPEG2VIDEOINFO		*mvi = (MPEG2VIDEOINFO*)pmt->pbFormat;
 			PropItem	*mviinfo = mtinfo->AddItem(new PropItem(_T("MPEG2VIDEOINFO")));
 			GetMpeg2VideoInfoDetails(mvi, mviinfo);
+
+            // we can also parse out decoder specific info in some cases
+            if (pmt->subtype == MEDIASUBTYPE_H264 || pmt->subtype == MEDIASUBTYPE_AVC1 || pmt->subtype == MEDIASUBTYPE_MC_H264 ) {
+				GetExtradata_H264(pmt, mtinfo);
+			}
 		}
 
 		// we can also parse out decoder specific info in some cases
@@ -711,7 +716,6 @@ namespace GraphStudio
 		}
 		extrabuf = extrabuf.MakeUpper();
 		mviinfo->AddItem(new PropItem(_T("Sequence Header"), extrabuf));
-
 
 		PropItem	*vihinfo = mviinfo->AddItem(new PropItem(_T("VIDEOINFOHEADER2")));
 		GetVideoInfo2Details(&mvi->hdr, vihinfo);
@@ -957,6 +961,134 @@ namespace GraphStudio
 			// RAW
 			Parse_AAC_Raw(extra, aacinfo);
 		}
+
+		return 0;
+	}
+
+    int GetExtradata_H264(CMediaType *pmt, PropItem *mtinfo)
+	{
+		if (pmt->formattype != FORMAT_MPEG2Video) return 0;
+
+		MPEG2VIDEOINFO	*m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
+		int			extralen = m2vi->cbSequenceHeader;
+        uint8*      extra = (uint8*)m2vi->dwSequenceHeader;
+
+		// done with
+		if (extralen <= 0) return 0;
+
+        CBitStreamReader br(extra, extralen);
+        UINT16 length = br.ReadU16();
+
+        UINT8 NALType = br.ReadU8() & 0x1f;
+
+        if(NALType == 7)
+        {
+            PropItem *spsinfo = mtinfo->AddItem(new PropItem(_T("H264 Sequence Parameter Set")));
+            int profile = br.ReadU8();
+            spsinfo->AddItem(new PropItem(_T("Profile IDC"), profile));
+            
+            RECT constsetflags; // use rect only to save and show the 4 values
+            constsetflags.left = br.ReadU1();
+            constsetflags.top = br.ReadU1();
+            constsetflags.right = br.ReadU1();
+            constsetflags.bottom = br.ReadU1();
+            br.ReadU(4);    // Zero
+            spsinfo->AddItem(new PropItem(_T("Constraint Set Flags"), constsetflags));
+
+            spsinfo->AddItem(new PropItem(_T("Level IDC"), br.ReadU8()));
+
+            spsinfo->AddItem(new PropItem(_T("Seq Parameter Set ID"), br.ReadUE()));
+
+            if(profile == 100 || profile == 110 || profile == 122 || profile == 144)
+            {
+                int chroma = br.ReadUE();
+                spsinfo->AddItem(new PropItem(_T("Chroma Format IDC"), chroma));
+                if(chroma == 3)
+                    spsinfo->AddItem(new PropItem(_T("Residual Colour Transform"), br.ReadU1()));
+
+                spsinfo->AddItem(new PropItem(_T("BitDepth Luma (-8)"), br.ReadUE()));
+                spsinfo->AddItem(new PropItem(_T("BitDepth Chroma (-8)"), br.ReadUE()));
+                spsinfo->AddItem(new PropItem(_T("QPPrime Y Zero Transform Bypass"), br.ReadU1()));
+
+                int seq_scaling_matrix = br.ReadU1();
+                spsinfo->AddItem(new PropItem(_T("Seq Scaling Matrix Present"), seq_scaling_matrix));
+                if(seq_scaling_matrix)
+                {
+                    // TODO 
+                    // http://h264bitstream.svn.sourceforge.net/viewvc/h264bitstream/trunk/h264bitstream/h264_stream.c?revision=24&view=markup
+                    return 0;
+                }
+            }
+
+            spsinfo->AddItem(new PropItem(_T("Log2 Max Frame Num (-4)"), br.ReadUE()));
+                
+            int pic_order = br.ReadUE();
+            spsinfo->AddItem(new PropItem(_T("Pic Order Cnt Type"), pic_order));
+            if(pic_order == 0)
+                spsinfo->AddItem(new PropItem(_T("Log2 Max Pic Order Cnt Lsb (-4)"), br.ReadUE()));
+            else
+            {
+                spsinfo->AddItem(new PropItem(_T("Delta Pic Order Always Zero"), br.ReadU1()));
+                spsinfo->AddItem(new PropItem(_T("Offset For Non Ref Pic"), br.ReadSE()));
+                spsinfo->AddItem(new PropItem(_T("Offset For Top To Bottom Field"), br.ReadSE()));
+
+                int num_ref_frames = br.ReadUE();
+                spsinfo->AddItem(new PropItem(_T("Num Ref Frames In Pic Order Cnt Cycle"), num_ref_frames));
+                if(num_ref_frames > 0)
+                {
+                    CString str = _T("");
+                    for(int i=0; i<num_ref_frames; i++)
+                    {
+                        if(!str.IsEmpty())
+                            str.Append(_T(", "));
+
+                        str.AppendFormat(_T("%d"), br.ReadSE());
+                    }
+
+                    spsinfo->AddItem(new PropItem(_T("Offset For Ref Frames"), str));
+                }
+            }
+
+            spsinfo->AddItem(new PropItem(_T("Num Ref Frames"), br.ReadUE()));
+            spsinfo->AddItem(new PropItem(_T("Gaps In Frame Num Value Allowed"), br.ReadU1()));
+            spsinfo->AddItem(new PropItem(_T("Pic Width In Mbs (-1)"), br.ReadUE()));
+            spsinfo->AddItem(new PropItem(_T("Pic Height In Map Units (-1)"), br.ReadUE()));
+
+            int frame_mbs_only = br.ReadU1();
+            spsinfo->AddItem(new PropItem(_T("Frame Mbs Only"), frame_mbs_only));
+            if(!frame_mbs_only)
+                spsinfo->AddItem(new PropItem(_T("Mb Adaptive Frame Field"), br.ReadU1()));
+
+            spsinfo->AddItem(new PropItem(_T("Direct 8x8 Inference"), br.ReadU1()));
+
+            if(br.ReadU1())
+            {
+                RECT rect;
+                rect.left = br.ReadUE();
+                rect.right = br.ReadUE();
+                rect.top = br.ReadUE();
+                rect.bottom = br.ReadUE();
+
+                spsinfo->AddItem(new PropItem(_T("Frame Crop (l,r,t,b)"), rect));
+            }
+
+            if(br.ReadU1())
+            {
+                spsinfo->AddItem(new PropItem(_T("VUI Parameters present"), 1));
+                // TODO maybe later
+                return 0;
+            }
+            else
+                spsinfo->AddItem(new PropItem(_T("VUI Parameters present"), 0));
+        }
+        else if(NALType == 8)
+        {
+            PropItem *ppsinfo = mtinfo->AddItem(new PropItem(_T("H264 Picture Parameter Set")));
+        }
+        else
+        {
+            return 0;
+        }
 
 		return 0;
 	}
