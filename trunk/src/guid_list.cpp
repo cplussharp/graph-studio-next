@@ -492,7 +492,33 @@ namespace GraphStudio
         KNOWN(MEDIASUBTYPE_VYUY),
         KNOWN(MEDIASUBTYPE_Y800),
         KNOWN(MEDIASUBTYPE_NV21),
-        KNOWN(MEDIASUBTYPE_YV16)
+        KNOWN(MEDIASUBTYPE_YV16),
+        KNOWN(MEDIASUBTYPE_WavpackHybrid),
+        KNOWN(MEDIASUBTYPE_VOBSUB2),
+        KNOWN(MEDIASUBTYPE_DXRSub),
+        KNOWN(MEDIASUBTYPE_EAC3),
+
+        KNOWN(MEDIASUBTYPE_FLAC_XIPH),
+        KNOWN(MEDIASUBTYPE_OggFLAC_1_0),
+        KNOWN(FORMAT_FLAC),
+        KNOWN(MEDIATYPE_OggPacketStream),
+        KNOWN(FORMAT_OggIdentHeader),
+        KNOWN(MEDIASUBTYPE_Ogg_XIPH),
+        KNOWN(MEDIASUBTYPE_Speex),
+        KNOWN(FORMAT_Speex),
+        KNOWN(MEDIASUBTYPE_Theora),
+        KNOWN(FORMAT_Theora),
+        KNOWN(MEDIASUBTYPE_Vorbis_XIPH),
+        KNOWN(FORMAT_Vorbis),
+        KNOWN(FORMAT_Vorbis2),
+        KNOWN(MEDIASUBTYPE_Schroedinger),
+        KNOWN(FORMAT_Schroedinger),
+        KNOWN(FORMAT_CMML),
+        KNOWN(MEDIASUBTYPE_CMML),
+        KNOWN(MEDIASUBTYPE_RawOggAudio),
+        KNOWN(FORMAT_RawOggAudio),
+        KNOWN(MEDIASUBTYPE_Dirac_XIPH),
+        KNOWN(FORMAT_Dirac)
 	};
 	const int KnownGuidCount = sizeof(KnownGuidList) / sizeof(KnownGuidList[0]);
 
