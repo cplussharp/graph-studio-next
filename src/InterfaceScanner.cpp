@@ -654,7 +654,31 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{C76794A1-D6C5-11D0-9E69-00C04FD7C15B}"), TEXT("IVPNotify"), TEXT("uuids.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390589.aspx")),
     CInterfaceInfo(TEXT("{EBF47183-8764-11D1-9E69-00C04FD7C15B}"), TEXT("IVPNotify2"), TEXT("uuids.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390590.aspx")),
     CInterfaceInfo(TEXT("{C4C4C4D3-0049-4E2B-98FB-9537F6CE516D}"), TEXT("IXDSCodecConfig"), TEXT("encdec.h"), TEXT("")),
-    CInterfaceInfo(TEXT("{18C628ED-962A-11D2-8D08-00A0C9441E20}"), TEXT("IXml2Dex"), TEXT("qedit.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390609.aspx"))
+    CInterfaceInfo(TEXT("{18C628ED-962A-11D2-8D08-00A0C9441E20}"), TEXT("IXml2Dex"), TEXT("qedit.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390609.aspx")),
+
+    CInterfaceInfo(TEXT("{DF9C0DC3-1924-4bfe-8DC1-1084453A0F8F}"), TEXT("IFLACEncodeSettings"), TEXT("FlacTypes.h"), TEXT("http://svn.xiph.org/trunk/oggdsf/src/lib/codecs/flac/filters/dsfFLACEncoder/IFLACEncodeSettings.h")),
+    CInterfaceInfo(TEXT("{43F0F818-10B0-4c86-B9F1-F6B6E2D33462}"), TEXT("IOggDecoder"), TEXT("OggTypes.h"), TEXT("http://svn.xiph.org/trunk/oggdsf/src/lib/core/directshow/dsfOggDemux2/IOggDecoder.h")),
+    CInterfaceInfo(TEXT("{83D7F506-53ED-4f15-B6D8-7D8E9E72A918}"), TEXT("IOggOutputPin"), TEXT("OggTypes.h"), TEXT("http://svn.xiph.org/trunk/oggdsf/src/lib/core/directshow/dsfOggDemux2/IOggOutputPin.h")),
+    CInterfaceInfo(TEXT("{90D6513C-A665-4b16-ACA7-B3D1D4EFE58D}"), TEXT("IOggMuxProgress"), TEXT("OggTypes.h"), TEXT("http://svn.xiph.org/trunk/oggdsf/src/lib/core/directshow/dsfOggMux/IOggMuxProgress.h")),
+    CInterfaceInfo(TEXT("{30EB3AD8-B2DD-4f9a-9C25-845999B03476}"), TEXT("IOggSeekTable"), TEXT("OggTypes.h"), TEXT("http://svn.xiph.org/trunk/oggdsf/src/lib/core/directshow/dsfOggDemux2/IOggSeekTable.h")),
+    CInterfaceInfo(TEXT("{3a2cf997-0aeb-4d3f-9846-b5db2ca4c80b}"), TEXT("IOggMuxSettings"), TEXT("OggTypes.h"), TEXT("http://svn.xiph.org/trunk/oggdsf/src/lib/core/directshow/dsfOggMux/IOggMuxSettings.h")),
+    CInterfaceInfo(TEXT("{EB5AED9C-8CD0-4c4b-B5E8-F5D10AD1314D}"), TEXT("IOggBaseTime"), TEXT("OggTypes.h"), TEXT("http://svn.xiph.org/trunk/oggdsf/src/lib/core/directshow/dsfOggDemux2/IOggBaseTime.h")),
+    CInterfaceInfo(TEXT("{479038D2-57FF-41ee-B397-FB98199BF1E8}"), TEXT("ISpeexEncodeSettings"), TEXT("SpeexTypes.h"), TEXT("http://svn.xiph.org/trunk/oggdsf/src/lib/codecs/speex/filters/dsfSpeexEncoder/ISpeexEncodeSettings.h")),
+    CInterfaceInfo(TEXT("{4F063B3A-B397-4c22-AFF4-2F8DB96D292A}"), TEXT("ITheoraEncodeSettings"), TEXT("TheoraTypes.h"), TEXT("http://svn.xiph.org/trunk/oggdsf/src/lib/codecs/theora/filters/dsfTheoraEncoder/ITheoraEncodeSettings.h")),
+    CInterfaceInfo(TEXT("{A4C6A887-7BD3-4b33-9A57-A3EB10924D3A}"), TEXT("IVorbisEncodeSettings"), TEXT("VorbisTypes.h"), TEXT("http://svn.xiph.org/trunk/oggdsf/src/lib/codecs/vorbis/filters/dsfVorbisEncoder/IVorbisEncodeSettings.h")),
+    CInterfaceInfo(TEXT("{BFF86BE7-9E32-40EF-B200-7BCC7800CC72}"), TEXT("IDownmixAudio"), TEXT("VorbisTypes.h"), TEXT("http://svn.xiph.org/trunk/oggdsf/src/lib/codecs/vorbis/filters/dsfVorbisDecoder/IDownmixAudio.h")),
+    CInterfaceInfo(TEXT("{ED3110F2-5211-11DF-94AF-0026B977EEAA}"), TEXT("IVP8PostProcessing"), TEXT("vp8decoder.idl"), TEXT("http://svn.xiph.org/trunk/oggdsf/src/lib/codecs/webm/webmdshow/IDL/vp8decoder.idl")),
+    CInterfaceInfo(TEXT("{ED3110FE-5211-11DF-94AF-0026B977EEAA}"), TEXT("IVP8Encoder"), TEXT("vp8encoder.idl"), TEXT("http://svn.xiph.org/trunk/oggdsf/src/lib/codecs/webm/webmdshow/IDL/vp8encoder.idl")),
+    CInterfaceInfo(TEXT("{ED311101-5211-11DF-94AF-0026B977EEAA}"), TEXT("IWebmMux"), TEXT("webmmux.idl"), TEXT("http://svn.xiph.org/trunk/oggdsf/src/lib/codecs/webm/webmdshow/IDL/webmmux.idl")),
+
+    CInterfaceInfo(TEXT("{FA40D6E9-4D38-4761-ADD2-71A9EC5FD32F}"), TEXT("ILAVVideoSettings"), TEXT("LAVVideoSettings.h"), TEXT("http://code.google.com/p/lavfilters/source/browse/developer_info/LAVVideoSettings.h")),
+    CInterfaceInfo(TEXT("{774A919D-EA95-4A87-8A1E-F48ABE8499C7}"), TEXT("ILAVFSettings"), TEXT("LAVSplitterSettings.h"), TEXT("http://code.google.com/p/lavfilters/source/browse/developer_info/LAVSplitterSettings.h")),
+    CInterfaceInfo(TEXT("{4158A22B-6553-45D0-8069-24716F8FF171}"), TEXT("ILAVAudioSettings"), TEXT("LAVAudioSettings.h"), TEXT("http://code.google.com/p/lavfilters/source/browse/developer_info/LAVAudioSettings.h")),
+    CInterfaceInfo(TEXT("{A668B8F2-BA87-4F63-9D41-768F7DE9C50E}"), TEXT("ILAVAudioStatus"), TEXT("LAVAudioSettings.h"), TEXT("http://code.google.com/p/lavfilters/source/browse/developer_info/LAVAudioSettings.h")),
+    CInterfaceInfo(TEXT("{01A5BBD3-FE71-487C-A2EC-F585918A8724}"), TEXT("IKeyFrameInfo"), TEXT("IKeyFrameInfo.h"), TEXT("http://code.google.com/p/lavfilters/source/browse/developer_info/IKeyFrameInfo.h")),
+    CInterfaceInfo(TEXT("{03E98D51-DDE7-43aa-B70C-42EF84A3A23D}"), TEXT("ITrackInfo"), TEXT("ITrackInfo.h"), TEXT("http://code.google.com/p/lavfilters/source/browse/developer_info/ITrackInfo.h"))
+
+
 
 };
 const UINT CInterfaceScanner::m_countKnownInterfaces = sizeof(m_knownInterfaces) / sizeof(m_knownInterfaces[0]);
