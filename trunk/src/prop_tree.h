@@ -47,6 +47,7 @@ namespace GraphStudio
 		// constructors for separate types
 		PropItem(CString n, GUID guid);
 		PropItem(CString n, int val);
+        PropItem(CString n, unsigned int val);
 		PropItem(CString n, CString str);
         PropItem(CString n, CString str, bool isUrl);
 		PropItem(CString n, bool val);

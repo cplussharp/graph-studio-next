@@ -245,6 +245,9 @@
     <ClInclude Include="src\MediaInfoDLL.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\moreuuids.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">

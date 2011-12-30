@@ -129,4 +129,72 @@ namespace GraphStudio
 		return (l << k) | UGetBits(k);
 	}
 
+
+
+
+
+
+    CBitStreamReader::CBitStreamReader(UINT8* buf, int size)
+        : m_start(buf), m_p(buf), m_end(buf + size), m_bitsLeft(8)
+    {
+    }
+
+    UINT32 CBitStreamReader::ReadU1()
+    {
+        UINT32 r = 0;
+        if (IsEnd()) return 0;
+        
+        m_bitsLeft--;
+        r = ((*(m_p)) >> m_bitsLeft) & 0x01;
+    
+        if (m_bitsLeft == 0) { m_p++; m_bitsLeft = 8; }
+    
+        return r;
+    }
+    
+    UINT32 CBitStreamReader::ReadU(int n)
+    {
+        UINT32 r = 0;
+        int i;
+        for (i = 0; i < n; i++)
+        {
+            r |= ( ReadU1() << ( n - i - 1 ) );
+        }
+        return r;
+    }
+
+    UINT16 CBitStreamReader::ReadU16()
+    {
+        UINT16 r = ReadU(8) << 8;
+        r |= ReadU8();
+        return r;
+    }
+	
+    UINT32 CBitStreamReader::ReadUE()
+    {
+	    UINT32 r = 0;
+	    int i = 0;
+	
+	    while( ReadU1() == 0 && i < 32 && !IsEnd() )
+	    {
+	        i++;
+	    }
+	    r = ReadU(i);
+	    r += (1 << i) - 1;
+	    return r;
+    }
+	
+    INT32 CBitStreamReader::ReadSE() 
+    {
+	    INT32 r = ReadUE();
+	    if (r & 0x01)
+	    {
+	        r = (r+1)/2;
+	    }
+	    else
+	    {
+	        r = -(r/2);
+	    }
+	    return r;
+    }
 };
