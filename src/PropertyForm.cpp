@@ -404,6 +404,29 @@ int CPropertyForm::AnalyzeDMO(IUnknown *obj)
 		break;
 	}
 
+    // Check if Resizer DMO
+    CComPtr<IWMResizerProps> resizer;
+    hr = obj->QueryInterface(IID_IWMResizerProps, (void**)&resizer);
+	if (SUCCEEDED(hr) && resizer)
+    {
+        CWMResizerPage	*wmresizer_page;
+		wmresizer_page = new CWMResizerPage(NULL, &hr, _T("IWMResizer"));
+		if (wmresizer_page) {
+			wmresizer_page->AddRef();
+
+			hr = wmresizer_page->QueryInterface(IID_IPropertyPage, (void**)&page);
+			if (SUCCEEDED(hr)) {
+				hr = page->SetObjects(1, &obj);
+				if (SUCCEEDED(hr)) {
+					container->AddPage(page);
+				}
+			}
+			page = NULL;
+
+			wmresizer_page->Release();
+		}
+    }
+
 	return 0;
 }
 

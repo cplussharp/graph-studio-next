@@ -72,7 +72,9 @@
 #include <evr.h>
 #include <dmo.h>
 #include <wmcodecdsp.h>
+#pragma comment(lib, "wmcodecdspuuid.lib")
 #include "moreuuids.h"
+#include <propsys.h>
 
 #include "..\resource.h"
 
@@ -129,6 +131,7 @@ using namespace std;
 #include "FilterACMPage.h"
 #include "BufferNegotiationPage.h"
 #include "WMADecPage.h"
+#include "WMResizerPage.h"
 
 #include "BrowserControl.h"
 

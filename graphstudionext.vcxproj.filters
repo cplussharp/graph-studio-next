@@ -248,6 +248,9 @@
     <ClInclude Include="src\moreuuids.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\WMResizerPage.h">
+      <Filter>Property Pages</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -402,6 +405,9 @@
     </ClCompile>
     <ClCompile Include="src\MediaInfo.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WMResizerPage.cpp">
+      <Filter>Property Pages</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
