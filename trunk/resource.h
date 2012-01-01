@@ -7,6 +7,7 @@
 #define IDD_DIALOGBAR                   103
 #define IDD_BAR_SEEKING                 103
 #define IDD_DIALOG_FILTERDETAILS        105
+#define IDD_PROPPAGE_WMRESIZER          106
 #define IDR_MAINFRAME                   128
 #define IDR_graphstudioTYPE             129
 #define IDB_BITMAP_LOGO                 130
@@ -105,6 +106,8 @@
 #define IDC_EDIT_PASSES                 1031
 #define IDC_EDIT_ORIGINAL               1031
 #define IDC_EDIT_LATENCY                1031
+#define IDC_EDIT_SRC_TOP                1031
+#define IDC_EDIT_DST_TOP                1032
 #define IDC_TREE1                       1033
 #define IDC_TREE                        1033
 #define IDC_PROGRESS_POSITION           1034
@@ -168,6 +171,16 @@
 #define IDC_MFCLINK_SEARCH_ONLINE       1096
 #define IDC_CHECK_UNREGALL              1097
 #define IDC_COMBO_CLSID                 1098
+#define IDC_EDIT_SRC_LEFT               1100
+#define IDC_EDIT_SRC_WIDTH              1101
+#define IDC_EDIT_SRC_HEIGHT             1102
+#define IDC_EDIT_DST_LEFT               1103
+#define IDC_EDIT_DST_WIDTH              1104
+#define IDC_EDIT_DST_HEIGHT             1105
+#define IDC_CHECK_INTERLACED            1106
+#define IDC_RADIO_QUAL_HIGH             1107
+#define IDC_RADIO2                      1108
+#define IDC_RADIO_QUAL_FAST             1108
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -263,7 +276,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        168
 #define _APS_NEXT_COMMAND_VALUE         32867
-#define _APS_NEXT_CONTROL_VALUE         1100
+#define _APS_NEXT_CONTROL_VALUE         1109
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

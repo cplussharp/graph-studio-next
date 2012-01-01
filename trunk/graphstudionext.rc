@@ -13,6 +13,64 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
+// Deutsch (Deutschland) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PROPPAGE_WMRESIZER DIALOGEX 0, 0, 173, 134
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,173,20
+    GROUPBOX        "Source",IDC_STATIC,0,23,85,54
+    EDITTEXT        IDC_EDIT_SRC_TOP,29,33,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_SRC_LEFT,3,46,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_SRC_WIDTH,55,46,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_SRC_HEIGHT,29,59,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    GROUPBOX        "Destination",IDC_STATIC,87,23,85,54
+    EDITTEXT        IDC_EDIT_DST_TOP,117,33,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_DST_LEFT,91,46,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_DST_WIDTH,143,46,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_DST_HEIGHT,117,59,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Check if input is interlaced",IDC_CHECK_INTERLACED,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,3,112,99,10
+    GROUPBOX        "Quality algorithm",IDC_STATIC,0,79,173,27
+    CONTROL         "High quality",IDC_RADIO_QUAL_HIGH,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,4,92,53,10
+    CONTROL         "Fast",IDC_RADIO_QUAL_FAST,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,92,92,30,10
+    LTEXT           "T L",IDC_STATIC,16,34,10,8
+    LTEXT           "T L",IDC_STATIC,104,34,10,8
+    LTEXT           "H W",IDC_STATIC,59,62,14,8
+    LTEXT           "H W",IDC_STATIC,147,62,14,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_PROPPAGE_WMRESIZER, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 117
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Deutsch (Deutschland) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
 // Englisch (USA) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
@@ -872,6 +930,10 @@ BEGIN
     END
 
     IDD_DIALOG_AUDIO_COMPRESS, DIALOG
+    BEGIN
+    END
+
+    IDD_DIALOG_WMADECODER, DIALOG
     BEGIN
     END
 

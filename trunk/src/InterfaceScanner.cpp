@@ -676,8 +676,26 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{4158A22B-6553-45D0-8069-24716F8FF171}"), TEXT("ILAVAudioSettings"), TEXT("LAVAudioSettings.h"), TEXT("http://code.google.com/p/lavfilters/source/browse/developer_info/LAVAudioSettings.h")),
     CInterfaceInfo(TEXT("{A668B8F2-BA87-4F63-9D41-768F7DE9C50E}"), TEXT("ILAVAudioStatus"), TEXT("LAVAudioSettings.h"), TEXT("http://code.google.com/p/lavfilters/source/browse/developer_info/LAVAudioSettings.h")),
     CInterfaceInfo(TEXT("{01A5BBD3-FE71-487C-A2EC-F585918A8724}"), TEXT("IKeyFrameInfo"), TEXT("IKeyFrameInfo.h"), TEXT("http://code.google.com/p/lavfilters/source/browse/developer_info/IKeyFrameInfo.h")),
-    CInterfaceInfo(TEXT("{03E98D51-DDE7-43aa-B70C-42EF84A3A23D}"), TEXT("ITrackInfo"), TEXT("ITrackInfo.h"), TEXT("http://code.google.com/p/lavfilters/source/browse/developer_info/ITrackInfo.h"))
+    CInterfaceInfo(TEXT("{03E98D51-DDE7-43aa-B70C-42EF84A3A23D}"), TEXT("ITrackInfo"), TEXT("ITrackInfo.h"), TEXT("http://code.google.com/p/lavfilters/source/browse/developer_info/ITrackInfo.h")),
 
+    CInterfaceInfo(TEXT("{352bb3bd-2d4d-4323-9e71-dcdcfbd53ca6}"), TEXT("IWMVideoDecoderHurryup"), TEXT("wmcodecdsp.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ff819262.aspx")),
+    CInterfaceInfo(TEXT("{9F8496BE-5B9A-41b9-A9E8-F21CD80596C2}"), TEXT("IWMVideoForceKeyFrame"), TEXT("wmcodecdsp.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ff819268.aspx")),
+    CInterfaceInfo(TEXT("{A7B2504B-E58A-47fb-958B-CAC7165A057D}"), TEXT("IWMCodecStrings"), TEXT("wmcodecdsp.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ff819246.aspx")),
+    CInterfaceInfo(TEXT("{2573e11a-f01a-4fdd-a98d-63b8e0ba9589}"), TEXT("IWMCodecProps"), TEXT("wmcodecdsp.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ff819243.aspx")),
+    CInterfaceInfo(TEXT("{A81BA647-6227-43b7-B231-C7B15135DD7D}"), TEXT("IWMCodecLeakyBucket"), TEXT("wmcodecdsp.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ff819233.aspx")),
+    CInterfaceInfo(TEXT("{B72ADF95-7ADC-4a72-BC05-577D8EA6BF68}"), TEXT("IWMCodecOutputTimestamp"), TEXT("wmcodecdsp.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ff819237.aspx")),
+    CInterfaceInfo(TEXT("{45BDA2AC-88E2-4923-98BA-3949080711A3}"), TEXT("IWMVideoDecoderReconBuffer"), TEXT("wmcodecdsp.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ff819266.aspx")),
+    CInterfaceInfo(TEXT("{73F0BE8E-57F7-4f01-AA66-9F57340CFE0E}"), TEXT("IWMCodecPrivateData"), TEXT("wmcodecdsp.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ff819239.aspx")),
+    CInterfaceInfo(TEXT("{9bca9884-0604-4c2a-87da-793ff4d586c3}"), TEXT("IWMSampleExtensionSupport"), TEXT("wmcodecdsp.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ff819259.aspx")),
+    CInterfaceInfo(TEXT("{E7E9984F-F09F-4da4-903F-6E2E0EFE56B5}"), TEXT("IWMResamplerProps"), TEXT("wmcodecdsp.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ff819250.aspx")),
+    CInterfaceInfo(TEXT("{57665D4C-0414-4faa-905B-10E546F81C33}"), TEXT("IWMResizerProps"), TEXT("wmcodecdsp.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ff819254.aspx")),
+    CInterfaceInfo(TEXT("{776C93B3-B72D-4508-B6D0-208785F553E7}"), TEXT("IWMColorLegalizerProps"), TEXT("wmcodecdsp.h"), TEXT("")),
+    CInterfaceInfo(TEXT("{7B12E5D1-BD22-48ea-BC06-98E893221C89}"), TEXT("IWMInterlaceProps"), TEXT("wmcodecdsp.h"), TEXT("")),
+    CInterfaceInfo(TEXT("{4C06BB9B-626C-4614-8329-CC6A21B93FA0}"), TEXT("IWMFrameInterpProps"), TEXT("wmcodecdsp.h"), TEXT("")),
+    CInterfaceInfo(TEXT("{E6A49E22-C099-421d-AAD3-C061FB4AE85B}"), TEXT("IWMColorConvProps"), TEXT("wmcodecdsp.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ff819247.aspx")),
+    CInterfaceInfo(TEXT("{886d8eeb-8cf2-4446-8d02-cdba1dbdcf99}"), TEXT("IPropertyStore"), TEXT("Propsys.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/bb761474.aspx")),
+    CInterfaceInfo(TEXT("{71604b0f-97b0-4764-8577-2f13e98a1422}"), TEXT("INamedPropertyStore"), TEXT("Propsys.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/bb761664.aspx")),
+    CInterfaceInfo(TEXT("{c8e2d566-186e-4d49-bf41-6909ead56acc}"), TEXT("IPropertyStoreCapabilities"), TEXT("Propsys.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/bb761452.aspx"))
 
 
 };
