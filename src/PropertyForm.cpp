@@ -238,28 +238,9 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
 
 	if (filter) {
 		// display the filter details page
-		CComPtr<IPropertyPage>	page;
-		CFilterDetailsPage		*details_page;
 		HRESULT					hr;
 
-		details_page = new CFilterDetailsPage(NULL, &hr);
-		if (details_page) {
-			details_page->AddRef();
-
-			hr = details_page->QueryInterface(IID_IPropertyPage, (void**)&page);
-			if (SUCCEEDED(hr)) {
-				// assign the object
-				hr = page->SetObjects(1, &obj);
-				if (SUCCEEDED(hr)) {
-					// and add the page to our container
-					container->AddPage(page);
-				}
-			}
-			page = NULL;
-
-			// don't care anymore
-			details_page->Release();
-		}
+		AddPropertyPage(new CFilterDetailsPage(NULL, &hr), obj);
 
 		//---------------------------------------------------------------------
 		//
@@ -268,22 +249,7 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
 		//---------------------------------------------------------------------
 		CComPtr<IAMVfwCompressDialogs>		vfw_dialogs;
 		if (SUCCEEDED(obj->QueryInterface(IID_IAMVfwCompressDialogs, (void**)&vfw_dialogs))) {
-			CFilterVCMPage	*vcm_page;
-			vcm_page = new CFilterVCMPage(NULL, &hr, _T("VFW Dialogs"));
-			if (vcm_page) {
-				vcm_page->AddRef();
-
-				hr = vcm_page->QueryInterface(IID_IPropertyPage, (void**)&page);
-				if (SUCCEEDED(hr)) {
-					hr = page->SetObjects(1, &obj);
-					if (SUCCEEDED(hr)) {
-						container->AddPage(page);
-					}
-				}
-				page = NULL;
-
-				vcm_page->Release();
-			}
+			AddPropertyPage(new CFilterVCMPage(NULL, &hr, _T("VFW Dialogs")), obj);
 		}
 		vfw_dialogs = NULL;
 
@@ -296,6 +262,9 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
         // MediaInfo
         if(view->render_params.use_media_info)
             LoadMediaInfoPage(obj);
+
+        // Property Pages for some selected interfaces
+        LoadCustomInterfacePropertyPages(obj);
 
 		// let's enumerate all pins
 		CComPtr<IEnumPins>		epins;
@@ -379,28 +348,9 @@ int CPropertyForm::AnalyzeDMO(IUnknown *obj)
 		MoFreeMediaType(&dmt);
 	}
 
-	CComPtr<IPropertyPage>	page;
-
 	switch (dmo_type) {
 	case 0:
-		{
-			CWMADecPage	*wma_page;
-			wma_page = new CWMADecPage(NULL, &hr, _T("WMA Decoder"));
-			if (wma_page) {
-				wma_page->AddRef();
-
-				hr = wma_page->QueryInterface(IID_IPropertyPage, (void**)&page);
-				if (SUCCEEDED(hr)) {
-					hr = page->SetObjects(1, &obj);
-					if (SUCCEEDED(hr)) {
-						container->AddPage(page);
-					}
-				}
-				page = NULL;
-
-				wma_page->Release();
-			}
-		}
+		AddPropertyPage(new CWMADecPage(NULL, &hr, _T("WMA Decoder")), obj);
 		break;
 	}
 
@@ -408,24 +358,13 @@ int CPropertyForm::AnalyzeDMO(IUnknown *obj)
     CComPtr<IWMResizerProps> resizer;
     hr = obj->QueryInterface(IID_IWMResizerProps, (void**)&resizer);
 	if (SUCCEEDED(hr) && resizer)
-    {
-        CWMResizerPage	*wmresizer_page;
-		wmresizer_page = new CWMResizerPage(NULL, &hr, _T("IWMResizer"));
-		if (wmresizer_page) {
-			wmresizer_page->AddRef();
+		AddPropertyPage(new CWMResizerPage(NULL, &hr, _T("IWMResizer")), obj);
 
-			hr = wmresizer_page->QueryInterface(IID_IPropertyPage, (void**)&page);
-			if (SUCCEEDED(hr)) {
-				hr = page->SetObjects(1, &obj);
-				if (SUCCEEDED(hr)) {
-					container->AddPage(page);
-				}
-			}
-			page = NULL;
-
-			wmresizer_page->Release();
-		}
-    }
+    // Check if it has IDMOQualityControl
+    CComPtr<IWMResizerProps> qualctrl;
+    hr = obj->QueryInterface(IID_IDMOQualityControl, (void**)&qualctrl);
+	if (SUCCEEDED(hr) && qualctrl)
+		AddPropertyPage(new CDMOQualCtrlPage(NULL, &hr, _T("DMOQualCtrl")), obj);
 
 	return 0;
 }
@@ -458,29 +397,10 @@ int CPropertyForm::LoadPinPage(IPin *pin)
 	CString		title(info.achName);
 
 	// display the filter details page
-	CComPtr<IPropertyPage>	page;
-	CPinDetailsPage			*details_page;
 	HRESULT					hr;
 
-	details_page = new CPinDetailsPage(NULL, &hr, title);
-	if (details_page) {
-		details_page->AddRef();
-
-		hr = details_page->QueryInterface(IID_IPropertyPage, (void**)&page);
-		if (SUCCEEDED(hr)) {
-			// assign the object
-			hr = page->SetObjects(1, (IUnknown**)&pin);
-			if (SUCCEEDED(hr)) {
-				// and add the page to our container
-				container->AddPage(page);
-			}
-		}
-		page = NULL;
-
-		// don't care anymore
-		details_page->Release();
-	}
-
+	AddPropertyPage(new CPinDetailsPage(NULL, &hr, title), (IUnknown*)pin);
+	
 	//---------------------------------------------------------------------
 	//
 	//	Support for Buffer Negotiation
@@ -488,23 +408,7 @@ int CPropertyForm::LoadPinPage(IPin *pin)
 	//---------------------------------------------------------------------
 	CComPtr<IAMBufferNegotiation>		buf_neg;
 	if (SUCCEEDED(pin->QueryInterface(IID_IAMBufferNegotiation, (void**)&buf_neg))) {
-
-		CBufferNegotiationPage	*bn_page;
-		bn_page = new CBufferNegotiationPage(NULL, &hr, _T("Latency"));
-		if (bn_page) {
-			bn_page->AddRef();
-
-			hr = bn_page->QueryInterface(IID_IPropertyPage, (void**)&page);
-			if (SUCCEEDED(hr)) {
-				hr = page->SetObjects(1, (IUnknown**)&pin);
-				if (SUCCEEDED(hr)) {
-					container->AddPage(page);
-				}
-			}
-			page = NULL;
-
-			bn_page->Release();
-		}
+		AddPropertyPage(new CBufferNegotiationPage(NULL, &hr, _T("Latency")), (IUnknown*)pin);
 	}
 	buf_neg = NULL;
 
@@ -516,22 +420,7 @@ int CPropertyForm::LoadPinPage(IPin *pin)
 	//---------------------------------------------------------------------
 	CComPtr<IAMVideoCompression>		vfw_comp;
 	if (SUCCEEDED(pin->QueryInterface(IID_IAMVideoCompression, (void**)&vfw_comp))) {
-		CVideoCompressionPage	*cm_page;
-		cm_page = new CVideoCompressionPage(NULL, &hr, _T("Video Compression"));
-		if (cm_page) {
-			cm_page->AddRef();
-
-			hr = cm_page->QueryInterface(IID_IPropertyPage, (void**)&page);
-			if (SUCCEEDED(hr)) {
-				hr = page->SetObjects(1, (IUnknown**)&pin);
-				if (SUCCEEDED(hr)) {
-					container->AddPage(page);
-				}
-			}
-			page = NULL;
-
-			cm_page->Release();
-		}
+        AddPropertyPage(new CVideoCompressionPage(NULL, &hr, _T("Video Compression")), (IUnknown*)pin);
 	}
 	vfw_comp = NULL;	
 
@@ -565,22 +454,7 @@ int CPropertyForm::LoadPinPage(IPin *pin)
 		if (is_acm_wrapper) {
 
 			// now add the ACM Compression page
-			CAudioCompressionPage	*cm_page;
-			cm_page = new CAudioCompressionPage(NULL, &hr, _T("Audio Compression"));
-			if (cm_page) {
-				cm_page->AddRef();
-
-				hr = cm_page->QueryInterface(IID_IPropertyPage, (void**)&page);
-				if (SUCCEEDED(hr)) {
-					hr = page->SetObjects(1, (IUnknown**)&pin);
-					if (SUCCEEDED(hr)) {
-						container->AddPage(page);
-					}
-				}
-				page = NULL;
-
-				cm_page->Release();
-			}		
+			AddPropertyPage(new CAudioCompressionPage(NULL, &hr, _T("Audio Compression")), (IUnknown*)pin);		
 
 		} else {
 			// I'll think of some nice page later ...
@@ -594,15 +468,52 @@ int CPropertyForm::LoadPinPage(IPin *pin)
 int CPropertyForm::LoadInterfacePage(IUnknown *obj, const CString& strTitle)
 {
 	// display the details page
-	CComPtr<IPropertyPage>	page;
-	CInterfaceDetailsPage	*details_page;
+    HRESULT hr;
+	AddPropertyPage(new CInterfaceDetailsPage(NULL, &hr, strTitle), obj);
+
+    return 0;
+}
+
+int CPropertyForm::LoadMediaInfoPage(IUnknown *obj)
+{
+	// display the details page
+    CComQIPtr<IFileSourceFilter> pI = obj;
+    if(pI)
+    {
+        LPOLESTR strFile;
+        HRESULT hr = pI->GetCurFile(&strFile, NULL);
+        if(hr == S_OK && strFile != NULL)
+            AddPropertyPage(CMediaInfoPage::CreateInstance(NULL, &hr, CString(strFile)), obj);
+
+        if(strFile)
+            CoTaskMemFree(strFile);
+    }
+
+    return 0;
+}
+
+void CPropertyForm::LoadCustomInterfacePropertyPages(IUnknown *obj)
+{
+    if(!obj) return;
+    // display the details page
 	HRESULT					hr;
 
-	details_page = new CInterfaceDetailsPage(NULL, &hr, strTitle);
-	if (details_page) {
-		details_page->AddRef();
+    CComPtr<IAMExtendedSeeking> extseek;
+    if(SUCCEEDED(obj->QueryInterface(IID_IAMExtendedSeeking, (void**)&extseek)))
+        AddPropertyPage(new CAMExtendedSeekingPage(NULL, &hr, TEXT("Marker")), obj);
 
-		hr = details_page->QueryInterface(IID_IPropertyPage, (void**)&page);
+    CComQIPtr<IAMStreamSelect> streamsel = obj;
+    if(streamsel) AddPropertyPage(new CAMStreamSelectPage(NULL, &hr, TEXT("StreamSelect")), obj);
+	
+}
+
+void CPropertyForm::AddPropertyPage(CDSPropertyPage *prop_page, IUnknown *obj)
+{
+    if (prop_page && obj) {
+		prop_page->AddRef();
+
+        CComPtr<IPropertyPage>	page;
+		HRESULT hr = prop_page->QueryInterface(IID_IPropertyPage, (void**)&page);
 		if (SUCCEEDED(hr)) {
 			// assign the object
 			hr = page->SetObjects(1, &obj);
@@ -614,51 +525,11 @@ int CPropertyForm::LoadInterfacePage(IUnknown *obj, const CString& strTitle)
 		page = NULL;
 
 		// don't care anymore
-		details_page->Release();
+		prop_page->Release();
 	}
-
-    return 0;
 }
 
-int CPropertyForm::LoadMediaInfoPage(IUnknown *obj)
-{
-	// display the details page
-	CComPtr<IPropertyPage>	page;
-	CMediaInfoPage	        *details_page;
 
-    CComQIPtr<IFileSourceFilter> pI = obj;
-    if(pI)
-    {
-        LPOLESTR strFile;
-        HRESULT hr = pI->GetCurFile(&strFile, NULL);
-        if(hr == S_OK && strFile != NULL)
-        {
-            details_page = CMediaInfoPage::CreateInstance(NULL, &hr, CString(strFile));
-	        if (details_page) {
-		        details_page->AddRef();
-
-		        hr = details_page->QueryInterface(IID_IPropertyPage, (void**)&page);
-		        if (SUCCEEDED(hr)) {
-			        // assign the object
-			        hr = page->SetObjects(1, &obj);
-			        if (SUCCEEDED(hr)) {
-				        // and add the page to our container
-				        container->AddPage(page);
-			        }
-		        }
-		        page = NULL;
-
-		        // don't care anymore
-		        details_page->Release();
-	        }
-        }
-
-        if(strFile)
-            CoTaskMemFree(strFile);
-    }
-
-    return 0;
-}
 
 //-----------------------------------------------------------------------------
 //

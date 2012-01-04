@@ -13,313 +13,42 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Deutsch (Deutschland) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
-LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
-#pragma code_page(1252)
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_PROPPAGE_WMRESIZER DIALOGEX 0, 0, 173, 134
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
-FONT 8, "MS Shell Dlg", 400, 0, 0x0
-BEGIN
-    CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,173,20
-    GROUPBOX        "Source",IDC_STATIC,0,23,85,54
-    EDITTEXT        IDC_EDIT_SRC_TOP,29,33,26,14,ES_AUTOHSCROLL | ES_NUMBER
-    EDITTEXT        IDC_EDIT_SRC_LEFT,3,46,26,14,ES_AUTOHSCROLL | ES_NUMBER
-    EDITTEXT        IDC_EDIT_SRC_WIDTH,55,46,26,14,ES_AUTOHSCROLL | ES_NUMBER
-    EDITTEXT        IDC_EDIT_SRC_HEIGHT,29,59,26,14,ES_AUTOHSCROLL | ES_NUMBER
-    GROUPBOX        "Destination",IDC_STATIC,87,23,85,54
-    EDITTEXT        IDC_EDIT_DST_TOP,117,33,26,14,ES_AUTOHSCROLL | ES_NUMBER
-    EDITTEXT        IDC_EDIT_DST_LEFT,91,46,26,14,ES_AUTOHSCROLL | ES_NUMBER
-    EDITTEXT        IDC_EDIT_DST_WIDTH,143,46,26,14,ES_AUTOHSCROLL | ES_NUMBER
-    EDITTEXT        IDC_EDIT_DST_HEIGHT,117,59,26,14,ES_AUTOHSCROLL | ES_NUMBER
-    CONTROL         "Check if input is interlaced",IDC_CHECK_INTERLACED,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,3,112,99,10
-    GROUPBOX        "Quality algorithm",IDC_STATIC,0,79,173,27
-    CONTROL         "High quality",IDC_RADIO_QUAL_HIGH,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,4,92,53,10
-    CONTROL         "Fast",IDC_RADIO_QUAL_FAST,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,92,92,30,10
-    LTEXT           "T L",IDC_STATIC,16,34,10,8
-    LTEXT           "T L",IDC_STATIC,104,34,10,8
-    LTEXT           "H W",IDC_STATIC,59,62,14,8
-    LTEXT           "H W",IDC_STATIC,147,62,14,8
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
-BEGIN
-    IDD_PROPPAGE_WMRESIZER, DIALOG
-    BEGIN
-        BOTTOMMARGIN, 117
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-#endif    // Deutsch (Deutschland) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
 // Englisch (USA) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
 
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
-
-1 TEXTINCLUDE 
-BEGIN
-    "resource.h\0"
-END
-
-2 TEXTINCLUDE 
-BEGIN
-    "#include ""afxres.h""\r\n"
-    "\0"
-END
-
-3 TEXTINCLUDE 
-BEGIN
-    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
-    "#define _AFX_NO_OLE_RESOURCES\r\n"
-    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
-    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
-    "\r\n"
-    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_SKY)\r\n"
-    "LANGUAGE 27, 1\r\n"
-    "#pragma code_page(1250)\r\n"
-    "#include ""res\\graphstudio.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
-    "#include ""afxres.rc""         // Standard components\r\n"
-    "#include ""afxprint.rc""       // printing/print preview resources\r\n"
-    "#endif\r\n"
-    "\0"
-END
-
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDR_MAINFRAME           ICON                    "res\\graphstudio.ico"
-IDR_graphstudioTYPE     ICON                    "res\\graphstudioDoc.ico"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
-
-IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
-IDB_BITMAP_LOGO         BITMAP                  "res\\bitmap_logo.bmp"
-IDB_BITMAP_TREE         BITMAP                  "res\\bitmap_tree.bmp"
-IDB_BITMAP_VOLUME_HI    BITMAP                  "res\\bitmap_volume.bmp"
-IDB_BITMAP_VOLUME_LO    BITMAP                  "res\\bitmap_volume2.bmp"
-IDB_BITMAP_CLOCK_ACTIVE_HI BITMAP                  "res\\bitmap_clock_active_hi.bmp"
-IDB_BITMAP_CLOCK_ACTIVE_LO BITMAP                  "res\\bitmap_clock_active_lo.bmp"
-IDB_BITMAP_CLOCK_INACTIVE_HI BITMAP                  "res\\bitmap_clock_inactive_hi.bmp"
-IDB_BITMAP_CLOCK_INACTIVE_LO BITMAP                  "res\\bitmap_clock_inactive_lo.bmp"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Toolbar
-//
-
-IDR_MAINFRAME TOOLBAR 19, 18
-BEGIN
-    BUTTON      ID_FILE_NEW
-    BUTTON      ID_FILE_OPEN
-    BUTTON      ID_FILE_SAVE
-    SEPARATOR
-    BUTTON      ID_BUTTON_PLAY
-    BUTTON      ID_BUTTON_PAUSE
-    BUTTON      ID_BUTTON_STOP
-    BUTTON      ID_BUTTON_STEP
-    SEPARATOR
-    BUTTON      ID_BUTTON_DIRECT
-    BUTTON      ID_BUTTON_REFRESH
-    BUTTON      ID_BUTTON_SEEK
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Menu
-//
-
-IDR_MAINFRAME MENU
-BEGIN
-    POPUP "&File"
-    BEGIN
-        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
-        MENUITEM "&Open Graph (.GRF)...\tCtrl+O", ID_FILE_OPEN
-        MENUITEM "Open From XML...",            ID_FILE_OPENFROMXML
-        MENUITEM "&Save Graph (.GRF)\tCtrl+S",  ID_FILE_SAVE
-        MENUITEM "Save &As Graph (.GRF)...",    ID_FILE_SAVE_AS
-        MENUITEM "Save As XML...",              ID_FILE_SAVEASXML
-        MENUITEM SEPARATOR
-        MENUITEM "Render Media File...\tCtrl+R", ID_FILE_RENDERFILE
-        MENUITEM "Add Media File...",           ID_FILE_ADDMEDIAFILE
-        MENUITEM "Render URL...\tCtrl+U",       ID_FILE_RENDERURL
-        MENUITEM "Build DVD Graph...",          ID_FILE_RENDERDVD
-        MENUITEM "Build Capture Graph...",      ID_FILE_RENDERCAPTURE
-        MENUITEM SEPARATOR
-        MENUITEM "Connect to Remote Graph...\tCtrl+G", ID_FILE_CONNECTTOREMOTEGRAPH
-        MENUITEM "Disconnect from Remote Graph...\tCtrl+H", ID_FILE_DISCONNECTFROMREMOTEGRAPH
-        MENUITEM SEPARATOR
-        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
-        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
-        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
-        MENUITEM SEPARATOR
-        MENUITEM "E&xit",                       ID_APP_EXIT
-    END
-    POPUP "&View"
-    BEGIN
-        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
-        MENUITEM "Seeking Bar",                 ID_VIEW_SEEKINGBAR
-        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
-        MENUITEM SEPARATOR
-        MENUITEM "Progress View...\tF5",        ID_VIEW_PROGRESSVIEW
-        MENUITEM SEPARATOR
-        MENUITEM "Graph Construction Report",   ID_VIEW_GRAPHCONSTRUCTIONREPORT
-        MENUITEM "Graph Events\tCtrl+E",        ID_VIEW_GRAPHEVENTS
-        MENUITEM "Text Information\tCtrl+T",    ID_VIEW_TEXTINFORMATION
-        MENUITEM "Decoder Performance...",      ID_VIEW_DECODERPERFORMANCE
-        MENUITEM SEPARATOR
-        MENUITEM "50%\tCtrl+2",                 ID_VIEW_50
-        MENUITEM "75%\tCtrl+3",                 ID_VIEW_75
-        MENUITEM "100%\tCtrl+4",                ID_VIEW_100
-        MENUITEM "150%\tCtrl+5",                ID_VIEW_150
-        MENUITEM "200%\tCtrl+6",                ID_VIEW_200
-        MENUITEM SEPARATOR
-        MENUITEM "Decrease Zoom Level\t-",      ID_VIEW_DECREASEZOOMLEVEL
-        MENUITEM "Increase Zoom Level\t+",      ID_VIEW_INCREASEZOOMLEVEL
-    END
-    POPUP "Graph"
-    BEGIN
-        MENUITEM "Insert Filter...\tCtrl+F",    ID_GRAPH_INSERTFILTER
-        MENUITEM "Insert Filter from File...",  ID_GRAPH_INSERTFILTERFROMFILE
-        MENUITEM SEPARATOR
-        MENUITEM "Insert Internal Filter",      ID_GRAPH_INSERTINTERNALFILTER
-        MENUITEM SEPARATOR
-        MENUITEM "Insert File Source (Async.)", ID_GRAPH_INSERTFILESOURCE
-        MENUITEM "Insert File Writer",          ID_GRAPH_INSERTFILEWRITER
-        MENUITEM SEPARATOR
-        MENUITEM "Insert Audio Source",         ID_GRAPH_INSERTAUDIOSOURCE
-        MENUITEM "Insert Video Source",         ID_GRAPH_INSERTVIDEOSOURCE
-        MENUITEM SEPARATOR
-        MENUITEM "Insert Audio Renderer",       ID_GRAPH_INSERTAUDIORENDERER
-        MENUITEM "Insert Video Renderer",       ID_GRAPH_INSERTVIDEORENDERER
-        MENUITEM SEPARATOR
-        MENUITEM "Refresh Graph\tCtrl+F5",      ID_BUTTON_REFRESH
-        MENUITEM "Make Graph Screenshot\tCtrl+F12", ID_GRAPH_MAKEGRAPHSCREENSHOT
-        MENUITEM SEPARATOR
-        MENUITEM "Use Clock",                   ID_GRAPH_USECLOCK
-    END
-    POPUP "Filters"
-    BEGIN
-        MENUITEM "Duplicate Selected Filters\tCtrl+D", ID_FILTERS_DOUBLESELECTEDFILTERS
-        MENUITEM SEPARATOR
-        MENUITEM "Manage Favorites ...",        ID_FILTERS_MANAGEFAVORITES
-    END
-    POPUP "Options"
-    BEGIN
-        MENUITEM "Schedule ...",                ID_AUTOMATICRESTART_SCHEDULE
-        MENUITEM SEPARATOR
-        MENUITEM "Display As File Name",        ID_OPTIONS_DISPLAYASFILENAME
-        MENUITEM "DirectConnect Mode",          ID_OPTIONS_DIRECT
-        MENUITEM "Exact Match Lookup Mode",     ID_OPTIONS_EXACTMATCH
-        MENUITEM "Abort Render After 10 Seconds", ID_OPTIONS_ABORTRENDER
-        MENUITEM "Use MediaInfo",               ID_OPTIONS_USEMEDIAINFO
-        MENUITEM SEPARATOR
-        MENUITEM "Preferred Video Renderer",    ID_OPTIONS_PREFERREDVIDEORENDERER
-    END
-    POPUP "&Help"
-    BEGIN
-        MENUITEM "&About GraphStudio...",       ID_APP_ABOUT
-    END
-END
-
-IDR_MENU_FAVORITES MENU
-BEGIN
-    POPUP "Menu"
-    BEGIN
-        MENUITEM "Create Group",                ID_MENU_CREATEGROUP
-        MENUITEM "Remove Group",                ID_MENU_REMOVEGROUP
-        MENUITEM SEPARATOR
-        MENUITEM "Remove Filter",               ID_MENU_REMOVEFILTER
-    END
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Accelerator
-//
-
-IDR_MAINFRAME ACCELERATORS
-BEGIN
-    VK_SPACE,       ID_BUTTON_PLAYPAUSE,    VIRTKEY, NOINVERT
-    VK_F5,          ID_BUTTON_REFRESH,      VIRTKEY, CONTROL, NOINVERT
-    VK_RIGHT,       ID_BUTTON_STEP,         VIRTKEY, NOINVERT
-    VK_ESCAPE,      ID_BUTTON_STOP,         VIRTKEY, NOINVERT
-    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
-    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
-    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
-    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
-    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
-    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
-    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
-    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
-    "G",            ID_FILE_CONNECTTOREMOTEGRAPH, VIRTKEY, CONTROL, NOINVERT
-    "H",            ID_FILE_DISCONNECTFROMREMOTEGRAPH, VIRTKEY, CONTROL, NOINVERT
-    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
-    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
-    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
-    "R",            ID_FILE_RENDERFILE,     VIRTKEY, CONTROL, NOINVERT
-    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
-    "D",            ID_FILTERS_DOUBLESELECTEDFILTERS, VIRTKEY, CONTROL, NOINVERT
-    "F",            ID_GRAPH_INSERTFILTER,  VIRTKEY, CONTROL, NOINVERT
-    VK_F12,         ID_GRAPH_MAKEGRAPHSCREENSHOT, VIRTKEY, CONTROL, NOINVERT
-    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
-    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
-    "4",            ID_VIEW_100,            VIRTKEY, CONTROL, NOINVERT
-    "5",            ID_VIEW_150,            VIRTKEY, CONTROL, NOINVERT
-    "6",            ID_VIEW_200,            VIRTKEY, CONTROL, NOINVERT
-    "2",            ID_VIEW_50,             VIRTKEY, CONTROL, NOINVERT
-    "3",            ID_VIEW_75,             VIRTKEY, CONTROL, NOINVERT
-    "-",            ID_VIEW_DECREASEZOOMLEVEL, ASCII, NOINVERT
-    "E",            ID_VIEW_GRAPHEVENTS,    VIRTKEY, CONTROL, NOINVERT
-    "+",            ID_VIEW_INCREASEZOOMLEVEL, ASCII, NOINVERT
-    "=",            ID_VIEW_INCREASEZOOMLEVEL, ASCII, NOINVERT
-    "T",            ID_VIEW_TEXTINFORMATION, VIRTKEY, CONTROL, NOINVERT
-    VK_F5,          ID_VIEW_PROGRESSVIEW,   VIRTKEY, NOINVERT
-END
-
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
+
+IDD_PROPPAGE_WMRESIZER DIALOGEX 0, 0, 272, 248
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,272,20
+    GROUPBOX        "Source",IDC_STATIC,30,50,85,54
+    EDITTEXT        IDC_EDIT_SRC_TOP,60,60,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_SRC_LEFT,34,73,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_SRC_WIDTH,86,73,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_SRC_HEIGHT,60,86,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    GROUPBOX        "Destination",IDC_STATIC,140,50,85,54
+    EDITTEXT        IDC_EDIT_DST_TOP,170,61,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_DST_LEFT,144,74,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_DST_WIDTH,196,74,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_DST_HEIGHT,170,87,26,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Check if input is interlaced",IDC_CHECK_INTERLACED,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,34,190,99,10
+    GROUPBOX        "Quality algorithm",IDC_STATIC,30,128,195,27
+    CONTROL         "High quality",IDC_RADIO_QUAL_HIGH,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,34,141,53,10
+    CONTROL         "Fast",IDC_RADIO_QUAL_FAST,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,122,141,30,10
+    LTEXT           "T L",IDC_STATIC,46,61,10,8
+    LTEXT           "T L",IDC_STATIC,157,61,10,8
+    LTEXT           "H W",IDC_STATIC,90,89,14,8
+    LTEXT           "H W",IDC_STATIC,200,90,14,8
+END
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 252, 100
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
@@ -720,40 +449,19 @@ BEGIN
     CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,294,24
 END
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Version
-//
-
-VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,4,5,5
- PRODUCTVERSION 0,4,5,5
- FILEFLAGSMASK 0x3fL
-#ifdef _DEBUG
- FILEFLAGS 0x1L
-#else
- FILEFLAGS 0x0L
-#endif
- FILEOS 0x4L
- FILETYPE 0x1L
- FILESUBTYPE 0x0L
+IDD_PROPPAGE_DMOQUALCTRL DIALOGEX 0, 0, 272, 127
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
-    BLOCK "StringFileInfo"
-    BEGIN
-        BLOCK "000904e4"
-        BEGIN
-            VALUE "FileDescription", "GraphStudioNext"
-            VALUE "FileVersion", "0.4.5.5"
-            VALUE "InternalName", "graphstudionext.exe"
-            VALUE "OriginalFilename", "graphstudionext.exe"
-            VALUE "ProductVersion", "0.4.5.5"
-        END
-    END
-    BLOCK "VarFileInfo"
-    BEGIN
-        VALUE "Translation", 0x9, 1252
-    END
+    CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,272,20
+    CONTROL         " Enable Quality Control",IDC_CHECK_QUALCTRL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,20,60,89,10
+END
+
+IDD_PROPPAGE_AMSTREAMSELECT DIALOGEX 0, 0, 272, 248
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,272,20
 END
 
 
@@ -765,6 +473,12 @@ END
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO
 BEGIN
+    IDD_PROPPAGE_WMRESIZER, DIALOG
+    BEGIN
+        VERTGUIDE, 225
+        BOTTOMMARGIN, 231
+    END
+
     IDD_ABOUTBOX, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -929,6 +643,10 @@ BEGIN
     BEGIN
     END
 
+    IDD_DIALOG_FILTERDETAILS, DIALOG
+    BEGIN
+    END
+
     IDD_DIALOG_AUDIO_COMPRESS, DIALOG
     BEGIN
     END
@@ -944,8 +662,294 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 99
     END
+
+    IDD_PROPPAGE_DMOQUALCTRL, DIALOG
+    BEGIN
+        RIGHTMARGIN, 173
+    END
+
+    IDD_PROPPAGE_AMSTREAMSELECT, DIALOG
+    BEGIN
+        RIGHTMARGIN, 173
+        BOTTOMMARGIN, 127
+    END
 END
 #endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_SKY)\r\n"
+    "LANGUAGE 27, 1\r\n"
+    "#pragma code_page(1250)\r\n"
+    "#include ""res\\graphstudio.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#include ""afxprint.rc""       // printing/print preview resources\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\graphstudio.ico"
+IDR_graphstudioTYPE     ICON                    "res\\graphstudioDoc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+IDB_BITMAP_LOGO         BITMAP                  "res\\bitmap_logo.bmp"
+IDB_BITMAP_TREE         BITMAP                  "res\\bitmap_tree.bmp"
+IDB_BITMAP_VOLUME_HI    BITMAP                  "res\\bitmap_volume.bmp"
+IDB_BITMAP_VOLUME_LO    BITMAP                  "res\\bitmap_volume2.bmp"
+IDB_BITMAP_CLOCK_ACTIVE_HI BITMAP                  "res\\bitmap_clock_active_hi.bmp"
+IDB_BITMAP_CLOCK_ACTIVE_LO BITMAP                  "res\\bitmap_clock_active_lo.bmp"
+IDB_BITMAP_CLOCK_INACTIVE_HI BITMAP                  "res\\bitmap_clock_inactive_hi.bmp"
+IDB_BITMAP_CLOCK_INACTIVE_LO BITMAP                  "res\\bitmap_clock_inactive_lo.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR 19, 18
+BEGIN
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
+    SEPARATOR
+    BUTTON      ID_BUTTON_PLAY
+    BUTTON      ID_BUTTON_PAUSE
+    BUTTON      ID_BUTTON_STOP
+    BUTTON      ID_BUTTON_STEP
+    SEPARATOR
+    BUTTON      ID_BUTTON_DIRECT
+    BUTTON      ID_BUTTON_REFRESH
+    BUTTON      ID_BUTTON_SEEK
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open Graph (.GRF)...\tCtrl+O", ID_FILE_OPEN
+        MENUITEM "Open From XML...",            ID_FILE_OPENFROMXML
+        MENUITEM "&Save Graph (.GRF)\tCtrl+S",  ID_FILE_SAVE
+        MENUITEM "Save &As Graph (.GRF)...",    ID_FILE_SAVE_AS
+        MENUITEM "Save As XML...",              ID_FILE_SAVEASXML
+        MENUITEM SEPARATOR
+        MENUITEM "Render Media File...\tCtrl+R", ID_FILE_RENDERFILE
+        MENUITEM "Add Media File...",           ID_FILE_ADDMEDIAFILE
+        MENUITEM "Render URL...\tCtrl+U",       ID_FILE_RENDERURL
+        MENUITEM "Build DVD Graph...",          ID_FILE_RENDERDVD
+        MENUITEM "Build Capture Graph...",      ID_FILE_RENDERCAPTURE
+        MENUITEM SEPARATOR
+        MENUITEM "Connect to Remote Graph...\tCtrl+G", ID_FILE_CONNECTTOREMOTEGRAPH
+        MENUITEM "Disconnect from Remote Graph...\tCtrl+H", ID_FILE_DISCONNECTFROMREMOTEGRAPH
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "Seeking Bar",                 ID_VIEW_SEEKINGBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM SEPARATOR
+        MENUITEM "Progress View...\tF5",        ID_VIEW_PROGRESSVIEW
+        MENUITEM SEPARATOR
+        MENUITEM "Graph Construction Report",   ID_VIEW_GRAPHCONSTRUCTIONREPORT
+        MENUITEM "Graph Events\tCtrl+E",        ID_VIEW_GRAPHEVENTS
+        MENUITEM "Text Information\tCtrl+T",    ID_VIEW_TEXTINFORMATION
+        MENUITEM "Decoder Performance...",      ID_VIEW_DECODERPERFORMANCE
+        MENUITEM SEPARATOR
+        MENUITEM "50%\tCtrl+2",                 ID_VIEW_50
+        MENUITEM "75%\tCtrl+3",                 ID_VIEW_75
+        MENUITEM "100%\tCtrl+4",                ID_VIEW_100
+        MENUITEM "150%\tCtrl+5",                ID_VIEW_150
+        MENUITEM "200%\tCtrl+6",                ID_VIEW_200
+        MENUITEM SEPARATOR
+        MENUITEM "Decrease Zoom Level\t-",      ID_VIEW_DECREASEZOOMLEVEL
+        MENUITEM "Increase Zoom Level\t+",      ID_VIEW_INCREASEZOOMLEVEL
+    END
+    POPUP "Graph"
+    BEGIN
+        MENUITEM "Insert Filter...\tCtrl+F",    ID_GRAPH_INSERTFILTER
+        MENUITEM "Insert Filter from File...",  ID_GRAPH_INSERTFILTERFROMFILE
+        MENUITEM SEPARATOR
+        MENUITEM "Insert Internal Filter",      ID_GRAPH_INSERTINTERNALFILTER
+        MENUITEM SEPARATOR
+        MENUITEM "Insert File Source (Async.)", ID_GRAPH_INSERTFILESOURCE
+        MENUITEM "Insert File Writer",          ID_GRAPH_INSERTFILEWRITER
+        MENUITEM SEPARATOR
+        MENUITEM "Insert Audio Source",         ID_GRAPH_INSERTAUDIOSOURCE
+        MENUITEM "Insert Video Source",         ID_GRAPH_INSERTVIDEOSOURCE
+        MENUITEM SEPARATOR
+        MENUITEM "Insert Audio Renderer",       ID_GRAPH_INSERTAUDIORENDERER
+        MENUITEM "Insert Video Renderer",       ID_GRAPH_INSERTVIDEORENDERER
+        MENUITEM SEPARATOR
+        MENUITEM "Refresh Graph\tCtrl+F5",      ID_BUTTON_REFRESH
+        MENUITEM "Make Graph Screenshot\tCtrl+F12", ID_GRAPH_MAKEGRAPHSCREENSHOT
+        MENUITEM SEPARATOR
+        MENUITEM "Use Clock",                   ID_GRAPH_USECLOCK
+    END
+    POPUP "Filters"
+    BEGIN
+        MENUITEM "Duplicate Selected Filters\tCtrl+D", ID_FILTERS_DOUBLESELECTEDFILTERS
+        MENUITEM SEPARATOR
+        MENUITEM "Manage Favorites ...",        ID_FILTERS_MANAGEFAVORITES
+    END
+    POPUP "Options"
+    BEGIN
+        MENUITEM "Schedule ...",                ID_AUTOMATICRESTART_SCHEDULE
+        MENUITEM SEPARATOR
+        MENUITEM "Display As File Name",        ID_OPTIONS_DISPLAYASFILENAME
+        MENUITEM "DirectConnect Mode",          ID_OPTIONS_DIRECT
+        MENUITEM "Exact Match Lookup Mode",     ID_OPTIONS_EXACTMATCH
+        MENUITEM "Abort Render After 10 Seconds", ID_OPTIONS_ABORTRENDER
+        MENUITEM "Use MediaInfo",               ID_OPTIONS_USEMEDIAINFO
+        MENUITEM SEPARATOR
+        MENUITEM "Preferred Video Renderer",    ID_OPTIONS_PREFERREDVIDEORENDERER
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About GraphStudio...",       ID_APP_ABOUT
+    END
+END
+
+IDR_MENU_FAVORITES MENU
+BEGIN
+    POPUP "Menu"
+    BEGIN
+        MENUITEM "Create Group",                ID_MENU_CREATEGROUP
+        MENUITEM "Remove Group",                ID_MENU_REMOVEGROUP
+        MENUITEM SEPARATOR
+        MENUITEM "Remove Filter",               ID_MENU_REMOVEFILTER
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS
+BEGIN
+    VK_SPACE,       ID_BUTTON_PLAYPAUSE,    VIRTKEY, NOINVERT
+    VK_F5,          ID_BUTTON_REFRESH,      VIRTKEY, CONTROL, NOINVERT
+    VK_RIGHT,       ID_BUTTON_STEP,         VIRTKEY, NOINVERT
+    VK_ESCAPE,      ID_BUTTON_STOP,         VIRTKEY, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    "G",            ID_FILE_CONNECTTOREMOTEGRAPH, VIRTKEY, CONTROL, NOINVERT
+    "H",            ID_FILE_DISCONNECTFROMREMOTEGRAPH, VIRTKEY, CONTROL, NOINVERT
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "R",            ID_FILE_RENDERFILE,     VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    "D",            ID_FILTERS_DOUBLESELECTEDFILTERS, VIRTKEY, CONTROL, NOINVERT
+    "F",            ID_GRAPH_INSERTFILTER,  VIRTKEY, CONTROL, NOINVERT
+    VK_F12,         ID_GRAPH_MAKEGRAPHSCREENSHOT, VIRTKEY, CONTROL, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+    "4",            ID_VIEW_100,            VIRTKEY, CONTROL, NOINVERT
+    "5",            ID_VIEW_150,            VIRTKEY, CONTROL, NOINVERT
+    "6",            ID_VIEW_200,            VIRTKEY, CONTROL, NOINVERT
+    "2",            ID_VIEW_50,             VIRTKEY, CONTROL, NOINVERT
+    "3",            ID_VIEW_75,             VIRTKEY, CONTROL, NOINVERT
+    "-",            ID_VIEW_DECREASEZOOMLEVEL, ASCII, NOINVERT
+    "E",            ID_VIEW_GRAPHEVENTS,    VIRTKEY, CONTROL, NOINVERT
+    "+",            ID_VIEW_INCREASEZOOMLEVEL, ASCII, NOINVERT
+    "=",            ID_VIEW_INCREASEZOOMLEVEL, ASCII, NOINVERT
+    "T",            ID_VIEW_TEXTINFORMATION, VIRTKEY, CONTROL, NOINVERT
+    VK_F5,          ID_VIEW_PROGRESSVIEW,   VIRTKEY, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 0,4,5,5
+ PRODUCTVERSION 0,4,5,5
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000904e4"
+        BEGIN
+            VALUE "FileDescription", "GraphStudioNext"
+            VALUE "FileVersion", "0.4.5.5"
+            VALUE "InternalName", "graphstudionext.exe"
+            VALUE "OriginalFilename", "graphstudionext.exe"
+            VALUE "ProductVersion", "0.4.5.5"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x9, 1252
+    END
+END
 
 
 /////////////////////////////////////////////////////////////////////////////
