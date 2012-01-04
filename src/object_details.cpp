@@ -965,20 +965,8 @@ namespace GraphStudio
 		return 0;
 	}
 
-    int GetExtradata_H264(CMediaType *pmt, PropItem *mtinfo)
-	{
-		if (pmt->formattype != FORMAT_MPEG2Video) return 0;
-
-		MPEG2VIDEOINFO	*m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
-		int			extralen = m2vi->cbSequenceHeader;
-        uint8*      extra = (uint8*)m2vi->dwSequenceHeader;
-
-		// done with
-		if (extralen <= 0) return 0;
-
-        CBitStreamReader br(extra, extralen);
-        UINT16 length = br.ReadU16();
-
+    int NALParser(CBitStreamReader& br, PropItem *mtinfo)
+    {
         UINT8 NALType = br.ReadU8() & 0x1f;
 
         if(NALType == 7)
@@ -1083,11 +1071,81 @@ namespace GraphStudio
         }
         else if(NALType == 8)
         {
-            PropItem *ppsinfo = mtinfo->AddItem(new PropItem(_T("H264 Picture Parameter Set")));
-        }
-        else
-        {
+            PropItem *spsinfo = mtinfo->AddItem(new PropItem(_T("H264 Picture Parameter Set")));
+            spsinfo->AddItem(new PropItem(_T("PPS ID"), br.ReadUE()));
+            spsinfo->AddItem(new PropItem(_T("SPS ID"), br.ReadUE()));
+            spsinfo->AddItem(new PropItem(_T("Entropy Coding Mode"), br.ReadU1()));
+            spsinfo->AddItem(new PropItem(_T("Pic Order Present"), br.ReadU1()));
+
+            int numSliceGroups = br.ReadUE();
+            spsinfo->AddItem(new PropItem(_T("Num Slice Groups (-1)"), numSliceGroups));
+            if(numSliceGroups > 0)
+            {
+                int mapType = br.ReadUE();
+                spsinfo->AddItem(new PropItem(_T("Slice Group Map Type"), mapType));
+
+                // TODO later
+                return 0;
+            }
+
+            spsinfo->AddItem(new PropItem(_T("Num Ref Idx 10 Activ (-1)"), br.ReadUE()));
+            spsinfo->AddItem(new PropItem(_T("Num Ref Idx 11 Activ (-1)"), br.ReadUE()));
+            spsinfo->AddItem(new PropItem(_T("Weighted Pred"), br.ReadU1()));
+            spsinfo->AddItem(new PropItem(_T("Weighted Bibred Idc"), br.ReadU(2)));
+            spsinfo->AddItem(new PropItem(_T("Pic Init QP (-26)"), br.ReadSE()));
+            spsinfo->AddItem(new PropItem(_T("Pic Init QS (-26)"), br.ReadSE()));
+            spsinfo->AddItem(new PropItem(_T("Deblocking Filter Ctrl Present"), br.ReadU1()));
+            spsinfo->AddItem(new PropItem(_T("Constrained Intra Pred"), br.ReadU1()));
+            spsinfo->AddItem(new PropItem(_T("Redundant Pic Count Present"), br.ReadU1()));
             return 0;
+        }
+
+        return 0;
+    }
+
+    int GetExtradata_H264(CMediaType *pmt, PropItem *mtinfo)
+	{
+		if (pmt->formattype != FORMAT_MPEG2Video) return 0;
+
+		MPEG2VIDEOINFO	*m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
+		int			extralen = m2vi->cbSequenceHeader;
+        uint8*      extra = (uint8*)m2vi->dwSequenceHeader;
+
+		// done with
+		if (extralen <= 0) return 0;
+
+        CBitStreamReader br(extra, extralen);
+        BOOL nalParsed = TRUE;
+
+        while(nalParsed)
+        {
+            UINT16 length = br.ReadU16();   // some types start with the length
+            if(length == 0)
+            {
+                if(br.ReadU8() == 1)
+                {
+                    // was NAL prefix
+                    nalParsed = NALParser(br, mtinfo);
+                }
+                else
+                {
+                    // try again, some use 4 bytes as prefix
+                    if(br.ReadU8() == 1)
+                    {
+                        // was NAL prefix
+                        nalParsed = NALParser(br, mtinfo);
+                    }
+                    else
+                        return 0;
+                }
+            }
+            else
+            {
+                int oldPos = br.GetPos();
+                NALParser(br, mtinfo);
+                br.SetPos(oldPos + length);
+                nalParsed = TRUE;
+            }
         }
 
 		return 0;
