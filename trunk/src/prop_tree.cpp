@@ -54,6 +54,14 @@ namespace GraphStudio
 		value.Format(_T("%d"), val);
 	}
 
+    PropItem::PropItem(CString n, double val) :
+		name(n),
+		type(TYPE_DOUBLE),
+        expand(false)
+	{
+		value.Format(_T("%f"), val);
+	}
+
 	PropItem::PropItem(CString n, RECT rc) :
 		name(n),
 		type(TYPE_RECT),

@@ -34,7 +34,8 @@ namespace GraphStudio
 			TYPE_BOOL		= 4,
 			TYPE_GUID		= 5,
 			TYPE_RECT		= 6,
-            TYPE_URL        = 7
+            TYPE_URL        = 7,
+            TYPE_DOUBLE     = 8,
 		};
 
 		int					type;
@@ -48,6 +49,7 @@ namespace GraphStudio
 		PropItem(CString n, GUID guid);
 		PropItem(CString n, int val);
         PropItem(CString n, unsigned int val);
+        PropItem(CString n, double val);
 		PropItem(CString n, CString str);
         PropItem(CString n, CString str, bool isUrl);
 		PropItem(CString n, bool val);

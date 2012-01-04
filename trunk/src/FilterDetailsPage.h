@@ -95,7 +95,6 @@ public:
     virtual HRESULT OnConnect(IUnknown *pUnknown);
     virtual HRESULT OnDisconnect();
 	virtual void OnBuildTree();
-
 };
 
 
@@ -117,12 +116,24 @@ public:
     virtual HRESULT OnConnect(IUnknown *pUnknown);
     virtual HRESULT OnDisconnect();
 	virtual void OnBuildTree();
-
 };
 
 
+//-----------------------------------------------------------------------------
+//
+//	CAMExtendedSeekingPage class
+//
+//-----------------------------------------------------------------------------
+class CAMExtendedSeekingPage : public CDetailsPage
+{
+public:
+	CComPtr<IAMExtendedSeeking>   		filter;
 
-
-
-
-
+public:
+	CAMExtendedSeekingPage(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR strTitle);
+	virtual ~CAMExtendedSeekingPage();
+	
+    virtual HRESULT OnConnect(IUnknown *pUnknown);
+    virtual HRESULT OnDisconnect();
+	virtual void OnBuildTree();
+};

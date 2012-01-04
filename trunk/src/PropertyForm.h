@@ -114,9 +114,11 @@ public:
 	// activate property page for objects
 	int DisplayPages(IUnknown *obj, IUnknown *filt, CString title, CGraphView *view);
 	int AnalyzeObject(IUnknown *obj);
+    void AddPropertyPage(CDSPropertyPage *prop_page, IUnknown *obj);
 	int LoadPinPage(IPin *pin);
     int LoadInterfacePage(IUnknown *obj, const CString& strTitle);
     int LoadMediaInfoPage(IUnknown *obj);
+    void LoadCustomInterfacePropertyPages(IUnknown *obj);
 
 	// check for DMO pages
 	int AnalyzeDMO(IUnknown *obj);

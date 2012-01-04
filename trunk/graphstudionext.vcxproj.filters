@@ -251,6 +251,12 @@
     <ClInclude Include="src\WMResizerPage.h">
       <Filter>Property Pages</Filter>
     </ClInclude>
+    <ClInclude Include="src\DMOQualCtrlPage.h">
+      <Filter>Property Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AMStreamSelectPage.h">
+      <Filter>Property Pages</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -407,6 +413,12 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\WMResizerPage.cpp">
+      <Filter>Property Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DMOQualCtrlPage.cpp">
+      <Filter>Property Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AMStreamSelectPage.cpp">
       <Filter>Property Pages</Filter>
     </ClCompile>
   </ItemGroup>

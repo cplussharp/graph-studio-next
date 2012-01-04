@@ -252,3 +252,103 @@ void CMediaInfoPage::OnBuildTree()
 	m_pInfo->GetDetails(&info);
 }
 
+
+//-----------------------------------------------------------------------------
+//
+//	CAMExtendedSeekingPage class
+//
+//-----------------------------------------------------------------------------
+
+CAMExtendedSeekingPage::CAMExtendedSeekingPage(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR strTitle) :
+	CDetailsPage(pUnk, phr, strTitle),
+	filter(NULL)
+{
+	// retval
+	if (phr) *phr = NOERROR;
+}
+
+CAMExtendedSeekingPage::~CAMExtendedSeekingPage()
+{
+    filter = NULL;
+}
+
+HRESULT CAMExtendedSeekingPage::OnConnect(IUnknown *pUnknown)
+{
+    if(!pUnknown) return E_POINTER;
+    return pUnknown->QueryInterface(IID_IAMExtendedSeeking, (void**)&filter);
+}
+
+HRESULT CAMExtendedSeekingPage::OnDisconnect()
+{
+    filter = NULL;
+	return NOERROR;
+}
+
+void CAMExtendedSeekingPage::OnBuildTree()
+{
+	if(!filter) return;
+
+    GraphStudio::PropItem *group = info.AddItem(new GraphStudio::PropItem(TEXT("IAMExtendedSeeking")));
+
+    long cap=0;
+    filter->get_ExSeekCapabilities(&cap);
+    if(cap == 0)
+        group->AddItem(new GraphStudio::PropItem(TEXT("ExSeekCapabilities"), TEXT("None")));
+    else
+    {
+        CStringArray strCap;
+        if((cap & AM_EXSEEK_BUFFERING) == AM_EXSEEK_BUFFERING)
+            strCap.Add(_T("AM_EXSEEK_BUFFERING"));
+        if((cap & AM_EXSEEK_NOSTANDARDREPAINT) == AM_EXSEEK_NOSTANDARDREPAINT)
+            strCap.Add(_T("AM_EXSEEK_NOSTANDARDREPAINT"));
+        if((cap & AM_EXSEEK_SENDS_VIDEOFRAMEREADY) == AM_EXSEEK_SENDS_VIDEOFRAMEREADY)
+            strCap.Add(_T("AM_EXSEEK_SENDS_VIDEOFRAMEREADY"));
+        if((cap & AM_EXSEEK_CANSCAN) == AM_EXSEEK_CANSCAN)
+            strCap.Add(_T("AM_EXSEEK_CANSCAN"));
+        if((cap & AM_EXSEEK_SCANWITHOUTCLOCK) == AM_EXSEEK_SCANWITHOUTCLOCK)
+            strCap.Add(_T("AM_EXSEEK_SCANWITHOUTCLOCK"));
+        if((cap & AM_EXSEEK_CANSEEK) == AM_EXSEEK_CANSEEK)
+            strCap.Add(_T("AM_EXSEEK_CANSEEK"));
+        if((cap & AM_EXSEEK_MARKERSEEK) == AM_EXSEEK_MARKERSEEK)
+            strCap.Add(_T("AM_EXSEEK_MARKERSEEK"));
+
+        CString strCapText;
+        for(int i=0;i<strCap.GetCount(); i++)
+        {
+            if(i > 0) strCapText += _T(", ");
+            strCapText += strCap[i];
+        }
+
+        group->AddItem(new GraphStudio::PropItem(_T("CExSeekCapabilities"), strCapText));
+    }
+
+    double speed=1.0;
+    filter->get_PlaybackSpeed(&speed);
+    group->AddItem(new GraphStudio::PropItem(_T("PlaybackSpeed"), speed));
+
+    long cur=0;
+    filter->get_CurrentMarker(&cur);
+    group->AddItem(new GraphStudio::PropItem(_T("CurrentMarker"), cur));
+
+    long count=0;
+    filter->get_MarkerCount(&count);
+    group->AddItem(new GraphStudio::PropItem(_T("MarkerCount"), count));
+
+    for(long i=0; i<=count+1; i++)
+    {
+        double time = 0.0;
+        HRESULT hr = filter->GetMarkerTime(i, &time);
+        if(FAILED(hr)) continue;
+
+        CString strMark;
+        strMark.Format(_T("Marker %d"), i);
+        GraphStudio::PropItem *mark = group->AddItem(new GraphStudio::PropItem(strMark));
+
+        mark->AddItem(new GraphStudio::PropItem(_T("Time"), time));
+
+        BSTR name = NULL;
+        filter->GetMarkerName(i, &name);
+        mark->AddItem(new GraphStudio::PropItem(_T("Name"), CString(name)));
+        if(name) SysFreeString(name);
+    }
+}

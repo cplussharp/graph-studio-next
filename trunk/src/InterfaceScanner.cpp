@@ -35,7 +35,7 @@ void CInterfaceInfo::GetInfo(GraphStudio::PropItem* group, IUnknown* pUnk) const
 /*****************************************************************************************
 * some Interface Infos
 ******************************************************************************************/
-void GetInterfaceInfoIAMFilterMiscFlags(GraphStudio::PropItem* group, IUnknown* pUnk)
+void GetInterfaceInfo_IAMFilterMiscFlags(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IAMFilterMiscFlags> pI = pUnk;
     if(pI)
@@ -48,7 +48,7 @@ void GetInterfaceInfoIAMFilterMiscFlags(GraphStudio::PropItem* group, IUnknown* 
     }
 }
 
-void GetInterfaceInfoIAMDroppedFrames(GraphStudio::PropItem* group, IUnknown* pUnk)
+void GetInterfaceInfo_IAMDroppedFrames(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IAMDroppedFrames> pI = pUnk;
     if(pI)
@@ -65,7 +65,7 @@ void GetInterfaceInfoIAMDroppedFrames(GraphStudio::PropItem* group, IUnknown* pU
     }
 }
 
-void GetInterfaceInfoIMediaFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
+void GetInterfaceInfo_IMediaFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IMediaFilter> pI = pUnk;
     if(pI)
@@ -92,7 +92,7 @@ void GetInterfaceInfoIMediaFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
     }
 }
 
-void GetInterfaceInfoIFileSinkFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
+void GetInterfaceInfo_IFileSinkFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IFileSinkFilter> pI = pUnk;
     if(pI)
@@ -113,7 +113,7 @@ void GetInterfaceInfoIFileSinkFilter(GraphStudio::PropItem* group, IUnknown* pUn
     }
 }
 
-void GetInterfaceInfoIFileSinkFilter2(GraphStudio::PropItem* group, IUnknown* pUnk)
+void GetInterfaceInfo_IFileSinkFilter2(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IFileSinkFilter2> pI = pUnk;
     if(pI)
@@ -152,7 +152,7 @@ void GetInterfaceInfoIFileSinkFilter2(GraphStudio::PropItem* group, IUnknown* pU
     }
 }
 
-void GetInterfaceInfoIFileSourceFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
+void GetInterfaceInfo_IFileSourceFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IFileSourceFilter> pI = pUnk;
     if(pI)
@@ -198,7 +198,7 @@ const CString TimeFormat2String(const GUID& timeFormatGuid)
     return CString(_T(""));
 }
 
-void GetInterfaceInfoIMediaSeeking(GraphStudio::PropItem* group, IUnknown* pUnk)
+void GetInterfaceInfo_IMediaSeeking(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IMediaSeeking> pI = pUnk;
     if(pI)
@@ -306,7 +306,7 @@ void GetInterfaceInfoIMediaSeeking(GraphStudio::PropItem* group, IUnknown* pUnk)
     }
 }
 
-void GetInterfaceInfoIMediaParamInfo(GraphStudio::PropItem* group, IUnknown* pUnk)
+void GetInterfaceInfo_IMediaParamInfo(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IMediaParamInfo> pI = pUnk;
     if(pI)
@@ -335,15 +335,133 @@ void GetInterfaceInfoIMediaParamInfo(GraphStudio::PropItem* group, IUnknown* pUn
     }
 }
 
-void GetInterfaceInfoIMediaParams(GraphStudio::PropItem* group, IUnknown* pUnk)
+void GetInterfaceInfo_IMediaParams(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     
 }
 
-void GetInterfaceInfoIUnknown(GraphStudio::PropItem* group, IUnknown* pUnk)
+void GetInterfaceInfo_IUnknown(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     pUnk->AddRef();
     group->AddItem(new GraphStudio::PropItem(_T("RefCount"), (int)pUnk->Release() - 1));
+}
+
+void GetInterfaceInfo_IDMOVideoOutputOptimizations(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IDMOVideoOutputOptimizations> pI = pUnk;
+    if(pI)
+    {
+        CString str = TEXT("DMO_VOSF_NEEDS_PREVIOUS_SAMPLE");
+        CString strNone = TEXT("");
+        DWORD val;
+        HRESULT hr = pI->GetCurrentOperationMode(0, &val);
+        if(SUCCEEDED(pI->GetCurrentOperationMode(0, &val)))
+            group->AddItem(new GraphStudio::PropItem(_T("CurrentOperationMode"), val ? str : strNone));
+        if(SUCCEEDED(pI->GetCurrentSampleRequirements(0, &val)))
+            group->AddItem(new GraphStudio::PropItem(_T("CurrentSampleRequirements"), val ? str : strNone));
+        if(SUCCEEDED(pI->QueryOperationModePreferences(0, &val)))
+            group->AddItem(new GraphStudio::PropItem(_T("QueryOperationModePreferences"), val ? str : strNone));
+    }
+}
+
+void GetInterfaceInfo_IAMMediaContent(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComPtr<IAMMediaContent> pI;
+    pUnk->QueryInterface(IID_IAMMediaContent, (void**)&pI);
+    if(pI)
+    {
+        BSTR val;
+        if(SUCCEEDED(pI->get_AuthorName(&val))) {
+            group->AddItem(new GraphStudio::PropItem(_T("AuthorName"), CString(val)));
+            SysFreeString(val);
+        }
+        if(SUCCEEDED(pI->get_Title(&val))) {
+            group->AddItem(new GraphStudio::PropItem(_T("Title"), CString(val)));
+            SysFreeString(val);
+        }
+        if(SUCCEEDED(pI->get_Rating(&val))) {
+            group->AddItem(new GraphStudio::PropItem(_T("Rating"), CString(val)));
+            SysFreeString(val);
+        }
+        if(SUCCEEDED(pI->get_Description(&val))) {
+            group->AddItem(new GraphStudio::PropItem(_T("Description"), CString(val)));
+            SysFreeString(val);
+        }
+        if(SUCCEEDED(pI->get_Copyright(&val))) {
+            group->AddItem(new GraphStudio::PropItem(_T("Copyright"), CString(val)));
+            SysFreeString(val);
+        }
+        if(SUCCEEDED(pI->get_BaseURL(&val))) {
+            group->AddItem(new GraphStudio::PropItem(_T("BaseURL"), CString(val), true));
+            SysFreeString(val);
+        }
+        if(SUCCEEDED(pI->get_LogoURL(&val))) {
+            group->AddItem(new GraphStudio::PropItem(_T("LogoURL"), CString(val), true));
+            SysFreeString(val);
+        }
+        if(SUCCEEDED(pI->get_LogoIconURL(&val))) {
+            group->AddItem(new GraphStudio::PropItem(_T("LogoIconURL"), CString(val), true));
+            SysFreeString(val);
+        }
+        if(SUCCEEDED(pI->get_WatermarkURL(&val))) {
+            group->AddItem(new GraphStudio::PropItem(_T("WatermarkURL"), CString(val), true));
+            SysFreeString(val);
+        }
+        if(SUCCEEDED(pI->get_MoreInfoBannerImage(&val))) {
+            group->AddItem(new GraphStudio::PropItem(_T("MoreInfoBannerImage"), CString(val)));
+            SysFreeString(val);
+        }
+        if(SUCCEEDED(pI->get_MoreInfoBannerURL(&val))) {
+            group->AddItem(new GraphStudio::PropItem(_T("MoreInfoBannerURL"), CString(val), true));
+            SysFreeString(val);
+        }
+        if(SUCCEEDED(pI->get_MoreInfoText(&val))) {
+            group->AddItem(new GraphStudio::PropItem(_T("MoreInfoText"), CString(val)));
+            SysFreeString(val);
+        }
+    }
+}
+
+void GetInterfaceInfo_IAMOpenProgress(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IAMOpenProgress> pI = pUnk;
+    if(pI)
+    {
+        LONGLONG total, cur;
+        HRESULT hr = pI->QueryProgress(&total, &cur);
+        if(hr == S_OK || hr == VFW_S_ESTIMATED)
+        {
+            CString propName;
+            propName.Format(_T("Progress Total%s"), hr == VFW_S_ESTIMATED ? _T(" (estimated)") : _T(""));
+            group->AddItem(new GraphStudio::PropItem(propName, total));
+            propName.Format(_T("Progress Current%s"), hr == VFW_S_ESTIMATED ? _T(" (estimated)") : _T(""));
+            group->AddItem(new GraphStudio::PropItem(propName, cur));
+        }
+    }
+}
+
+void GetInterfaceInfo_IAMExtendedErrorInfo(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComPtr<IAMExtendedErrorInfo> pI;
+    pUnk->QueryInterface(IID_IAMExtendedErrorInfo, (void**)&pI);
+    if(pI)
+    {
+        VARIANT_BOOL hasError;
+        pI->get_HasError(&hasError);
+        CString strHasError = hasError != VARIANT_FALSE ? _T("TRUE") : _T("FALSE");
+        group->AddItem(new GraphStudio::PropItem(_T("HasError"), strHasError));
+        if(hasError)
+        {
+            long errCode = 0;
+            pI->get_ErrorCode(&errCode);
+            group->AddItem(new GraphStudio::PropItem(_T("ErrorCode"), errCode));
+
+            BSTR errDesc = NULL;
+            pI->get_ErrorDescription(&errDesc);
+            group->AddItem(new GraphStudio::PropItem(_T("ErrorCode"), CString(errDesc)));
+            if(errDesc) SysFreeString(errDesc);
+        }
+    }
 }
 
 /*****************************************************************************************
@@ -363,16 +481,17 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{C6E13380-30AC-11D0-A18C-00A0C9118956}"), TEXT("IAMCrossbar"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389171.aspx")),
     CInterfaceInfo(TEXT("{C0DFF467-D499-4986-972B-E1D9090FA941}"), TEXT("IAMDecoderCaps"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389177.aspx")),
     CInterfaceInfo(TEXT("{546F4260-D53E-11CF-B3F0-00AA003761C5}"), TEXT("IAMDirectSound"), TEXT("uuids.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389193.aspx")),
-    CInterfaceInfo(TEXT("{C6E13344-30AC-11D0-A18C-00A0C9118956}"), TEXT("IAMDroppedFrames"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389311.aspx"), GetInterfaceInfoIAMDroppedFrames),
+    CInterfaceInfo(TEXT("{C6E13344-30AC-11D0-A18C-00A0C9118956}"), TEXT("IAMDroppedFrames"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389311.aspx"), GetInterfaceInfo_IAMDroppedFrames),
     CInterfaceInfo(TEXT("{E43E73A2-0EFA-11D3-9601-00A0C9441E20}"), TEXT("IAMErrorLog"), TEXT("qedit.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389316.aspx")),
     CInterfaceInfo(TEXT("{B5730A90-1A2C-11CF-8C23-00AA006B6814}"), TEXT("IAMExtDevice"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389318.aspx")),
+    CInterfaceInfo(TEXT("{FA2AA8F6-8B62-11D0-A520-000000000000}"), TEXT("IAMExtendedErrorInfo"), TEXT("qnetwork.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389327.aspx"), GetInterfaceInfo_IAMExtendedErrorInfo),
     CInterfaceInfo(TEXT("{FA2AA8F9-8B62-11D0-A520-000000000000}"), TEXT("IAMExtendedSeeking"), TEXT("qnetwork.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389331.aspx")),
     CInterfaceInfo(TEXT("{A03CD5F0-3045-11CF-8C44-00AA006B6814}"), TEXT("IAMExtTransport"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389340.aspx")),
-    CInterfaceInfo(TEXT("{2DD74950-A890-11D1-ABE8-00A0C905F375}"), TEXT("IAMFilterMiscFlags"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389374.aspx"), GetInterfaceInfoIAMFilterMiscFlags),
+    CInterfaceInfo(TEXT("{2DD74950-A890-11D1-ABE8-00A0C905F375}"), TEXT("IAMFilterMiscFlags"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389374.aspx"), GetInterfaceInfo_IAMFilterMiscFlags),
     CInterfaceInfo(TEXT("{4995F511-9DDB-4F12-BD3B-F04611807B79}"), TEXT("IAMGraphBuilderCallback"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389376.aspx")),
     CInterfaceInfo(TEXT("{632105FA-072E-11D3-8AF9-00C04FB6BD3D}"), TEXT("IAMGraphStreams"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389379.aspx")),
     CInterfaceInfo(TEXT("{6E8D4A21-310C-11D0-B79A-00AA003767A7}"), TEXT("IAMLine21Decode"), TEXT("uuids.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389385.aspx")),
-    CInterfaceInfo(TEXT("{FA2AA8F4-8B62-11D0-A520-000000000000}"), TEXT("IAMMediaContent"), TEXT("qnetwork.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd319638.aspx")),
+    CInterfaceInfo(TEXT("{FA2AA8F4-8B62-11D0-A520-000000000000}"), TEXT("IAMMediaContent"), TEXT("qnetwork.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd319638.aspx"), GetInterfaceInfo_IAMMediaContent),
     CInterfaceInfo(TEXT("{CE8F78C1-74D9-11D2-B09D-00A0C9A81117}"), TEXT("IAMMediaContent2"), TEXT("qnetwork.h"), TEXT("")),
     CInterfaceInfo(TEXT("{BEBE595D-9A6F-11D0-8FDE-00C04FD9189D}"), TEXT("IAMMediaStream"), TEXT("amstream.h"), TEXT("")),
     CInterfaceInfo(TEXT("{AB6B4AFB-F6E4-11D0-900D-00C04FD9189D}"), TEXT("IAMMediaTypeSample"), TEXT("amstream.h"), TEXT("")),
@@ -382,7 +501,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{FA2AA8F5-8B62-11D0-A520-000000000000}"), TEXT("IAMNetShowExProps"), TEXT("qnetwork.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd319719.aspx")),
     CInterfaceInfo(TEXT("{AAE7E4E2-6388-11D1-8D93-006097C9A2B2}"), TEXT("IAMNetShowPreroll"), TEXT("qnetwork.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd319729.aspx")),
     CInterfaceInfo(TEXT("{FA2AA8F3-8B62-11D0-A520-000000000000}"), TEXT("IAMNetworkStatus"), TEXT("qnetwork.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd319732.aspx")),
-    CInterfaceInfo(TEXT("{8E1C39A1-DE53-11CF-AA63-0080C744528D}"), TEXT("IAMOpenProgress"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd319740.aspx")),
+    CInterfaceInfo(TEXT("{8E1C39A1-DE53-11CF-AA63-0080C744528D}"), TEXT("IAMOpenProgress"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd319740.aspx"), GetInterfaceInfo_IAMOpenProgress),
     CInterfaceInfo(TEXT("{62FAE250-7E65-4460-BFC9-6398B322073C}"), TEXT("IAMOverlayFX"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd319743.aspx")),
     CInterfaceInfo(TEXT("{F185FE76-E64E-11d2-B76E-00C04FB6BD3D}"), TEXT("IAMPushSource"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd319764.aspx")),
     CInterfaceInfo(TEXT("{8389D2D0-77D7-11D1-ABE6-00A0C905F375}"), TEXT("IAMResourceControl"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd319771.aspx")),
@@ -467,7 +586,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{56A868B8-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IDeferredCommand"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406762.aspx")),
     CInterfaceInfo(TEXT("{19B595D8-839A-47F0-96DF-4F194F3C768C}"), TEXT("IDigitalLocator"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{65abea96-cf36-453f-af8a-705e98f16260}"), TEXT("IDMOQualityControl"), TEXT("mediaobj.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406839.aspx")),
-    CInterfaceInfo(TEXT("{BE8F4F4E-5B16-4D29-B350-7F6B5D9298AC}"), TEXT("IDMOVideoOutputOptimizations"), TEXT("mediaobj.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406843.aspx")),
+    CInterfaceInfo(TEXT("{BE8F4F4E-5B16-4D29-B350-7F6B5D9298AC}"), TEXT("IDMOVideoOutputOptimizations"), TEXT("mediaobj.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406843.aspx"), GetInterfaceInfo_IDMOVideoOutputOptimizations),
     CInterfaceInfo(TEXT("{52D6F586-9F0F-4824-8FC8-E32CA04930C2}"), TEXT("IDMOWrapperFilter"), TEXT("dmoshow.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406848.aspx")),
     CInterfaceInfo(TEXT("{C4C4C4B2-0049-4E2B-98FB-9537F6CE516D}"), TEXT("IDTFilter"), TEXT("encdec.h"), TEXT("")),
     CInterfaceInfo(TEXT("{C4C4C4B4-0049-4E2B-98FB-9537F6CE516D}"), TEXT("IDTFilter2"), TEXT("encdec.h"), TEXT("")),
@@ -507,9 +626,9 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{3127CA40-446E-11CE-8135-00AA004BB851}"), TEXT("IErrorLog"), TEXT("oaidl.h"), TEXT("")),
     CInterfaceInfo(TEXT("{C4C4C4D1-0049-4E2B-98FB-9537F6CE516D}"), TEXT("IETFilterConfig"), TEXT("encdec.h"), TEXT("")),
     CInterfaceInfo(TEXT("{C5C5C5B1-3ABC-11D6-B25B-00C04FA0C026}"), TEXT("IEvalRat"), TEXT("tvratings.h"), TEXT("")),
-    CInterfaceInfo(TEXT("{A2104830-7C70-11CF-8BCE-00AA00A3F1A6}"), TEXT("IFileSinkFilter"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389975.aspx"), GetInterfaceInfoIFileSinkFilter),
-    CInterfaceInfo(TEXT("{00855B90-CE1B-11D0-BD4F-00A0C911CE86}"), TEXT("IFileSinkFilter2"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389976.aspx"), GetInterfaceInfoIFileSinkFilter2),
-    CInterfaceInfo(TEXT("{56A868A6-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IFileSourceFilter"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389981.aspx"), GetInterfaceInfoIFileSourceFilter),
+    CInterfaceInfo(TEXT("{A2104830-7C70-11CF-8BCE-00AA00A3F1A6}"), TEXT("IFileSinkFilter"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389975.aspx"), GetInterfaceInfo_IFileSinkFilter),
+    CInterfaceInfo(TEXT("{00855B90-CE1B-11D0-BD4F-00A0C911CE86}"), TEXT("IFileSinkFilter2"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389976.aspx"), GetInterfaceInfo_IFileSinkFilter2),
+    CInterfaceInfo(TEXT("{56A868A6-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IFileSourceFilter"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389981.aspx"), GetInterfaceInfo_IFileSourceFilter),
     CInterfaceInfo(TEXT("{DCFBDCF6-0DC2-45F5-9AB2-7C330EA09C29}"), TEXT("IFilterChain"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389984.aspx")),
     CInterfaceInfo(TEXT("{56A8689F-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IFilterGraph"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389989.aspx")),
     CInterfaceInfo(TEXT("{AAF38154-B80B-422F-91E6-B66467509A07}"), TEXT("IFilterGraph3"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390014.aspx")),
@@ -533,16 +652,16 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{56A868B6-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IMediaEvent"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406896.aspx")),
     CInterfaceInfo(TEXT("{56A868C0-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IMediaEventEx"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406897.aspx")),
     CInterfaceInfo(TEXT("{56A868A2-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IMediaEventSink"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406901.aspx")),
-    CInterfaceInfo(TEXT("{56A86899-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IMediaFilter"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406916.aspx"), GetInterfaceInfoIMediaFilter),
+    CInterfaceInfo(TEXT("{56A86899-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IMediaFilter"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406916.aspx"), GetInterfaceInfo_IMediaFilter),
     CInterfaceInfo(TEXT("{288581E0-66CE-11D2-918F-00C0DF10D434}"), TEXT("IMediaLocator"), TEXT("qedit.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406923.aspx")),
     CInterfaceInfo(TEXT("{D8AD0F58-5494-4102-97C5-EC798E59BCF4}"), TEXT("IMediaObject"), TEXT("mediaobj.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406926.aspx")),
     CInterfaceInfo(TEXT("{651B9AD0-0FC7-4AA9-9538-D89931010741}"), TEXT("IMediaObjectInPlace"), TEXT("mediaobj.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406939.aspx")),
-    CInterfaceInfo(TEXT("{6D6CBB60-A223-44AA-842F-A2F06750BE6D}"), TEXT("IMediaParamInfo"), TEXT("medparam.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406964.aspx"), GetInterfaceInfoIMediaParamInfo),
-    CInterfaceInfo(TEXT("{6D6CBB61-A223-44AA-842F-A2F06750BE6E}"), TEXT("IMediaParams"), TEXT("medparam.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406971.aspx"), GetInterfaceInfoIMediaParams),
+    CInterfaceInfo(TEXT("{6D6CBB60-A223-44AA-842F-A2F06750BE6D}"), TEXT("IMediaParamInfo"), TEXT("medparam.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406964.aspx"), GetInterfaceInfo_IMediaParamInfo),
+    CInterfaceInfo(TEXT("{6D6CBB61-A223-44AA-842F-A2F06750BE6E}"), TEXT("IMediaParams"), TEXT("medparam.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406971.aspx"), GetInterfaceInfo_IMediaParams),
     CInterfaceInfo(TEXT("{56A868B2-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IMediaPosition"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406977.aspx")),
     CInterfaceInfo(TEXT("{6025A880-C0D5-11D0-BD4E-00A0C911CE86}"), TEXT("IMediaPropertyBag"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406997.aspx")),
     CInterfaceInfo(TEXT("{56A8689A-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IMediaSample"), TEXT("strmif.h"), TEXT("")),
-    CInterfaceInfo(TEXT("{36B73880-C2C8-11CF-8B46-00805F6CEF60}"), TEXT("IMediaSeeking"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd407023.aspx"), GetInterfaceInfoIMediaSeeking),
+    CInterfaceInfo(TEXT("{36B73880-C2C8-11CF-8B46-00805F6CEF60}"), TEXT("IMediaSeeking"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd407023.aspx"), GetInterfaceInfo_IMediaSeeking),
     CInterfaceInfo(TEXT("{B502D1BD-9A57-11D0-8FDE-00C04FD9189D}"), TEXT("IMediaStream"), TEXT("mmstream.h"), TEXT("")),
     CInterfaceInfo(TEXT("{BEBE595E-9A6F-11D0-8FDE-00C04FD9189D}"), TEXT("IMediaStreamFilter"), TEXT("amstream.h"), TEXT("")),
     CInterfaceInfo(TEXT("{56A8689C-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IMemAllocator"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd407061.aspx")),
@@ -619,7 +738,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{061C6E30-E622-11D2-9493-00C04F72D980}"), TEXT("ITuningSpace"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{5B692E84-E2F1-11D2-9493-00C04F72D980}"), TEXT("ITuningSpaceContainer"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{901284E4-33FE-4B69-8D63-634A596F3756}"), TEXT("ITuningSpaces"), TEXT("tuner.h"), TEXT("")),
-    CInterfaceInfo(TEXT("{00000000-0000-0000-C000-000000000046}"), TEXT("IUnknown"), TEXT("Unknwn.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms680509.aspx"), GetInterfaceInfoIUnknown),
+    CInterfaceInfo(TEXT("{00000000-0000-0000-C000-000000000046}"), TEXT("IUnknown"), TEXT("Unknwn.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms680509.aspx"), GetInterfaceInfo_IUnknown),
     CInterfaceInfo(TEXT("{E46A9787-2B71-444D-A4B5-1FAB7B708D6A}"), TEXT("IVideoFrameStep"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd377232.aspx")),
     CInterfaceInfo(TEXT("{56A868B4-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IVideoWindow"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd377276.aspx")),
     CInterfaceInfo(TEXT("{EDE80B5C-BAD6-4623-B537-65586C9F8DFD}"), TEXT("IVMRAspectRatioControl"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd377342.aspx")),

@@ -62,6 +62,7 @@
 
 #include <streams.h>
 #include <initguid.h>
+#include <qnetwork.h>
 #include <dvdmedia.h>
 #include <dmodshow.h>
 #include <medparam.h>
@@ -132,6 +133,8 @@ using namespace std;
 #include "BufferNegotiationPage.h"
 #include "WMADecPage.h"
 #include "WMResizerPage.h"
+#include "DMOQualCtrlPage.h"
+#include "AMStreamSelectPage.h"
 
 #include "BrowserControl.h"
 

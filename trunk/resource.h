@@ -4,6 +4,7 @@
 //
 #define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             100
+#define IDD_PROPPAGE_DMOQUALCTRL        102
 #define IDD_DIALOGBAR                   103
 #define IDD_BAR_SEEKING                 103
 #define IDD_DIALOG_FILTERDETAILS        105
@@ -45,6 +46,7 @@
 #define IDD_DIALOG_WMADECODER           164
 #define IDD_DIALOG_CONSTRUCTION         165
 #define IDD_DIALOG_FILTERFROMFILE       166
+#define IDD_PROPPAGE_AMSTREAMSELECT     168
 #define IDC_COMBO_CATEGORIES            1001
 #define IDC_LIST_FILTERS                1002
 #define IDC_COMBO_MERIT                 1003
@@ -181,6 +183,7 @@
 #define IDC_RADIO_QUAL_HIGH             1107
 #define IDC_RADIO2                      1108
 #define IDC_RADIO_QUAL_FAST             1108
+#define IDC_CHECK_QUALCTRL              1109
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -274,9 +277,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        168
+#define _APS_NEXT_RESOURCE_VALUE        170
 #define _APS_NEXT_COMMAND_VALUE         32867
-#define _APS_NEXT_CONTROL_VALUE         1109
+#define _APS_NEXT_CONTROL_VALUE         1110
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
