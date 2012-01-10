@@ -54,8 +54,12 @@ void CPropertyForm::DoDataExchange(CDataExchange* pDX)
 
 void CPropertyForm::OnClose()
 {
-	// report that we're being closed
-	view->ClosePropertyPage(filter);
+    view->graph.RefreshFilters();
+    view->graph.Dirty();
+    view->Invalidate();
+
+    // report that we're being closed
+    view->ClosePropertyPage(filter);
 }
 
 void CPropertyForm::OnOK()

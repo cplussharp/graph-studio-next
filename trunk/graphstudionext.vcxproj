@@ -105,7 +105,7 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>strmbasd.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Quartz.lib;strmbasd.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>

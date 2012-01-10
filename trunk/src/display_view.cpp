@@ -275,8 +275,8 @@ namespace GraphStudio
 			Pin *p2 = graph.FindPinByPos(new_connection_end);
 
 			int ret = graph.ConnectPins(p1, p2);
-			if (ret < 0) {
-				// TODO: error message
+			if (ret < -1) {
+				DSUtil::ShowError(ret);
 			}
 		}
 		new_connection_start = CPoint(-100,-100);
@@ -564,7 +564,7 @@ namespace GraphStudio
 		if (SUCCEEDED(hr)){
 			
 			// now check for a few interfaces
-			int ret = ConfigureInsertedFilter(instance, _T("File Writre"));
+			int ret = ConfigureInsertedFilter(instance, _T("File Writer"));
 			if (ret < 0) {
 				instance = NULL;
 			}

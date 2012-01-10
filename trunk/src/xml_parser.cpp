@@ -231,7 +231,7 @@ namespace XML
 
 			int ret = LoadFromXmlReader(reader);
 			if (ret < 0) {
-				hr = E_FAIL;
+				hr = ret;
 			} else {
 				hr = NOERROR;
 			}
@@ -241,7 +241,7 @@ namespace XML
 		stream = NULL;
 		reader = NULL;
 
-		if (FAILED(hr)) return -1;
+		if (FAILED(hr)) return hr;
 		return 0;
 	}	
 
@@ -270,7 +270,7 @@ namespace XML
 					parent->AddNode(current);
 
 					hr = reader->GetLocalName(&text, NULL);
-					if (FAILED(hr)) return -1;
+					if (FAILED(hr)) return hr;
 					current->name = CString(text);
 
 					// load attributes
@@ -280,9 +280,9 @@ namespace XML
 
 						// read attribute name and value name
 						hr = reader->GetLocalName(&text, NULL);
-						if (FAILED(hr)) return -1;
+						if (FAILED(hr)) return hr;
 						hr = reader->GetValue(&value, NULL);
-						if (FAILED(hr)) return -1;
+						if (FAILED(hr)) return hr;
 
 						CString	attr_name(text);
 						CString	attr_value(value);

@@ -1938,7 +1938,28 @@ namespace DSUtil
 		return NOERROR;
 	}
 
-
+    void ShowError(HRESULT hr, LPCTSTR title)
+    {
+        if (FAILED(hr))
+        {
+            CString errStr;
+            TCHAR szErr[MAX_ERROR_TEXT_LEN];
+            DWORD res = AMGetErrorText(hr, szErr, MAX_ERROR_TEXT_LEN);
+            CString strHR;
+            GraphStudio::NameHResult(hr, strHR);
+            if (res == 0)
+            {
+                _com_error error(hr);
+                errStr.Format(TEXT("%s\n%s"), strHR, error.ErrorMessage());
+            }
+            else
+            {
+                errStr.Format(TEXT("%s\n%s"), strHR, szErr);
+            }
+                
+            MessageBox(0, szErr, title != NULL ? title : TEXT("Error"), MB_OK | MB_ICONERROR);
+        }
+    }
 };
 
 

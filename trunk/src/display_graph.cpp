@@ -684,7 +684,7 @@ namespace GraphStudio
 
 		ret = xml.LoadFromFile(fn);
 		if (ret < 0) {
-			return -1;
+			return ret;
 		}
 
 		graph_name = fn;
@@ -692,7 +692,7 @@ namespace GraphStudio
 		// load graph
 		XML::XMLNode			*root = xml.root;
 		XML::XMLIterator		it;
-		if (root->Find(_T("graph"), &it) < 0) return -1;
+		if (root->Find(_T("graph"), &it) < 0) return E_FAIL;
 
 		XML::XMLNode			*gn = *it;
 		CString		gn_name = gn->GetValue(_T("name"));
@@ -714,7 +714,7 @@ namespace GraphStudio
 
 			// is everything okay ?
 			if (ret < 0) {
-				return -1;
+				return ret;
 			}
 		}
 
@@ -935,7 +935,8 @@ namespace GraphStudio
 		// detect how the filter is described
 		if (clsid_str != _T("")) {
 			filter_id_type = 0;
-			if (FAILED(CLSIDFromString((LPOLESTR)clsid_str.GetBuffer(), &clsid))) return -1;
+            hr = CLSIDFromString((LPOLESTR)clsid_str.GetBuffer(), &clsid);
+			if (FAILED(hr)) return hr;
 		} else
 		if (dn != _T("")) {
 			filter_id_type = 1;
@@ -982,7 +983,7 @@ namespace GraphStudio
 			hr = AddFilter(instance, name);
 			if (FAILED(hr)) {
 				// display error message
-				ret = -1;
+				ret = hr;
 			} else {
 				SmartPlacement();
 			}
