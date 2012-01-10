@@ -225,7 +225,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="interfaces\monofilters.h" />
-    <ClInclude Include="src\AMStreamSelectPage.h" />
     <ClInclude Include="src\display_graph.h" />
     <ClInclude Include="src\display_view.h" />
     <ClInclude Include="src\DMOQualCtrlPage.h" />
@@ -284,7 +283,6 @@
     <ClInclude Include="src\filters\dump\filter_dump.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\AMStreamSelectPage.cpp" />
     <ClCompile Include="src\display_graph.cpp" />
     <ClCompile Include="src\display_view.cpp" />
     <ClCompile Include="src\DMOQualCtrlPage.cpp" />
