@@ -1349,6 +1349,10 @@ void CGraphView::OnDisplayPropertyPage(IUnknown *object, IUnknown *filter, CStri
 
 void CGraphView::ClosePropertyPage(IUnknown *filter)
 {
+    graph.RefreshFilters();
+    graph.Dirty();
+    Invalidate();
+
 	// scan through our objects...
 	for (int i=0; i<property_pages.GetCount(); i++) {
 		CPropertyForm	*page = property_pages[i];

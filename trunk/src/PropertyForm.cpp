@@ -501,10 +501,6 @@ void CPropertyForm::LoadCustomInterfacePropertyPages(IUnknown *obj)
     CComPtr<IAMExtendedSeeking> extseek;
     if(SUCCEEDED(obj->QueryInterface(IID_IAMExtendedSeeking, (void**)&extseek)))
         AddPropertyPage(new CAMExtendedSeekingPage(NULL, &hr, TEXT("Marker")), obj);
-
-    CComQIPtr<IAMStreamSelect> streamsel = obj;
-    if(streamsel) AddPropertyPage(new CAMStreamSelectPage(NULL, &hr, TEXT("StreamSelect")), obj);
-	
 }
 
 void CPropertyForm::AddPropertyPage(CDSPropertyPage *prop_page, IUnknown *obj)

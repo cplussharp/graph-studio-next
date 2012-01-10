@@ -134,7 +134,6 @@ using namespace std;
 #include "WMADecPage.h"
 #include "WMResizerPage.h"
 #include "DMOQualCtrlPage.h"
-#include "AMStreamSelectPage.h"
 
 #include "BrowserControl.h"
 
