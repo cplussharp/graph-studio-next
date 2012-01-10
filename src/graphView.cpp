@@ -806,7 +806,7 @@ void CGraphView::OnFileOpenfromxml()
 	if (ret == IDOK) {
 		ret = TryOpenFile(filename);
 		if (ret < 0) {
-			MessageBox(_T("Cannot open file"));
+            DSUtil::ShowError(ret, TEXT("Cannot open file"));
 		}
 	}
 }
@@ -832,7 +832,7 @@ void CGraphView::OnFileOpenClick()
 	if (ret == IDOK) {
 		ret = TryOpenFile(filename);
 		if (ret < 0) {
-			MessageBox(_T("Cannot open file"));
+			DSUtil::ShowError(ret, _T("Cannot open file"));
 		}
 	}
 
@@ -1349,10 +1349,6 @@ void CGraphView::OnDisplayPropertyPage(IUnknown *object, IUnknown *filter, CStri
 
 void CGraphView::ClosePropertyPage(IUnknown *filter)
 {
-    graph.RefreshFilters();
-    graph.Dirty();
-    Invalidate();
-
 	// scan through our objects...
 	for (int i=0; i<property_pages.GetCount(); i++) {
 		CPropertyForm	*page = property_pages[i];
@@ -1392,7 +1388,8 @@ void CGraphView::OnMRUClick(UINT nID)
 	if (idx < 0 || idx >= mru.list.GetCount()) return ;
 
 	CString	fn = mru.list[idx];
-	TryOpenFile(fn);
+	HRESULT hr = TryOpenFile(fn);
+    DSUtil::ShowError(hr, _T("Cannot open file"));
 }
 
 void CGraphView::OnGraphScreenshot()

@@ -264,6 +264,7 @@ namespace DSUtil
 	HRESULT UnregisterFilter(GUID clsid, GUID category);
 	HRESULT UnregisterCOM(GUID clsid);
 
+    void ShowError(HRESULT hr, LPCTSTR title=NULL);
 };
 
 

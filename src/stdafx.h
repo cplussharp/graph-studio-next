@@ -76,6 +76,7 @@
 #pragma comment(lib, "wmcodecdspuuid.lib")
 #include "moreuuids.h"
 #include <propsys.h>
+#include "comdef.h"
 
 #include "..\resource.h"
 
