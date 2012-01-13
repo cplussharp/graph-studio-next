@@ -77,6 +77,8 @@
 #include "moreuuids.h"
 #include <propsys.h>
 #include "comdef.h"
+#include <bdatypes.h>
+#include <bdamedia.h>
 
 #include "..\resource.h"
 

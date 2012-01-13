@@ -520,7 +520,25 @@ namespace GraphStudio
         KNOWN(MEDIASUBTYPE_RawOggAudio),
         KNOWN(FORMAT_RawOggAudio),
         KNOWN(MEDIASUBTYPE_Dirac_XIPH),
-        KNOWN(FORMAT_Dirac)
+        KNOWN(FORMAT_Dirac),
+
+        KNOWN(KSDATAFORMAT_TYPE_BDA_ANTENNA),
+        KNOWN(KSDATAFORMAT_SUBTYPE_BDA_MPEG2_TRANSPORT),
+        KNOWN(KSDATAFORMAT_SPECIFIER_BDA_TRANSPORT),
+        KNOWN(KSDATAFORMAT_TYPE_BDA_IF_SIGNAL),
+        KNOWN(KSDATAFORMAT_TYPE_MPEG2_SECTIONS),
+        KNOWN(KSDATAFORMAT_SUBTYPE_ATSC_SI),
+        KNOWN(KSDATAFORMAT_SUBTYPE_DVB_SI),
+        KNOWN(KSDATAFORMAT_SUBTYPE_BDA_OPENCABLE_PSIP),
+        KNOWN(KSDATAFORMAT_SUBTYPE_BDA_OPENCABLE_OOB_PSIP),
+        KNOWN(KSDATAFORMAT_SUBTYPE_ISDB_SI),
+        KNOWN(KSDATAFORMAT_SUBTYPE_PBDA_TRANSPORT_RAW),
+        KNOWN(KSDATAFORMAT_TYPE_BDA_IP),
+        KNOWN(KSDATAFORMAT_SUBTYPE_BDA_IP),
+        KNOWN(KSDATAFORMAT_SPECIFIER_BDA_IP),
+        KNOWN(KSDATAFORMAT_TYPE_BDA_IP_CONTROL),
+        KNOWN(KSDATAFORMAT_SUBTYPE_BDA_IP_CONTROL),
+        KNOWN(KSDATAFORMAT_TYPE_MPE),
 	};
 	const int KnownGuidCount = sizeof(KnownGuidList) / sizeof(KnownGuidList[0]);
 
@@ -1087,12 +1105,12 @@ namespace GraphStudio
 		for (int i=0; i<KnownHResultCount; i++) {
 			if (hr == KnownHResultList[i].hr) {
                 str.Format(_T("%s (0x%08lX)"), KnownHResultList[i].name,hr);
-				return false;
+				return true;
 			}
 		}
 
 		str.Format(_T("Unknown HRESULT (0x%08lX)"), hr);
-		return true;
+		return false;
 	}
 
 };
