@@ -36,6 +36,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_BUTTON_DIRECT, &CGraphView::OnDirectConnectClick)
 	ON_COMMAND(ID_BUTTON_REFRESH, &CGraphView::OnRefreshFilters)
 	ON_COMMAND(ID_BUTTON_SEEK, &CGraphView::OnSeekClick)
+    ON_COMMAND(ID_BUTTON_ADDFILTER, &CGraphView::OnGraphInsertFilter)
 	ON_COMMAND(ID_OPTIONS_DIRECT, &CGraphView::OnOptionsDirectConnectClick)
 	ON_COMMAND(ID_OPTIONS_EXACTMATCH, &CGraphView::OnOptionsExactMatchClick)
     ON_COMMAND(ID_OPTIONS_USEMEDIAINFO, &CGraphView::OnOptionsUseMediaInfoClick)
@@ -81,6 +82,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	
 	ON_COMMAND(ID_VIEW_TEXTINFORMATION, &CGraphView::OnViewTextInformation)
 	ON_COMMAND(ID_GRAPH_INSERTFILESOURCE, &CGraphView::OnGraphInsertFileSource)
+    ON_COMMAND(ID_GRAPH_INSERTTEEFILTER, &CGraphView::OnGraphInsertTeeFilter)
 	ON_COMMAND(ID_GRAPH_INSERTFILEWRITER, &CGraphView::OnGraphInsertFileSink)
 	ON_COMMAND(ID_VIEW_50, &CGraphView::OnView50)
 	ON_COMMAND(ID_VIEW_75, &CGraphView::OnView75)
@@ -1250,7 +1252,7 @@ void CGraphView::OnGraphInsertFileSource()
 	hr = CoCreateInstance(CLSID_AsyncReader, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
 	if (FAILED(hr)) {
 		// display error message
-		MessageBox(_T("Cannot create File Source (Async.)"), _T("Error"), MB_ICONERROR);
+        DSUtil::ShowError(hr, _T("Can't create File Source (Async.)"));
 		return ;
 	} else {
 		
@@ -1263,11 +1265,35 @@ void CGraphView::OnGraphInsertFileSource()
 			// add the filter to graph
 			hr = graph.AddFilter(instance, _T("File Source (Async.)"));
 			if (FAILED(hr)) {
-				// display error message
+				DSUtil::ShowError(hr, _T("Can't insert File Source (Async.)"));
 			} else {
 				graph.SmartPlacement();
 				Invalidate();
 			}
+		}
+	}
+	instance = NULL;
+}
+
+void CGraphView::OnGraphInsertTeeFilter()
+{
+	// directly insert a file source filter
+	CComPtr<IBaseFilter>	instance;
+	HRESULT					hr;
+
+    hr = CoCreateInstance(CLSID_InfTee, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
+	if (FAILED(hr)) {
+		// display error message
+        DSUtil::ShowError(hr, _T("Can't create Inf Tee Filter"));
+		return ;
+	} else if (instance) {
+		// add the filter to graph
+		hr = graph.AddFilter(instance, _T("Tee Filter"));
+		if (FAILED(hr)) {
+			DSUtil::ShowError(hr, _T("Can't insert Inf Tee Filter"));
+		} else {
+			graph.SmartPlacement();
+			Invalidate();
 		}
 	}
 	instance = NULL;
@@ -1282,7 +1308,7 @@ void CGraphView::OnGraphInsertFileSink()
 	hr = CoCreateInstance(CLSID_FileWriter, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
 	if (FAILED(hr)) {
 		// display error message
-		MessageBox(_T("Cannot create File Writer"), _T("Error"), MB_ICONERROR);
+		DSUtil::ShowError(hr, _T("Can't create File Writer"));
 		return ;
 	} else {
 		
@@ -1295,7 +1321,7 @@ void CGraphView::OnGraphInsertFileSink()
 			// add the filter to graph
 			hr = graph.AddFilter(instance, _T("File Writer"));
 			if (FAILED(hr)) {
-				// display error message
+				DSUtil::ShowError(hr, _T("Can't insert File Writer"));
 			} else {
 				graph.SmartPlacement();
 				Invalidate();

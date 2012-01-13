@@ -163,6 +163,7 @@ public:
 
 	void OnViewTextInformation();
 	void OnGraphInsertFileSource();
+    void OnGraphInsertTeeFilter();
 	void OnGraphInsertFileSink();
 
 	void OnDestroy();

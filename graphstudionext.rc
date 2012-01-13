@@ -758,6 +758,8 @@ BEGIN
     BUTTON      ID_BUTTON_DIRECT
     BUTTON      ID_BUTTON_REFRESH
     BUTTON      ID_BUTTON_SEEK
+    SEPARATOR
+    BUTTON      ID_BUTTON_ADDFILTER
 END
 
 
@@ -822,6 +824,7 @@ BEGIN
         MENUITEM "Insert Internal Filter",      ID_GRAPH_INSERTINTERNALFILTER
         MENUITEM SEPARATOR
         MENUITEM "Insert File Source (Async.)", ID_GRAPH_INSERTFILESOURCE
+        MENUITEM "Insert Tee Filter",           ID_GRAPH_INSERTTEEFILTER
         MENUITEM "Insert File Writer",          ID_GRAPH_INSERTFILEWRITER
         MENUITEM SEPARATOR
         MENUITEM "Insert Audio Source",         ID_GRAPH_INSERTAUDIOSOURCE
@@ -1143,6 +1146,11 @@ STRINGTABLE
 BEGIN
     ID_BUTTON32850          "Seek to specified position"
     ID_BUTTON_SEEK          "Seek to specified position"
+END
+
+STRINGTABLE
+BEGIN
+    ID_BUTTON_ADDFILTER     "Insert a filter."
 END
 
 #endif    // Englisch (USA) resources
