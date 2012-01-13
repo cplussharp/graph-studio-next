@@ -1957,7 +1957,7 @@ namespace DSUtil
                 errStr.Format(TEXT("%s\n%s"), strHR, szErr);
             }
                 
-            MessageBox(0, szErr, title != NULL ? title : TEXT("Error"), MB_OK | MB_ICONERROR);
+            MessageBox(0, errStr, title != NULL ? title : TEXT("Error"), MB_OK | MB_ICONERROR);
         }
     }
 };
