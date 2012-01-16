@@ -213,6 +213,7 @@
 #define ID_PROPERTYPAGE                 32786
 #define ID_PIN_RENDER                   32787
 #define ID_GRAPH_MAKEGRAPHSCREENSHOT    32788
+#define ID_PIN_TEE_STREAM               32789
 #define ID_VIEW_50                      32794
 #define ID_VIEW_75                      32795
 #define ID_VIEW_100                     32796

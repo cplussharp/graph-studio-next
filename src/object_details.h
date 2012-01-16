@@ -47,6 +47,7 @@ namespace GraphStudio
 	// Decoder Specific Information
 	int GetExtradata_AAC(CMediaType *pmt, PropItem *mtinfo);
     int GetExtradata_H264(CMediaType *pmt, PropItem *mtinfo);
+    int GetExtradata_MPEGVideo(CMediaType *pmt, PropItem *mtinfo);
 
 };
 

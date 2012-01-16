@@ -31,6 +31,7 @@ namespace GraphStudio
 		ON_COMMAND(ID_PIN_RENDER, &DisplayView::OnRenderPin)
 		ON_COMMAND(ID_PIN_NULL_STREAM, &DisplayView::OnRenderNullStream)
 		ON_COMMAND(ID_PIN_DUMP_STREAM, &DisplayView::OnDumpStream)
+        ON_COMMAND(ID_PIN_TEE_STREAM, &DisplayView::OnTeeStream)
 		ON_COMMAND(ID_PIN_FILE_WRITER, &DisplayView::OnFileWriterStream)
 		ON_COMMAND(ID_PROPERTYPAGE, &DisplayView::OnPropertyPage)
 		ON_COMMAND(ID_DELETE_FILTER, &DisplayView::OnDeleteFilter)
@@ -136,6 +137,7 @@ namespace GraphStudio
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_NULL_STREAM, _T("Insert Null Renderer"));
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_DUMP_STREAM, _T("Insert Dump Filter"));
+            menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_TEE_STREAM, _T("Insert Tee Filter"));
 
 			if (offer_writer) {
 				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_FILE_WRITER, _T("Insert File Writer"));
@@ -558,6 +560,7 @@ namespace GraphStudio
 
 		hr = CoCreateInstance(CLSID_FileWriter, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
 		if (FAILED(hr)) {
+            DSUtil::ShowError(hr,_T("Can't create File Writer"));
 			return ;
 		} 
 		
@@ -628,6 +631,7 @@ namespace GraphStudio
 				hr = graph.AddFilter(instance, _T("Dump"));
 				if (FAILED(hr)) {
 					// display error message
+                    DSUtil::ShowError(hr,_T("Can't add Dump Filter"));
 				} else {
 					// connect the pin to the renderer
 					hr = DSUtil::ConnectPin(graph.gb, outpin, instance);
@@ -645,6 +649,44 @@ namespace GraphStudio
 		current_pin = NULL;
 	}
 
+    void DisplayView::OnTeeStream()
+	{
+		if (!current_pin) return ;
+
+		// now create an instance of this filter
+		CComPtr<IBaseFilter>	instance;
+		HRESULT					hr;
+
+        hr = CoCreateInstance(CLSID_InfTee, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
+		if (FAILED(hr)) {
+			// display error message
+            DSUtil::ShowError(hr,_T("Can't create Tee Filter"));
+		} else {
+
+			IPin		*outpin = current_pin->pin;
+			outpin->AddRef();
+
+			// add the filter to graph
+			hr = graph.AddFilter(instance, _T("Tee Filter"));
+			if (FAILED(hr)) {
+				// display error message
+                DSUtil::ShowError(hr,_T("Can't add Tee Filter"));
+			} else {
+				// connect the pin to the renderer
+				hr = DSUtil::ConnectPin(graph.gb, outpin, instance);
+
+				graph.RefreshFilters();
+				graph.SmartPlacement();
+				graph.Dirty();
+				Invalidate();
+			}
+
+			outpin->Release();
+		}
+		instance = NULL;
+		current_pin = NULL;
+	}
+
 	void DisplayView::OnRenderNullStream()
 	{
 		if (!current_pin) return ;
@@ -656,6 +698,7 @@ namespace GraphStudio
 		hr = CoCreateInstance(DSUtil::CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
 		if (FAILED(hr)) {
 			// display error message
+            DSUtil::ShowError(hr,_T("Can't create Null Renderer"));
 		} else {
 			
 			// now check for a few interfaces
@@ -673,6 +716,7 @@ namespace GraphStudio
 				hr = graph.AddFilter(instance, _T("Null Renderer"));
 				if (FAILED(hr)) {
 					// display error message
+                    DSUtil::ShowError(hr,_T("Can't add Null Renderer"));
 				} else {
 					// connect the pin to the renderer
 					hr = DSUtil::ConnectPin(graph.gb, outpin, instance);
