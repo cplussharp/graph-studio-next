@@ -72,6 +72,7 @@ namespace GraphStudio
 		void OnRenderPin();
 		void OnRenderNullStream();
 		void OnDumpStream();
+        void OnTeeStream();
 		void OnFileWriterStream();
 		void OnPropertyPage();
 		void OnDeleteFilter();

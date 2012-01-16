@@ -386,10 +386,51 @@ namespace GraphStudio
 
 				FreeMediaType(mt);
 			}
-
-
 		}
 		con_pin = NULL;
+
+        //-----------------------------------------------------------------
+		// IMPEG2PIDMap
+		//-----------------------------------------------------------------
+        CComQIPtr<IMPEG2PIDMap> pidMap = pin;
+        if(pidMap)
+        {
+            CComPtr<IEnumPIDMap> enumMap;
+            if(SUCCEEDED(pidMap->EnumPIDMap(&enumMap)))
+            {
+                PropItem	*map = group->AddItem(new PropItem(_T("PIDMap")));
+
+                PID_MAP pid;
+                ULONG received = 0;
+                while(enumMap->Next(1,&pid, &received) == S_OK)
+                {
+                    if(received)
+                    {
+                        CString pidVal;
+                        CString contVal;
+                        pidVal.Format(_T("PID %d"), pid.ulPID);
+                        switch(pid.MediaSampleContent)
+                        {
+                        case MEDIA_TRANSPORT_PACKET:
+                            contVal = _T("MEDIA_TRANSPORT_PACKET");
+                            break;
+                        case MEDIA_ELEMENTARY_STREAM:
+                            contVal = _T("MEDIA_ELEMENTARY_STREAM");
+                            break;
+                        case MEDIA_MPEG2_PSI:
+                            contVal = _T("MEDIA_MPEG2_PSI");
+                            break;
+                        case MEDIA_TRANSPORT_PAYLOAD:
+                            contVal = _T("MEDIA_TRANSPORT_PAYLOAD");
+                            break;
+                        default:
+                            contVal = _T("Unknown");
+                        }
+                        map->AddItem(new PropItem(pidVal, contVal));
+                    }
+                }
+            }
+        }
 
 		return 0;
 	}
@@ -548,7 +589,9 @@ namespace GraphStudio
             // we can also parse out decoder specific info in some cases
             if (pmt->subtype == MEDIASUBTYPE_H264 || pmt->subtype == MEDIASUBTYPE_AVC1 || pmt->subtype == MEDIASUBTYPE_MC_H264 ) {
 				GetExtradata_H264(pmt, mtinfo);
-			}
+            } else if(pmt->subtype == MEDIASUBTYPE_MPEG2_VIDEO || pmt->subtype == MEDIASUBTYPE_MPEG1Video) {
+                GetExtradata_MPEGVideo(pmt, mtinfo);
+            }
 		}
 
 		// we can also parse out decoder specific info in some cases
@@ -1145,6 +1188,238 @@ namespace GraphStudio
                 NALParser(br, mtinfo);
                 br.SetPos(oldPos + length);
                 nalParsed = TRUE;
+            }
+        }
+
+		return 0;
+	}
+
+    int GetExtradata_MPEGVideo(CMediaType *pmt, PropItem *mtinfo)
+	{
+		if (pmt->formattype != FORMAT_MPEG2Video) return 0;
+        bool isMpeg1 = false;
+
+		MPEG2VIDEOINFO	*m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
+		int			extralen = m2vi->cbSequenceHeader;
+        uint8*      extra = (uint8*)m2vi->dwSequenceHeader;
+
+		// done with
+		if (extralen <= 0) return 0;
+
+        CBitStreamReader br(extra, extralen);
+        
+        // prefix lesen 0x000001b3
+        UINT16 prefix = br.ReadU16();
+        if(prefix != 0) return 0;
+        prefix = br.ReadU8();
+        if(prefix != 1) return 0;
+        prefix = br.ReadU8();
+
+        if(prefix == 0xB3) // MPEG1Seq
+        {
+            // http://www.fr-an.de/projects/01/01_01_02.htm
+            PropItem *shinfo = mtinfo->AddItem(new PropItem(_T("MPEG Sequence Header")));
+            
+            UINT16 width = br.ReadU(12);
+            shinfo->AddItem(new PropItem(_T("Width"), width));
+
+            UINT16 height = br.ReadU(12);
+            shinfo->AddItem(new PropItem(_T("Height"), height));
+
+            // aspect
+            UINT8 aspect = br.ReadU(4);
+            if(isMpeg1)
+            {
+                static CString aspectValues[] =
+                {
+                    _T("forbidden (0)"),
+                    _T("square pixels (1)"),
+                    _T("0.6735 (2)"),
+                    _T("16:9, 625 line, PAL (3)"),
+                    _T("0.7615 (4)"),
+                    _T("0.8055 (5)"),
+                    _T("16:9, 525 line, NTSC (6)"),
+                    _T("0.8935 (7)"),
+                    _T("4:3, 625 line, PAL, CCIR601 (8)"),
+                    _T("0.9815 (9)"),
+                    _T("1.0255 (10)"),
+                    _T("1.0695 (11)"),
+                    _T("4:3, 525 line, NTSC, CCIR601 (12)"),
+                    _T("1.1575 (13)"),
+                    _T("1.2015 (14)"),
+                    _T("reserved (15)")
+                };
+                shinfo->AddItem(new PropItem(_T("Aspect Ratio"), aspectValues[aspect]));
+            }
+            else
+            {
+                static CString aspectValues[] =
+                {
+                    _T("forbidden (0)"),
+                    _T("1:1 square pixels (1)"),
+                    _T("4:3 display (2)"),
+                    _T("16:9 display (3)"),
+                    _T("2.21:1 (4)")
+                };
+
+                CString arVal;
+                if(aspect > 4)
+                    arVal.Format(_T("reserved (%d)"), aspect);
+                else
+                    arVal = aspectValues[aspect];
+                shinfo->AddItem(new PropItem(_T("Aspect Ratio"), arVal));
+            }
+
+            // Framerate
+            UINT8 framerate = br.ReadU(4);
+            static CString framerateValues[] =
+            {
+                _T("forbidden (0)"),
+                _T("24000/1001.0 => 23.976 fps -- NTSC encapsulated film rate (1)"),
+                _T("24.0 => Standard international cinema film rate (2)"),
+                _T("25.0 => PAL (625/50) video frame rate (3)"),
+                _T("30000/1001.0 => 29.97 fps -- NTSC video frame rate (4)"),
+                _T("30.0 => NTSC drop-frame (525/60) video frame rate (5)"),
+                _T("50.0 => double frame rate/progressive PAL (6)"),
+                _T("60000/1001.0 => double frame rate NTSC (7)"),
+                _T("60.0 => double frame rate drop-frame NTSC (8)")
+            };
+            CString frVal;
+            if(framerate > 8)
+                frVal.Format(_T("reserved (%d)"), framerate);
+            else
+                frVal = framerateValues[framerate];
+            shinfo->AddItem(new PropItem(_T("Framerate"), frVal));
+
+            // Bitrate
+            UINT32 bitrate = br.ReadU(18);
+            if(bitrate == 0x3FFFF)
+                shinfo->AddItem(new PropItem(_T("Bitrate"), CString(_T("Variable (0x3FFFF)"))));
+            else
+            {
+                bitrate = bitrate * 400;
+                shinfo->AddItem(new PropItem(_T("Bitrate (Bit/s)"), bitrate));
+            }
+
+            // Marker
+            UINT8 marker = br.ReadU1();
+            if(!marker)
+                shinfo->AddItem(new PropItem(_T("Marker"), CString(_T("0 (Error in Stream!)"))));
+            else
+                shinfo->AddItem(new PropItem(_T("Marker"), 1));
+
+            // VBV
+            UINT32 vbv = br.ReadU(10);
+            vbv = vbv * 16;
+            shinfo->AddItem(new PropItem(_T("VBV (kB)"), vbv));
+
+            UINT8 cpf = br.ReadU1();
+            shinfo->AddItem(new PropItem(_T("Constrained Parameter Flag"), cpf));
+
+            // Intra Matrix
+            UINT8 lim = br.ReadU1();
+            if(lim)
+                shinfo->AddItem(new PropItem(_T("Load Intra Matrix"), CString(_T("Use Standard (1)"))));
+            else
+            {
+                shinfo->AddItem(new PropItem(_T("Load Intra Matrix"), CString(_T("Load (0)"))));
+                CString matrix;
+                for(int i=0;i<64;i++)
+                {
+                    UINT8 m = br.ReadU8();
+                    matrix.AppendFormat(_T("%02X "), m);
+                }
+                shinfo->AddItem(new PropItem(_T("Intra Matrix"), matrix));
+            }
+
+            // Non Intra Matrix
+            UINT8 lnim = br.ReadU1();
+            if(lnim)
+                shinfo->AddItem(new PropItem(_T("Load Non Intra Matrix"), CString(_T("Use Standard (1)"))));
+            else
+            {
+                shinfo->AddItem(new PropItem(_T("Load Non Intra Matrix"), CString(_T("Load (0)"))));
+                CString matrix;
+                for(int i=0;i<64;i++)
+                {
+                    UINT8 m = br.ReadU8();
+                    matrix.AppendFormat(_T("%02X "), m);
+                }
+                shinfo->AddItem(new PropItem(_T("Non Intra Matrix"), matrix));
+            }
+
+            prefix = br.ReadU16();
+            if(prefix != 0) return 0;
+            prefix = br.ReadU8();
+            if(prefix != 1) return 0;
+            prefix = br.ReadU8();
+        }
+        
+        if(prefix == 0xB5) // MPEG2Seq
+        {
+            UINT8 id = br.ReadU(4);
+            if(id == 1)
+            {
+                PropItem *shinfo = mtinfo->AddItem(new PropItem(_T("MPEG Sequenz Extension")));
+
+                // Profile
+                UINT8 profile = br.ReadU(4);
+                static CString profileValues[] =
+                {
+                    _T("reserved (0)"),
+                    _T("High Profile (1)"),
+                    _T("Spatially Scalable Profile (2)"),
+                    _T("SNR Scalable Profile (3)"),
+                    _T("Main Profile (4)"),
+                    _T("Simple Profile (5)"),
+                };
+
+                CString profileVal;
+                if(profile > 5)
+                    profileVal.Format(_T("Unknown (%d)"), profile);
+                else
+                    profileVal = profileValues[profile];
+                shinfo->AddItem(new PropItem(_T("Profile"), profileVal));
+
+                // Level
+                shinfo->AddItem(new PropItem(_T("Level"), br.ReadU(4)));
+                shinfo->AddItem(new PropItem(_T("Progressive Sequence"), br.ReadU1()));
+
+                // Chroma
+                UINT8 chroma = br.ReadU(2);
+                static CString chromaValues[] =
+                {
+                    _T("0"),
+                    _T("4:2:0 (1)"),
+                    _T("4:2:2 (2)"),
+                    _T("4:4:4 (3)")
+                };
+                shinfo->AddItem(new PropItem(_T("Chroma Format"), chromaValues[chroma]));
+
+                shinfo->AddItem(new PropItem(_T("Width Extension"), br.ReadU(2)));
+                shinfo->AddItem(new PropItem(_T("Height Extension"), br.ReadU(2)));
+                shinfo->AddItem(new PropItem(_T("Bitrate Extension"), br.ReadU(12)));
+                shinfo->AddItem(new PropItem(_T("Marker"), br.ReadU1()));
+                shinfo->AddItem(new PropItem(_T("VBV Extension"), br.ReadU(8)));
+                shinfo->AddItem(new PropItem(_T("Low Delay"), br.ReadU(1)));
+                shinfo->AddItem(new PropItem(_T("Framerate Extension Numerator"), br.ReadU(2)));
+                shinfo->AddItem(new PropItem(_T("Framerate Extension Denominator"), br.ReadU(5)));
+            }
+            else if(id == 2)
+            {
+                PropItem *shinfo = mtinfo->AddItem(new PropItem(_T("MPEG Sequenz Display Extension")));
+            }
+            else if(id == 3)
+            {
+                PropItem *shinfo = mtinfo->AddItem(new PropItem(_T("MPEG Quant Matrix Extension")));
+            }
+            else if(id == 4)
+            {
+                PropItem *shinfo = mtinfo->AddItem(new PropItem(_T("MPEG Copyright Extension")));
+            }
+            else if(id == 5)
+            {
+                PropItem *shinfo = mtinfo->AddItem(new PropItem(_T("MPEG Sequence Scalable Extension")));
             }
         }
 
