@@ -206,6 +206,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="res\addFilter.ico" />
     <None Include="res\bitmap_clock_active_hi.bmp" />
     <None Include="res\bitmap_clock_active_lo.bmp" />
     <None Include="res\bitmap_clock_inactive_hi.bmp" />
@@ -217,6 +218,7 @@
     <None Include="res\graphstudio.ico" />
     <None Include="res\graphstudio.rc2" />
     <None Include="res\graphstudioDoc.ico" />
+    <None Include="res\icon1.ico" />
     <None Include="res\Toolbar.bmp" />
     <None Include="res\toolbar1.bmp" />
   </ItemGroup>

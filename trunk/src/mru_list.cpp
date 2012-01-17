@@ -70,6 +70,12 @@ namespace GraphStudio
 		}
 		list.InsertAt(0, filename);
 		Save();
+
+#if defined(UNICODE)
+        SHAddToRecentDocs(SHARD_PATHW, (LPCTSTR)filename);
+#else
+        SHAddToRecentDocs(SHARD_PATHA, (LPCTSTR)filename);
+#endif
 	}
 
 	void MRUList::Clear()

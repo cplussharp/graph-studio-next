@@ -47,6 +47,7 @@
 #define IDD_DIALOG_CONSTRUCTION         165
 #define IDD_DIALOG_FILTERFROMFILE       166
 #define IDD_PROPPAGE_AMSTREAMSELECT     168
+#define IDI_ADDFILTER                   170
 #define IDC_COMBO_CATEGORIES            1001
 #define IDC_LIST_FILTERS                1002
 #define IDC_COMBO_MERIT                 1003
@@ -280,7 +281,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        170
+#define _APS_NEXT_RESOURCE_VALUE        171
 #define _APS_NEXT_COMMAND_VALUE         32869
 #define _APS_NEXT_CONTROL_VALUE         1110
 #define _APS_NEXT_SYMED_VALUE           101

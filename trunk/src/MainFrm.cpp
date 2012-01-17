@@ -18,6 +18,8 @@
 //
 //-----------------------------------------------------------------------------
 
+const UINT CMainFrame::m_uTaskbarBtnCreatedMsg = RegisterWindowMessage ( _T("TaskbarButtonCreated") );
+
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWnd)
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
@@ -125,6 +127,25 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 	return TRUE;
 }
 
+LRESULT CMainFrame::OnTaskbarBtnCreated ( UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+    // On pre-Win 7, anyone can register a message called "TaskbarButtonCreated"
+    // and broadcast it, so make sure the OS is Win 7 or later before acting on
+    // the message. (This isn't a problem for this app, which won't run on pre-7,
+    // but you should definitely do this check if your app will run on pre-7.)
+    DWORD dwMajor = LOBYTE(LOWORD(GetVersion()));
+    DWORD dwMinor = HIBYTE(LOWORD(GetVersion()));
+
+    // Check that the Windows version is at least 6.1 (yes, Win 7 is version 6.1).
+    if ( dwMajor > 6 || ( dwMajor == 6 && dwMinor > 0 ) )
+        {
+        m_pTaskbarList.Release();
+        m_pTaskbarList.CoCreateInstance ( CLSID_TaskbarList );
+        }
+
+    return 0;
+}
+
 BOOL CMainFrame::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT *pResult)
 {
 	if (message == WM_COMMAND) {
@@ -132,7 +153,10 @@ BOOL CMainFrame::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT *p
 			// tricky bypass
 			view->OnWmCommand(wParam, lParam);
 		}
-	}
+	} else if(message == m_uTaskbarBtnCreatedMsg) {
+        *pResult = OnTaskbarBtnCreated(message, wParam, lParam);
+        return TRUE;
+    }
 	return __super::OnWndMsg(message, wParam, lParam, pResult);
 }
 

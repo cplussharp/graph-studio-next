@@ -22,6 +22,7 @@ protected:
 	DECLARE_DYNAMIC(CFiltersForm)
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+    HICON m_hIcon;
 
 public:
 	CComboBox					combo_categories;
