@@ -101,6 +101,10 @@ BOOL CFiltersForm::DoCreateDialog()
 // CFiltersForm message handlers
 void CFiltersForm::OnInitialize()
 {
+    m_hIcon = AfxGetApp()->LoadIcon(IDI_ADDFILTER);
+
+    SetIcon(m_hIcon, TRUE);
+
 	// Fill the categories combo
 	int i;
 	DragAcceptFiles(TRUE);

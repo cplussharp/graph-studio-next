@@ -39,6 +39,8 @@ CgraphstudioApp::CgraphstudioApp()
 {
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
+
+    SetAppID(_T("CPlusSharp.GraphStudioNext"));
 }
 
 
@@ -57,6 +59,8 @@ BOOL CgraphstudioApp::InitInstance()
 	InitCommonControlsEx(&InitCtrls);
 
 	CWinApp::InitInstance();
+
+    EnableTaskbarInteraction(TRUE);
 
 	// Initialize OLE libraries
 	if (!AfxOleInit()) {
@@ -102,6 +106,20 @@ BOOL CgraphstudioApp::InitInstance()
 	if (cmdInfo.m_strFileName != _T("")) {
 		view->TryOpenFile(cmdInfo.m_strFileName);
 	}
+
+    // Jumplist
+    TCHAR szModule[MAX_PATH];
+    DWORD dwFLen = GetModuleFileName(nullptr, szModule, MAX_PATH);
+
+    CJumpList m_jumpList;
+    m_jumpList.InitializeList();
+    m_jumpList.AddKnownCategory(KDC_FREQUENT);
+    m_jumpList.AddKnownCategory(KDC_RECENT);
+    m_jumpList.AddTask(szModule, L"/filters", L"Filters Dialog", szModule, 2);
+    m_jumpList.CommitList();
+
+    if (!wcscmp(m_lpCmdLine, L"/filters"))
+        view->OnGraphInsertFilter();
 
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand

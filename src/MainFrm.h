@@ -22,6 +22,7 @@ protected:
 
 	// Generated message map functions
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+    LRESULT OnTaskbarBtnCreated ( UINT uMsg, WPARAM wParam, LPARAM lParam );
 
 public:  // control bar embedded members
 	CStatusBar		m_wndStatusBar;
@@ -29,6 +30,7 @@ public:  // control bar embedded members
 	CToolBar		m_wndPlaybackBar;
 	CSeekingBar		m_wndSeekingBar;
 	CReBar			m_wndReBar;
+    CComPtr<ITaskbarList3> m_pTaskbarList;
 
 	// view
 	CGraphView		*view;
@@ -45,6 +47,8 @@ public:
 #endif
 
 	virtual BOOL OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT *pResult);
+
+    static const UINT m_uTaskbarBtnCreatedMsg;
 };
 
 

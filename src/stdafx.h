@@ -59,6 +59,7 @@
 
 #include <afxtempl.h>
 #include <afxlinkctrl.h>
+#include <afxadv.h> // for jumplist
 
 #include <streams.h>
 #include <initguid.h>

@@ -76,6 +76,12 @@
     <None Include="res\graphstudioDoc.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="res\icon1.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\addFilter.ico">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="graphstudionext.rc">
