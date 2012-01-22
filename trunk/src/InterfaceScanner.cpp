@@ -21,6 +21,24 @@ CInterfaceInfo::CInterfaceInfo(const CInterfaceInfo& info)
 {
 }
 
+const CString CInterfaceInfo::GetGuidString() const
+{
+    CString str;
+    LPOLESTR ostr = NULL;
+	StringFromCLSID(m_guid, &ostr);
+	if (ostr)
+    {
+        str = CString(ostr);
+		CoTaskMemFree(ostr);
+	}
+    else
+    {
+        str = _T("");
+    }
+
+    return str;
+}
+
 void CInterfaceInfo::GetInfo(GraphStudio::PropItem* group, IUnknown* pUnk) const
 {
     group->AddItem(new GraphStudio::PropItem(_T("IID"), m_guid));
@@ -860,4 +878,25 @@ void CInterfaceScanner::GetDetails(GraphStudio::PropItem* info)
         m_supportedInterfaces[i]->GetInfo(group, m_pUnk);
         group->expand = false;
     }
+}
+
+bool CInterfaceScanner::InsertInterfaceLookup(int i, CListCtrl* pListCtrl)
+{
+    if(i < 0 || i >= m_countKnownInterfaces) return false;
+
+    int nIndex = pListCtrl->InsertItem(pListCtrl->GetItemCount(), m_knownInterfaces[i].GetName());
+    if(nIndex == -1) return false;
+
+    pListCtrl->SetItemText(nIndex, 1, m_knownInterfaces[i].GetGuidString());
+    pListCtrl->SetItemText(nIndex, 2, m_knownInterfaces[i].GetHeader());
+    pListCtrl->SetItemText(nIndex, 3, m_knownInterfaces[i].GetUrl());
+
+    CStringArray* arrData = new CStringArray();
+    arrData->Add(m_knownInterfaces[i].GetName());
+    arrData->Add(m_knownInterfaces[i].GetGuidString());
+    arrData->Add(m_knownInterfaces[i].GetHeader());
+    arrData->Add(m_knownInterfaces[i].GetUrl());
+    pListCtrl->SetItemData(nIndex, (DWORD_PTR)arrData);
+
+    return true;
 }

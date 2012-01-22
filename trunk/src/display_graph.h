@@ -431,8 +431,10 @@ namespace GraphStudio
 
 	// GUID helpers
 	bool NameGuid(GUID guid, CString &str);
+    bool InsertGuidLookup(int i, CListCtrl* pListCtrl);
 	int GetFormatName(int wFormatTag, CString &str);
     bool NameHResult(HRESULT hr, CString &str);
+    bool InsertHresultLookup(int i, CListCtrl* pListCtrl);
 
 	void MakeFont(CFont &f, CString name, int size, bool bold, bool italic);
 
