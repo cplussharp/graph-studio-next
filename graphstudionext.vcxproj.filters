@@ -260,6 +260,9 @@
     <ClInclude Include="src\DMOQualCtrlPage.h">
       <Filter>Property Pages</Filter>
     </ClInclude>
+    <ClInclude Include="src\LookupForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -420,6 +423,9 @@
     </ClCompile>
     <ClCompile Include="src\DMOQualCtrlPage.cpp">
       <Filter>Property Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LookupForm.cpp">
+      <Filter>Dialogs</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

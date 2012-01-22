@@ -142,6 +142,7 @@ using namespace std;
 
 #include "BrowserControl.h"
 
+#include "LookupForm.h"
 #include "DecPerformanceForm.h"
 #include "FavoritesForm.h"
 #include "GraphConstructionForm.h"

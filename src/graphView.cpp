@@ -109,6 +109,8 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_ABORTRENDER, &CGraphView::OnUpdateOptionsAbortrender)
 	ON_COMMAND(ID_OPTIONS_ABORTRENDER, &CGraphView::OnOptionsAbortrender)
 	ON_COMMAND(ID_VIEW_GRAPHCONSTRUCTIONREPORT, &CGraphView::OnViewGraphconstructionreport)
+    ON_COMMAND(ID_HELP_GUIDLOOKUP, &CGraphView::OnHelpGuidLookup)
+    ON_COMMAND(ID_HELP_HRESULTLOOKUP, &CGraphView::OnHelpHresultLookup)
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -130,6 +132,8 @@ CGraphView::CGraphView()
 	form_volume = NULL;
 	form_seek = NULL;
 	form_dec_performance = NULL;
+    form_guidlookup = NULL;
+    form_hresultlookup = NULL;
 
 	filename = _T("");
 	can_save = false;
@@ -147,6 +151,8 @@ CGraphView::~CGraphView()
 	if (form_seek) { form_seek->DestroyWindow(); delete form_seek; }
 	if (form_textinfo) { form_textinfo->DestroyWindow(); delete form_textinfo; }
 	if (form_favorites) { form_favorites->DestroyWindow(); delete form_favorites; }
+    if (form_guidlookup) { form_guidlookup->DestroyWindow(); delete form_guidlookup; }
+    if (form_hresultlookup) { form_hresultlookup->DestroyWindow(); delete form_hresultlookup; }
 }
 
 BOOL CGraphView::PreCreateWindow(CREATESTRUCT& cs)
@@ -1057,6 +1063,28 @@ void CGraphView::OnViewGraphconstructionreport()
 	}
 
 	form_construction->ShowWindow(SW_SHOW);
+}
+
+void CGraphView::OnHelpGuidLookup()
+{
+    if(!form_guidlookup)
+    {
+        form_guidlookup = new CLookupForm(NULL, FALSE);
+		form_guidlookup->DoCreateDialog();
+	}
+
+	form_guidlookup->ShowWindow(SW_SHOW);
+}
+
+void CGraphView::OnHelpHresultLookup()
+{
+    if(!form_hresultlookup)
+    {
+        form_hresultlookup = new CLookupForm(NULL, TRUE);
+		form_hresultlookup->DoCreateDialog();
+	}
+
+	form_hresultlookup->ShowWindow(SW_SHOW);
 }
 
 void CGraphView::UpdateGraphState()

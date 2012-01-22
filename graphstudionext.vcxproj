@@ -134,7 +134,7 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>strmbasd.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Quartz.lib;strmbasd.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
     </Link>
@@ -163,7 +163,7 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>strmbasemt.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Quartz.lib;strmbasemt.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -196,7 +196,7 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>strmbasemt.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Quartz.lib;strmbasemt.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -235,6 +235,7 @@
     <ClInclude Include="src\graphstudio.h" />
     <ClInclude Include="src\graphView.h" />
     <ClInclude Include="src\InterfaceScanner.h" />
+    <ClInclude Include="src\LookupForm.h" />
     <ClInclude Include="src\MainFrm.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="src\MediaInfo.h" />
@@ -298,6 +299,7 @@
     </ClCompile>
     <ClCompile Include="src\graphView.cpp" />
     <ClCompile Include="src\InterfaceScanner.cpp" />
+    <ClCompile Include="src\LookupForm.cpp" />
     <ClCompile Include="src\MainFrm.cpp" />
     <ClCompile Include="src\ConfirmForm.cpp" />
     <ClCompile Include="src\DecPerformanceForm.cpp" />

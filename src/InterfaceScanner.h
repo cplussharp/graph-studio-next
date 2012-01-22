@@ -12,9 +12,10 @@ public:
     virtual ~CInterfaceInfo(void) {}
 
     const GUID& GetGuid() const { return m_guid; }
-    const CString& GetName() const { return m_name; }
-    const CString& GetHeader() const { return m_header; }
-    const CString& GetUrl() const { return m_url; }
+    const CString GetGuidString() const;
+    const CString GetName() const { return m_name; }
+    const CString GetHeader() const { return m_header; }
+    const CString GetUrl() const { return m_url; }
     virtual void GetInfo(GraphStudio::PropItem* group, IUnknown* pUnk) const;
 
 protected:
@@ -33,6 +34,7 @@ public:
     ~CInterfaceScanner(void);
 
     void GetDetails(GraphStudio::PropItem* group);
+    static bool InsertInterfaceLookup(int i, CListCtrl* pListCtrl);
 
 protected:
     CArray<const CInterfaceInfo*, const CInterfaceInfo*> m_supportedInterfaces;

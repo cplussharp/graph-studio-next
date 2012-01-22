@@ -37,6 +37,8 @@ public:
 	CVolumeBarForm				*form_volume;
 	CDecPerformanceForm			*form_dec_performance;
 	CSeekForm					*form_seek;
+    CLookupForm                 *form_guidlookup;
+    CLookupForm                 *form_hresultlookup;
 
 	// active property pages
 	CArray<CPropertyForm*>		property_pages;
@@ -204,6 +206,8 @@ public:
 	afx_msg void OnUpdateOptionsAbortrender(CCmdUI *pCmdUI);
 	afx_msg void OnOptionsAbortrender();
 	afx_msg void OnViewGraphconstructionreport();
+    afx_msg void OnHelpGuidLookup();
+    afx_msg void OnHelpHresultLookup();
 };
 
 #ifndef _DEBUG  // debug version in graphView.cpp

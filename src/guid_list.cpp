@@ -559,6 +559,34 @@ namespace GraphStudio
 		return false;
 	}
 
+    bool InsertGuidLookup(int i, CListCtrl* pListCtrl)
+    {
+        if(i<0) return false;
+
+        if(i<KnownGuidCount)
+        {
+            int nIndex = pListCtrl->InsertItem(pListCtrl->GetItemCount(), KnownGuidList[i].name);
+            if(nIndex == -1) return false;
+
+            CString		clsid_str;
+		    CLSIDToString(KnownGuidList[i].guid, clsid_str);
+            pListCtrl->SetItemText(nIndex, 1, clsid_str);
+            pListCtrl->SetItemText(nIndex, 2, _T(""));
+            pListCtrl->SetItemText(nIndex, 3, _T(""));
+
+            CStringArray* arrData = new CStringArray();
+            arrData->Add(KnownGuidList[i].name);
+            arrData->Add(clsid_str);
+            arrData->Add(_T(""));
+            arrData->Add(_T(""));
+            pListCtrl->SetItemData(nIndex, (DWORD_PTR)arrData);
+
+            return true;
+        }
+
+        return CInterfaceScanner::InsertInterfaceLookup(i-KnownGuidCount, pListCtrl);
+    }
+
 
 	struct FormatTagPair {
 		int		tag;
@@ -1112,6 +1140,46 @@ namespace GraphStudio
 		str.Format(_T("Unknown HRESULT (0x%08lX)"), hr);
 		return false;
 	}
+
+    bool InsertHresultLookup(int i, CListCtrl* pListCtrl)
+    {
+        if(i<0 || i >= KnownHResultCount) return false;
+
+        int nIndex = pListCtrl->InsertItem(pListCtrl->GetItemCount(), KnownHResultList[i].name);
+        if(nIndex == -1) return false;
+
+        CStringArray* arrData = new CStringArray();
+        arrData->Add(KnownHResultList[i].name);
+
+        HRESULT hr = KnownHResultList[i].hr;
+        CString val;
+        val.Format(_T("0x%08lX"), hr);
+        pListCtrl->SetItemText(nIndex, 1, val);
+        arrData->Add(val);
+        val.Format(_T("%d"), hr);
+        pListCtrl->SetItemText(nIndex, 2, val);
+        arrData->Add(val);
+
+        TCHAR szErr[MAX_ERROR_TEXT_LEN];
+        DWORD res = AMGetErrorText(KnownHResultList[i].hr, szErr, MAX_ERROR_TEXT_LEN);
+        if (res == 0)
+        {
+            _com_error error(hr);
+            pListCtrl->SetItemText(nIndex, 3, error.ErrorMessage());
+            arrData->Add(error.ErrorMessage());
+        }
+        else
+        {
+            CString errStr;
+            errStr.Format(TEXT("%s"), szErr);
+            pListCtrl->SetItemText(nIndex, 3, errStr);
+            arrData->Add(errStr);
+        }
+
+        pListCtrl->SetItemData(nIndex, (DWORD_PTR)arrData);
+
+        return true;
+    }
 
 };
 

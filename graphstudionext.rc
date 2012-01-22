@@ -40,6 +40,16 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\graphstudio.ico"
+IDR_graphstudioTYPE     ICON                    "res\\graphstudioDoc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // Dialog
 //
 
@@ -74,7 +84,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSM
 CAPTION "About GraphStudioNext"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-    LTEXT           "GraphStudioNext v0.4.5.5 Beta",IDC_STATIC,6,30,156,8,SS_NOPREFIX
+    LTEXT           "GraphStudioNext v0.4.9.0",IDC_STATIC,6,30,156,8,SS_NOPREFIX
     DEFPUSHBUTTON   "OK",IDOK,198,78,50,16,WS_GROUP
     LTEXT           "This software is free under the GNU GPL license",IDC_STATIC,6,72,153,8
     CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,252,24
@@ -483,6 +493,15 @@ BEGIN
     CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,272,20
 END
 
+IDD_DIALOG_LOOKUP DIALOGEX 0, 0, 301, 170
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Lookup"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LIST_LOOKUP,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,0,24,290,137
+    CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,301,21
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -692,6 +711,14 @@ BEGIN
         RIGHTMARGIN, 173
         BOTTOMMARGIN, 127
     END
+
+    IDD_DIALOG_LOOKUP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 294
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 163
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -732,16 +759,6 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDR_MAINFRAME           ICON                    "res\\graphstudio.ico"
-IDR_graphstudioTYPE     ICON                    "res\\graphstudioDoc.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -877,6 +894,9 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
+        MENUITEM "GUID Lookup...",              ID_HELP_GUIDLOOKUP
+        MENUITEM "HRESULT Lookup...",           ID_HELP_HRESULTLOOKUP
+        MENUITEM SEPARATOR
         MENUITEM "&About GraphStudio...",       ID_APP_ABOUT
     END
 END
@@ -944,8 +964,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,4,5,5
- PRODUCTVERSION 0,4,5,5
+ FILEVERSION 0,4,9,0
+ PRODUCTVERSION 0,4,9,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -961,10 +981,10 @@ BEGIN
         BLOCK "000904e4"
         BEGIN
             VALUE "FileDescription", "GraphStudioNext"
-            VALUE "FileVersion", "0.4.5.5"
+            VALUE "FileVersion", "0.4.9.0"
             VALUE "InternalName", "graphstudionext.exe"
             VALUE "OriginalFilename", "graphstudionext.exe"
-            VALUE "ProductVersion", "0.4.5.5"
+            VALUE "ProductVersion", "0.4.9.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -1170,6 +1190,8 @@ END
 STRINGTABLE
 BEGIN
     ID_BUTTON_ADDFILTER     "Insert a filter."
+    ID_HELP_HRESULTLOOKUP   "Show list of known HRESULTs."
+    ID_HELP_GUIDLOOKUP      "Show list of known GUIDs / CLSIDs / IIDs. "
 END
 
 #endif    // Englisch (USA) resources
