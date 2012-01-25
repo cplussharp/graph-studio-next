@@ -9,6 +9,7 @@
 #include <asferr.h>
 #include <nserror.h>
 
+
 namespace GraphStudio
 {
 
@@ -300,10 +301,6 @@ namespace GraphStudio
         KNOWN(MEDIASUBTYPE_DOLBY_DDPLUS),
         KNOWN(MEDIASUBTYPE_DOLBY_TRUEHD),
         KNOWN(MEDIASUBTYPE_DTS_HD),
-        KNOWN(MEDIASUBTYPE_h264),
-        KNOWN(MEDIASUBTYPE_AVC1),
-        KNOWN(MEDIASUBTYPE_X264),
-        KNOWN(MEDIASUBTYPE_x264),
 
         // Moreuuids.h
         KNOWN(MEDIASUBTYPE_WAVE_DOLBY_AC3),
@@ -539,6 +536,11 @@ namespace GraphStudio
         KNOWN(KSDATAFORMAT_TYPE_BDA_IP_CONTROL),
         KNOWN(KSDATAFORMAT_SUBTYPE_BDA_IP_CONTROL),
         KNOWN(KSDATAFORMAT_TYPE_MPE),
+
+        // from 
+        KNOWN(KSDATAFORMAT_SPECIFIER_DV_AVC),
+        KNOWN(KSDATAFORMAT_SPECIFIER_AVC),
+        KNOWN(KSDATAFORMAT_SPECIFIER_61883_4)
 	};
 	const int KnownGuidCount = sizeof(KnownGuidList) / sizeof(KnownGuidList[0]);
 

@@ -35,6 +35,7 @@ namespace GraphStudio
 		ON_COMMAND(ID_PIN_FILE_WRITER, &DisplayView::OnFileWriterStream)
 		ON_COMMAND(ID_PROPERTYPAGE, &DisplayView::OnPropertyPage)
 		ON_COMMAND(ID_DELETE_FILTER, &DisplayView::OnDeleteFilter)
+        ON_COMMAND(ID_MPEG2DEMUX_CREATE_PSI_PIN, &DisplayView::OnMpeg2DemuxCreatePsiPin)
 
 		ON_COMMAND_RANGE(ID_STREAM_SELECT, ID_STREAM_SELECT+100, &DisplayView::OnSelectStream)
 		ON_COMMAND_RANGE(ID_COMPATIBLE_FILTER, ID_COMPATIBLE_FILTER+999, &DisplayView::OnCompatibleFilterClick)
@@ -160,6 +161,12 @@ namespace GraphStudio
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_DELETE_FILTER, _T("Delete Selection"));
 
+            CComQIPtr<IMpeg2Demultiplexer> mp2demux = current_filter->filter;
+            if(mp2demux)
+            {
+                menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
+			    menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_MPEG2DEMUX_CREATE_PSI_PIN, _T("Create PSI Pin"));
+            }
 
 			// check for IAMStreamSelect interface
 			PrepareStreamSelectMenu(menu, current_filter->filter);
@@ -757,6 +764,11 @@ namespace GraphStudio
 		// ask the derived class to do it ...
 		OnDeleteSelection();
 	}
+
+    void DisplayView::OnMpeg2DemuxCreatePsiPin()
+    {
+        // to be overriden
+    }
 
 	void DisplayView::OnPropertyPage()
 	{

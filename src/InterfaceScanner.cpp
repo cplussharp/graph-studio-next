@@ -841,9 +841,12 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{E6A49E22-C099-421d-AAD3-C061FB4AE85B}"), TEXT("IWMColorConvProps"), TEXT("wmcodecdsp.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ff819247.aspx")),
     CInterfaceInfo(TEXT("{886d8eeb-8cf2-4446-8d02-cdba1dbdcf99}"), TEXT("IPropertyStore"), TEXT("Propsys.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/bb761474.aspx")),
     CInterfaceInfo(TEXT("{71604b0f-97b0-4764-8577-2f13e98a1422}"), TEXT("INamedPropertyStore"), TEXT("Propsys.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/bb761664.aspx")),
-    CInterfaceInfo(TEXT("{c8e2d566-186e-4d49-bf41-6909ead56acc}"), TEXT("IPropertyStoreCapabilities"), TEXT("Propsys.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/bb761452.aspx"))
+    CInterfaceInfo(TEXT("{c8e2d566-186e-4d49-bf41-6909ead56acc}"), TEXT("IPropertyStoreCapabilities"), TEXT("Propsys.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/bb761452.aspx")),
 
-
+    CInterfaceInfo(TEXT("{1DFD0A5C-0284-11d3-9D8E-00C04F72D980}"), TEXT("IScanningTuner"), TEXT("tuner.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd694868.aspx")),
+    CInterfaceInfo(TEXT("{04BBD195-0E2D-4593-9BD5-4F908BC33CF5}"), TEXT("IScanningTunerEx"), TEXT("tuner.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd694869.aspx")),
+    CInterfaceInfo(TEXT("{ed3e0c66-18c8-4ea6-9300-f6841fdd35dc}"), TEXT("ITunerCapEx"), TEXT("tuner.h"), TEXT("")),
+    CInterfaceInfo(TEXT("{919F24C5-7B14-42ac-A4B0-2AE08DAF00AC}"), TEXT("IPSITables"), TEXT("mpeg2psiparser.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd694840.aspx")),
 };
 const UINT CInterfaceScanner::m_countKnownInterfaces = sizeof(m_knownInterfaces) / sizeof(m_knownInterfaces[0]);
 

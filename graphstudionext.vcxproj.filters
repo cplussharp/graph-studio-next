@@ -35,6 +35,9 @@
     <Filter Include="Filters\filter_dump">
       <UniqueIdentifier>{b515c804-d262-4b4e-a641-dfa00b4ec4c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Filters\filter_m2ts">
+      <UniqueIdentifier>{b632aa14-3656-44f2-882c-1cafee4377d2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\bitmap_clock_active_hi.bmp">
@@ -263,6 +266,9 @@
     <ClInclude Include="src\LookupForm.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="src\filters\fake_m2ts\filter_fake_m2ts_device.h">
+      <Filter>Filters\filter_m2ts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -426,6 +432,9 @@
     </ClCompile>
     <ClCompile Include="src\LookupForm.cpp">
       <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filters\fake_m2ts\filter_fake_m2ts_device.cpp">
+      <Filter>Filters\filter_m2ts</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

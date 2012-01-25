@@ -282,6 +282,7 @@
 #define ID_GRAPH_INSERTTEEFILTER        32868
 #define ID_HELP_HRESULTLOOKUP           32869
 #define ID_HELP_GUIDLOOKUP              32870
+#define ID_MPEG2DEMUX_CREATE_PSI_PIN    32880
 
 // Next default values for new objects
 // 
@@ -290,6 +291,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        172
 #define _APS_NEXT_COMMAND_VALUE         32871
 #define _APS_NEXT_CONTROL_VALUE         1112
-#define _APS_NEXT_SYMED_VALUE           101
+#define _APS_NEXT_SYMED_VALUE           102
 #endif
 #endif

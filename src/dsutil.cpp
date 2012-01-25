@@ -977,6 +977,10 @@ namespace DSUtil
         filter.clsid = CLSID_MonoTimeMeasure;
         filters.Add(filter);
 
+        filter.name = _T("Fake M2TS Device Filter");
+        filter.clsid = CLSID_FakeM2tsDevice;
+        filters.Add(filter);
+
         return filters.GetCount();
     }
 
