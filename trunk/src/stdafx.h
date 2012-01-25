@@ -81,6 +81,7 @@
 #include <Bdaiface.h>
 #include <bdatypes.h>
 #include <bdamedia.h>
+#include <tuner.h>
 
 #include "..\resource.h"
 
@@ -103,6 +104,7 @@ using namespace std;
 #include "..\interfaces\monofilters.h"
 #include "filters\dump\filter_dump.h"
 #include "filters\time_measure\filter_time.h"
+#include "filters\fake_m2ts\filter_fake_m2ts_device.h"
 
 #include "mtypes_ext.h"
 

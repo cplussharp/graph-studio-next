@@ -137,3 +137,25 @@ public:
     virtual HRESULT OnDisconnect();
 	virtual void OnBuildTree();
 };
+
+
+//-----------------------------------------------------------------------------
+//
+//	CTunerInfoPage class
+//
+//-----------------------------------------------------------------------------
+class CTunerInfoPage : public CDetailsPage
+{
+public:
+	CComQIPtr<ITuner>   		tuner;
+
+public:
+	CTunerInfoPage(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR strTitle);
+	virtual ~CTunerInfoPage();
+	
+    virtual HRESULT OnConnect(IUnknown *pUnknown);
+    virtual HRESULT OnDisconnect();
+	virtual void OnBuildTree();
+
+    static void GetLocatorInfo(CComPtr<ILocator> loc, GraphStudio::PropItem* info);
+};

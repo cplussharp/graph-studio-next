@@ -154,6 +154,8 @@ public:
 	virtual void OnRenderFinished();
 	virtual void OnDeleteSelection();
 
+    virtual void OnMpeg2DemuxCreatePsiPin();
+
 	void ClosePropertyPages();
 	void ClosePropertyPage(IUnknown *filter);
 	virtual void OnOverlayIconClick(GraphStudio::OverlayIcon *icon, CPoint point);

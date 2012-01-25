@@ -95,6 +95,8 @@ namespace GraphStudio
 		virtual void OnOverlayIconClick(OverlayIcon *icon, CPoint point);
 		virtual void OnRenderFinished();
 		virtual void OnDeleteSelection();
+
+        virtual void OnMpeg2DemuxCreatePsiPin();
 	};
 
 

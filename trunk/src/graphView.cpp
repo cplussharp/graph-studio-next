@@ -1022,6 +1022,46 @@ void CGraphView::OnDeleteSelection()
 	Invalidate();
 }
 
+
+void CGraphView::OnMpeg2DemuxCreatePsiPin()
+{
+    if(!current_filter) return;
+
+    CComQIPtr<IMpeg2Demultiplexer> mp2demux = current_filter->filter;
+    if(!mp2demux) return;
+
+    // Define the media type.
+    AM_MEDIA_TYPE mt;
+    ZeroMemory(&mt, sizeof(AM_MEDIA_TYPE));
+    mt.majortype = KSDATAFORMAT_TYPE_MPEG2_SECTIONS;
+    mt.subtype = MEDIASUBTYPE_None;
+
+    // Create a new output pin.
+    CComPtr<IPin> psiPin;
+    HRESULT hr = mp2demux->CreateOutputPin(&mt, L"PSI Pin", &psiPin);
+    if (SUCCEEDED(hr))
+    {
+        // Map the PID.
+        CComQIPtr<IMPEG2PIDMap> pidMap = psiPin;
+        if(pidMap)
+        {
+            ULONG Pid[] = { 0x00 }; // Map any desired PIDs. 
+            ULONG cPid = 1;
+            hr = pidMap->MapPID(cPid, Pid, MEDIA_MPEG2_PSI);
+            if(SUCCEEDED(hr))
+            {
+                graph.RefreshFilters();
+                graph.Dirty();
+                Invalidate();
+            }
+            else
+                DSUtil::ShowError(hr, _T("Can't Map PSI on Pin"));
+        }
+    }
+    else
+        DSUtil::ShowError(hr, _T("Can't create Pin"));
+}
+
 void CGraphView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	if (!(nFlags & (MK_SHIFT | MK_ALT | MK_CONTROL))) {

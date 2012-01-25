@@ -231,6 +231,7 @@
     <ClInclude Include="src\display_view.h" />
     <ClInclude Include="src\DMOQualCtrlPage.h" />
     <ClInclude Include="src\FilterFromFile.h" />
+    <ClInclude Include="src\filters\fake_m2ts\filter_fake_m2ts_device.h" />
     <ClInclude Include="src\graphDoc.h" />
     <ClInclude Include="src\graphstudio.h" />
     <ClInclude Include="src\graphView.h" />
@@ -290,6 +291,7 @@
     <ClCompile Include="src\display_view.cpp" />
     <ClCompile Include="src\DMOQualCtrlPage.cpp" />
     <ClCompile Include="src\FilterFromFile.cpp" />
+    <ClCompile Include="src\filters\fake_m2ts\filter_fake_m2ts_device.cpp" />
     <ClCompile Include="src\graphDoc.cpp" />
     <ClCompile Include="src\graphstudio.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

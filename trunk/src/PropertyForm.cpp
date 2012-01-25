@@ -505,6 +505,10 @@ void CPropertyForm::LoadCustomInterfacePropertyPages(IUnknown *obj)
     CComPtr<IAMExtendedSeeking> extseek;
     if(SUCCEEDED(obj->QueryInterface(IID_IAMExtendedSeeking, (void**)&extseek)))
         AddPropertyPage(new CAMExtendedSeekingPage(NULL, &hr, TEXT("Marker")), obj);
+
+    CComQIPtr<ITuner> tuner = obj;
+    if(tuner)
+        AddPropertyPage(new CTunerInfoPage(NULL, &hr, TEXT("TunerInfo")), obj);
 }
 
 void CPropertyForm::AddPropertyPage(CDSPropertyPage *prop_page, IUnknown *obj)
