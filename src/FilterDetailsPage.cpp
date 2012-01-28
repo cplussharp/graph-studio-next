@@ -557,44 +557,44 @@ CString Modulation2String(ModulationType mod)
 {
     switch(mod)
     {
-        BDA_MOD_NOT_SET: return _T("not set");
-        BDA_MOD_NOT_DEFINED: return _T("not defined");
-        BDA_MOD_16QAM: return _T("32 symbol QAM");
-        BDA_MOD_32QAM: return _T("32 symbol QAM");
-        BDA_MOD_64QAM: return _T("64 symbol QAM");
-        BDA_MOD_80QAM: return _T("80 symbol QAM");
-        BDA_MOD_96QAM: return _T("96 symbol QAM");
-        BDA_MOD_112QAM: return _T("112 symbol QAM");
-        BDA_MOD_128QAM: return _T("128 symbol QAM");
-        BDA_MOD_160QAM: return _T("160 symbol QAM");
-        BDA_MOD_192QAM: return _T("192 symbol QAM");
-        BDA_MOD_224QAM: return _T("224 symbol QAM");
-        BDA_MOD_256QAM: return _T("256 symbol QAM");
-        BDA_MOD_320QAM: return _T("320 symbol QAM");
-        BDA_MOD_384QAM: return _T("384 symbol QAM");
-        BDA_MOD_448QAM: return _T("448 symbol QAM");
-        BDA_MOD_512QAM: return _T("512 symbol QAM");
-        BDA_MOD_640QAM: return _T("640 symbol QAM");
-        BDA_MOD_768QAM: return _T("768 symbol QAM");
-        BDA_MOD_896QAM: return _T("896 symbol QAM");
-        BDA_MOD_1024QAM: return _T("1024 symbol QAM");
-        BDA_MOD_QPSK: return _T("Quadrature Phase-Shift Keying (QPSK)");
-        BDA_MOD_BPSK: return _T("Binary Phase Shift Keying (BPSK)");
-        BDA_MOD_OQPSK: return _T("Offset QPSK");
-        BDA_MOD_8VSB: return _T("8 Vestigial Side-Band");
-        BDA_MOD_16VSB: return _T("16 Vestigial Side-Band");
-        BDA_MOD_ANALOG_AMPLITUDE: return _T("Analog amplitude modulation (AM)");
-        BDA_MOD_ANALOG_FREQUENCY: return _T("Analog frequency modulation (FM)");
-        BDA_MOD_8PSK: return _T("8-Phase shift keying");
-        BDA_MOD_RF: return _T("Analog TV (RF)");
-        BDA_MOD_16APSK: return _T("DVB-S2 modulation 16-level APSK");
-        BDA_MOD_32APSK: return _T("DVB-S2 modulation 32-level APSK");
-        BDA_MOD_NBC_QPSK: return _T("Non-backwards compatible QPSK");
-        BDA_MOD_NBC_8PSK: return _T("Non-backwards compatible 8-phase shift keying");
-        BDA_MOD_DIRECTV: return _T("DIRECTV DSS");
-        BDA_MOD_ISDB_T_TMCC: return _T("TMCC for ISDB-T");
-        BDA_MOD_ISDB_S_TMCC: return _T("TMCC for ISDB-S");
-        BDA_MOD_MAX: return _T("MAX");
+        case BDA_MOD_NOT_SET: return _T("not set");
+        case BDA_MOD_NOT_DEFINED: return _T("not defined");
+        case BDA_MOD_16QAM: return _T("32 symbol QAM");
+        case BDA_MOD_32QAM: return _T("32 symbol QAM");
+        case BDA_MOD_64QAM: return _T("64 symbol QAM");
+        case BDA_MOD_80QAM: return _T("80 symbol QAM");
+        case BDA_MOD_96QAM: return _T("96 symbol QAM");
+        case BDA_MOD_112QAM: return _T("112 symbol QAM");
+        case BDA_MOD_128QAM: return _T("128 symbol QAM");
+        case BDA_MOD_160QAM: return _T("160 symbol QAM");
+        case BDA_MOD_192QAM: return _T("192 symbol QAM");
+        case BDA_MOD_224QAM: return _T("224 symbol QAM");
+        case BDA_MOD_256QAM: return _T("256 symbol QAM");
+        case BDA_MOD_320QAM: return _T("320 symbol QAM");
+        case BDA_MOD_384QAM: return _T("384 symbol QAM");
+        case BDA_MOD_448QAM: return _T("448 symbol QAM");
+        case BDA_MOD_512QAM: return _T("512 symbol QAM");
+        case BDA_MOD_640QAM: return _T("640 symbol QAM");
+        case BDA_MOD_768QAM: return _T("768 symbol QAM");
+        case BDA_MOD_896QAM: return _T("896 symbol QAM");
+        case BDA_MOD_1024QAM: return _T("1024 symbol QAM");
+        case BDA_MOD_QPSK: return _T("Quadrature Phase-Shift Keying (QPSK)");
+        case BDA_MOD_BPSK: return _T("Binary Phase Shift Keying (BPSK)");
+        case BDA_MOD_OQPSK: return _T("Offset QPSK");
+        case BDA_MOD_8VSB: return _T("8 Vestigial Side-Band");
+        case BDA_MOD_16VSB: return _T("16 Vestigial Side-Band");
+        case BDA_MOD_ANALOG_AMPLITUDE: return _T("Analog amplitude modulation (AM)");
+        case BDA_MOD_ANALOG_FREQUENCY: return _T("Analog frequency modulation (FM)");
+        case BDA_MOD_8PSK: return _T("8-Phase shift keying");
+        case BDA_MOD_RF: return _T("Analog TV (RF)");
+        case BDA_MOD_16APSK: return _T("DVB-S2 modulation 16-level APSK");
+        case BDA_MOD_32APSK: return _T("DVB-S2 modulation 32-level APSK");
+        case BDA_MOD_NBC_QPSK: return _T("Non-backwards compatible QPSK");
+        case BDA_MOD_NBC_8PSK: return _T("Non-backwards compatible 8-phase shift keying");
+        case BDA_MOD_DIRECTV: return _T("DIRECTV DSS");
+        case BDA_MOD_ISDB_T_TMCC: return _T("TMCC for ISDB-T");
+        case BDA_MOD_ISDB_S_TMCC: return _T("TMCC for ISDB-S");
+        case BDA_MOD_MAX: return _T("MAX");
     }
 
     return _T("Unknown");
@@ -732,12 +732,12 @@ void CTunerInfoPage::GetLocatorInfo(CComPtr<ILocator> loc, GraphStudio::PropItem
         CString halphaStr = _T("Unknown");
         switch(halpha)
         {
-            BDA_HALPHA_NOT_SET     : halphaStr = _T("not set"); break;
-            BDA_HALPHA_NOT_DEFINED : halphaStr = _T("not defined"); break;
-            BDA_HALPHA_1           : halphaStr = _T("1"); break;
-            BDA_HALPHA_2           : halphaStr = _T("2"); break;
-            BDA_HALPHA_4           : halphaStr = _T("4"); break;
-            BDA_HALPHA_MAX         : halphaStr = _T("MAX"); break;
+            case BDA_HALPHA_NOT_SET     : halphaStr = _T("not set"); break;
+            case BDA_HALPHA_NOT_DEFINED : halphaStr = _T("not defined"); break;
+            case BDA_HALPHA_1           : halphaStr = _T("1"); break;
+            case BDA_HALPHA_2           : halphaStr = _T("2"); break;
+            case BDA_HALPHA_4           : halphaStr = _T("4"); break;
+            case BDA_HALPHA_MAX         : halphaStr = _T("MAX"); break;
         }
         info->AddItem(new GraphStudio::PropItem(_T("HAlpha"), halphaStr));
 
@@ -751,14 +751,14 @@ void CTunerInfoPage::GetLocatorInfo(CComPtr<ILocator> loc, GraphStudio::PropItem
         CString tmodeStr = _T("Unknown");
         switch(tmode)
         {
-            BDA_XMIT_MODE_NOT_SET         : tmodeStr = _T("not set"); break;
-            BDA_XMIT_MODE_NOT_DEFINED     : tmodeStr = _T("not defined"); break;
-            BDA_XMIT_MODE_2K              : tmodeStr = _T("2k"); break;
-            BDA_XMIT_MODE_8K              : tmodeStr = _T("8k"); break;
-            BDA_XMIT_MODE_4K              : tmodeStr = _T("4k"); break;
-            BDA_XMIT_MODE_2K_INTERLEAVED  : tmodeStr = _T("interleaved 2k"); break;
-            BDA_XMIT_MODE_4K_INTERLEAVED  : tmodeStr = _T("interleaved 4k"); break;
-            BDA_XMIT_MODE_MAX             : tmodeStr = _T("MAX"); break;
+            case BDA_XMIT_MODE_NOT_SET         : tmodeStr = _T("not set"); break;
+            case BDA_XMIT_MODE_NOT_DEFINED     : tmodeStr = _T("not defined"); break;
+            case BDA_XMIT_MODE_2K              : tmodeStr = _T("2k"); break;
+            case BDA_XMIT_MODE_8K              : tmodeStr = _T("8k"); break;
+            case BDA_XMIT_MODE_4K              : tmodeStr = _T("4k"); break;
+            case BDA_XMIT_MODE_2K_INTERLEAVED  : tmodeStr = _T("interleaved 2k"); break;
+            case BDA_XMIT_MODE_4K_INTERLEAVED  : tmodeStr = _T("interleaved 4k"); break;
+            case BDA_XMIT_MODE_MAX             : tmodeStr = _T("MAX"); break;
         }
         info->AddItem(new GraphStudio::PropItem(_T("Mode"), tmodeStr));
 

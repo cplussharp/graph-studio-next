@@ -88,6 +88,8 @@ STDMETHODIMP CFakeM2tsDevice::GetCurFile( LPOLESTR *ppszFileName, AM_MEDIA_TYPE 
     if (*ppszFileName != NULL) {
         lstrcpyW(*ppszFileName, m_filename);
     }
+
+    return S_OK;
 }
 
 
