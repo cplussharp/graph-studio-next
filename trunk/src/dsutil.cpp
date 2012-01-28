@@ -981,6 +981,10 @@ namespace DSUtil
         filter.clsid = CLSID_FakeM2tsDevice;
         filters.Add(filter);
 
+        filter.name = _T("Psi Config Filter");
+        filter.clsid = CLSID_PsiConfig;
+        filters.Add(filter);
+
         return filters.GetCount();
     }
 

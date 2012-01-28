@@ -684,6 +684,7 @@ namespace GraphStudio
 
 	int GetVideoInfoDetails(VIDEOINFOHEADER *vih, PropItem *vihinfo)
 	{
+        if(!vih) return 0;
 		vihinfo->AddItem(new PropItem(_T("rcSource"), vih->rcSource));
 		vihinfo->AddItem(new PropItem(_T("rcTarget"), vih->rcTarget));
 		vihinfo->AddItem(new PropItem(_T("dwBitRate"), (int)vih->dwBitRate));
@@ -697,6 +698,7 @@ namespace GraphStudio
 
 	int GetVideoInfo2Details(VIDEOINFOHEADER2 *vih, PropItem *vihinfo)
 	{
+        if(!vih) return 0;
 		vihinfo->AddItem(new PropItem(_T("rcSource"), vih->rcSource));
 		vihinfo->AddItem(new PropItem(_T("rcTarget"), vih->rcTarget));
 		vihinfo->AddItem(new PropItem(_T("dwBitRate"), (int)vih->dwBitRate));
@@ -717,6 +719,7 @@ namespace GraphStudio
 
 	int GetMpeg1VideoInfoDetails(MPEG1VIDEOINFO *mvi, PropItem *mviinfo)
 	{
+        if(!mvi) return 0;
 		mviinfo->AddItem(new PropItem(_T("dwStartTimeCode"), (int)mvi->dwStartTimeCode));
 		mviinfo->AddItem(new PropItem(_T("cbSequenceHeader"), (int)mvi->cbSequenceHeader));
 
@@ -741,6 +744,7 @@ namespace GraphStudio
 
 	int GetMpeg2VideoInfoDetails(MPEG2VIDEOINFO *mvi, PropItem *mviinfo)
 	{
+        if(!mvi) return 0;
 		mviinfo->AddItem(new PropItem(_T("dwStartTimeCode"), (int)mvi->dwStartTimeCode));
 		mviinfo->AddItem(new PropItem(_T("cbSequenceHeader"), (int)mvi->cbSequenceHeader));
 		mviinfo->AddItem(new PropItem(_T("dwProfile"), (int)mvi->dwProfile));
@@ -768,6 +772,7 @@ namespace GraphStudio
 
 	int GetMpegLayer3InfoDetails(MPEGLAYER3WAVEFORMAT *mp3, PropItem *mp3info)
 	{
+        if(!mp3) return 0;
 		mp3info->AddItem(new PropItem(_T("wID"), (int)mp3->wID));
 
 		CString		f;
@@ -787,6 +792,7 @@ namespace GraphStudio
 
 	int GetMpeg1WaveFormatDetails(MPEG1WAVEFORMAT *wfx, PropItem *mpinfo)
 	{
+        if(!wfx) return 0;
 		CString		f;
 		switch (wfx->fwHeadLayer) {
 		case ACM_MPEG_LAYER1:		f = _T("ACM_MPEG_LAYER1"); break;
@@ -837,6 +843,7 @@ namespace GraphStudio
 
 	int GetBitmapInfoDetails(BITMAPINFOHEADER *bih, PropItem *bihinfo)
 	{
+        if(!bih) return 0;
 		CString		v, c;
 		int			ret;
 
@@ -1348,11 +1355,21 @@ namespace GraphStudio
                 shinfo->AddItem(new PropItem(_T("Non Intra Matrix"), matrix));
             }
 
-            prefix = br.ReadU16();
-            if(prefix != 0) return 0;
-            prefix = br.ReadU8();
-            if(prefix != 1) return 0;
-            prefix = br.ReadU8();
+            if(!br.ByteAligned())
+                br.SetPos(br.GetPos()+1);
+
+            while(!br.IsEnd())
+            {
+                if(br.ReadU8() == 0)
+                {
+                    if(br.ReadU8() == 0)
+                    {
+                        if(br.ReadU8() == 1)
+                            prefix = br.ReadU8();
+                            break;
+                    }
+                }
+            }
         }
         
         if(prefix == 0xB5) // MPEG2Seq

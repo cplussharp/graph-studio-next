@@ -109,6 +109,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     (new DSUtil::CClassFactory(&CMonoTimeMeasure::g_Template))->Register();
     (new DSUtil::CClassFactory(&CMonoDump::g_Template))->Register();
     (new DSUtil::CClassFactory(&CFakeM2tsDevice::g_Template))->Register();
+    (new DSUtil::CClassFactory(&CPsiConfigFilter::g_Template))->Register();
 
 	// TODO: Remove this if you don't want tool tips
 	return 0;
