@@ -589,6 +589,13 @@ int ConfigureInsertedFilter(IBaseFilter *filter, const CString& filterName)
 	}
 	if (ret < 0) return -1;
 
+    //-------------------------------------------------------------
+	//	IStreamBufferConfigure
+	//-------------------------------------------------------------
+    CComQIPtr<IStreamBufferInitialize> pInitSbe = filter;
+    if(pInitSbe) DSUtil::InitSbeObject(pInitSbe);
+
+
 	return ret;
 }
 

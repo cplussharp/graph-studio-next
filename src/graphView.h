@@ -210,6 +210,7 @@ public:
 	afx_msg void OnViewGraphconstructionreport();
     afx_msg void OnHelpGuidLookup();
     afx_msg void OnHelpHresultLookup();
+    afx_msg void OnConfigureSbe();
 };
 
 #ifndef _DEBUG  // debug version in graphView.cpp

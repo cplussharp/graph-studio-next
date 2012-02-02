@@ -275,6 +275,12 @@
     <ClInclude Include="src\filters\psi_config\psiconfig.h">
       <Filter>Filters\filter_psiconfig</Filter>
     </ClInclude>
+    <ClInclude Include="src\SbeSinkPage.h">
+      <Filter>Property Pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SbeConfigForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -444,6 +450,12 @@
     </ClCompile>
     <ClCompile Include="src\filters\psi_config\psiconfig.cpp">
       <Filter>Filters\filter_psiconfig</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SbeSinkPage.cpp">
+      <Filter>Property Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SbeConfigForm.cpp">
+      <Filter>Dialogs</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

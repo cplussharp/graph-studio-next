@@ -70,12 +70,20 @@ namespace GraphStudio
 		value.Format(_T("[%d, %d, %d, %d]"), rc.left, rc.top, rc.right, rc.bottom);
 	}
 
-	PropItem::PropItem(CString n, __int64 i) :
+	PropItem::PropItem(CString n, __int64 val) :
 		name(n),
-		type(TYPE_INT),
+		type(TYPE_LARGEINT),
         expand(false)
 	{
-		value.Format(_T("%I64d"), i);
+		value.Format(_T("%I64d"), val);
+	}
+
+    PropItem::PropItem(CString n, unsigned __int64 val) :
+		name(n),
+		type(TYPE_LARGEINT),
+        expand(false)
+	{
+		value.Format(_T("%I64d"), val);
 	}
 
 	PropItem::PropItem(CString n, CString str) :

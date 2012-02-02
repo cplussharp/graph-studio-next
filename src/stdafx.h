@@ -73,6 +73,7 @@
 #include <mfidl.h>
 #include <evr.h>
 #include <dmo.h>
+#include <Sbe.h>
 #include <wmcodecdsp.h>
 #pragma comment(lib, "wmcodecdspuuid.lib")
 #include "moreuuids.h"
@@ -142,6 +143,7 @@ using namespace std;
 #include "WMADecPage.h"
 #include "WMResizerPage.h"
 #include "DMOQualCtrlPage.h"
+#include "SbeSinkPage.h"
 
 #include "BrowserControl.h"
 
@@ -160,6 +162,7 @@ using namespace std;
 #include "RenderUrlForm.h"
 #include "PropertyForm.h"
 #include "NewGroupForm.h"
+#include "SbeConfigForm.h"
 #include "graphView.h"
 
 #ifdef _UNICODE

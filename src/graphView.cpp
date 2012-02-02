@@ -111,6 +111,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_VIEW_GRAPHCONSTRUCTIONREPORT, &CGraphView::OnViewGraphconstructionreport)
     ON_COMMAND(ID_HELP_GUIDLOOKUP, &CGraphView::OnHelpGuidLookup)
     ON_COMMAND(ID_HELP_HRESULTLOOKUP, &CGraphView::OnHelpHresultLookup)
+    ON_COMMAND(ID_OPTIONS_CONFIGURESBE, &CGraphView::OnConfigureSbe)
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -416,9 +417,9 @@ void CGraphView::UpdatePreferredVideoRenderersMenu()
 	CMenu	*mainmenu  = GetParentFrame()->GetMenu();
 	CMenu	*optionsmenu = mainmenu->GetSubMenu(4);
 
-	if (optionsmenu->GetMenuItemCount() > 7) {
-		optionsmenu->RemoveMenu(7, MF_BYPOSITION);
-		optionsmenu->RemoveMenu(7, MF_BYPOSITION);
+	if (optionsmenu->GetMenuItemCount() > 9) {
+		optionsmenu->RemoveMenu(9, MF_BYPOSITION);
+		optionsmenu->RemoveMenu(9, MF_BYPOSITION);
 	}
 
 	return ;
@@ -1125,6 +1126,12 @@ void CGraphView::OnHelpHresultLookup()
 	}
 
 	form_hresultlookup->ShowWindow(SW_SHOW);
+}
+
+void CGraphView::OnConfigureSbe()
+{
+    CSbeConfigForm dlg;
+    dlg.DoModal();
 }
 
 void CGraphView::UpdateGraphState()

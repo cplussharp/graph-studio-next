@@ -102,7 +102,7 @@ STDMETHODIMP CFakeM2tsDevice::GetCurFile( LPOLESTR *ppszFileName, AM_MEDIA_TYPE 
 CFakeM2tsDeviceStream::CFakeM2tsDeviceStream(HRESULT *phr, CSource *pParent, LPCWSTR pPinName, CString filename) :
     CSourceStream(NAME("MPEG2TS"),phr, pParent, pPinName), m_hasStride(FALSE)
 {
-    BOOL ok = m_file.Open(filename, CFile::modeRead|CFile::osSequentialScan);
+    BOOL ok = m_file.Open(filename, CFile::modeRead|CFile::osSequentialScan|CFile::shareDenyNone);
 
     if(!m_file)
     {

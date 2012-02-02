@@ -432,6 +432,24 @@ namespace GraphStudio
             }
         }
 
+        //-----------------------------------------------------------------
+		// IStreamBufferDataCounters
+		//-----------------------------------------------------------------
+        CComQIPtr<IStreamBufferDataCounters> sbDataCounters = pin;
+        if(sbDataCounters)
+        {
+            SBE_PIN_DATA sbePinData;
+            if(SUCCEEDED(sbDataCounters->GetData(&sbePinData)))
+            {
+                PropItem* sbdc = group->AddItem(new PropItem(_T("SBE_PIN_DATA")));
+                sbdc->AddItem(new PropItem(_T("cDataBytes"),sbePinData.cDataBytes));
+                sbdc->AddItem(new PropItem(_T("cSamplesProcessed"),sbePinData.cSamplesProcessed));
+                sbdc->AddItem(new PropItem(_T("cDiscontinuities"),sbePinData.cDiscontinuities));
+                sbdc->AddItem(new PropItem(_T("cSyncPoints"),sbePinData.cSyncPoints));
+                sbdc->AddItem(new PropItem(_T("cTimestamps"),sbePinData.cTimestamps));
+            }
+        }
+
 		return 0;
 	}
 
@@ -632,6 +650,7 @@ namespace GraphStudio
 
 	int GetWaveFormatExtensibleDetails(WAVEFORMATEXTENSIBLE *wfx, PropItem *wfxinfo)
 	{
+        if (wfx == NULL) return 0;
 		// read waveformatex info
 		PropItem	*wfxi = wfxinfo->AddItem(new PropItem(_T("WAVEFORMATEX")));
 		GetWaveFormatExDetails(&wfx->Format, wfxi);
@@ -660,6 +679,7 @@ namespace GraphStudio
 
 	int GetWaveFormatExDetails(WAVEFORMATEX *wfx, PropItem *wfxinfo)
 	{
+        if (wfx == NULL) return 0;
 		CString		fmttag;
 		fmttag.Format(_T("%d"), wfx->wFormatTag);
 
@@ -974,6 +994,7 @@ namespace GraphStudio
 
 	int GetExtradata_AAC(CMediaType *pmt, PropItem *mtinfo)
 	{
+        if (pmt->pbFormat == NULL) return 0;
 		if (pmt->formattype != FORMAT_WaveFormatEx) return 0;
 
 		WAVEFORMATEX	*wfx = (WAVEFORMATEX*)pmt->pbFormat;
@@ -1155,6 +1176,7 @@ namespace GraphStudio
 
     int GetExtradata_H264(CMediaType *pmt, PropItem *mtinfo)
 	{
+        if (pmt->pbFormat == NULL) return 0;
 		if (pmt->formattype != FORMAT_MPEG2Video) return 0;
 
 		MPEG2VIDEOINFO	*m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
@@ -1203,6 +1225,7 @@ namespace GraphStudio
 
     int GetExtradata_MPEGVideo(CMediaType *pmt, PropItem *mtinfo)
 	{
+        if (pmt->pbFormat == NULL) return 0;
 		if (pmt->formattype != FORMAT_MPEG2Video) return 0;
         bool isMpeg1 = false;
 

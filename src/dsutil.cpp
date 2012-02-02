@@ -1968,6 +1968,23 @@ namespace DSUtil
             MessageBox(0, errStr, title != NULL ? title : TEXT("Error"), MB_OK | MB_ICONERROR);
         }
     }
+
+    bool InitSbeObject(CComQIPtr<IStreamBufferInitialize> pInit)
+    {
+        if(!pInit) return false;
+
+        HKEY hkey = 0;
+        long lRes = RegCreateKey(HKEY_CURRENT_USER, TEXT("Software\\MONOGRAM\\GraphStudioNext\\SbeSettings"), &hkey);
+
+        HRESULT hr = pInit->SetHKEY(hkey);
+        if(FAILED(hr))
+        {
+            ShowError(hr, _T("Can't init sbe object."));
+            return false;
+        }
+
+        return true;
+    }
 };
 
 

@@ -36,6 +36,7 @@ namespace GraphStudio
 			TYPE_RECT		= 6,
             TYPE_URL        = 7,
             TYPE_DOUBLE     = 8,
+            TYPE_LARGEINT   = 9
 		};
 
 		int					type;
@@ -54,7 +55,8 @@ namespace GraphStudio
         PropItem(CString n, CString str, bool isUrl);
 		PropItem(CString n, bool val);
 		PropItem(CString n, RECT rc);
-		PropItem(CString n, __int64 i);
+		PropItem(CString n, __int64 val);
+        PropItem(CString n, unsigned __int64 val);
 
 		virtual ~PropItem();
 
