@@ -243,6 +243,8 @@
     <ClInclude Include="src\MediaInfo.h" />
     <ClInclude Include="src\MediaInfoDLL.h" />
     <ClInclude Include="src\moreuuids.h" />
+    <ClInclude Include="src\SbeConfigForm.h" />
+    <ClInclude Include="src\SbeSinkPage.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\ConfirmForm.h" />
     <ClInclude Include="src\DecPerformanceForm.h" />
@@ -319,6 +321,8 @@
     <ClCompile Include="src\ProgressForm.cpp" />
     <ClCompile Include="src\RemoteGraphForm.cpp" />
     <ClCompile Include="src\RenderUrlForm.cpp" />
+    <ClCompile Include="src\SbeConfigForm.cpp" />
+    <ClCompile Include="src\SbeSinkPage.cpp" />
     <ClCompile Include="src\ScheduleForm.cpp" />
     <ClCompile Include="src\SeekForm.cpp" />
     <ClCompile Include="src\TextInfoForm.cpp" />

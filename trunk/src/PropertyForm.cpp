@@ -257,6 +257,10 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
 		}
 		vfw_dialogs = NULL;
 
+        CComQIPtr<IStreamBufferSink> sbeSink = obj;
+        if(sbeSink)
+            AddPropertyPage(new CSbeSinkPage(NULL, &hr, _T("SbeSink")), obj);
+
 		// check for DMO pages
 		AnalyzeDMO(obj);
 

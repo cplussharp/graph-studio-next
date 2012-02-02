@@ -265,6 +265,8 @@ namespace DSUtil
 	HRESULT UnregisterCOM(GUID clsid);
 
     void ShowError(HRESULT hr, LPCTSTR title=NULL);
+
+    bool InitSbeObject(CComQIPtr<IStreamBufferInitialize> pInit);
 };
 
 

@@ -49,6 +49,8 @@
 #define IDD_PROPPAGE_AMSTREAMSELECT     168
 #define IDI_ADDFILTER                   170
 #define IDD_DIALOG_LOOKUP               171
+#define IDD_PROPPAGE_STREAMBUFFERSINK   172
+#define IDD_DIALOG_SBECONFIG            173
 #define IDC_COMBO_CATEGORIES            1001
 #define IDC_LIST_FILTERS                1002
 #define IDC_COMBO_MERIT                 1003
@@ -113,6 +115,7 @@
 #define IDC_EDIT_LATENCY                1031
 #define IDC_EDIT_SRC_TOP                1031
 #define IDC_EDIT_SEARCH                 1031
+#define IDC_EDIT_DIR                    1031
 #define IDC_EDIT_DST_TOP                1032
 #define IDC_TREE1                       1033
 #define IDC_TREE                        1033
@@ -189,6 +192,12 @@
 #define IDC_RADIO_QUAL_FAST             1108
 #define IDC_CHECK_QUALCTRL              1109
 #define IDC_LIST_LOOKUP                 1111
+#define IDC_EDIT2                       1112
+#define IDC_EDIT_FILEDURATION           1112
+#define IDC_EDIT_FILECOUNT_MIN          1113
+#define IDC_SPIN_FILECOUNT_MIN          1114
+#define IDC_EDIT_FILECOUNT_MAX          1115
+#define IDC_SPIN_FILECOUNT_MAX          1116
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -282,6 +291,7 @@
 #define ID_GRAPH_INSERTTEEFILTER        32868
 #define ID_HELP_HRESULTLOOKUP           32869
 #define ID_HELP_GUIDLOOKUP              32870
+#define ID_OPTIONS_CONFIGURESBE         32871
 #define ID_MPEG2DEMUX_CREATE_PSI_PIN    32880
 
 // Next default values for new objects
@@ -289,8 +299,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        172
-#define _APS_NEXT_COMMAND_VALUE         32871
-#define _APS_NEXT_CONTROL_VALUE         1112
+#define _APS_NEXT_COMMAND_VALUE         32872
+#define _APS_NEXT_CONTROL_VALUE         1116
 #define _APS_NEXT_SYMED_VALUE           102
 #endif
 #endif
