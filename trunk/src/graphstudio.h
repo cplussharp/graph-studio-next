@@ -29,6 +29,8 @@ public:
 	virtual BOOL InitInstance();
 	afx_msg void OnAppAbout();
     virtual int ExitInstance();
+
+    static bool g_showGuidsOfKnownTypes;
 };
 
 extern CgraphstudioApp theApp;

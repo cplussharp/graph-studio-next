@@ -430,7 +430,7 @@ namespace GraphStudio
 	void DoDrawArrow(CDC *dc, CPoint p1, CPoint p2, DWORD color);
 
 	// GUID helpers
-	bool NameGuid(GUID guid, CString &str);
+	bool NameGuid(GUID guid, CString &str, bool alsoAddGuid);
     bool InsertGuidLookup(int i, CListCtrl* pListCtrl);
 	int GetFormatName(int wFormatTag, CString &str);
     bool NameHResult(HRESULT hr, CString &str);

@@ -21,6 +21,8 @@ protected:
 public:
 
 	GraphStudio::TitleBar				title;
+    CComboBox				            combo_file;
+    GraphStudio::FilenameList		    file_list;
 
 	CComPtr<IStreamBufferSink>			filter;
     bool                                isActiv;
@@ -39,5 +41,7 @@ public:
     virtual HRESULT OnDisconnect();
 	virtual HRESULT OnActivate();
 	virtual HRESULT OnApplyChanges();
+    afx_msg void OnBnClickedButtonBrowse();
+    afx_msg void OnBnClickedButtonLock();
 };
 

@@ -247,10 +247,10 @@ void CTextInfoForm::DoPinDetails(GraphStudio::Pin *pin, int level, int offset)
 	AM_MEDIA_TYPE	mt;
 	HRESULT hr = pin->pin->ConnectionMediaType(&mt);
 	if (SUCCEEDED(hr)) {
-		GraphStudio::NameGuid(mt.majortype,  f);	
+        GraphStudio::NameGuid(mt.majortype,  f, CgraphstudioApp::g_showGuidsOfKnownTypes);	
 		t = _T("Major:   ") + f;		Echo(ofs+t);
 
-		GraphStudio::NameGuid(mt.subtype,    f);	
+		GraphStudio::NameGuid(mt.subtype,    f, CgraphstudioApp::g_showGuidsOfKnownTypes);	
 		t = _T("Subtype: ") + f;		Echo(ofs+t);
 
 		// parse one level deeper
@@ -258,7 +258,7 @@ void CTextInfoForm::DoPinDetails(GraphStudio::Pin *pin, int level, int offset)
 			DoMediaTypeDetails(&mt, level, offset+4);
 		}
 
-		GraphStudio::NameGuid(mt.formattype, f);	
+		GraphStudio::NameGuid(mt.formattype, f, CgraphstudioApp::g_showGuidsOfKnownTypes);	
 		t = _T("Format:  ") + f;		Echo(ofs+t);
 		if (level > 2) {
 			// parse format

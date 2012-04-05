@@ -32,8 +32,7 @@ CUnknown* CMonoDump::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 //-----------------------------------------------------------------------------
 
 CMonoDump::CMonoDump(LPUNKNOWN pUnk, HRESULT *phr) :
-	CBaseRenderer(CLSID_MonoDump, _T("Dump"), pUnk, phr),
-	file(NULL)
+	CBaseRenderer(CLSID_MonoDump, _T("Dump"), pUnk, phr)
 {
 	filename = _T("");
 }
@@ -53,20 +52,19 @@ STDMETHODIMP CMonoDump::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 
 HRESULT CMonoDump::DoOpenFile()
 {
-	if (_tfopen_s(&file, filename, _T("ab")) == NOERROR) {
-		fseek(file, 0, SEEK_END);
-	} else {
-        if (_tfopen_s(&file, filename, _T("wb")) != NOERROR)
-		    return E_FAIL;
+	if (file.Open(filename, CFile::modeNoTruncate|CFile::modeWrite|CFile::osSequentialScan|CFile::shareDenyNone)) {
+		file.SeekToEnd();
+	} else if (!file.Open(filename, CFile::modeCreate|CFile::osSequentialScan|CFile::shareDenyNone)) {
+		return E_FAIL;
 	}
+
 	return NOERROR;
 }
 
 HRESULT CMonoDump::DoCloseFile()
 {
-	if (file) {
-		fclose(file);
-		file = NULL;
+    if (file != INVALID_HANDLE_VALUE) {
+        file.Close();
 	}
 	return NOERROR;
 }
@@ -134,7 +132,7 @@ HRESULT CMonoDump::DoRenderSample(IMediaSample *pMediaSample)
 	pMediaSample->GetPointer(&buf);
 
 	if (size > 0 && file) {
-		fwrite(buf, 1, size, file);
+        file.Write(buf, size);
 	}
 
 	return NOERROR;

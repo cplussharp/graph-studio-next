@@ -74,6 +74,7 @@
 #define IDC_BUTTON_COPY                 1015
 #define IDC_BUTTON_REFRESH              1015
 #define IDC_BUTTON_ABOUT                1015
+#define IDC_BUTTON_LOCK                 1015
 #define IDC_SLIDER1                     1016
 #define IDC_SLIDER_SEEK                 1016
 #define IDC_SLIDER_VOLUME               1016
@@ -192,7 +193,6 @@
 #define IDC_RADIO_QUAL_FAST             1108
 #define IDC_CHECK_QUALCTRL              1109
 #define IDC_LIST_LOOKUP                 1111
-#define IDC_EDIT2                       1112
 #define IDC_EDIT_FILEDURATION           1112
 #define IDC_EDIT_FILECOUNT_MIN          1113
 #define IDC_SPIN_FILECOUNT_MIN          1114
@@ -292,6 +292,7 @@
 #define ID_HELP_HRESULTLOOKUP           32869
 #define ID_HELP_GUIDLOOKUP              32870
 #define ID_OPTIONS_CONFIGURESBE         32871
+#define ID_OPTIONS_SHOWGUIDOFKNOWNTYPES 32872
 #define ID_MPEG2DEMUX_CREATE_PSI_PIN    32880
 
 // Next default values for new objects
@@ -299,7 +300,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        172
-#define _APS_NEXT_COMMAND_VALUE         32872
+#define _APS_NEXT_COMMAND_VALUE         32873
 #define _APS_NEXT_CONTROL_VALUE         1116
 #define _APS_NEXT_SYMED_VALUE           102
 #endif
