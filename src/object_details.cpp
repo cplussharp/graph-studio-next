@@ -272,8 +272,8 @@ namespace GraphStudio
 				mn.Format(_T("Major %d"), i);
 				sn.Format(_T("Subtype %d"), i);
 
-				GraphStudio::NameGuid(pin->major[i],mv);
-				GraphStudio::NameGuid(pin->minor[i],sv);
+				GraphStudio::NameGuid(pin->major[i],mv,CgraphstudioApp::g_showGuidsOfKnownTypes);
+				GraphStudio::NameGuid(pin->minor[i],sv,CgraphstudioApp::g_showGuidsOfKnownTypes);
 
 				types->AddItem(new PropItem(mn, mv));
 				types->AddItem(new PropItem(sn, sv));
@@ -333,8 +333,8 @@ namespace GraphStudio
 
 					// append major/sub
 					CString		maj_name, sub_name;
-					GraphStudio::NameGuid(mt->majortype, maj_name);
-					GraphStudio::NameGuid(mt->subtype,   sub_name);
+					GraphStudio::NameGuid(mt->majortype, maj_name, CgraphstudioApp::g_showGuidsOfKnownTypes);
+					GraphStudio::NameGuid(mt->subtype,   sub_name, CgraphstudioApp::g_showGuidsOfKnownTypes);
 					mtname += CString(_T(" [")) + maj_name + CString(_T(" / ")) + sub_name + CString(_T("]"));
 
 					PropItem	*curmt = mtypes->AddItem(new PropItem(mtname));
@@ -466,9 +466,9 @@ namespace GraphStudio
 	{
 		CString		id_name;
 
-		GraphStudio::NameGuid(pmt->majortype,	id_name);		mtinfo->AddItem(new PropItem(_T("majortype"), id_name));
-		GraphStudio::NameGuid(pmt->subtype,		id_name);		mtinfo->AddItem(new PropItem(_T("subtype"), id_name));
-		GraphStudio::NameGuid(pmt->formattype,	id_name);		mtinfo->AddItem(new PropItem(_T("formattype"), id_name));
+		GraphStudio::NameGuid(pmt->majortype,	id_name,CgraphstudioApp::g_showGuidsOfKnownTypes);		mtinfo->AddItem(new PropItem(_T("majortype"), id_name));
+		GraphStudio::NameGuid(pmt->subtype,		id_name,CgraphstudioApp::g_showGuidsOfKnownTypes);		mtinfo->AddItem(new PropItem(_T("subtype"), id_name));
+		GraphStudio::NameGuid(pmt->formattype,	id_name,CgraphstudioApp::g_showGuidsOfKnownTypes);		mtinfo->AddItem(new PropItem(_T("formattype"), id_name));
 
 		mtinfo->AddItem(new PropItem(_T("bFixedSizeSamples"), pmt->bFixedSizeSamples == TRUE));
 		mtinfo->AddItem(new PropItem(_T("bTemporalCompression"), pmt->bTemporalCompression == TRUE));
@@ -660,7 +660,7 @@ namespace GraphStudio
 		wfxinfo->AddItem(new PropItem(_T("dwChannelMask"), (int)wfx->dwChannelMask));
 
 		CString		id_name;
-		GraphStudio::NameGuid(wfx->SubFormat,	id_name);		
+		GraphStudio::NameGuid(wfx->SubFormat,	id_name, CgraphstudioApp::g_showGuidsOfKnownTypes);		
 		wfxinfo->AddItem(new PropItem(_T("SubFormat"), id_name));
 
 		if (wfx->dwChannelMask != 0) {

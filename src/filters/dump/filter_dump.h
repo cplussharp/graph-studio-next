@@ -24,7 +24,7 @@ class CMonoDump : public CBaseRenderer, public IFileSinkFilter
 public:
 
 	// write the file here
-	FILE		*file;
+	CFile       file;
 	CString		filename;
 
 	HRESULT DoOpenFile();

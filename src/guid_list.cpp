@@ -545,20 +545,30 @@ namespace GraphStudio
 	const int KnownGuidCount = sizeof(KnownGuidList) / sizeof(KnownGuidList[0]);
 
 
-	bool NameGuid(GUID guid, CString &str)
+	bool NameGuid(GUID guid, CString &str, bool alsoAddGuid)
 	{
-		for (int i=0; i<KnownGuidCount; i++) {
+        bool found = false;
+        for (int i=0; i<KnownGuidCount; i++) {
 			if (KnownGuidList[i].guid == guid) {
 				str = CString(KnownGuidList[i].name);
-				return true;
+                if(!alsoAddGuid) return true;
+				found = true;
+                break;
 			}
 		}
 
+        if(found)
+            str.Append(_T(" "));
+
 		LPOLESTR	str2;
 		StringFromCLSID(guid, &str2);
-		str = CString(str2);
+        if(found)
+            str.Append(CString(str2));
+        else
+            str = CString(str2);
 		CoTaskMemFree(str2);
-		return false;
+
+		return found;
 	}
 
     bool InsertGuidLookup(int i, CListCtrl* pListCtrl)

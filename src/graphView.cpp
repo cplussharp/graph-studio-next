@@ -40,6 +40,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_OPTIONS_DIRECT, &CGraphView::OnOptionsDirectConnectClick)
 	ON_COMMAND(ID_OPTIONS_EXACTMATCH, &CGraphView::OnOptionsExactMatchClick)
     ON_COMMAND(ID_OPTIONS_USEMEDIAINFO, &CGraphView::OnOptionsUseMediaInfoClick)
+    ON_COMMAND(ID_OPTIONS_SHOWGUIDOFKNOWNTYPES, &CGraphView::OnOptionsShowGuidOfKnownTypesClick)
 	ON_COMMAND(ID_FILE_NEW, &CGraphView::OnNewClick)
 	ON_COMMAND(ID_FILE_OPEN, &CGraphView::OnFileOpenClick)
 	ON_COMMAND(ID_FILE_SAVE, &CGraphView::OnFileSaveClick)
@@ -73,6 +74,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_DIRECT, &CGraphView::OnUpdateOptionsDirectConnect)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_EXACTMATCH, &CGraphView::OnUpdateOptionsExactMatch)
     ON_UPDATE_COMMAND_UI(ID_OPTIONS_USEMEDIAINFO, &CGraphView::OnUpdateOptionsUseMediaInfo)
+    ON_UPDATE_COMMAND_UI(ID_OPTIONS_SHOWGUIDOFKNOWNTYPES, &CGraphView::OnUpdateShowGuidOfKnownTypes)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON_PLAY, &CGraphView::OnUpdatePlayButton)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON_PAUSE, &CGraphView::OnUpdatePauseButton)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON_STOP, &CGraphView::OnUpdateStopButton)
@@ -332,6 +334,9 @@ void CGraphView::OnInit()
 	render_params.preferred_video_renderer = def_vr;
 	render_params.video_renderers = &video_renderers;
 
+    int showGuids = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowGuidsOfKnownTypes"), 1);
+    CgraphstudioApp::g_showGuidsOfKnownTypes = showGuids != 0;
+
 	UpdateGraphState();
 	UpdateMRUMenu();
 
@@ -417,9 +422,9 @@ void CGraphView::UpdatePreferredVideoRenderersMenu()
 	CMenu	*mainmenu  = GetParentFrame()->GetMenu();
 	CMenu	*optionsmenu = mainmenu->GetSubMenu(4);
 
-	if (optionsmenu->GetMenuItemCount() > 9) {
-		optionsmenu->RemoveMenu(9, MF_BYPOSITION);
-		optionsmenu->RemoveMenu(9, MF_BYPOSITION);
+	if (optionsmenu->GetMenuItemCount() > 10) {
+		optionsmenu->RemoveMenu(10, MF_BYPOSITION);
+		optionsmenu->RemoveMenu(10, MF_BYPOSITION);
 	}
 
 	return ;
@@ -1835,6 +1840,19 @@ void CGraphView::OnUpdateOptionsUseMediaInfo(CCmdUI *pCmdUI)
 void CGraphView::OnOptionsUseMediaInfoClick()
 {
 	render_params.use_media_info = !render_params.use_media_info;
+}
+
+void CGraphView::OnUpdateShowGuidOfKnownTypes(CCmdUI *pCmdUI)
+{
+    pCmdUI->SetCheck(CgraphstudioApp::g_showGuidsOfKnownTypes);
+}
+
+void CGraphView::OnOptionsShowGuidOfKnownTypesClick()
+{
+    CgraphstudioApp::g_showGuidsOfKnownTypes = !CgraphstudioApp::g_showGuidsOfKnownTypes;
+
+    // save the value to the registry
+	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ShowGuidsOfKnownTypes"), CgraphstudioApp::g_showGuidsOfKnownTypes ? 1 : 0);
 }
 
 

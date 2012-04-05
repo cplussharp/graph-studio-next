@@ -83,6 +83,30 @@ void GetInterfaceInfo_IAMDroppedFrames(GraphStudio::PropItem* group, IUnknown* p
     }
 }
 
+void GetInterfaceInfo_IAsyncReader(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IAsyncReader> pI = pUnk;
+    if(pI)
+    {
+        CString strTotal, strAvailable;
+        LONGLONG total, available;
+        HRESULT hr = pI->Length(&total, &available);
+        if(hr == VFW_S_ESTIMATED)
+        {
+            strTotal.Format(_T("%I64d (estimated)"),total);
+            strAvailable.Format(_T("%I64d (estimated)"),total);
+        }
+        else if(hr == S_OK)
+        {
+            strTotal.Format(_T("%I64d"),total);
+            strAvailable.Format(_T("%I64d"),total);
+        }
+
+        group->AddItem(new GraphStudio::PropItem(_T("Length (Total)"), strTotal));
+        group->AddItem(new GraphStudio::PropItem(_T("Length (Available)"), strTotal));
+    }
+}
+
 void GetInterfaceInfo_IMediaFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IMediaFilter> pI = pUnk;
@@ -556,7 +580,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{C056DE21-75C2-11D3-A184-00105AEF9F33}"), TEXT("IAMWstDecoder"), TEXT("uuids.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376041.aspx")),
     CInterfaceInfo(TEXT("{2A6E293B-2595-11D3-B64C-00C04F79498E}"), TEXT("IAnalogRadioTuningSpace"), TEXT("tuner.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd693098.aspx")),
     CInterfaceInfo(TEXT("{39DD45DA-2DA8-46BA-8A8A-87E2B73D983A}"), TEXT("IAnalogRadioTuningSpace2"), TEXT("tuner.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd693099.aspx")),
-    CInterfaceInfo(TEXT("{56A868AA-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IAsyncReader"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376085.aspx")),
+    CInterfaceInfo(TEXT("{56A868AA-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IAsyncReader"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376085.aspx"),GetInterfaceInfo_IAsyncReader),
     CInterfaceInfo(TEXT("{FC189E4D-7BD4-4125-B3B3-3A76A332CC96}"), TEXT("IATSCComponentType"), TEXT("tuner.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd693121.aspx")),
     CInterfaceInfo(TEXT("{BF8D986F-8C2B-4131-94D7-4D3D9FCC21EF}"), TEXT("IATSCLocator"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{612AA885-66CF-4090-BA0A-566F5312E4CA}"), TEXT("IATSCLocator2"), TEXT("tuner.h"), TEXT("")),

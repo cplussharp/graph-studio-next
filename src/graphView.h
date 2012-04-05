@@ -199,7 +199,9 @@ public:
 	void OnOptionsExactMatchClick();
 	void OnUpdateOptionsExactMatch(CCmdUI *pCmdUI);
     void OnOptionsUseMediaInfoClick();
+    void OnOptionsShowGuidOfKnownTypesClick();
     void OnUpdateOptionsUseMediaInfo(CCmdUI *pCmdUI);
+    void OnUpdateShowGuidOfKnownTypes(CCmdUI *pCmdUI);
 
 	afx_msg void OnViewProgressview();
 	afx_msg void OnFileSaveasxml();

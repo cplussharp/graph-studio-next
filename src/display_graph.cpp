@@ -1601,7 +1601,7 @@ namespace GraphStudio
 
 		// get the filter CLSID
 		f->GetClassID(&clsid);
-		NameGuid(clsid, clsid_str);
+        NameGuid(clsid, clsid_str, CgraphstudioApp::g_showGuidsOfKnownTypes);
 
 		FILTER_INFO	info;
 		memset(&info, 0, sizeof(info));
