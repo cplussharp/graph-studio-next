@@ -19,6 +19,7 @@ IMPLEMENT_DYNAMIC(CDecPerformanceForm, CDialog)
 BEGIN_MESSAGE_MAP(CDecPerformanceForm, CDialog)
 	ON_WM_SIZE()
 	ON_BN_CLICKED(IDC_BUTTON_BROWSE, &CDecPerformanceForm::OnBrowseClick)
+    ON_BN_CLICKED(IDC_BUTTON_PROPERTYPAGE, &CDecPerformanceForm::OnBnClickedButtonPropertypage)
 	ON_BN_CLICKED(IDC_BUTTON_START, &CDecPerformanceForm::OnStartClick)
 	ON_BN_CLICKED(IDC_BUTTON_STOP, &CDecPerformanceForm::OnStopClick)
     ON_CBN_SELCHANGE(IDC_COMBO_TYPE, &CDecPerformanceForm::OnCbnSelChange)
@@ -469,6 +470,37 @@ BOOL CDecPerformanceForm::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT *pResul
 	}
 
 	return __super::OnNotify(wParam, lParam, pResult);
+}
+
+void CDecPerformanceForm::OnBnClickedButtonPropertypage()
+{
+    int		idx = cb_decoders.GetCurSel();
+
+	DSUtil::FilterTemplate *filter = (DSUtil::FilterTemplate*)cb_decoders.GetItemDataPtr(idx);
+	if (filter) {
+
+		// now create an instance of this filter
+		CComPtr<IBaseFilter>	instance;
+		HRESULT					hr;
+
+		hr = filter->CreateInstance(&instance);
+		if (FAILED(hr)) {
+			// display error message
+		} else {
+			CString			title = filter->name + _T(" Properties");
+			CPropertyForm	*page = new CPropertyForm();
+			int ret = page->DisplayPages(instance, instance, title, view);
+			if (ret < 0) {
+				delete page;
+				return ;
+			}
+
+			// add to the list
+			view->property_pages.Add(page);
+		}
+		instance = NULL;
+	}
+
 }
 
 

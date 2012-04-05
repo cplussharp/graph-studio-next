@@ -165,6 +165,7 @@
 #define IDC_COMBO_RENDERER2             1077
 #define IDC_COMBO_TYPE                  1077
 #define IDC_COMBO_NEW                   1078
+#define IDC_BUTTON_START2               1078
 #define IDC_LIST3                       1081
 #define IDC_LIST_CAPS                   1081
 #define IDC_STATIC_ALIGN                1082

@@ -71,6 +71,7 @@ public:
 	void OnSize(UINT nType, int cx, int cy);
 	void OnBrowseClick();
     void OnCbnSelChange();
+    void OnBnClickedButtonPropertypage();
 
 	// start / stop test
 	void Start();
