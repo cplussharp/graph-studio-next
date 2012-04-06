@@ -23,6 +23,7 @@ BEGIN_MESSAGE_MAP(CDecPerformanceForm, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_START, &CDecPerformanceForm::OnStartClick)
 	ON_BN_CLICKED(IDC_BUTTON_STOP, &CDecPerformanceForm::OnStopClick)
     ON_CBN_SELCHANGE(IDC_COMBO_TYPE, &CDecPerformanceForm::OnCbnSelChange)
+    ON_CBN_SELCHANGE(IDC_COMBO_DECODER, &CDecPerformanceForm::OnComboDecoderSelChange)
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -178,6 +179,9 @@ void CDecPerformanceForm::OnCbnSelChange()
         decoders.EnumerateVideoDecoder();
     }
 
+    // alten Decoder-Filter freigeben
+    cur_decoder = NULL;
+
     int index = cb_renderers.AddString(_T("Null Renderer"));
     cb_renderers.SetItemDataPtr(index, (void*)&null_renderer);
     for (int i=0; i<renderers->filters.GetCount(); i++) {
@@ -193,6 +197,11 @@ void CDecPerformanceForm::OnCbnSelChange()
 	if (decoders.filters.GetCount() > 0) {
 		cb_decoders.SetCurSel(0);
 	}
+}
+
+void CDecPerformanceForm::OnComboDecoderSelChange()
+{
+    cur_decoder = NULL;
 }
 
 void CDecPerformanceForm::Start()
@@ -347,7 +356,6 @@ void CDecPerformanceForm::OnPhaseComplete()
         list_results.SetItemText(cnt, 3, rate_str);
         list_results.SetItemText(cnt, 4, realtime_str);
         list_results.SetItemText(cnt, 5, frames_str);
-
 	} else {
 
 		// start the next run
@@ -361,7 +369,6 @@ int CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
 	HRESULT					hr;
 	int						ret = 0;
 	CComPtr<IBaseFilter>	src;
-	CComPtr<IBaseFilter>	decoder;
 	CComPtr<IBaseFilter>	time;
 	CComPtr<IBaseFilter>	renderer;
 
@@ -378,51 +385,103 @@ int CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
 		short_name = CString(path);
 
 		hr = gb->AddSourceFilter(source_file.GetBuffer(), short_name.GetBuffer(), &src);
-		if (FAILED(hr)) break;
+		if (FAILED(hr)) {
+            DSUtil::ShowError(hr, _T("Can't add source filter"));
+            break;
+        }
 
 		// 2. Create the decoder instance
 		int		idx = cb_decoders.GetCurSel();
-		if (idx < 0) { hr = E_FAIL; break; }
-
+		if (idx < 0) {
+            hr = E_FAIL;
+            DSUtil::ShowError(hr, _T("No decoder selcted"));
+            break;
+        }
+        
 		DSUtil::FilterTemplate		*filter_template_decoder = (DSUtil::FilterTemplate*)cb_decoders.GetItemDataPtr(idx);
-		if (!filter_template_decoder) { hr = E_FAIL; break; }
+		if (!filter_template_decoder) {
+            hr = E_FAIL;
+            DSUtil::ShowError(hr, _T("Can't find decoder"));
+            break;
+        }
 
-		// and insert it into the graph
-		ret = filter_template_decoder->CreateInstance(&decoder);
-		if (ret < 0) { hr = E_FAIL; break; }
-		hr = gb->AddFilter(decoder, filter_template_decoder->name.GetBuffer());
-		if (FAILED(hr)) break;
+        if(!cur_decoder)
+        {
+		    ret = filter_template_decoder->CreateInstance(&cur_decoder);
+		    if (ret < 0) {
+                hr = E_FAIL;
+                DSUtil::ShowError(ret, _T("Can't create decoder"));
+                break;
+            }
+        }
+         // and insert it into the graph
+		hr = gb->AddFilter(cur_decoder, filter_template_decoder->name.GetBuffer());
+		if (FAILED(hr)) {
+            DSUtil::ShowError(hr, _T("Can't add decoder"));
+            break;
+        }
 
 		// 3. Now connect the source with the decoder
-		hr = DSUtil::ConnectFilters(gb, src, decoder);
-		if (FAILED(hr)) break;
+		hr = DSUtil::ConnectFilters(gb, src, cur_decoder);
+		if (FAILED(hr)) {
+            DSUtil::ShowError(hr, _T("Can't connect decoder"));
+            break;
+        }
 
 		// 4. Insert the time measure filter
 		hr = NOERROR;
         hr = time_filter_template.CreateInstance(&time);
-		if (FAILED(hr)) { hr = E_FAIL; break; }
+		if (FAILED(hr)) {
+            DSUtil::ShowError(hr, _T("Can't create time filter"));
+            hr = E_FAIL;
+            break;
+        }
         time->QueryInterface(IID_IMonoTimeMeasure, (void**)&time_filter);
         hr = gb->AddFilter(time, time_filter_template.name);
-		if (FAILED(hr)) break;
-		hr = DSUtil::ConnectFilters(gb, decoder, time);
-		if (FAILED(hr)) break;
+		if (FAILED(hr)) {
+            DSUtil::ShowError(hr, _T("Can't add time filter"));
+            break;
+        }
+		hr = DSUtil::ConnectFilters(gb, cur_decoder, time);
+		if (FAILED(hr)) {
+            DSUtil::ShowError(hr, _T("Can't connect time filter"));
+            break;
+        }
 
 		// 5. Insert the renderer filter
 		idx = cb_renderers.GetCurSel();
-		if (idx < 0) { hr = E_FAIL; break; }
+		if (idx < 0) {
+            hr = E_FAIL;
+            DSUtil::ShowError(hr, _T("No renderer selected"));
+            break;
+        }
 
 		DSUtil::FilterTemplate		*filter_template_renderer = (DSUtil::FilterTemplate*)cb_renderers.GetItemDataPtr(idx);
-		if (!filter_template_renderer) { hr = E_FAIL; break; }
+		if (!filter_template_renderer) {
+            hr = E_FAIL;
+            DSUtil::ShowError(hr, _T("Can't find renderer"));
+            break;
+        }
 
 		// and insert it into the graph
 		ret = filter_template_renderer->CreateInstance(&renderer);
-		if (ret < 0) { hr = E_FAIL; break; }
+		if (ret < 0) {
+            hr = E_FAIL; 
+            DSUtil::ShowError(hr, _T("Can't create renderer"));
+            break;
+        }
 		hr = gb->AddFilter(renderer, filter_template_renderer->name.GetBuffer());
-		if (FAILED(hr)) break;
+		if (FAILED(hr)) {
+            DSUtil::ShowError(hr, _T("Can't add renderer"));
+            break;
+        }
 
 		// connect the time filter
 		hr = DSUtil::ConnectFilters(gb, time, renderer);
-		if (FAILED(hr)) break;
+		if (FAILED(hr)) {
+            DSUtil::ShowError(hr, _T("Can't connect renderer"));
+            break;
+        }
 
 		hr = NOERROR;
 	} while (0);
@@ -430,12 +489,10 @@ int CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
 	// done with the filters
 	renderer = NULL;
 	src = NULL;
-	decoder = NULL;
 	time = NULL;
 
 	return 0;
 }
-
 
 
 void CDecPerformanceForm::OnStartClick()
@@ -478,27 +535,29 @@ void CDecPerformanceForm::OnBnClickedButtonPropertypage()
 
 	DSUtil::FilterTemplate *filter = (DSUtil::FilterTemplate*)cb_decoders.GetItemDataPtr(idx);
 	if (filter) {
-
 		// now create an instance of this filter
-		CComPtr<IBaseFilter>	instance;
 		HRESULT					hr;
 
-		hr = filter->CreateInstance(&instance);
-		if (FAILED(hr)) {
-			// display error message
-		} else {
-			CString			title = filter->name + _T(" Properties");
-			CPropertyForm	*page = new CPropertyForm();
-			int ret = page->DisplayPages(instance, instance, title, view);
-			if (ret < 0) {
-				delete page;
-				return ;
-			}
+        if(!cur_decoder)
+        {
+		    hr = filter->CreateInstance(&cur_decoder);
+		    if (FAILED(hr)) {
+			    // display error message
+                DSUtil::ShowError(hr, _T("Can't create decoder"));
+                return;
+            }
+        }
 
-			// add to the list
-			view->property_pages.Add(page);
+		CString			title = filter->name + _T(" Properties");
+		CPropertyForm	*page = new CPropertyForm();
+		int ret = page->DisplayPages(cur_decoder, cur_decoder, title, view);
+		if (ret < 0) {
+			delete page;
+			return ;
 		}
-		instance = NULL;
+
+		// add to the list
+		view->property_pages.Add(page);
 	}
 
 }
