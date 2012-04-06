@@ -50,6 +50,7 @@ public:
 	bool							running;
 	bool							perf_operation;			// internal flag
 	CComPtr<IMonoTimeMeasure>       time_filter;
+    CComPtr<IBaseFilter>	        cur_decoder;
 
 	int								phase_count;			// total number of runs
 	int								phase_cur;				// the current run
@@ -71,6 +72,7 @@ public:
 	void OnSize(UINT nType, int cx, int cy);
 	void OnBrowseClick();
     void OnCbnSelChange();
+    void OnComboDecoderSelChange();
     void OnBnClickedButtonPropertypage();
 
 	// start / stop test
