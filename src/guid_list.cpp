@@ -9,6 +9,13 @@
 #include <asferr.h>
 #include <nserror.h>
 
+// from dxva2api.h
+#ifndef DXVA2_API_DEFINED
+#define DXVA2_E_NOT_INITIALIZED     ((HRESULT)0x80041000L)
+#define DXVA2_E_NEW_VIDEO_DEVICE    ((HRESULT)0x80041001L)
+#define DXVA2_E_VIDEO_DEVICE_LOCKED ((HRESULT)0x80041002L)
+#define DXVA2_E_NOT_AVAILABLE       ((HRESULT)0x80041003L)
+#endif
 
 namespace GraphStudio
 {
@@ -540,7 +547,63 @@ namespace GraphStudio
         // from 
         KNOWN(KSDATAFORMAT_SPECIFIER_DV_AVC),
         KNOWN(KSDATAFORMAT_SPECIFIER_AVC),
-        KNOWN(KSDATAFORMAT_SPECIFIER_61883_4)
+        KNOWN(KSDATAFORMAT_SPECIFIER_61883_4),
+
+        // dxva.h
+        KNOWN(DXVA_ModeNone),  
+        KNOWN(DXVA_ModeH261_A),
+        KNOWN(DXVA_ModeH261_B),
+        KNOWN(DXVA_ModeH263_A),
+        KNOWN(DXVA_ModeH263_B),
+        KNOWN(DXVA_ModeH263_C),
+        KNOWN(DXVA_ModeH263_D),
+        KNOWN(DXVA_ModeH263_E),
+        KNOWN(DXVA_ModeH263_F),
+        KNOWN(DXVA_ModeMPEG1_A),
+        KNOWN(DXVA_ModeMPEG2_A),
+        KNOWN(DXVA_ModeMPEG2_B),
+        KNOWN(DXVA_ModeMPEG2_C),
+        KNOWN(DXVA_ModeMPEG2_D),
+        KNOWN(DXVA_ModeH264_A),
+        KNOWN(DXVA_ModeH264_B),
+        KNOWN(DXVA_ModeH264_C),
+        KNOWN(DXVA_ModeH264_D),
+        KNOWN(DXVA_ModeH264_E),
+        KNOWN(DXVA_ModeH264_F),
+        KNOWN(DXVA_ModeWMV8_A),
+        KNOWN(DXVA_ModeWMV8_B),
+        KNOWN(DXVA_ModeWMV9_A),
+        KNOWN(DXVA_ModeWMV9_B),
+        KNOWN(DXVA_ModeWMV9_C),
+        KNOWN(DXVA_ModeVC1_A), 
+        KNOWN(DXVA_ModeVC1_B), 
+        KNOWN(DXVA_ModeVC1_C), 
+        KNOWN(DXVA_ModeVC1_D), 
+        KNOWN(DXVA_NoEncrypt), 
+
+        // dxva2api.h
+        KNOWN(DXVA2_ModeMPEG2_MoComp),
+        KNOWN(DXVA2_ModeMPEG2_IDCT),  
+        KNOWN(DXVA2_ModeMPEG2_VLD),   
+        KNOWN(DXVA2_ModeH264_A),
+        KNOWN(DXVA2_ModeH264_B),
+        KNOWN(DXVA2_ModeH264_C),
+        KNOWN(DXVA2_ModeH264_D),
+        KNOWN(DXVA2_ModeH264_E),
+        KNOWN(DXVA2_ModeH264_F),
+        KNOWN(DXVA2_ModeWMV8_A),
+        KNOWN(DXVA2_ModeWMV8_B),
+        KNOWN(DXVA2_ModeWMV9_A),
+        KNOWN(DXVA2_ModeWMV9_B),
+        KNOWN(DXVA2_ModeWMV9_C),
+        KNOWN(DXVA2_ModeVC1_A), 
+        KNOWN(DXVA2_ModeVC1_B), 
+        KNOWN(DXVA2_ModeVC1_C), 
+        KNOWN(DXVA2_ModeVC1_D), 
+        KNOWN(DXVA2_NoEncrypt), 
+        KNOWN(DXVA2_VideoProcProgressiveDevice),
+        KNOWN(DXVA2_VideoProcBobDevice),        
+        KNOWN(DXVA2_VideoProcSoftwareDevice),   
 	};
 	const int KnownGuidCount = sizeof(KnownGuidList) / sizeof(KnownGuidList[0]);
 
@@ -1137,6 +1200,10 @@ namespace GraphStudio
         KNOWNHR(NS_E_NOMATCHING_ELEMENT),
         KNOWNHR(NS_E_NOT_CONFIGURED),
 
+        KNOWNHR(DXVA2_E_NOT_INITIALIZED),   
+        KNOWNHR(DXVA2_E_NEW_VIDEO_DEVICE),  
+        KNOWNHR(DXVA2_E_VIDEO_DEVICE_LOCKED),
+        KNOWNHR(DXVA2_E_NOT_AVAILABLE) 
     };
     const int KnownHResultCount = sizeof(KnownHResultList) / sizeof(KnownHResultList[0]);
 
