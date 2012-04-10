@@ -40,7 +40,7 @@ CgraphstudioApp::CgraphstudioApp()
 {
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
-
+     
     SetAppID(_T("CPlusSharp.GraphStudioNext"));
 }
 
@@ -105,7 +105,8 @@ BOOL CgraphstudioApp::InitInstance()
 	// if we've been started with a command line parameter
 	// do open the file
 	if (cmdInfo.m_strFileName != _T("")) {
-		view->TryOpenFile(cmdInfo.m_strFileName);
+		int ret = view->TryOpenFile(cmdInfo.m_strFileName);
+        DSUtil::ShowError(ret, TEXT("Can't open file"));
 	}
 
     // Jumplist

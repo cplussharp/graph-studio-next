@@ -783,24 +783,24 @@ int CGraphView::TryOpenFile(CString fn)
 		ret = graph.RenderFile(fn);
 	}
 
-	if (ret < 0) return ret;
+	if (ret == 0)
+    {
+	    mru.NotifyEntry(fn);
+	    UpdateMRUMenu();
 
-	// updatujeme MRU list
-	mru.NotifyEntry(fn);
-	UpdateMRUMenu();
-
-	CGraphDoc *doc = GetDocument();
-	int pos = path.FindFileName();
-	CString	short_fn = fn;
-	short_fn.Delete(0, pos);
-	doc->SetTitle(short_fn);
+	    CGraphDoc *doc = GetDocument();
+	    int pos = path.FindFileName();
+	    CString	short_fn = fn;
+	    short_fn.Delete(0, pos);
+	    doc->SetTitle(short_fn);
+    }
 
 	UpdateGraphState();
 	graph.SetClock(true, NULL);
 	graph.RefreshFilters();
 	graph.SmartPlacement();
 	Invalidate();
-	return 0;
+	return ret;
 }
 
 void CGraphView::OnFileOpenfromxml()
@@ -810,7 +810,7 @@ void CGraphView::OnFileOpenfromxml()
 	CString		filename;
 
 	filter =  _T("");
-	filter += _T("GraphStudio XML Files (xml)|*.xml|");
+	filter += _T("GraphStudio XML Files|*.xml|");
 	filter += _T("All Files|*.*|");
 
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
@@ -820,7 +820,7 @@ void CGraphView::OnFileOpenfromxml()
 	if (ret == IDOK) {
 		ret = TryOpenFile(filename);
 		if (ret < 0) {
-            DSUtil::ShowError(ret, TEXT("Cannot open file"));
+            DSUtil::ShowError(ret, TEXT("Can't open file"));
 		}
 	}
 }
