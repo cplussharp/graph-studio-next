@@ -254,7 +254,7 @@ void GetInterfaceInfo_IMediaSeeking(GraphStudio::PropItem* group, IUnknown* pUnk
         }
         else
         {
-            group->AddItem(new GraphStudio::PropItem(_T("Available"), _T("Not implementet"), false));
+            group->AddItem(new GraphStudio::PropItem(_T("Available"), _T("Not implemented"), false));
         }
 
         DWORD cap;
