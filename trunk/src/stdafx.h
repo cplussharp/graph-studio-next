@@ -83,6 +83,7 @@
 #include <bdatypes.h>
 #include <bdamedia.h>
 #include <tuner.h>
+#include <dxva.h>
 
 #include "..\resource.h"
 
