@@ -669,6 +669,7 @@ void CGraphView::OnNewClick()
 	can_save = false;
 
 	Invalidate();
+    AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
 
 void CGraphView::OnFileSaveClick()
@@ -823,6 +824,8 @@ void CGraphView::OnFileOpenfromxml()
             DSUtil::ShowError(ret, TEXT("Can't open file"));
 		}
 	}
+
+    AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
 
 void CGraphView::OnFileOpenClick()
@@ -846,10 +849,11 @@ void CGraphView::OnFileOpenClick()
 	if (ret == IDOK) {
 		ret = TryOpenFile(filename);
 		if (ret < 0) {
-			DSUtil::ShowError(ret, _T("Cannot open file"));
+			DSUtil::ShowError(ret, _T("Can't open file"));
 		}
 	}
 
+    AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
 
 void CGraphView::OnFileAddmediafile()
@@ -896,7 +900,7 @@ void CGraphView::OnRenderUrlClick()
 		OnNewClick();
 		int ret = graph.RenderFile(dlg.result_file);
 		if (ret < 0) {
-			MessageBox(_T("Cannot render URL"));
+			MessageBox(_T("Can't render URL"));
 		}
 
 		graph.SetClock(true, NULL);
@@ -905,6 +909,8 @@ void CGraphView::OnRenderUrlClick()
 		graph.Dirty();
 		Invalidate();
 	}
+
+    AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
 
 void CGraphView::OnRenderFileClick()
@@ -927,7 +933,7 @@ void CGraphView::OnRenderFileClick()
 		OnNewClick();
 		int ret = graph.RenderFile(filename);
 		if (ret < 0) {
-			MessageBox(_T("Cannot render file"));
+			MessageBox(_T("Can't render file"));
 		}
 
 		// updatujeme MRU list
@@ -940,6 +946,8 @@ void CGraphView::OnRenderFileClick()
 		graph.Dirty();
 		Invalidate();
 	}
+
+    AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
 
 void CGraphView::OnGraphComplete()
@@ -1026,6 +1034,8 @@ void CGraphView::OnDeleteSelection()
 	// delete selected objects
 	graph.DeleteSelected();
 	Invalidate();
+
+    AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
 
 
@@ -1542,6 +1552,8 @@ void CGraphView::OnConnectRemote()
 			rot = NULL;
 		}
 	}
+
+    AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
 
 void CGraphView::OnDisconnectRemote()

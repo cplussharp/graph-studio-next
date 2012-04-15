@@ -165,7 +165,6 @@
 #define IDC_COMBO_RENDERER2             1077
 #define IDC_COMBO_TYPE                  1077
 #define IDC_COMBO_NEW                   1078
-#define IDC_BUTTON_START2               1078
 #define IDC_LIST3                       1081
 #define IDC_LIST_CAPS                   1081
 #define IDC_STATIC_ALIGN                1082
@@ -294,6 +293,7 @@
 #define ID_HELP_GUIDLOOKUP              32870
 #define ID_OPTIONS_CONFIGURESBE         32871
 #define ID_OPTIONS_SHOWGUIDOFKNOWNTYPES 32872
+#define ID_COMBO_RATE                   32873
 #define ID_MPEG2DEMUX_CREATE_PSI_PIN    32880
 
 // Next default values for new objects
@@ -301,7 +301,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        172
-#define _APS_NEXT_COMMAND_VALUE         32873
+#define _APS_NEXT_COMMAND_VALUE         32874
 #define _APS_NEXT_CONTROL_VALUE         1116
 #define _APS_NEXT_SYMED_VALUE           102
 #endif

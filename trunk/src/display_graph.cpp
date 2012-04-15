@@ -342,9 +342,22 @@ namespace GraphStudio
 			flags |= AM_SEEKING_SeekToKeyFrame;
 		}
 
-		ms->SetPositions(&rtpos, flags, NULL, AM_SEEKING_NoPositioning);
-		return 0;
+		return ms->SetPositions(&rtpos, flags, NULL, AM_SEEKING_NoPositioning);
 	}
+
+    int DisplayGraph::GetRate(double* rate)
+    {
+        if (!ms) return -1;
+
+        return ms->GetRate(rate);
+    }
+
+    int DisplayGraph::SetRate(double rate)
+    {
+        if (!ms) return -1;
+
+        return ms->SetRate(rate);
+    }
 
 	void DisplayGraph::RefreshClock()
 	{

@@ -31,6 +31,8 @@ public:  // control bar embedded members
 	CSeekingBar		m_wndSeekingBar;
 	CReBar			m_wndReBar;
     CComPtr<ITaskbarList3> m_pTaskbarList;
+    CComboBox       m_comboRate;
+    int             m_comboRate_defaultSel;
 
 	// view
 	CGraphView		*view;
@@ -40,6 +42,7 @@ public:
 	virtual ~CMainFrame();
 
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+    void OnComboRateChanged();
 
 #ifdef _DEBUG
 	virtual void AssertValid() const;
@@ -47,6 +50,8 @@ public:
 #endif
 
 	virtual BOOL OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT *pResult);
+
+    void OnUpdatePlayRate();
 
     static const UINT m_uTaskbarBtnCreatedMsg;
 };
