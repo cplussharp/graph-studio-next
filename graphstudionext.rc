@@ -853,6 +853,8 @@ BEGIN
     BUTTON      ID_BUTTON_SEEK
     SEPARATOR
     BUTTON      ID_BUTTON_ADDFILTER
+    SEPARATOR
+    BUTTON      ID_COMBO_RATE
 END
 
 
@@ -1253,6 +1255,7 @@ BEGIN
     ID_HELP_HRESULTLOOKUP   "Show list of known HRESULTs."
     ID_HELP_GUIDLOOKUP      "Show list of known GUIDs / CLSIDs / IIDs. "
     ID_OPTIONS_CONFIGURESBE "Configure the Stream Buffer Engine Settings"
+    ID_COMBO_RATE           "Change Playback Rate"
 END
 
 #endif    // Englisch (USA) resources

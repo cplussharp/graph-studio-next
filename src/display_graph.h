@@ -412,6 +412,8 @@ namespace GraphStudio
 		int GetFPS(double &fps);
 		int RefreshFPS();
 		int Seek(double time_ms, BOOL keyframe = FALSE);
+        int GetRate(double* rate);
+        int SetRate(double rate);
 
 		// control
 		void DoFrameStep();

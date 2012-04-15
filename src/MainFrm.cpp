@@ -24,6 +24,7 @@ IMPLEMENT_DYNCREATE(CMainFrame, CFrameWnd)
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_CREATE()
+    ON_CBN_SELCHANGE(ID_COMBO_RATE, &CMainFrame::OnComboRateChanged)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -105,6 +106,61 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 
+
+    // init Playrate ComboBox
+    CRect rect;
+	int nIndex = m_wndToolBar.GetToolBarCtrl().CommandToIndex(ID_COMBO_RATE);
+	m_wndToolBar.SetButtonInfo(nIndex, ID_COMBO_RATE, TBBS_SEPARATOR, 205);
+	m_wndToolBar.GetToolBarCtrl().GetItemRect(nIndex, &rect);
+	rect.top = 1;
+	rect.bottom = rect.top + 250 /*drop height*/;
+    rect.right = rect.left + 58;
+    if(!m_comboRate.Create(CBS_DROPDOWNLIST | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL, rect, &m_wndToolBar, ID_COMBO_RATE))
+	{
+		TRACE(_T("Failed to create combo-box for rate\n"));
+		return FALSE;
+	}
+    m_comboRate.SetFont(m_wndToolBar.GetFont());
+    int n = m_comboRate.AddString(_T("1600%"));
+    m_comboRate.SetItemData(n, 16000);
+    n = m_comboRate.AddString(_T(" 800%"));
+    m_comboRate.SetItemData(n, 8000);
+    n = m_comboRate.AddString(_T(" 400%"));
+    m_comboRate.SetItemData(n, 4000);
+    n = m_comboRate.AddString(_T(" 200%"));
+    m_comboRate.SetItemData(n, 2000);
+    n = m_comboRate.AddString(_T(" 150%"));
+    m_comboRate.SetItemData(n, 1500);
+    n = m_comboRate.AddString(_T(" 125%"));
+    m_comboRate.SetItemData(n, 1250);
+    n = m_comboRate.AddString(_T(" 110%"));
+    m_comboRate.SetItemData(n, 1100);
+    n = m_comboRate.AddString(_T(" 100%"));
+    m_comboRate.SetItemData(n, 1000);
+    m_comboRate.SetCurSel(n);
+    m_comboRate_defaultSel = n;
+    n = m_comboRate.AddString(_T("   90%"));
+    m_comboRate.SetItemData(n, 900);
+    n = m_comboRate.AddString(_T("   75%"));
+    m_comboRate.SetItemData(n, 750);
+    n = m_comboRate.AddString(_T("   50%"));
+    m_comboRate.SetItemData(n, 500);
+    n = m_comboRate.AddString(_T("   25%"));
+    m_comboRate.SetItemData(n, 250);
+    n = m_comboRate.AddString(_T("   10%"));
+    m_comboRate.SetItemData(n, 100);
+    n = m_comboRate.AddString(_T("  -10%"));
+    m_comboRate.SetItemData(n, -100);
+    n = m_comboRate.AddString(_T("  -25%"));
+    m_comboRate.SetItemData(n, -250);
+    n = m_comboRate.AddString(_T("  -50%"));
+    m_comboRate.SetItemData(n, -500);
+    n = m_comboRate.AddString(_T("  -75%"));
+    m_comboRate.SetItemData(n, -750);
+    n = m_comboRate.AddString(_T("-100%"));
+    m_comboRate.SetItemData(n, -1000);
+
+
     // Register Internal Filters for COM-Creation
     (new DSUtil::CClassFactory(&CMonoTimeMeasure::g_Template))->Register();
     (new DSUtil::CClassFactory(&CMonoDump::g_Template))->Register();
@@ -113,6 +169,20 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO: Remove this if you don't want tool tips
 	return 0;
+}
+
+void CMainFrame::OnComboRateChanged()
+{
+    if(view == NULL)
+        return;
+
+    int sel = m_comboRate.GetCurSel();
+    int ret = view->graph.SetRate((int)m_comboRate.GetItemData(sel) / 1000.0);
+    if(ret != 0)
+    {
+        DSUtil::ShowError(ret, _T("Can't set rate."));
+        OnUpdatePlayRate();
+    }
 }
 
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
@@ -158,8 +228,37 @@ BOOL CMainFrame::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT *p
 	} else if(message == m_uTaskbarBtnCreatedMsg) {
         *pResult = OnTaskbarBtnCreated(message, wParam, lParam);
         return TRUE;
+    } else if(message == WM_UPDATEPLAYRATE) {
+        OnUpdatePlayRate();
+        return true;
     }
 	return __super::OnWndMsg(message, wParam, lParam, pResult);
+}
+
+void CMainFrame::OnUpdatePlayRate()
+{
+    int sel = m_comboRate_defaultSel;
+    double curVal;
+    if(view->graph.GetRate(&curVal) == 0)
+    {
+        int val = curVal * 1000;
+        if(val != 1000)
+        {
+            int i = 0;
+            int cv = 0;
+            while((cv = m_comboRate.GetItemData(i)) != 0)
+            {
+                if(cv == val)
+                {
+                    sel = i;
+                    break;
+                }
+
+                i++;
+            }
+        }
+    }
+    m_comboRate.SetCurSel(sel);
 }
 
 
