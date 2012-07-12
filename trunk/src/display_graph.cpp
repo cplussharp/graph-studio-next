@@ -615,7 +615,8 @@ namespace GraphStudio
 		hr = filter->filter->QueryInterface(IID_IFileSourceFilter, (void**)&src);
 		if (SUCCEEDED(hr)) {
 			LPOLESTR		fn = NULL;
-			if (SUCCEEDED(src->GetCurFile(&fn, NULL))) {
+            AM_MEDIA_TYPE media_type;
+			if (SUCCEEDED(src->GetCurFile(&fn, &media_type))) {
 				//	<ifilesourcefilter source="d:\sga.avi"/>
 				writer->BeginNode(_T("ifilesourcefilter"));
 					writer->WriteValue(_T("source"), CString(fn));
@@ -628,7 +629,8 @@ namespace GraphStudio
 		hr = filter->filter->QueryInterface(IID_IFileSinkFilter, (void**)&sink);
 		if (SUCCEEDED(hr)) {
 			LPOLESTR		fn = NULL;
-			if (SUCCEEDED(sink->GetCurFile(&fn, NULL))) {
+            AM_MEDIA_TYPE media_type;
+			if (SUCCEEDED(sink->GetCurFile(&fn, &media_type))) {
 				//	<ifilesinkfilter dest="d:\sga.avi"/>
 				writer->BeginNode(_T("ifilesinkfilter"));
 					writer->WriteValue(_T("dest"), CString(fn));
@@ -1638,7 +1640,8 @@ namespace GraphStudio
 		hr = f->QueryInterface(IID_IFileSourceFilter, (void**)&fs);
 		if (SUCCEEDED(hr)) {
 			LPOLESTR	url_name_ole;
-			hr = fs->GetCurFile(&url_name_ole, NULL);
+            AM_MEDIA_TYPE media_type;
+			hr = fs->GetCurFile(&url_name_ole, &media_type);
 			if (SUCCEEDED(hr)) {
 				url_name = CString(url_name_ole);
 				CoTaskMemFree(url_name_ole);
@@ -1656,7 +1659,8 @@ namespace GraphStudio
 		hr = f->QueryInterface(IID_IFileSinkFilter, (void**)&fsink);
 		if (SUCCEEDED(hr)) {
 			LPOLESTR	url_name_ole;
-			hr = fsink->GetCurFile(&url_name_ole, NULL);
+            AM_MEDIA_TYPE media_type;
+			hr = fsink->GetCurFile(&url_name_ole, &media_type);
 			if (SUCCEEDED(hr)) {
 				url_name = CString(url_name_ole);
 				CoTaskMemFree(url_name_ole);

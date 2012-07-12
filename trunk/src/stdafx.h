@@ -84,6 +84,7 @@
 #include <bdamedia.h>
 #include <tuner.h>
 #include <dxva.h>
+#include <Vidcap.h>
 
 #include "..\resource.h"
 

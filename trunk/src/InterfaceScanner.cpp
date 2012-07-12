@@ -140,7 +140,8 @@ void GetInterfaceInfo_IFileSinkFilter(GraphStudio::PropItem* group, IUnknown* pU
     if(pI)
     {
         LPOLESTR strFile;
-        HRESULT hr = pI->GetCurFile(&strFile, NULL);
+        AM_MEDIA_TYPE media_type;
+        HRESULT hr = pI->GetCurFile(&strFile, &media_type);
         if(hr == S_OK && strFile != NULL)
         {
             group->AddItem(new GraphStudio::PropItem(_T("CurFile"), CString(strFile), false));
@@ -161,7 +162,8 @@ void GetInterfaceInfo_IFileSinkFilter2(GraphStudio::PropItem* group, IUnknown* p
     if(pI)
     {
         LPOLESTR strFile;
-        HRESULT hr = pI->GetCurFile(&strFile, NULL);
+        AM_MEDIA_TYPE media_type;
+        HRESULT hr = pI->GetCurFile(&strFile, &media_type);
         if(hr == S_OK && strFile != NULL)
         {
             group->AddItem(new GraphStudio::PropItem(_T("CurFile"), CString(strFile), false));
@@ -200,7 +202,8 @@ void GetInterfaceInfo_IFileSourceFilter(GraphStudio::PropItem* group, IUnknown* 
     if(pI)
     {
         LPOLESTR strFile;
-        HRESULT hr = pI->GetCurFile(&strFile, NULL);
+        AM_MEDIA_TYPE media_type;
+        HRESULT hr = pI->GetCurFile(&strFile, &media_type);
         if(hr == S_OK && strFile != NULL)
         {
             group->AddItem(new GraphStudio::PropItem(_T("CurFile"), CString(strFile), false));
@@ -506,6 +509,187 @@ void GetInterfaceInfo_IAMExtendedErrorInfo(GraphStudio::PropItem* group, IUnknow
     }
 }
 
+void GetInterfaceInfo_ICameraControl(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<ICameraControl> pI = pUnk;
+    //pUnk->QueryInterface(IID_ICameraControl, (void**)&pI);
+    if(pI)
+    {
+        HRESULT hr;
+        CString strVal, strFlag, strRangeFlag;
+        CString strManual = _T("manual"), strAuto = _T("auto");
+        long valRangeMin, valRangeMax, valRangeDelta, valDefault, valRangeFlag;
+        long val, valFlag;
+
+
+        hr = pI->getRange_Exposure(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_Exposure(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("Exposure"), CString(strVal)));
+
+        hr = pI->getRange_ExposureRelative(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_ExposureRelative(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("ExposureRelative"), CString(strVal)));
+
+
+        hr = pI->get_FocalLengths(&val, &valRangeMin, &valRangeMax);
+        strVal.Format(_T("%d [%d-%d]"),val, valRangeMin, valRangeMax);
+        group->AddItem(new GraphStudio::PropItem(_T("FocalLengths"), CString(strVal)));
+
+
+        hr = pI->getRange_Focus(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_Focus(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("Focus"), CString(strVal)));
+
+        hr = pI->getRange_FocusRelative(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_FocusRelative(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("FocusRelative"), CString(strVal)));
+
+
+        hr = pI->getRange_Roll(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_Roll(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("Roll"), CString(strVal)));
+
+        hr = pI->getRange_RollRelative(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_RollRelative(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("RollRelative"), CString(strVal)));
+
+
+        hr = pI->getRange_Iris(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_Iris(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("Iris"), CString(strVal)));
+
+        hr = pI->getRange_IrisRelative(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_IrisRelative(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("IrisRelative"), CString(strVal)));
+
+
+
+        hr = pI->getRange_Pan(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_Pan(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("Pan"), CString(strVal)));
+
+        hr = pI->getRange_PanRelative(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_PanRelative(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("PanRelative"), CString(strVal)));
+
+
+        hr = pI->getRange_Tilt(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_Tilt(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("Tilt"), CString(strVal)));
+
+        hr = pI->getRange_TiltRelative(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_TiltRelative(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("TiltRelative"), CString(strVal)));
+
+
+        hr = pI->getRange_Roll(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_Roll(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("Roll"), CString(strVal)));
+
+        hr = pI->getRange_RollRelative(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_RollRelative(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("RollRelative"), CString(strVal)));
+
+
+        hr = pI->getRange_Zoom(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_Zoom(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("Zoom"), CString(strVal)));
+
+        hr = pI->getRange_ZoomRelative(&valRangeMin, &valRangeMax, &valRangeDelta, &valDefault, &valRangeFlag);
+        hr = pI->get_ZoomRelative(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strRangeFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d [%d-%d (%d) %s] %s"),val, valRangeMin, valRangeMax, valDefault, strRangeFlag, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("ZoomRelative"), CString(strVal)));
+
+
+        hr = pI->get_PrivacyMode(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d %s"),val, strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("PrivacyMode"), CString(strVal)));
+
+        hr = pI->get_ScanMode(&val, &valFlag);
+        strFlag = valFlag == CameraControl_Flags_Auto ? strAuto : strManual;
+        strVal.Format(_T("%d (%s) %s"),val, val ? _T("Progressive") : _T("Interlaced"), strFlag);
+        group->AddItem(new GraphStudio::PropItem(_T("ScanMode"), CString(strVal)));
+    }
+}
+
+void GetInterfaceInfo_IKsTopologyInfo(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IKsTopologyInfo> pItopo = pUnk;
+    if(pItopo)
+    {
+        DWORD numNodes=0;
+        HRESULT hr = pItopo->get_NumNodes(&numNodes);
+        if(SUCCEEDED(hr))
+        {
+
+            for(int i = 0; i<numNodes; i++)
+            {
+                GUID nodeGuid;
+                pItopo->get_NodeType(i, &nodeGuid);
+                if(IsEqualGUID(nodeGuid, KSNODETYPE_VIDEO_CAMERA_TERMINAL))
+                {
+                    ICameraControl* pCc = NULL;
+                    pItopo->CreateNodeInstance(i, __uuidof(ICameraControl), (void**)&pCc);
+                    if(pCc)
+                    {
+                        GraphStudio::PropItem *groupCc = group->AddItem(new GraphStudio::PropItem(_T("ICameraControl")));
+                        GetInterfaceInfo_ICameraControl(groupCc, pCc);
+                        pCc->Release();
+                    }
+                }
+            }
+        }
+    }
+}
+
 /*****************************************************************************************
 * known Interfaces to test
 ******************************************************************************************/
@@ -694,7 +878,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{B8E8BD60-0BFE-11D0-AF91-00AA00B67A42}"), TEXT("IIPDVDec"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390136.aspx")),
     CInterfaceInfo(TEXT("{B61178D1-A2D9-11CF-9E53-00AA00A216A1}"), TEXT("IKsPin"), TEXT("KsProxy.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390142.aspx")),
     CInterfaceInfo(TEXT("{31EFAC30-515C-11D0-A9AA-00AA0061BE93}"), TEXT("IKsPropertySet"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390144.aspx")),
-    CInterfaceInfo(TEXT("{720D4AC0-7533-11D0-A5D6-28DB04C10000}"), TEXT("IKsTopologyInfo"), TEXT("ks.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390148.aspx")),
+    CInterfaceInfo(TEXT("{720D4AC0-7533-11D0-A5D6-28DB04C10000}"), TEXT("IKsTopologyInfo"), TEXT("ks.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390148.aspx"), GetInterfaceInfo_IKsTopologyInfo),
     CInterfaceInfo(TEXT("{B874C8BA-0FA2-11D3-9D8E-00C04F72D980}"), TEXT("ILanguageComponentType"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{286D7F89-760C-4F89-80C4-66841D2507AA}"), TEXT("ILocator"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{59EFF8B9-938C-4A26-82F2-95CB84CDC837}"), TEXT("IMediaBuffer"), TEXT("mediaobj.h"), TEXT("")),
@@ -871,6 +1055,8 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{04BBD195-0E2D-4593-9BD5-4F908BC33CF5}"), TEXT("IScanningTunerEx"), TEXT("tuner.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd694869.aspx")),
     CInterfaceInfo(TEXT("{ed3e0c66-18c8-4ea6-9300-f6841fdd35dc}"), TEXT("ITunerCapEx"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{919F24C5-7B14-42ac-A4B0-2AE08DAF00AC}"), TEXT("IPSITables"), TEXT("mpeg2psiparser.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd694840.aspx")),
+    
+    CInterfaceInfo(TEXT("{2BA1785D-4D1B-44EF-85E8-C7F1D3F20184}"), TEXT("ICameraControl"), TEXT("vidcap.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376298.aspx"), GetInterfaceInfo_ICameraControl)
 };
 const UINT CInterfaceScanner::m_countKnownInterfaces = sizeof(m_knownInterfaces) / sizeof(m_knownInterfaces[0]);
 
