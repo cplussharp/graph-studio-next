@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include <asferr.h>
 #include <nserror.h>
+#include <uuids.h>
 
 // from dxva2api.h
 #ifndef DXVA2_API_DEFINED
@@ -37,6 +38,8 @@ namespace GraphStudio
 		KNOWN(MEDIATYPE_AnalogVideo),
 		KNOWN(MEDIATYPE_Audio),
 		KNOWN(MEDIATYPE_AUXLine21Data),
+        KNOWN(MEDIATYPE_AUXTeletextPage),
+        KNOWN(MEDIATYPE_CC_CONTAINER),
 		KNOWN(MEDIATYPE_DTVCCData),
 		KNOWN(MEDIATYPE_DVD_ENCRYPTED_PACK),
 		KNOWN(MEDIATYPE_DVD_NAVIGATION),
@@ -604,6 +607,11 @@ namespace GraphStudio
         KNOWN(DXVA2_VideoProcProgressiveDevice),
         KNOWN(DXVA2_VideoProcBobDevice),        
         KNOWN(DXVA2_VideoProcSoftwareDevice),   
+
+        KNOWN(MEDIASUBTYPE_DVB_SUBTITLES),
+        KNOWN(MEDIASUBTYPE_ISDB_CAPTIONS),
+        KNOWN(MEDIASUBTYPE_ISDB_SUPERIMPOSE),
+        
 	};
 	const int KnownGuidCount = sizeof(KnownGuidList) / sizeof(KnownGuidList[0]);
 
