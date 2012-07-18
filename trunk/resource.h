@@ -51,6 +51,7 @@
 #define IDD_DIALOG_LOOKUP               171
 #define IDD_PROPPAGE_STREAMBUFFERSINK   172
 #define IDD_DIALOG_SBECONFIG            173
+#define IDD_DIALOG_BLACKLIST            174
 #define IDC_COMBO_CATEGORIES            1001
 #define IDC_LIST_FILTERS                1002
 #define IDC_COMBO_MERIT                 1003
@@ -117,6 +118,7 @@
 #define IDC_EDIT_SRC_TOP                1031
 #define IDC_EDIT_SEARCH                 1031
 #define IDC_EDIT_DIR                    1031
+#define IDC_EDIT_BLACKLIST_ENTRY        1031
 #define IDC_EDIT_DST_TOP                1032
 #define IDC_TREE1                       1033
 #define IDC_TREE                        1033
@@ -136,7 +138,10 @@
 #define IDC_BUTTON_ADD                  1049
 #define IDC_BUTTON_REMOVE               1050
 #define IDC_STATIC_DESC                 1051
+#define IDC_BUTTON_EXPORT               1051
 #define IDC_STATIC_VERSION              1052
+#define IDC_BUTTON_REMOVE3              1052
+#define IDC_BUTTON_IMPORT               1052
 #define IDC_STATIC_IRATE                1053
 #define IDC_STATIC_PRATE                1054
 #define IDC_STATIC_QUALITY              1055
@@ -198,6 +203,7 @@
 #define IDC_SPIN_FILECOUNT_MIN          1114
 #define IDC_EDIT_FILECOUNT_MAX          1115
 #define IDC_SPIN_FILECOUNT_MAX          1116
+#define IDC_LIST_BLACKLIST              1116
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -294,15 +300,17 @@
 #define ID_OPTIONS_CONFIGURESBE         32871
 #define ID_OPTIONS_SHOWGUIDOFKNOWNTYPES 32872
 #define ID_COMBO_RATE                   32873
+#define ID_FILTERS_MA                   32874
+#define ID_FILTERS_MANAGEBLACKLIST      32875
 #define ID_MPEG2DEMUX_CREATE_PSI_PIN    32880
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        172
-#define _APS_NEXT_COMMAND_VALUE         32874
-#define _APS_NEXT_CONTROL_VALUE         1116
+#define _APS_NEXT_RESOURCE_VALUE        175
+#define _APS_NEXT_COMMAND_VALUE         32876
+#define _APS_NEXT_CONTROL_VALUE         1117
 #define _APS_NEXT_SYMED_VALUE           102
 #endif
 #endif
