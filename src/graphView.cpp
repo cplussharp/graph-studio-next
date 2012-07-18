@@ -101,6 +101,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_VIEW_DECREASEZOOMLEVEL, &CGraphView::OnViewDecreasezoomlevel)
 	ON_COMMAND(ID_VIEW_INCREASEZOOMLEVEL, &CGraphView::OnViewIncreasezoomlevel)
 	ON_COMMAND(ID_FILTERS_MANAGEFAVORITES, &CGraphView::OnFiltersManageFavorites)
+    ON_COMMAND(ID_FILTERS_MANAGEBLACKLIST, &CGraphView::OnFiltersManageBlacklist)
 	ON_COMMAND(ID_FILE_OPENFROMXML, &CGraphView::OnFileOpenfromxml)
 	ON_COMMAND(ID_OPTIONS_DISPLAYASFILENAME, &CGraphView::OnOptionsDisplayFileName)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_DISPLAYASFILENAME, &CGraphView::OnUpdateOptionsDisplayFileName)
@@ -131,6 +132,7 @@ CGraphView::CGraphView()
 	form_textinfo = NULL;
 	form_schedule = NULL;
 	form_favorites = NULL;
+    form_blacklist = NULL;
 	form_progress = NULL;
 	form_volume = NULL;
 	form_seek = NULL;
@@ -154,6 +156,7 @@ CGraphView::~CGraphView()
 	if (form_seek) { form_seek->DestroyWindow(); delete form_seek; }
 	if (form_textinfo) { form_textinfo->DestroyWindow(); delete form_textinfo; }
 	if (form_favorites) { form_favorites->DestroyWindow(); delete form_favorites; }
+    if (form_blacklist) { form_blacklist->DestroyWindow(); delete form_blacklist; }
     if (form_guidlookup) { form_guidlookup->DestroyWindow(); delete form_guidlookup; }
     if (form_hresultlookup) { form_hresultlookup->DestroyWindow(); delete form_hresultlookup; }
 }
@@ -1786,6 +1789,16 @@ void CGraphView::OnFiltersDouble()
 void CGraphView::OnFiltersManageFavorites()
 {
 	form_favorites->ShowWindow(SW_SHOW);
+}
+
+void CGraphView::OnFiltersManageBlacklist()
+{
+    if(!form_blacklist)
+    {
+        form_blacklist = new CBlacklistForm(NULL, FALSE);
+		form_blacklist->DoCreateDialog();
+	}
+	form_blacklist->ShowWindow(SW_SHOW);
 }
 
 void CGraphView::OnOptionsDisplayFileName()

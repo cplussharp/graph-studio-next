@@ -226,6 +226,8 @@
     <ResourceCompile Include="graphstudionext.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\BlacklistForm.h" />
+    <ClInclude Include="src\FilterBlacklist.h" />
     <ClInclude Include="interfaces\monofilters.h" />
     <ClInclude Include="src\display_graph.h" />
     <ClInclude Include="src\display_view.h" />
@@ -290,6 +292,8 @@
     <ClInclude Include="src\filters\dump\filter_dump.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\BlacklistForm.cpp" />
+    <ClCompile Include="src\FilterBlacklist.cpp" />
     <ClCompile Include="src\display_graph.cpp" />
     <ClCompile Include="src\display_view.cpp" />
     <ClCompile Include="src\DMOQualCtrlPage.cpp" />

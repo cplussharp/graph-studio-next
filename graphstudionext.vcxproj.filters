@@ -281,6 +281,12 @@
     <ClInclude Include="src\SbeConfigForm.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="src\BlacklistForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FilterBlacklist.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -456,6 +462,12 @@
     </ClCompile>
     <ClCompile Include="src\SbeConfigForm.cpp">
       <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BlacklistForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FilterBlacklist.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

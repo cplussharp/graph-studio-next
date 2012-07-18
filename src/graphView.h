@@ -34,6 +34,7 @@ public:
 	CScheduleForm				*form_schedule;
 	CTextInfoForm				*form_textinfo;
 	CFavoritesForm				*form_favorites;
+    CBlacklistForm				*form_blacklist;
 	CProgressForm				*form_progress;
 	CVolumeBarForm				*form_volume;
 	CDecPerformanceForm			*form_dec_performance;
@@ -190,6 +191,7 @@ public:
 	void OnViewDecreasezoomlevel();
 	void OnViewIncreasezoomlevel();
 	void OnFiltersManageFavorites();
+    void OnFiltersManageBlacklist();
 	void OnFileOpenfromxml();
 	void OnOptionsDisplayFileName();
 	void OnUpdateOptionsDisplayFileName(CCmdUI *pCmdUI);
