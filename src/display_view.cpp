@@ -1095,7 +1095,10 @@ namespace GraphStudio
 	}
 
 
-
+    ULONG DisplayView::GetGestureStatus(CPoint ptTouch)
+    {
+        return 0;
+    }
 };
 
 
