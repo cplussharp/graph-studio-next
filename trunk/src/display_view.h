@@ -89,6 +89,9 @@ namespace GraphStudio
 		void UpdateScrolling();
 		void RepaintBackbuffer();
 
+        // To get touch input
+        virtual ULONG GetGestureStatus(CPoint ptTouch);
+
 		// to be overriden
 		virtual void OnDisplayPropertyPage(IUnknown *object, IUnknown *filter, CString title);
 		virtual void OnFilterRemoved(DisplayGraph *sender, Filter *filter);
