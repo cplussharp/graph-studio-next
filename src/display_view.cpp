@@ -283,10 +283,83 @@ namespace GraphStudio
 			Pin *p1 = graph.FindPinByPos(new_connection_start);
 			Pin *p2 = graph.FindPinByPos(new_connection_end);
 
-			int ret = graph.ConnectPins(p1, p2);
-			if (ret < -1) {
-				DSUtil::ShowError(ret);
-			}
+            if(p1 != NULL)
+            {
+                if(p2 != NULL)
+                {
+                    if(p1->connected || p2->connected)
+                    {
+                        MessageBox(_T("Can't connect to/from already connected pins."), _T("Error"), MB_OK | MB_ICONERROR);
+                    }
+                    else if(p1->filter == p2->filter)
+                    {
+                        MessageBox(_T("Can't connect pins on the same filter."), _T("Error"), MB_OK | MB_ICONERROR);
+                    }
+                    else if(p1->dir == p2->dir)
+                    {
+                        MessageBox(_T("Can't connect pins with the same direction."), _T("Error"), MB_OK | MB_ICONERROR);
+                    }
+                    else
+                    {
+			            int ret = graph.ConnectPins(p1, p2);
+			            if (ret < -1) DSUtil::ShowError(ret);
+                    }
+                }
+                else
+                {
+                    Filter *f2 = graph.FindFilterByPos(new_connection_end);
+                    if(f2 != NULL)
+                    {
+                        bool nopins = true;
+                        bool nofreepins = true;
+                        if(p1->dir == PINDIR_OUTPUT)
+                        {
+                            for (int i=0; i<f2->input_pins.GetCount(); i++)
+                            {
+                                nopins = false;
+                                if(!f2->input_pins[i]->connected)
+                                {
+                                    nofreepins = false;
+                                    p2 = f2->input_pins[i];
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (int i=0; i<f2->output_pins.GetCount(); i++)
+                            {
+                                nopins=false;
+                                if(!f2->output_pins[i]->connected)
+                                {
+                                    nofreepins = false;
+                                    p2 = f2->output_pins[i];
+                                    break;
+                                }
+                            }
+                        }
+
+                        if(nopins)
+                        {
+                            if(p1->dir == PINDIR_INPUT)
+                                MessageBox(_T("No output pins on the filter to connect to."), _T("Error"), MB_OK | MB_ICONERROR);
+                            else
+                                MessageBox(_T("No input pins on the filter to connect to."), _T("Error"), MB_OK | MB_ICONERROR);
+                        }
+                        else if(nofreepins)
+                        {
+                            MessageBox(_T("No free pins on the filter to connect to."), _T("Error"), MB_OK | MB_ICONERROR);
+                        }
+                        else
+                        {
+                            int ret = graph.ConnectPins(p1, p2);
+			                if (ret < -1) {
+				                DSUtil::ShowError(ret);
+			                }
+                        }
+                    }
+                }
+            }
 		}
 		new_connection_start = CPoint(-100,-100);
 		new_connection_end = CPoint(-101, -101);

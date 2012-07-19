@@ -960,7 +960,7 @@ BEGIN
         MENUITEM "Duplicate Selected Filters\tCtrl+D", ID_FILTERS_DOUBLESELECTEDFILTERS
         MENUITEM SEPARATOR
         MENUITEM "Manage Favorites ...",        ID_FILTERS_MANAGEFAVORITES
-        MENUITEM "Manage Blacklist...",         ID_FILTERS_MANAGEBLACKLIST
+        MENUITEM "Manage Blacklist ...",        ID_FILTERS_MANAGEBLACKLIST
     END
     POPUP "Options"
     BEGIN

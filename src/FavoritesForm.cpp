@@ -165,8 +165,8 @@ void CFavoritesForm::UpdateFavoriteMenu()
 	CMenu	*filters_menu	= main_menu->GetSubMenu(3);
 
 	// remove all
-	while (filters_menu->GetMenuItemCount() > 3) {
-		filters_menu->DeleteMenu(filters_menu->GetMenuItemCount() - 2, MF_BYPOSITION);
+	while (filters_menu->GetMenuItemCount() > 4) {
+		filters_menu->DeleteMenu(filters_menu->GetMenuItemCount() - 3, MF_BYPOSITION);
 	}
 
 	GraphStudio::Favorites	*favorites = GraphStudio::Favorites::GetInstance();
@@ -176,7 +176,7 @@ void CFavoritesForm::UpdateFavoriteMenu()
 
 	if (cnt > 0) {
 
-		int		offset = filters_menu->GetMenuItemCount() - 1;
+		int		offset = filters_menu->GetMenuItemCount() - 2;
 		int		i, id;
 		int		c=0;
 		
