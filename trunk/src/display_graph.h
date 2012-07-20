@@ -85,7 +85,7 @@ namespace GraphStudio
 
 		// display as file name
 		bool			display_file_name;
-		bool			direct_connect;
+		bool			direct_connect;								// if true connect pins directly (not using intelligent connect)
 		bool			exact_match_mode;
 		bool			abort_timeout;								// abort rendering operation after 10 seconds
 
@@ -390,7 +390,7 @@ namespace GraphStudio
 		void LoadPeers();
 		void DeleteSelected();
 		void DoubleSelected();
-		int ConnectPins(Pin *p1, Pin *p2);
+		int ConnectPins(Pin *p1, Pin *p2, bool chooseMediaType);
 
 		// Clock manipulation
 		void SetClock(bool default_clock, IReferenceClock *new_clock);

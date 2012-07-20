@@ -244,6 +244,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="src\MediaInfo.h" />
     <ClInclude Include="src\MediaInfoDLL.h" />
+    <ClInclude Include="src\MediaTypeSelectForm.h" />
     <ClInclude Include="src\moreuuids.h" />
     <ClInclude Include="src\SbeConfigForm.h" />
     <ClInclude Include="src\SbeSinkPage.h" />
@@ -320,6 +321,7 @@
     <ClCompile Include="src\FiltersForm.cpp" />
     <ClCompile Include="src\GraphConstructionForm.cpp" />
     <ClCompile Include="src\MediaInfo.cpp" />
+    <ClCompile Include="src\MediaTypeSelectForm.cpp" />
     <ClCompile Include="src\MeritForm.cpp" />
     <ClCompile Include="src\NewGroupForm.cpp" />
     <ClCompile Include="src\ProgressForm.cpp" />
