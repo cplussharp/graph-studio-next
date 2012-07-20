@@ -281,6 +281,9 @@
     <ClInclude Include="src\SbeConfigForm.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="src\MediaTypeSelectForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
     <ClInclude Include="src\BlacklistForm.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
@@ -461,6 +464,9 @@
       <Filter>Property Pages</Filter>
     </ClCompile>
     <ClCompile Include="src\SbeConfigForm.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MediaTypeSelectForm.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
     <ClCompile Include="src\BlacklistForm.cpp">

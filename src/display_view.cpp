@@ -279,6 +279,8 @@ namespace GraphStudio
 			}
 		}
 
+		const bool chooseMediaType = (nFlags&MK_SHIFT) != 0;		// only applies in direct connection mode
+
 		if (drag_mode == DisplayView::DRAG_CONNECTION) {
 			Pin *p1 = graph.FindPinByPos(new_connection_start);
 			Pin *p2 = graph.FindPinByPos(new_connection_end);
@@ -301,7 +303,7 @@ namespace GraphStudio
                     }
                     else
                     {
-			            int ret = graph.ConnectPins(p1, p2);
+			            int ret = graph.ConnectPins(p1, p2, chooseMediaType);
 			            if (ret < -1) DSUtil::ShowError(ret);
                     }
                 }
@@ -352,11 +354,11 @@ namespace GraphStudio
                         }
                         else
                         {
-                            int ret = graph.ConnectPins(p1, p2);
-			                if (ret < -1) {
-				                DSUtil::ShowError(ret);
-			                }
-                        }
+                            int ret = graph.ConnectPins(p1, p2, chooseMediaType);
+			if (ret < -1) {
+				DSUtil::ShowError(ret);
+			}
+		}
                     }
                 }
             }

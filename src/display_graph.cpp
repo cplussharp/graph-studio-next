@@ -10,6 +10,8 @@
 #include <atlbase.h>
 #include <atlpath.h>
 
+#include "MediaTypeSelectForm.h"
+
 #pragma warning(disable: 4244)			// DWORD -> BYTE warning
 
 namespace GraphStudio
@@ -1182,7 +1184,7 @@ namespace GraphStudio
 		}
 	}
 
-	int DisplayGraph::ConnectPins(Pin *p1, Pin *p2)
+	int DisplayGraph::ConnectPins(Pin *p1, Pin *p2, bool chooseMediaType)
 	{
 		// verify a few conditions first
 		if (!p1 || !p2) return -1;								// need 2 pins
@@ -1197,13 +1199,34 @@ namespace GraphStudio
 			p2 = temp;
 		}
 
-		HRESULT hr;
+		HRESULT hr = S_OK;
 
 		params->MarkRender(true);
-		if (params->direct_connect) {
-			hr = gb->ConnectDirect(p1->pin, p2->pin, NULL);
-		} else {
+		if (!params->direct_connect) {
 			hr = gb->Connect(p1->pin, p2->pin);
+		} else {
+			DSUtil::MediaTypes outputMediaTypes;
+			CMediaType *connectionMediaType = NULL;	// refers to one of outputMediaTypes or is NULL
+
+			bool cancelled = false;
+			if (chooseMediaType) {
+				hr = DSUtil::EnumMediaTypes(p1->pin, outputMediaTypes);
+
+				if (SUCCEEDED(hr)) {
+					CMediaTypeSelectForm dlg;
+					dlg.SetMediaTypes(outputMediaTypes);
+					if (IDOK != dlg.DoModal()) {
+						cancelled = true;
+					} else {
+						const int selectedIndex = dlg.SelectedMediaTypeIndex();
+						if (selectedIndex >= 0 && selectedIndex < outputMediaTypes.GetSize()) {
+							connectionMediaType = &(outputMediaTypes[selectedIndex]);
+						}
+					}
+				}
+			}
+			if (!cancelled && SUCCEEDED(hr))
+				hr = gb->ConnectDirect(p1->pin, p2->pin, connectionMediaType);
 		}
 		params->MarkRender(false);
 		if (callback) callback->OnRenderFinished();

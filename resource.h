@@ -52,6 +52,7 @@
 #define IDD_PROPPAGE_STREAMBUFFERSINK   172
 #define IDD_DIALOG_SBECONFIG            173
 #define IDD_DIALOG_BLACKLIST            174
+#define IDD_DIALOG_MEDIA_TYPE_SELECT    175
 #define IDC_COMBO_CATEGORIES            1001
 #define IDC_LIST_FILTERS                1002
 #define IDC_COMBO_MERIT                 1003
@@ -203,7 +204,8 @@
 #define IDC_SPIN_FILECOUNT_MIN          1114
 #define IDC_EDIT_FILECOUNT_MAX          1115
 #define IDC_SPIN_FILECOUNT_MAX          1116
-#define IDC_LIST_BLACKLIST              1116
+#define IDC_LIST_MEDIATYPES             1117
+#define IDC_LIST_BLACKLIST              1118
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -308,9 +310,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        175
+#define _APS_NEXT_RESOURCE_VALUE        176
 #define _APS_NEXT_COMMAND_VALUE         32876
-#define _APS_NEXT_CONTROL_VALUE         1117
+#define _APS_NEXT_CONTROL_VALUE         1119
 #define _APS_NEXT_SYMED_VALUE           102
 #endif
 #endif
