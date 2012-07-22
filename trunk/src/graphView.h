@@ -195,10 +195,14 @@ public:
 	void OnFileOpenfromxml();
 	void OnOptionsDisplayFileName();
 	void OnUpdateOptionsDisplayFileName(CCmdUI *pCmdUI);
-	void OnDirectConnectClick();
-	void OnUpdateDirectConnect(CCmdUI *pCmdUI);
-	void OnOptionsDirectConnectClick();
-	void OnUpdateOptionsDirectConnect(CCmdUI *pCmdUI);
+	
+    void OnConnectModeIntelligentClick();
+	void OnUpdateConnectModeIntelligent(CCmdUI *pCmdUI);
+    void OnConnectModeDirectClick();
+	void OnUpdateConnectModeDirect(CCmdUI *pCmdUI);
+    void OnConnectModeDirectWmtClick();
+	void OnUpdateConnectModeDirectWmt(CCmdUI *pCmdUI);
+
 	void OnOptionsExactMatchClick();
 	void OnUpdateOptionsExactMatch(CCmdUI *pCmdUI);
     void OnOptionsUseMediaInfoClick();

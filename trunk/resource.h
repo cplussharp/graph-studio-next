@@ -304,6 +304,8 @@
 #define ID_COMBO_RATE                   32873
 #define ID_FILTERS_MA                   32874
 #define ID_FILTERS_MANAGEBLACKLIST      32875
+#define ID_BUTTON_INTELLIGENT           32876
+#define ID_BUTTON_DIRECT_WITHMT         32877
 #define ID_MPEG2DEMUX_CREATE_PSI_PIN    32880
 
 // Next default values for new objects
@@ -311,7 +313,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        176
-#define _APS_NEXT_COMMAND_VALUE         32876
+#define _APS_NEXT_COMMAND_VALUE         32878
 #define _APS_NEXT_CONTROL_VALUE         1119
 #define _APS_NEXT_SYMED_VALUE           102
 #endif

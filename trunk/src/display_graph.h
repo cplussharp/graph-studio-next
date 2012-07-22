@@ -85,7 +85,7 @@ namespace GraphStudio
 
 		// display as file name
 		bool			display_file_name;
-		bool			direct_connect;								// if true connect pins directly (not using intelligent connect)
+		int			    connect_mode;								// 0=itelligent|1=direct|2=directWithMT connect pins
 		bool			exact_match_mode;
 		bool			abort_timeout;								// abort rendering operation after 10 seconds
 

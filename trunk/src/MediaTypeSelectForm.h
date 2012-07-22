@@ -10,10 +10,12 @@ class CMediaTypeSelectForm : public CDialog
 private:
 	DECLARE_DYNAMIC(CMediaTypeSelectForm)
 
+    GraphStudio::TitleBar	m_title;
+
 	DSUtil::MediaTypes	media_types;
 	int					selected_media_type_index;		// selected index within in media_types or out of range if none selected
 
-	void InitializeList();
+	virtual  BOOL OnInitDialog();
 	int GetSelectedMediaType();
 
 public:
