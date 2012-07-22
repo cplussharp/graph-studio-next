@@ -22,43 +22,76 @@ CMediaTypeSelectForm::~CMediaTypeSelectForm()
 {
 }
 
-void CMediaTypeSelectForm::InitializeList()
+BOOL CMediaTypeSelectForm::OnInitDialog()
 {
+    CDialog::OnInitDialog();
+
+    // prepare titlebar
+	m_title.ModifyStyle(0, WS_CLIPCHILDREN);
+	m_title.ModifyStyleEx(0, WS_EX_CONTROLPARENT);
+
 	enum Columns			// Column order in list control
 	{
 		SUB_TYPE = 0,
 		FORMAT_TYPE,
-		MAJOR_TYPE
+		FORMAT_DETAILS,
+        MAJOR_TYPE,
 	};
 
 	CRect clientRect;
 	media_types_list.GetClientRect(&clientRect);
-	const int columnWidth = (clientRect.Width() - GetSystemMetrics(SM_CXVSCROLL)) / 3;
+	const int columnWidth = (clientRect.Width() - GetSystemMetrics(SM_CXVSCROLL)) / 4;
 	media_types_list.SetView(LV_VIEW_DETAILS);
+    media_types_list.SetExtendedStyle( media_types_list.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT );
+    media_types_list.InsertColumn(SUB_TYPE,		_T("Sub Type"),		LVCFMT_LEFT, columnWidth, SUB_TYPE); 
 	media_types_list.InsertColumn(FORMAT_TYPE,	_T("Format Type"),	LVCFMT_LEFT, columnWidth, FORMAT_TYPE); 
-	media_types_list.InsertColumn(MAJOR_TYPE,	_T("Major Type"),	LVCFMT_LEFT, columnWidth, MAJOR_TYPE); 
-	media_types_list.InsertColumn(SUB_TYPE,		_T("Sub Type"),		LVCFMT_LEFT, columnWidth, SUB_TYPE); 
+    media_types_list.InsertColumn(FORMAT_DETAILS,	_T("Format Details"),	LVCFMT_LEFT, columnWidth, FORMAT_DETAILS); 
+    media_types_list.InsertColumn(MAJOR_TYPE,	_T("Major Type"),	LVCFMT_LEFT, columnWidth, MAJOR_TYPE); 
 
 	// First entry is <Any> Media Type
 	LPCTSTR any = _T("<Any>");
 	media_types_list.InsertItem(0, any);
 	media_types_list.SetItemText(0, FORMAT_TYPE, any);
+    media_types_list.SetItemText(0, FORMAT_DETAILS, any);
 	media_types_list.SetItemText(0, MAJOR_TYPE, any);
 	media_types_list.SetItemData(0, -1);
 
 	for (size_t index=0; index<media_types.GetCount(); index++) {
 		const CMediaType& mediaType = media_types[index];
-		CString majorType, subType, formatType;
+		CString majorType, subType, formatType, formatDetails;
 
 		GraphStudio::NameGuid(mediaType.majortype,	majorType,	CgraphstudioApp::g_showGuidsOfKnownTypes);
 		GraphStudio::NameGuid(mediaType.subtype,	subType,	CgraphstudioApp::g_showGuidsOfKnownTypes);
 		GraphStudio::NameGuid(mediaType.formattype, formatType, CgraphstudioApp::g_showGuidsOfKnownTypes);
 
+        // get formatDetails (like '640x480' or '2 channels 44khz')
+        if (mediaType.pbFormat != NULL)
+        {
+            BITMAPINFOHEADER* bmi = NULL;
+            if(mediaType.formattype == FORMAT_VideoInfo)
+                bmi = &((VIDEOINFOHEADER*)mediaType.pbFormat)->bmiHeader;
+            else if(mediaType.formattype == FORMAT_VideoInfo2 || mediaType.formattype == FORMAT_MPEG2_VIDEO)
+                bmi = &((VIDEOINFOHEADER2*)mediaType.pbFormat)->bmiHeader;
+
+            if(bmi != NULL)
+                formatDetails.Format(_T("%4d x %4d"), bmi->biWidth, bmi->biHeight);
+            else if(mediaType.formattype == FORMAT_WaveFormatEx)
+            {
+                WAVEFORMATEX* wfx = (WAVEFORMATEX*)mediaType.pbFormat;
+                formatDetails.Format(_T("%dx %dHz with %dBits"), wfx->nChannels, wfx->nSamplesPerSec, wfx->wBitsPerSample);
+            }
+        }
+
 		media_types_list.InsertItem(index+1, subType);
 		media_types_list.SetItemText(index+1, FORMAT_TYPE, formatType);
+        media_types_list.SetItemText(index+1, FORMAT_DETAILS, formatDetails);
 		media_types_list.SetItemText(index+1, MAJOR_TYPE, majorType);
 		media_types_list.SetItemData(index+1, index);
 	}
+
+    media_types_list.SetFocus();
+
+    return FALSE;
 }
 
 int CMediaTypeSelectForm::GetSelectedMediaType()
@@ -77,6 +110,7 @@ int CMediaTypeSelectForm::GetSelectedMediaType()
 void CMediaTypeSelectForm::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+    DDX_Control(pDX, IDC_TITLEBAR, m_title);
 	DDX_Control(pDX, IDC_LIST_MEDIATYPES, media_types_list);
 	DDX_Control(pDX, IDOK, ok_button);
 	DDX_Control(pDX, IDCANCEL, cancel_button);
@@ -86,9 +120,7 @@ void CMediaTypeSelectForm::DoDataExchange(CDataExchange* pDX)
 
 	if (pDX->m_bSaveAndValidate) {
 		selected_media_type_index = GetSelectedMediaType();
-	} else {
-		InitializeList();
-	}
+    }
 }
 
 BEGIN_MESSAGE_MAP(CMediaTypeSelectForm, CDialog)
@@ -116,12 +148,16 @@ void CMediaTypeSelectForm::OnSize(UINT nType, int cx, int cy)
 {
 	CDialog::OnSize(nType, cx, cy);
 
+    CRect		rc, rc2;
+	GetClientRect(&rc);
+    m_title.GetClientRect(&rc2);
+
 	CRect okRect;
 	ok_button.GetWindowRect(&okRect);
 	const int buttonXSpacing = okRect.Width() / 4;
 	const int buttonYSpacing = okRect.Height() / 2;
 
-	media_types_list.SetWindowPos(NULL, 0, 0, cx, cy - 2*okRect.Height(), SWP_SHOWWINDOW);
+	media_types_list.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height() - 2*okRect.Height(), SWP_SHOWWINDOW);
 
 	const int buttonY = cy - okRect.Height() - buttonYSpacing;
 	int buttonX = cx - buttonXSpacing - okRect.Width();
@@ -129,6 +165,9 @@ void CMediaTypeSelectForm::OnSize(UINT nType, int cx, int cy)
 
 	buttonX -= buttonXSpacing + okRect.Width();
 	ok_button.SetWindowPos(NULL, buttonX, buttonY, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE);
+
+    m_title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW);
+	m_title.Invalidate();
 }
 
 

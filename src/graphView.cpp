@@ -33,11 +33,12 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_BUTTON_STOP, &CGraphView::OnStopClick)
 	ON_COMMAND(ID_BUTTON_STEP, &CGraphView::OnFrameStepClick)
 	ON_COMMAND(ID_BUTTON_PLAYPAUSE, &CGraphView::OnPlayPauseToggleClick)
-	ON_COMMAND(ID_BUTTON_DIRECT, &CGraphView::OnDirectConnectClick)
+    ON_COMMAND(ID_BUTTON_INTELLIGENT, &CGraphView::OnConnectModeIntelligentClick)
+	ON_COMMAND(ID_BUTTON_DIRECT, &CGraphView::OnConnectModeDirectClick)
+    ON_COMMAND(ID_BUTTON_DIRECT_WITHMT, &CGraphView::OnConnectModeDirectWmtClick)
 	ON_COMMAND(ID_BUTTON_REFRESH, &CGraphView::OnRefreshFilters)
 	ON_COMMAND(ID_BUTTON_SEEK, &CGraphView::OnSeekClick)
     ON_COMMAND(ID_BUTTON_ADDFILTER, &CGraphView::OnGraphInsertFilter)
-	ON_COMMAND(ID_OPTIONS_DIRECT, &CGraphView::OnOptionsDirectConnectClick)
 	ON_COMMAND(ID_OPTIONS_EXACTMATCH, &CGraphView::OnOptionsExactMatchClick)
     ON_COMMAND(ID_OPTIONS_USEMEDIAINFO, &CGraphView::OnOptionsUseMediaInfoClick)
     ON_COMMAND(ID_OPTIONS_SHOWGUIDOFKNOWNTYPES, &CGraphView::OnOptionsShowGuidOfKnownTypesClick)
@@ -70,8 +71,9 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_WM_DROPFILES()
 
 	ON_UPDATE_COMMAND_UI(ID_GRAPH_USECLOCK, &CGraphView::OnUpdateUseClock)
-	ON_UPDATE_COMMAND_UI(ID_BUTTON_DIRECT, &CGraphView::OnUpdateDirectConnect)
-	ON_UPDATE_COMMAND_UI(ID_OPTIONS_DIRECT, &CGraphView::OnUpdateOptionsDirectConnect)
+    ON_UPDATE_COMMAND_UI(ID_BUTTON_INTELLIGENT, &CGraphView::OnUpdateConnectModeIntelligent)
+	ON_UPDATE_COMMAND_UI(ID_BUTTON_DIRECT, &CGraphView::OnUpdateConnectModeDirect)
+    ON_UPDATE_COMMAND_UI(ID_BUTTON_DIRECT_WITHMT, &CGraphView::OnUpdateConnectModeDirectWmt)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_EXACTMATCH, &CGraphView::OnUpdateOptionsExactMatch)
     ON_UPDATE_COMMAND_UI(ID_OPTIONS_USEMEDIAINFO, &CGraphView::OnUpdateOptionsUseMediaInfo)
     ON_UPDATE_COMMAND_UI(ID_OPTIONS_SHOWGUIDOFKNOWNTYPES, &CGraphView::OnUpdateShowGuidOfKnownTypes)
@@ -337,6 +339,11 @@ void CGraphView::OnInit()
 	render_params.preferred_video_renderer = def_vr;
 	render_params.video_renderers = &video_renderers;
 
+    int connectMode = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ConnectMode"), 0);
+    if(connectMode<0) connectMode = 0;
+    else if(connectMode>2) connectMode = 2;
+    render_params.connect_mode = connectMode;
+
     int showGuids = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowGuidsOfKnownTypes"), 1);
     CgraphstudioApp::g_showGuidsOfKnownTypes = showGuids != 0;
 
@@ -425,9 +432,9 @@ void CGraphView::UpdatePreferredVideoRenderersMenu()
 	CMenu	*mainmenu  = GetParentFrame()->GetMenu();
 	CMenu	*optionsmenu = mainmenu->GetSubMenu(4);
 
-	if (optionsmenu->GetMenuItemCount() > 10) {
-		optionsmenu->RemoveMenu(10, MF_BYPOSITION);
-		optionsmenu->RemoveMenu(10, MF_BYPOSITION);
+	if (optionsmenu->GetMenuItemCount() > 9) {
+		optionsmenu->RemoveMenu(9, MF_BYPOSITION);
+		optionsmenu->RemoveMenu(9, MF_BYPOSITION);
 	}
 
 	return ;
@@ -1815,27 +1822,40 @@ void CGraphView::OnUpdateOptionsDisplayFileName(CCmdUI *pCmdUI)
 	pCmdUI->SetCheck(render_params.display_file_name ? true : false);
 }
 
-void CGraphView::OnDirectConnectClick()
+
+void CGraphView::OnConnectModeIntelligentClick()
 {
-	// toggle
-	render_params.direct_connect = !render_params.direct_connect;
+	render_params.connect_mode = 0;
+    AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ConnectMode"), render_params.connect_mode);
 }
 
-void CGraphView::OnUpdateDirectConnect(CCmdUI *pCmdUI)
+void CGraphView::OnUpdateConnectModeIntelligent(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetRadio(render_params.direct_connect);
+	pCmdUI->SetRadio(render_params.connect_mode == 0);
 }
 
-void CGraphView::OnOptionsDirectConnectClick()
+void CGraphView::OnConnectModeDirectClick()
 {
-	// toggle
-	render_params.direct_connect = !render_params.direct_connect;
+	render_params.connect_mode = 1;
+	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ConnectMode"), render_params.connect_mode);
 }
 
-void CGraphView::OnUpdateOptionsDirectConnect(CCmdUI *pCmdUI)
+void CGraphView::OnUpdateConnectModeDirect(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(render_params.direct_connect);
+	pCmdUI->SetRadio(render_params.connect_mode == 1);
 }
+
+void CGraphView::OnConnectModeDirectWmtClick()
+{
+	render_params.connect_mode = 2;
+    AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ConnectMode"), render_params.connect_mode);
+}
+
+void CGraphView::OnUpdateConnectModeDirectWmt(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetRadio(render_params.connect_mode == 2);
+}
+
 
 void CGraphView::OnOptionsExactMatchClick()
 {

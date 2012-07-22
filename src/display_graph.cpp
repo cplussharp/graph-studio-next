@@ -1202,14 +1202,14 @@ namespace GraphStudio
 		HRESULT hr = S_OK;
 
 		params->MarkRender(true);
-		if (!params->direct_connect) {
+        bool cancelled = false;
+		if (params->connect_mode == 0) {
 			hr = gb->Connect(p1->pin, p2->pin);
 		} else {
 			DSUtil::MediaTypes outputMediaTypes;
 			CMediaType *connectionMediaType = NULL;	// refers to one of outputMediaTypes or is NULL
 
-			bool cancelled = false;
-			if (chooseMediaType) {
+            if (chooseMediaType || params->connect_mode == 2) {
 				hr = DSUtil::EnumMediaTypes(p1->pin, outputMediaTypes);
 
 				if (SUCCEEDED(hr)) {
@@ -1233,8 +1233,11 @@ namespace GraphStudio
 		
 		if (FAILED(hr)) return hr;
 
-		RefreshFilters();
-		SmartPlacement();
+        if (!cancelled)
+        {
+		    RefreshFilters();
+		    SmartPlacement();
+        }
 
 		return 0;
 	}
@@ -2599,7 +2602,7 @@ namespace GraphStudio
 		def_pin_text_size = 7;
 
 		display_file_name = true;
-		direct_connect = false;
+		connect_mode = 0;
 		exact_match_mode = false;
 		abort_timeout = true;
 
