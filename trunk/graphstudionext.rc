@@ -895,6 +895,7 @@ BEGIN
     BUTTON      ID_BUTTON_SEEK
     SEPARATOR
     BUTTON      ID_BUTTON_ADDFILTER
+    BUTTON      ID_BUTTON_REMOVE_CONNECTIONS
     SEPARATOR
     BUTTON      ID_COMBO_RATE
 END
@@ -1300,6 +1301,7 @@ BEGIN
     ID_COMBO_RATE           "Change Playback Rate"
     ID_BUTTON_INTELLIGENT   "Intelligent connection mode"
     ID_BUTTON_DIRECT_WITHMT "Direct connection with MediaType mode"
+    ID_BUTTON_REMOVE_CONNECTIONS "Remove all connections between filters"
 END
 
 #endif    // Englisch (USA) resources

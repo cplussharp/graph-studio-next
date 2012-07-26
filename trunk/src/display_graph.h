@@ -398,7 +398,7 @@ namespace GraphStudio
 
 		// rendering the graph
 		void Draw(CDC *dc);
-		void DrawArrow(CDC *dc, CPoint p1, CPoint p2);
+		void DrawArrow(CDC *dc, CPoint p1, CPoint p2, DWORD color = RGB(0,0,0), int nPenStyle = PS_SOLID);
 
 		// mouse interaction
 		Filter *FindFilterByPos(CPoint pt);
@@ -429,7 +429,7 @@ namespace GraphStudio
 
 	// helpers
 	bool LineHit(CPoint p1, CPoint p2, CPoint hit); 
-	void DoDrawArrow(CDC *dc, CPoint p1, CPoint p2, DWORD color);
+	void DoDrawArrow(CDC *dc, CPoint p1, CPoint p2, DWORD color, int nPenStyle = PS_SOLID);
 
 	// GUID helpers
 	bool NameGuid(GUID guid, CString &str, bool alsoAddGuid);

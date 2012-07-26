@@ -355,10 +355,10 @@ namespace GraphStudio
                         else
                         {
                             int ret = graph.ConnectPins(p1, p2, chooseMediaType);
-			if (ret < -1) {
-				DSUtil::ShowError(ret);
-			}
-		}
+			                if (ret < -1) {
+				                DSUtil::ShowError(ret);
+			                }
+		                }
                     }
                 }
             }
@@ -428,9 +428,25 @@ namespace GraphStudio
 					Filter	*current = graph.FindFilterByPos(point);
 					if (current) {
 						Pin *drop_end = current->FindPinByPos(point);
-						if (drop_end) {
+						if (!drop_end) {
+                            Pin *drop_start = graph.FindPinByPos(new_connection_start);
+                            if(drop_start->dir == PINDIR_OUTPUT) {
+                                for(int i=0; i<current->input_pins.GetSize(); i++)
+                                    if(!current->input_pins[i]->IsConnected()) {
+                                        drop_end = current->input_pins[i];
+                                        break;
+                                    }
+                            } else {
+                                for(int i=0; i<current->output_pins.GetSize(); i++)
+                                    if(!current->output_pins[i]->IsConnected()) {
+                                        drop_end = current->output_pins[i];
+                                        break;
+                                    }
+                            }
+                        }
+
+                        if (drop_end)
 							drop_end->GetCenterPoint(&new_connection_end);
-						}
 					}
 
 					need_invalidate = true;
@@ -610,7 +626,9 @@ namespace GraphStudio
 
 		// draw arrow
 		if (drag_mode == DisplayView::DRAG_CONNECTION) {
-			graph.DrawArrow(pDC, new_connection_start, new_connection_end);
+            DWORD color = RGB(0,128,0);
+            int nPenStyle = PS_DOT;
+			graph.DrawArrow(pDC, new_connection_start, new_connection_end, color, nPenStyle);
 		} else
 		if (drag_mode == DisplayView::DRAG_SELECTION) {
 

@@ -39,6 +39,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_BUTTON_REFRESH, &CGraphView::OnRefreshFilters)
 	ON_COMMAND(ID_BUTTON_SEEK, &CGraphView::OnSeekClick)
     ON_COMMAND(ID_BUTTON_ADDFILTER, &CGraphView::OnGraphInsertFilter)
+    ON_COMMAND(ID_BUTTON_REMOVE_CONNECTIONS, &CGraphView::OnRemoveConnections)
 	ON_COMMAND(ID_OPTIONS_EXACTMATCH, &CGraphView::OnOptionsExactMatchClick)
     ON_COMMAND(ID_OPTIONS_USEMEDIAINFO, &CGraphView::OnOptionsUseMediaInfoClick)
     ON_COMMAND(ID_OPTIONS_SHOWGUIDOFKNOWNTYPES, &CGraphView::OnOptionsShowGuidOfKnownTypesClick)
@@ -74,6 +75,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_INTELLIGENT, &CGraphView::OnUpdateConnectModeIntelligent)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON_DIRECT, &CGraphView::OnUpdateConnectModeDirect)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_DIRECT_WITHMT, &CGraphView::OnUpdateConnectModeDirectWmt)
+    ON_UPDATE_COMMAND_UI(ID_BUTTON_REMOVE_CONNECTIONS, &CGraphView::OnUpdateRemoveConnections)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_EXACTMATCH, &CGraphView::OnUpdateOptionsExactMatch)
     ON_UPDATE_COMMAND_UI(ID_OPTIONS_USEMEDIAINFO, &CGraphView::OnUpdateOptionsUseMediaInfo)
     ON_UPDATE_COMMAND_UI(ID_OPTIONS_SHOWGUIDOFKNOWNTYPES, &CGraphView::OnUpdateShowGuidOfKnownTypes)
@@ -1943,4 +1945,35 @@ void CGraphView::OnRenderFinished()
 	if (form_construction) {
 		form_construction->Reload(&render_params);
 	}
+}
+
+
+void CGraphView::OnUpdateRemoveConnections(CCmdUI *pCmdUI)
+{
+    bool stateOk = false;
+    if (state_ready)
+		stateOk = graph_state == State_Stopped;
+
+    bool hasConnections = FALSE;
+    for(int i=0; i<graph.filters.GetCount() && stateOk; i++)
+        if(graph.filters[i]->connected)
+        {
+            hasConnections = TRUE;
+            break;
+        }
+
+    pCmdUI->Enable(stateOk && hasConnections ? TRUE : FALSE);
+}
+
+void CGraphView::OnRemoveConnections()
+{
+    for(int i=0; i<graph.filters.GetCount(); i++)
+        if(graph.filters[i]->connected)
+        {
+            for(int j=0; j<graph.filters[i]->output_pins.GetCount(); j++)
+                graph.filters[i]->output_pins[j]->Disconnect();
+        }
+
+    graph.RefreshFilters();
+	Invalidate();
 }

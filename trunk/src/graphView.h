@@ -210,6 +210,9 @@ public:
     void OnUpdateOptionsUseMediaInfo(CCmdUI *pCmdUI);
     void OnUpdateShowGuidOfKnownTypes(CCmdUI *pCmdUI);
 
+    void OnUpdateRemoveConnections(CCmdUI *pCmdUI);
+    void OnRemoveConnections();
+
 	afx_msg void OnViewProgressview();
 	afx_msg void OnFileSaveasxml();
 	afx_msg void OnAutomaticrestartSchedule();
