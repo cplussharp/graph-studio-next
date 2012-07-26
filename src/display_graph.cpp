@@ -1329,9 +1329,9 @@ namespace GraphStudio
 		}
 	}
 
-	void DisplayGraph::DrawArrow(CDC *dc, CPoint p1, CPoint p2)
+	void DisplayGraph::DrawArrow(CDC *dc, CPoint p1, CPoint p2, DWORD color, int nPenStyle)
 	{
-		DoDrawArrow(dc, p1, p2, RGB(0,0,0));
+		DoDrawArrow(dc, p1, p2, color, nPenStyle);
 	}
 
 	Pin *DisplayGraph::FindPin(IPin *pin)
@@ -1897,9 +1897,10 @@ namespace GraphStudio
 		return false;
 	}
 
-	void DoDrawArrow(CDC *dc, CPoint p1, CPoint p2, DWORD color)
+	void DoDrawArrow(CDC *dc, CPoint p1, CPoint p2, DWORD color, int nPenStyle)
 	{
-		CPen	pen(PS_SOLID, 1, color);
+		CPen	pen(nPenStyle, 1, color);
+        CPen    penArrow(PS_SOLID, 1, color);
 		CBrush	brush(color);
 
 		// direction vector
@@ -1926,13 +1927,15 @@ namespace GraphStudio
 		CPoint	a1(mx + (tx*arrow_size/2.4), my + (ty*arrow_size/2.4));
 		CPoint	a2(mx - (tx*arrow_size/2.4), my - (ty*arrow_size/2.4));
 
-		dc->SelectObject(&pen);
-		dc->SelectObject(&brush);
-
-		POINT	pts[3] = { a1, a2, p2 };
-		dc->Polygon((const POINT*)&pts, 3);
+        dc->SetBkMode(TRANSPARENT);
+        dc->SelectObject(&pen);
 		dc->MoveTo(p1);
 		dc->LineTo(p2);
+
+        dc->SelectObject(&brush);
+		dc->SelectObject(&penArrow);
+        POINT	pts[3] = { a1, a2, p2 };
+		dc->Polygon((const POINT*)&pts, 3);
 	}
 
 	void Filter::DrawConnections(CDC *dc)
