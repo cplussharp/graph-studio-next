@@ -31,6 +31,7 @@ namespace GraphStudio
 		ON_COMMAND(ID_PIN_RENDER, &DisplayView::OnRenderPin)
 		ON_COMMAND(ID_PIN_NULL_STREAM, &DisplayView::OnRenderNullStream)
 		ON_COMMAND(ID_PIN_DUMP_STREAM, &DisplayView::OnDumpStream)
+		ON_COMMAND(ID_PIN_TIME_MEASURE_STREAM, &DisplayView::OnTimeMeasureStream)
         ON_COMMAND(ID_PIN_TEE_STREAM, &DisplayView::OnTeeStream)
 		ON_COMMAND(ID_PIN_FILE_WRITER, &DisplayView::OnFileWriterStream)
 		ON_COMMAND(ID_PROPERTYPAGE, &DisplayView::OnPropertyPage)
@@ -138,6 +139,7 @@ namespace GraphStudio
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_NULL_STREAM, _T("Insert Null Renderer"));
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_DUMP_STREAM, _T("Insert Dump Filter"));
+            menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_TIME_MEASURE_STREAM, _T("Insert Time Measure Filter"));
             menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_TEE_STREAM, _T("Insert Tee Filter"));
 
 			if (offer_writer) {
@@ -698,6 +700,52 @@ namespace GraphStudio
 		current_pin = NULL;
 	}
 
+
+	void DisplayView::OnTimeMeasureStream()
+	{
+		if (!current_pin) return ;
+
+		CComPtr<IBaseFilter>	instance;
+
+		// Create our time measure filter
+		HRESULT hr = S_OK;
+		CMonoTimeMeasure * const filter = new CMonoTimeMeasure(NULL, &hr);
+		hr = filter->NonDelegatingQueryInterface(IID_IBaseFilter, (void**)&instance);
+
+		if (SUCCEEDED(hr)){
+			const TCHAR filter_name[] = _T("Time Measure");
+			// now check for a few interfaces
+			int ret = ConfigureInsertedFilter(instance, filter_name);
+			if (ret < 0) {
+				instance = NULL;
+			}
+
+			if (instance) {
+
+				IPin		*outpin = current_pin->pin;
+				outpin->AddRef();
+
+				// add the filter to graph
+				hr = graph.AddFilter(instance, filter_name);
+				if (FAILED(hr)) {
+					// display error message
+                    DSUtil::ShowError(hr,_T("Can't add Time Measure Filter"));
+				} else {
+					// connect the pin to the renderer
+					hr = DSUtil::ConnectPin(graph.gb, outpin, instance);
+
+					graph.RefreshFilters();
+					graph.SmartPlacement();
+					graph.Dirty();
+					Invalidate();
+				}
+
+				outpin->Release();
+			}
+		}
+		instance = NULL;
+		current_pin = NULL;
+	}
 
 	void DisplayView::OnDumpStream()
 	{

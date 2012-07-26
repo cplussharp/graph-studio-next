@@ -103,7 +103,7 @@ namespace GraphStudio
 		}
 	
 		cn += count;
-		menu->InsertMenu(cn-1, MF_BYPOSITION | MF_STRING, ID_LIST_MRU_CLEAR, _T("Clear Recent List"));
+		menu->InsertMenu(cn-1, MF_BYPOSITION | MF_STRING, ID_LIST_MRU_CLEAR, _T("Clear Recent &List"));
 		menu->InsertMenu(cn, MF_BYPOSITION | MF_SEPARATOR);
 	}
 

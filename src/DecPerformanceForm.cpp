@@ -24,6 +24,7 @@ BEGIN_MESSAGE_MAP(CDecPerformanceForm, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_STOP, &CDecPerformanceForm::OnStopClick)
     ON_CBN_SELCHANGE(IDC_COMBO_TYPE, &CDecPerformanceForm::OnCbnSelChange)
     ON_CBN_SELCHANGE(IDC_COMBO_DECODER, &CDecPerformanceForm::OnComboDecoderSelChange)
+	ON_BN_CLICKED(IDC_BUILDGRAPH, &CDecPerformanceForm::OnBuildGraphClick)
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -32,11 +33,11 @@ END_MESSAGE_MAP()
 //
 //-----------------------------------------------------------------------------
 
-CDecPerformanceForm::CDecPerformanceForm(CWnd* pParent) : 
+CDecPerformanceForm::CDecPerformanceForm(CGraphView* parent_view, CWnd* pParent) : 
 	CDialog(CDecPerformanceForm::IDD, pParent)
+	, view(parent_view)
 {
 	running = false;
-	time_filter = NULL;
 	perf_operation = false;
     null_renderer.clsid = DSUtil::CLSID_NullRenderer;
     null_renderer.name = _T("Null Renderer");
@@ -112,7 +113,7 @@ void CDecPerformanceForm::OnInitialize()
 	
     OnCbnSelChange();
 
-	phase_count = 3;
+	phase_count = 10;
 
 	CString		str;
 	str.Format(_T("%d"), phase_count);
@@ -204,21 +205,12 @@ void CDecPerformanceForm::OnComboDecoderSelChange()
     cur_decoder = NULL;
 }
 
-void CDecPerformanceForm::Start()
+void CDecPerformanceForm::StartTiming()
 {
 	if (perf_operation) return ;
 
 	// just to be sure
-	Stop();
-
-	// try to build the graph.
-	int i;
-	int	ret = BuildPerformanceGraph(view->graph.gb);
-	if (ret < 0) {
-		// some message
-		MessageBox(_T("Cannot build performance graph"), _T("Error"), MB_ICONERROR);
-		return ;
-	}
+	StopTiming();
 
 	// update the file list
 	CString			source_file;
@@ -226,7 +218,7 @@ void CDecPerformanceForm::Start()
 	file_list.UpdateList(source_file);
 	file_list.SaveList(_T("DecPerfFileList"));
 	cb_files.ResetContent();
-	for (i=0; i<file_list.GetCount(); i++) { cb_files.AddString(file_list[i]); }
+	for (int i=0; i<file_list.GetCount(); i++) { cb_files.AddString(file_list[i]); }
 	cb_files.SetWindowText(source_file);
 
 	list_results.DeleteAllItems();
@@ -246,32 +238,37 @@ void CDecPerformanceForm::Start()
 	view->graph.SmartPlacement();
 	view->Invalidate();
 
+	// Find first time measure filter in graph and store a reference to it
+	for (int i=0; i<view->graph.filters.GetCount() && !time_filter; i++) {
+		if (view->graph.filters[i]->filter)
+			view->graph.filters[i]->filter->QueryInterface(IID_IMonoTimeMeasure, (void**)&time_filter);
+	}
+
 	// run the graph
 	phase_cur			= 0;
-	runtime_total_ns	= 0;
-	frames_total		= 0;
-    realtime_total_ns   = 0;
+	timings_min = Timings();
+	timings_max = Timings();
+	timings_avg = Timings();
 	running				= true;
 
 	view->OnPlayClick();
 }
 
-void CDecPerformanceForm::Stop()
+void CDecPerformanceForm::StopTiming()
 {
 	if (perf_operation) return ;
 
 	// remember it was us who made the call...
 	perf_operation = true;
-	view->OnNewClick();
+	view->OnStopClick();
 	time_filter = NULL;
 	perf_operation = false;
-
 	running = false;
 
 	// enable controls again
 }
 
-void MakeNiceTime(__int64 timens, CString &ret)
+static void MakeNiceTime(__int64 timens, CString &ret)
 {
 	// convert to milliseconds
 	timens /= 1000000;
@@ -286,81 +283,83 @@ void MakeNiceTime(__int64 timens, CString &ret)
 
 void CDecPerformanceForm::OnPhaseComplete()
 {
-	if (!running) return ;
-	
-	// if there's no time filter, it must have been a mistake... abort everything
-	if (!time_filter) {
-		Stop();
+	if (!running) 
 		return ;
+	
+	Timings timings;		// Get current results of current phase
+	if (time_filter) {
+		time_filter->GetStats(&timings.runtime_ns, &timings.frames, &timings.realtime_ns);
+	} else {
+		timings.runtime_ns = view->last_stop_time_ns - view->last_start_time_ns;	// no time measure filter but we can measure the total streaming time
+	}
+	if (timings.runtime_ns <= 0) 
+		timings.runtime_ns = 1;							// avoid division by zero.
+
+	timings_avg.runtime_ns	+= timings.runtime_ns;		// update average timings
+	timings_avg.frames		+= timings.frames;
+    timings_avg.realtime_ns   += timings.realtime_ns;
+
+	if (0 == phase_cur) {								// update min/max timings
+		timings_min = timings;
+		timings_max = timings;
+	} else {
+		if (timings.runtime_ns < timings_min.runtime_ns)
+			timings_min = timings;
+		if (timings.runtime_ns > timings_max.runtime_ns)
+			timings_max = timings;
 	}
 
+	CString		phase_idx_str;							// display timings for the current phase
+	phase_idx_str.Format(_T("%d"), phase_cur+1);
+	InsertListItem(timings, phase_cur, phase_idx_str); 
+
 	phase_cur ++;
+	if (phase_cur >= phase_count) {						// if we're done
+		StopTiming();					
 
-	// retrieve the stats
-	__int64		runtime_ns;
-	__int64		frames;
-    __int64     realtime_ns;
+		timings_avg.frames		/= phase_count;			// calculate average
+		timings_avg.realtime_ns	/= phase_count;
+		timings_avg.runtime_ns	/= phase_count;
 
-	time_filter->GetStats(&runtime_ns, &frames, &realtime_ns);
-	if (runtime_ns <= 0) runtime_ns = 1;				// avoid division by zero.
+		int list_index = list_results.GetItemCount();	// display min/max/avg
+		InsertListItem(timings_min, list_index++, _T("Min."));
+		InsertListItem(timings_max, list_index++, _T("Max."));
+		InsertListItem(timings_avg, list_index++, _T("Avg."));
 
-	runtime_total_ns	+= runtime_ns;
-	frames_total		+= frames;
-    realtime_total_ns   += realtime_ns;
-
-	// save the results
-	double		fps = (frames * 1000000000.0) / (double)runtime_ns;
-	CString		phase_idx_str;
-	CString		runtime_str;
-	CString		fps_str;
-    CString     realtime_str;
-    CString     rate_str;
-    CString     frames_str;
-
-	phase_idx_str.Format(_T("%d"), phase_cur);
-	MakeNiceTime(runtime_ns, runtime_str);
-	fps_str.Format(_T("%7.4f FPS"), (float)(fps));
-    rate_str.Format(_T("x%7.4f"), (double(realtime_ns) / double(runtime_ns)));
-    MakeNiceTime(realtime_ns, realtime_str);
-    frames_str.Format(_T("%d"), frames);
-
-	list_results.InsertItem(phase_cur-1, phase_idx_str);
-	list_results.SetItemText(phase_cur-1, 1, runtime_str);
-	list_results.SetItemText(phase_cur-1, 2, fps_str);
-    list_results.SetItemText(phase_cur-1, 3, rate_str);
-    list_results.SetItemText(phase_cur-1, 4, realtime_str);
-    list_results.SetItemText(phase_cur-1, 5, frames_str);
-
-	if (phase_cur >= phase_count) {
-	
-		// we're done
-		Stop();
-
-		// write average stats
-		phase_idx_str	= _T("Avg.");
-		fps				= (frames_total * 1000000000.0) / (double)runtime_total_ns;
-		runtime_ns		= runtime_total_ns / phase_count;
-        realtime_ns     = realtime_total_ns / phase_count;
-        frames          = frames_total / phase_count;
-
-		MakeNiceTime(runtime_ns, runtime_str);
-		fps_str.Format(_T("%7.4f FPS"), (float)(fps));
-        rate_str.Format(_T("x%7.4f"), (double(realtime_ns) / double(runtime_ns)));
-        MakeNiceTime(realtime_ns, realtime_str);
-        frames_str.Format(_T("%d"), frames);
-
-		int cnt = list_results.GetItemCount();
-		list_results.InsertItem(cnt, phase_idx_str);
-		list_results.SetItemText(cnt, 1, runtime_str);
-		list_results.SetItemText(cnt, 2, fps_str);
-        list_results.SetItemText(cnt, 3, rate_str);
-        list_results.SetItemText(cnt, 4, realtime_str);
-        list_results.SetItemText(cnt, 5, frames_str);
+		time_filter = NULL;								// release reference to Time Measure filter in case it causes problems later
 	} else {
-
-		// start the next run
-		view->OnStopClick();
+		view->OnStopClick();							// start the next run
 		view->OnPlayClick();
+	}
+}
+
+void CDecPerformanceForm::InsertListItem(const Timings& timings, int index, const CString& label)
+{
+	CString	runtime_str;
+	MakeNiceTime(timings.runtime_ns, runtime_str);
+
+	CString	realtime_str;
+	MakeNiceTime(timings.realtime_ns, realtime_str);
+
+	const double fps = (timings.frames * 1000000000.0) / (double)timings.runtime_ns;
+	CString	fps_str;
+	fps_str.Format(_T("%7.4f FPS"), (float)(fps));
+
+	CString rate_str;
+	rate_str.Format(_T("x%7.4f"), (double(timings.realtime_ns) / double(timings.runtime_ns)));
+
+	CString frames_str;
+	frames_str.Format(_T("%d"), timings.frames);
+
+	list_results.InsertItem(index, label);
+	list_results.SetItemText(index, 1, runtime_str);
+
+	if (timings.frames != 0) {			// if we have per-frame info from time measure filter
+
+		list_results.SetItemText(index, 2, fps_str);
+		list_results.SetItemText(index, 3, rate_str);
+		list_results.SetItemText(index, 4, realtime_str);
+		list_results.SetItemText(index, 5, frames_str);
 	}
 }
 
@@ -436,7 +435,6 @@ int CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
             hr = E_FAIL;
             break;
         }
-        time->QueryInterface(IID_IMonoTimeMeasure, (void**)&time_filter);
         hr = gb->AddFilter(time, time_filter_template.name);
 		if (FAILED(hr)) {
             DSUtil::ShowError(hr, _T("Can't add time filter"));
@@ -494,15 +492,29 @@ int CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
 	return 0;
 }
 
+void CDecPerformanceForm::OnBuildGraphClick()
+{
+	time_filter = NULL;
+	view->OnNewClick();		// clear any existing graph
+
+	// just to be sure
+	StopTiming();
+
+	// try to build the graph.
+	if (BuildPerformanceGraph(view->graph.gb) < 0) {
+		// some message
+		MessageBox(_T("Cannot build performance graph"), _T("Error"), MB_ICONERROR);
+	}
+}
 
 void CDecPerformanceForm::OnStartClick()
 {
-	Start();
+	StartTiming();
 }
 
 void CDecPerformanceForm::OnStopClick()
 {
-	Stop();
+	StopTiming();
 }
 
 BOOL CDecPerformanceForm::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT *pResult)

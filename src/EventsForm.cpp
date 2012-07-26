@@ -134,7 +134,7 @@ void CEventsForm::OnGraphEvent(long evcode, LONG_PTR param1, LONG_PTR param2)
 	case EC_COMPLETE:		
 		{ 
 			msg = _T("EC_COMPLETE"); 
-			view->OnGraphComplete();
+			view->OnGraphStreamingComplete();
 		} 
 		break;
 	case EC_DEVICE_LOST:
@@ -215,7 +215,12 @@ void CEventsForm::OnGraphEvent(long evcode, LONG_PTR param1, LONG_PTR param2)
 		}
 		break;
 	case EC_PALETTE_CHANGED:	{ msg = _T("EC_PALETTE_CHANGED"); } break;
-	case EC_PAUSED:				{ msg = _T("EC_PAUSED"); } break;
+	case EC_PAUSED:				
+		{
+			msg = _T("EC_PAUSED"); 
+			view->OnGraphStreamingStarted();
+		} 
+		break;
 	case EC_PLEASE_REOPEN:		{ msg = _T("EC_PLEASE_REOPEN"); } break;
 	case EC_PREPROCESS_COMPLETE:{ msg = _T("EC_PREPROCESS_COMPLETE"); } break;
 	case EC_PROCESSING_LATENCY:

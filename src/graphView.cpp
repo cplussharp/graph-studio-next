@@ -146,6 +146,9 @@ CGraphView::CGraphView()
 
 	filename = _T("");
 	can_save = false;
+
+	last_start_time_ns = 0LL;
+	last_stop_time_ns = 0LL;
 }
 
 CGraphView::~CGraphView()
@@ -633,8 +636,7 @@ void CGraphView::OnPlayPauseToggleClick()
 void CGraphView::OnViewDecoderPerformance()
 {
 	if (!form_dec_performance) {
-		form_dec_performance = new CDecPerformanceForm();
-		form_dec_performance->view = this;
+		form_dec_performance = new CDecPerformanceForm(this);
 		form_dec_performance->DoCreateDialog();
 	}
 
@@ -670,7 +672,7 @@ void CGraphView::OnNewClick()
 
 	// stop any running decoder tests
 	if (form_dec_performance) {
-		form_dec_performance->Stop();
+		form_dec_performance->StopTiming();
 	}
 
 	GetDocument()->SetTitle(_T("Untitled"));
@@ -962,8 +964,15 @@ void CGraphView::OnRenderFileClick()
     AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
 
-void CGraphView::OnGraphComplete()
+void CGraphView::OnGraphStreamingStarted()
 {
+	last_stop_time_ns = last_start_time_ns = timer.GetTimeNS();
+}
+
+void CGraphView::OnGraphStreamingComplete()
+{
+	last_stop_time_ns = timer.GetTimeNS();
+
 	OnStopClick();
 
 	// if there were any tests running, let the form know

@@ -71,6 +71,11 @@ public:
 	// known system monitors
 	vector<HMONITOR>			monitors;
 
+	HighResTimer				timer;
+
+	__int64						last_start_time_ns;
+	__int64						last_stop_time_ns;
+
 public:
 	virtual ~CGraphView();
 
@@ -106,7 +111,8 @@ public:
 	void OnConnectRemote();
 	void OnDisconnectRemote();
 	void OnDummyEvent(UINT nID) { };
-	void OnGraphComplete();
+	void OnGraphStreamingStarted();
+	void OnGraphStreamingComplete();
 
 	// menu
 	void UpdateMRUMenu();

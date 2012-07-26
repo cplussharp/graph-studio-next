@@ -22,7 +22,7 @@ protected:
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-public:
+private:
 	GraphStudio::TitleBar		title;
 	CComboBox					cb_decoders;
 	CComboBox					cb_renderers;
@@ -55,19 +55,35 @@ public:
 	int								phase_count;			// total number of runs
 	int								phase_cur;				// the current run
 
+	struct Timings
+	{
+		Timings() : runtime_ns(0LL), frames(0LL), realtime_ns(0LL) {}
+
+		__int64		runtime_ns;
+		__int64		frames;
+		__int64		realtime_ns;
+	};
+
 	// average stats
-	__int64							runtime_total_ns;
-	__int64							frames_total;
-    __int64                         realtime_total_ns;
-	
+	Timings							timings_min;
+	Timings							timings_max;
+	Timings							timings_avg;
+
 public:
-	CDecPerformanceForm(CWnd* pParent = NULL);   // standard constructor
+	CDecPerformanceForm(CGraphView* parent_view, CWnd* pParent = NULL);   // standard constructor
 	virtual ~CDecPerformanceForm();
 
+	BOOL DoCreateDialog();
+
+	// start / stop test
+	void StartTiming();
+	void StopTiming();
+	void OnPhaseComplete();
+
+private:
 	// Dialog Data
 	enum { IDD = IDD_DIALOG_DEC_PERFORMANCE };
 
-	BOOL DoCreateDialog();
 	void OnInitialize();
 	void OnSize(UINT nType, int cx, int cy);
 	void OnBrowseClick();
@@ -75,15 +91,13 @@ public:
     void OnComboDecoderSelChange();
     void OnBnClickedButtonPropertypage();
 
-	// start / stop test
-	void Start();
-	void Stop();
-	void OnPhaseComplete();
-
 	int BuildPerformanceGraph(IGraphBuilder *gb);
 	void OnStartClick();
 	void OnStopClick();
 	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT *pResult);
+	afx_msg void OnBuildGraphClick();
+
+	void InsertListItem(const Timings& timings, int index, const CString& label);
 };
 
 
