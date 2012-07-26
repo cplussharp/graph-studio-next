@@ -77,6 +77,7 @@
 #define IDC_BUTTON_REFRESH              1015
 #define IDC_BUTTON_ABOUT                1015
 #define IDC_BUTTON_LOCK                 1015
+#define IDC_BUILDGRAPH                  1015
 #define IDC_SLIDER1                     1016
 #define IDC_SLIDER_SEEK                 1016
 #define IDC_SLIDER_VOLUME               1016
@@ -236,6 +237,7 @@
 #define ID_PIN_RENDER                   32787
 #define ID_GRAPH_MAKEGRAPHSCREENSHOT    32788
 #define ID_PIN_TEE_STREAM               32789
+#define ID_PIN_TIME_MEASURE_STREAM      32790
 #define ID_VIEW_50                      32794
 #define ID_VIEW_75                      32795
 #define ID_VIEW_100                     32796
@@ -316,6 +318,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        176
 #define _APS_NEXT_COMMAND_VALUE         32879
 #define _APS_NEXT_CONTROL_VALUE         1119
-#define _APS_NEXT_SYMED_VALUE           102
+#define _APS_NEXT_SYMED_VALUE           103
 #endif
 #endif

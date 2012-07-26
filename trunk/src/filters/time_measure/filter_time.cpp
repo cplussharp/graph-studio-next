@@ -33,8 +33,11 @@ CUnknown* CMonoTimeMeasure::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 
 CMonoTimeMeasure::CMonoTimeMeasure(LPUNKNOWN pUnk, HRESULT *phr) :
 	CTransInPlaceFilter(_T("Time Measure"), pUnk, CLSID_MonoTimeMeasure, phr, false)
+	, start_time(0)
+	, stop_time(0)
+	, frames_done(0)
+    , real_time(0)
 {
-	QueryPerformanceFrequency(&frequency);
 }
 
 CMonoTimeMeasure::~CMonoTimeMeasure()
@@ -58,7 +61,7 @@ HRESULT CMonoTimeMeasure::CheckInputType(const CMediaType* mtIn)
 
 HRESULT CMonoTimeMeasure::Transform(IMediaSample *pSample)
 {
-	stop_time = GetTimeNS();
+	stop_time = timer.GetTimeNS();
 	frames_done ++;
 
     REFERENCE_TIME timeStart, timeEnd;
@@ -71,27 +74,15 @@ HRESULT CMonoTimeMeasure::Transform(IMediaSample *pSample)
 HRESULT CMonoTimeMeasure::StartStreaming()
 {
 	frames_done = 0;
-	start_time = GetTimeNS();
-	stop_time = GetTimeNS();
+	stop_time = start_time = timer.GetTimeNS();
     real_time = 0;
 	return NOERROR;
 }
 
 HRESULT CMonoTimeMeasure::StopStreaming()
 {
-	stop_time = GetTimeNS();
+	stop_time = timer.GetTimeNS();
 	return NOERROR;
-}
-
-__int64 CMonoTimeMeasure::GetTimeNS()
-{
-	// we use high resolution counter to get time with
-	// nanosecond precision
-	LARGE_INTEGER		time;
-	QueryPerformanceCounter(&time);
-
-	// convert to nanoseconds
-	return llMulDiv(time.QuadPart, 1000*1000*1000, frequency.QuadPart, 0);
 }
 
 STDMETHODIMP CMonoTimeMeasure::GetStats(__int64 *runtime_ns, __int64 *frames, __int64* realtime_ns)

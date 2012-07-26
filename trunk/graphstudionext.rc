@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Deutsch (Deutschland) resources
+// German (Germany) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
 LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
@@ -27,12 +27,12 @@ LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_ADDFILTER           ICON                    "res\\addFilter.ico"
-#endif    // Deutsch (Deutschland) resources
+#endif    // German (Germany) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Englisch (USA) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -280,33 +280,35 @@ BEGIN
     CONTROL         "",IDC_LIST_SCHEDULE,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDRAWFIXED | LVS_ALIGNLEFT | WS_TABSTOP,0,24,240,102
 END
 
-IDD_DIALOG_DEC_PERFORMANCE DIALOGEX 0, 0, 360, 222
+IDD_DIALOG_DEC_PERFORMANCE DIALOGEX 0, 0, 388, 345
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Decoder Performance Test"
+CAPTION "Performance Test"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,360,20
-    LTEXT           "Source file",IDC_STATIC,6,50,34,8
-    COMBOBOX        IDC_COMBO_FILE,48,48,253,126,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Browse ...",IDC_BUTTON_BROWSE,303,48,50,12
-    GROUPBOX        "Performance test",IDC_STATIC,6,66,348,149
-    LTEXT           "Renderer",IDC_STATIC,7,96,31,8
-    COMBOBOX        IDC_COMBO_RENDERER,48,94,80,126,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "",IDC_LIST_RESULTS,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_TABSTOP,7,114,346,101,WS_EX_CLIENTEDGE
-    LTEXT           "Decoder",IDC_STATIC,135,78,28,8
-    COMBOBOX        IDC_COMBO_DECODER,169,77,184,234,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Passes",IDC_STATIC,135,96,23,8
-    EDITTEXT        IDC_EDIT_PASSES,170,95,30,12,ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
-    CONTROL         "",IDC_SPIN_PASSES,"msctls_updown32",UDS_ARROWKEYS,200,95,11,13
-    LTEXT           "Preset",IDC_STATIC,6,32,22,8,WS_DISABLED
-    COMBOBOX        IDC_COMBO_PRESETS,48,30,197,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Clear Presets",IDC_BUTTON_CLEAR,303,30,50,13,WS_DISABLED
-    PUSHBUTTON      "Save Preset",IDC_BUTTON_SAVE,251,30,51,12,WS_DISABLED
-    PUSHBUTTON      "Start",IDC_BUTTON_START,261,94,45,14
-    PUSHBUTTON      "Stop",IDC_BUTTON_STOP,308,94,45,14
-    LTEXT           "Type",IDC_STATIC,8,77,17,8
-    COMBOBOX        IDC_COMBO_TYPE,48,75,80,126,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Properties",IDC_BUTTON_PROPERTYPAGE,213,94,46,14
+    CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,387,20
+    LTEXT           "Source file",IDC_STATIC,18,66,34,8
+    COMBOBOX        IDC_COMBO_FILE,60,66,253,126,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Browse ...",IDC_BUTTON_BROWSE,315,66,50,12
+    LTEXT           "Renderer",IDC_STATIC,18,120,31,8
+    COMBOBOX        IDC_COMBO_RENDERER,60,120,80,126,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_LIST_RESULTS,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_TABSTOP,6,180,372,156,WS_EX_CLIENTEDGE
+    LTEXT           "Decoder",IDC_STATIC,144,96,28,8
+    COMBOBOX        IDC_COMBO_DECODER,180,96,184,234,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Passes",IDC_STATIC,18,158,23,8
+    EDITTEXT        IDC_EDIT_PASSES,48,156,30,12,ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
+    CONTROL         "",IDC_SPIN_PASSES,"msctls_updown32",UDS_ARROWKEYS,78,156,11,13
+    LTEXT           "Preset",IDC_STATIC,18,48,22,8,WS_DISABLED
+    COMBOBOX        IDC_COMBO_PRESETS,60,48,197,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Clear Presets",IDC_BUTTON_CLEAR,315,48,50,13,WS_DISABLED
+    PUSHBUTTON      "Save Preset",IDC_BUTTON_SAVE,263,48,51,12,WS_DISABLED
+    PUSHBUTTON      "Start",IDC_BUTTON_START,102,156,45,14
+    PUSHBUTTON      "Stop",IDC_BUTTON_STOP,156,156,45,14
+    LTEXT           "Type",IDC_STATIC,18,96,17,8
+    COMBOBOX        IDC_COMBO_TYPE,60,96,80,126,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Properties",IDC_BUTTON_PROPERTYPAGE,180,120,46,14
+    GROUPBOX        "Build Decoder Graph (optional)",IDC_STATIC,12,30,366,114
+    PUSHBUTTON      "Build Graph",IDC_BUILDGRAPH,312,120,50,14
+    LTEXT           "For frame statistics insert a Time Measure filter in the graph",IDC_STATIC,216,156,144,18
 END
 
 IDD_DIALOG_UNREGCONFIRM DIALOGEX 0, 0, 238, 100
@@ -705,12 +707,12 @@ BEGIN
     IDD_DIALOG_DEC_PERFORMANCE, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 353
+        RIGHTMARGIN, 381
         VERTGUIDE, 245
         VERTGUIDE, 251
         VERTGUIDE, 301
         TOPMARGIN, 7
-        BOTTOMMARGIN, 215
+        BOTTOMMARGIN, 338
     END
 
     IDD_DIALOG_UNREGCONFIRM, DIALOG
@@ -912,58 +914,58 @@ BEGIN
     BEGIN
         MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
         MENUITEM "&Open Graph (.GRF)...\tCtrl+O", ID_FILE_OPEN
-        MENUITEM "Open From XML...",            ID_FILE_OPENFROMXML
+        MENUITEM "Open &From XML...",           ID_FILE_OPENFROMXML
         MENUITEM "&Save Graph (.GRF)\tCtrl+S",  ID_FILE_SAVE
         MENUITEM "Save &As Graph (.GRF)...",    ID_FILE_SAVE_AS
-        MENUITEM "Save As XML...",              ID_FILE_SAVEASXML
+        MENUITEM "Sav&e As XML...",             ID_FILE_SAVEASXML
         MENUITEM SEPARATOR
-        MENUITEM "Render Media File...\tCtrl+R", ID_FILE_RENDERFILE
-        MENUITEM "Add Media File...",           ID_FILE_ADDMEDIAFILE
-        MENUITEM "Render URL...\tCtrl+U",       ID_FILE_RENDERURL
-        MENUITEM "Build DVD Graph...",          ID_FILE_RENDERDVD
-        MENUITEM "Build Capture Graph...",      ID_FILE_RENDERCAPTURE
+        MENUITEM "&Render Media File...\tCtrl+R", ID_FILE_RENDERFILE
+        MENUITEM "Add &Media File...",          ID_FILE_ADDMEDIAFILE
+        MENUITEM "Render &URL...\tCtrl+U",      ID_FILE_RENDERURL
+        MENUITEM "&Build DVD Graph...",         ID_FILE_RENDERDVD
+        MENUITEM "Build Capture &Graph...",     ID_FILE_RENDERCAPTURE
         MENUITEM SEPARATOR
-        MENUITEM "Connect to Remote Graph...\tCtrl+G", ID_FILE_CONNECTTOREMOTEGRAPH
-        MENUITEM "Disconnect from Remote Graph...\tCtrl+H", ID_FILE_DISCONNECTFROMREMOTEGRAPH
+        MENUITEM "&Connect to Remote Graph...\tCtrl+G", ID_FILE_CONNECTTOREMOTEGRAPH
+        MENUITEM "&Disconnect from Remote Graph...\tCtrl+H", ID_FILE_DISCONNECTFROMREMOTEGRAPH
         MENUITEM SEPARATOR
         MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
         MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
-        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM "Print Se&tup...",             ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
     POPUP "&View"
     BEGIN
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
-        MENUITEM "Seeking Bar",                 ID_VIEW_SEEKINGBAR
+        MENUITEM "Seeking &Bar",                ID_VIEW_SEEKINGBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
         MENUITEM SEPARATOR
-        MENUITEM "Progress View...\tF5",        ID_VIEW_PROGRESSVIEW
+        MENUITEM "Progress &View...\tF5",       ID_VIEW_PROGRESSVIEW
         MENUITEM SEPARATOR
-        MENUITEM "Graph Construction Report",   ID_VIEW_GRAPHCONSTRUCTIONREPORT
-        MENUITEM "Graph Events\tCtrl+E",        ID_VIEW_GRAPHEVENTS
-        MENUITEM "Text Information\tCtrl+T",    ID_VIEW_TEXTINFORMATION
-        MENUITEM "Decoder Performance...",      ID_VIEW_DECODERPERFORMANCE
+        MENUITEM "Graph &Construction Report",  ID_VIEW_GRAPHCONSTRUCTIONREPORT
+        MENUITEM "Graph &Events\tCtrl+E",       ID_VIEW_GRAPHEVENTS
+        MENUITEM "Te&xt Information\tCtrl+T",   ID_VIEW_TEXTINFORMATION
+        MENUITEM "&Performance Test...",        ID_VIEW_DECODERPERFORMANCE
         MENUITEM SEPARATOR
-        MENUITEM "50%\tCtrl+2",                 ID_VIEW_50
-        MENUITEM "75%\tCtrl+3",                 ID_VIEW_75
-        MENUITEM "100%\tCtrl+4",                ID_VIEW_100
-        MENUITEM "150%\tCtrl+5",                ID_VIEW_150
-        MENUITEM "200%\tCtrl+6",                ID_VIEW_200
+        MENUITEM "&50%\tCtrl+2",                ID_VIEW_50
+        MENUITEM "&75%\tCtrl+3",                ID_VIEW_75
+        MENUITEM "10&0%\tCtrl+4",               ID_VIEW_100
+        MENUITEM "&150%\tCtrl+5",               ID_VIEW_150
+        MENUITEM "&200%\tCtrl+6",               ID_VIEW_200
         MENUITEM SEPARATOR
-        MENUITEM "Decrease Zoom Level\t-",      ID_VIEW_DECREASEZOOMLEVEL
-        MENUITEM "Increase Zoom Level\t+",      ID_VIEW_INCREASEZOOMLEVEL
+        MENUITEM "&Decrease Zoom Level\t-",     ID_VIEW_DECREASEZOOMLEVEL
+        MENUITEM "Increase &Zoom Level\t+",     ID_VIEW_INCREASEZOOMLEVEL
     END
-    POPUP "Graph"
+    POPUP "&Graph"
     BEGIN
-        MENUITEM "Insert Filter...\tCtrl+F",    ID_GRAPH_INSERTFILTER
-        MENUITEM "Insert Filter from File...",  ID_GRAPH_INSERTFILTERFROMFILE
+        MENUITEM "Insert &Filter...\tCtrl+F",   ID_GRAPH_INSERTFILTER
+        MENUITEM "Insert Filter from Fi&le...", ID_GRAPH_INSERTFILTERFROMFILE
         MENUITEM SEPARATOR
         MENUITEM "Insert Internal Filter",      ID_GRAPH_INSERTINTERNALFILTER
         MENUITEM SEPARATOR
-        MENUITEM "Insert File Source (Async.)", ID_GRAPH_INSERTFILESOURCE
-        MENUITEM "Insert Tee Filter",           ID_GRAPH_INSERTTEEFILTER
-        MENUITEM "Insert File Writer",          ID_GRAPH_INSERTFILEWRITER
+        MENUITEM "Insert File &Source (Async.)", ID_GRAPH_INSERTFILESOURCE
+        MENUITEM "Insert &Tee Filter",          ID_GRAPH_INSERTTEEFILTER
+        MENUITEM "Insert File &Writer",         ID_GRAPH_INSERTFILEWRITER
         MENUITEM SEPARATOR
         MENUITEM "Insert Audio Source",         ID_GRAPH_INSERTAUDIOSOURCE
         MENUITEM "Insert Video Source",         ID_GRAPH_INSERTVIDEOSOURCE
@@ -971,36 +973,36 @@ BEGIN
         MENUITEM "Insert Audio Renderer",       ID_GRAPH_INSERTAUDIORENDERER
         MENUITEM "Insert Video Renderer",       ID_GRAPH_INSERTVIDEORENDERER
         MENUITEM SEPARATOR
-        MENUITEM "Refresh Graph\tCtrl+F5",      ID_BUTTON_REFRESH
-        MENUITEM "Make Graph Screenshot\tCtrl+F12", ID_GRAPH_MAKEGRAPHSCREENSHOT
+        MENUITEM "&Refresh Graph\tCtrl+F5",     ID_BUTTON_REFRESH
+        MENUITEM "Make &Graph Screenshot\tCtrl+F12", ID_GRAPH_MAKEGRAPHSCREENSHOT
         MENUITEM SEPARATOR
-        MENUITEM "Use Clock",                   ID_GRAPH_USECLOCK
+        MENUITEM "Use &Clock",                  ID_GRAPH_USECLOCK
     END
-    POPUP "Filters"
+    POPUP "Fil&ters"
     BEGIN
-        MENUITEM "Duplicate Selected Filters\tCtrl+D", ID_FILTERS_DOUBLESELECTEDFILTERS
+        MENUITEM "&Duplicate Selected Filters\tCtrl+D", ID_FILTERS_DOUBLESELECTEDFILTERS
         MENUITEM SEPARATOR
-        MENUITEM "Manage Favorites ...",        ID_FILTERS_MANAGEFAVORITES
-        MENUITEM "Manage Blacklist ...",        ID_FILTERS_MANAGEBLACKLIST
+        MENUITEM "Manage &Favorites ...",       ID_FILTERS_MANAGEFAVORITES
+        MENUITEM "Manage &Blacklist ...",       ID_FILTERS_MANAGEBLACKLIST
     END
-    POPUP "Options"
+    POPUP "&Options"
     BEGIN
-        MENUITEM "Schedule ...",                ID_AUTOMATICRESTART_SCHEDULE
+        MENUITEM "&Schedule ...",               ID_AUTOMATICRESTART_SCHEDULE
         MENUITEM SEPARATOR
-        MENUITEM "Configure SBE ...",           ID_OPTIONS_CONFIGURESBE
+        MENUITEM "&Configure SBE ...",          ID_OPTIONS_CONFIGURESBE
         MENUITEM SEPARATOR
-        MENUITEM "Display As File Name",        ID_OPTIONS_DISPLAYASFILENAME
-        MENUITEM "Exact Match Lookup Mode",     ID_OPTIONS_EXACTMATCH
-        MENUITEM "Abort Render After 10 Seconds", ID_OPTIONS_ABORTRENDER
-        MENUITEM "Use MediaInfo",               ID_OPTIONS_USEMEDIAINFO
-        MENUITEM "Show GUID of Known Types",    ID_OPTIONS_SHOWGUIDOFKNOWNTYPES
+        MENUITEM "Display As &File Name",       ID_OPTIONS_DISPLAYASFILENAME
+        MENUITEM "Exact Match &Lookup Mode",    ID_OPTIONS_EXACTMATCH
+        MENUITEM "&Abort Render After 10 Seconds", ID_OPTIONS_ABORTRENDER
+        MENUITEM "Use &MediaInfo",              ID_OPTIONS_USEMEDIAINFO
+        MENUITEM "Show &GUID of Known Types",   ID_OPTIONS_SHOWGUIDOFKNOWNTYPES
         MENUITEM SEPARATOR
-        MENUITEM "Preferred Video Renderer",    ID_OPTIONS_PREFERREDVIDEORENDERER
+        MENUITEM "Preferred &Video Renderer",   ID_OPTIONS_PREFERREDVIDEORENDERER
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "GUID Lookup...",              ID_HELP_GUIDLOOKUP
-        MENUITEM "HRESULT Lookup...",           ID_HELP_HRESULTLOOKUP
+        MENUITEM "&GUID Lookup...",             ID_HELP_GUIDLOOKUP
+        MENUITEM "&HRESULT Lookup...",          ID_HELP_HRESULTLOOKUP
         MENUITEM SEPARATOR
         MENUITEM "&About GraphStudio...",       ID_APP_ABOUT
     END
@@ -1304,7 +1306,7 @@ BEGIN
     ID_BUTTON_REMOVE_CONNECTIONS "Remove all connections between filters"
 END
 
-#endif    // Englisch (USA) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
