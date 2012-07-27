@@ -427,11 +427,11 @@ namespace GraphStudio
 				{
 					new_connection_end = point;
 
-					Filter	*current = graph.FindFilterByPos(point);
+					Filter	* const current = graph.FindFilterByPos(point);
 					if (current) {
-						Pin *drop_end = current->FindPinByPos(point);
+						Pin * drop_end = current->FindPinByPos(point);
 						if (!drop_end) {
-                            Pin *drop_start = graph.FindPinByPos(new_connection_start);
+                            Pin * const drop_start = graph.FindPinByPos(new_connection_start);
                             if(drop_start->dir == PINDIR_OUTPUT) {
                                 for(int i=0; i<current->input_pins.GetSize(); i++)
                                     if(!current->input_pins[i]->IsConnected()) {
@@ -447,8 +447,12 @@ namespace GraphStudio
                             }
                         }
 
-                        if (drop_end)
-							drop_end->GetCenterPoint(&new_connection_end);
+                        if (drop_end) {
+                            Filter * const start_filter = graph.FindFilterByPos(new_connection_start);
+							if (start_filter != current) {			// don't allow a filter to connect with itself
+								drop_end->GetCenterPoint(&new_connection_end);
+							}
+						}
 					}
 
 					need_invalidate = true;
