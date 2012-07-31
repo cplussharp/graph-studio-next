@@ -80,6 +80,7 @@ namespace GraphStudio
 		RemoveUnusedFilters();
 	}
 
+	// caller must clean up graph if error returned
 	int DisplayGraph::ConnectToRemote(IFilterGraph *remote_graph)
 	{
 		int ret = MakeNew();
@@ -1102,6 +1103,7 @@ namespace GraphStudio
 		return hr;
 	}
 
+	// Caller must do any required clean up if this returns error code
 	int DisplayGraph::RenderFile(CString fn)
 	{
 		HRESULT	hr = E_FAIL;
@@ -1110,6 +1112,10 @@ namespace GraphStudio
 
 			// mark 
 			params->MarkRender(true);
+			if (!gb) {
+				hr = E_POINTER;	
+				break;
+			}
 			hr = gb->RenderFile(fn, NULL);
 			params->MarkRender(false);
 			if (callback) callback->OnRenderFinished();
@@ -1121,8 +1127,6 @@ namespace GraphStudio
 		} while (0);
 
 		if (FAILED(hr)) {
-			gb = NULL;
-			mc = NULL;
 			return -1;
 		}
 

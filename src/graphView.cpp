@@ -796,6 +796,8 @@ int CGraphView::TryOpenFile(CString fn)
 	} else {
 		OnNewClick();
 		ret = graph.RenderFile(fn);
+		if (ret < 0)
+			OnNewClick();
 	}
 
 	if (ret == 0)
@@ -891,6 +893,7 @@ void CGraphView::OnFileAddmediafile()
 		int ret = graph.RenderFile(filename);
 		if (ret < 0) {
 			MessageBox(_T("Cannot render file"));
+			// don't clear graph or graph builder here as we may have existing graph
 		}
 
 		// updatujeme MRU list
@@ -915,6 +918,7 @@ void CGraphView::OnRenderUrlClick()
 		int ret = graph.RenderFile(dlg.result_file);
 		if (ret < 0) {
 			MessageBox(_T("Can't render URL"));
+			OnNewClick();
 		}
 
 		graph.SetClock(true, NULL);
@@ -948,6 +952,7 @@ void CGraphView::OnRenderFileClick()
 		int ret = graph.RenderFile(filename);
 		if (ret < 0) {
 			MessageBox(_T("Can't render file"));
+			OnNewClick();
 		}
 
 		// updatujeme MRU list
@@ -1559,6 +1564,8 @@ void CGraphView::OnConnectRemote()
 					ret = graph.ConnectToRemote(fg);
 					if (ret == 0) {
 						SetTimer(CGraphView::TIMER_REMOTE_GRAPH_STATE, 200, NULL);
+					} else {
+						OnNewClick();
 					}
 
 					// get all filters
