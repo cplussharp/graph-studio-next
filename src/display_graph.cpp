@@ -1453,36 +1453,39 @@ namespace GraphStudio
 		// do some nice automatic filter placement
 		int i;
 		for (i=0; i<filters.GetCount(); i++) {
-			Filter	*filter = filters[i];
+			Filter	* const filter = filters[i];
 			filter->Refresh();
 
 			// reset placement helpers
-			filter->depth = 0;
+			filter->depth = -1;		// flag not placed in bin
 			filter->posy = 0;
 			filter->posx = 0;
 		}
 
-		// now calculate from each source filter
+		// First position the sources that have connected outputs
 		for (i=0; i<filters.GetCount(); i++) {
-			Filter	*filter = filters[i];
+			Filter	* const filter = filters[i];
 			filter->LoadPeers();
-			if (filter->NumOfDisconnectedPins(PINDIR_INPUT) == filter->input_pins.GetCount() && 
-				filter->output_pins.GetCount() > 0) {
+			if (filter->NumOfDisconnectedPins(PINDIR_INPUT) == filter->input_pins.GetCount()
+					&& filter->NumOfDisconnectedPins(PINDIR_OUTPUT) != filter->output_pins.GetCount()) {
+				// For filters with no connected inputs, and some connected outputs
 				filter->CalculatePlacementChain(0, 8);
 			}
 		}
 
-		// then align the not connected fitlers
+		// then align the not connected filters
 		for (i=0; i<filters.GetCount(); i++) {
-			Filter	*filter = filters[i];
-			if (filter->depth == 0) {
+			Filter	* const filter = filters[i];
+			if (filter->depth < 0) {		// if not already placed
 				filter->CalculatePlacementChain(0, 8);
 			}
 		}
 
 		// now set proper posX
 		for (i=0; i<filters.GetCount(); i++) {
-			Filter	*filter = filters[i];
+			Filter	* const filter = filters[i];
+			ASSERT(filter->depth >= 0);
+			filter->depth = max(0, filter->depth);		// sanity check on depth
 			CPoint	&pt     = bins[filter->depth];
 			filter->posx = pt.x;
 		}
