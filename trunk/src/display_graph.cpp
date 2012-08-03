@@ -52,6 +52,7 @@ namespace GraphStudio
 		is_remote = false;
 		is_frame_stepping = false;
 		uses_clock = true;
+        rotRegister = 0;
 
 		HRESULT			hr = NOERROR;
 		graph_callback = new GraphCallbackImpl(NULL, &hr, this);
@@ -87,6 +88,7 @@ namespace GraphStudio
 		if (ret < 0) return -1;
 
 		// release graph objects
+        RemoveFromRot();
 		mc = NULL;
 		ms = NULL;
 		fs = NULL;
@@ -132,6 +134,9 @@ namespace GraphStudio
 		if (ms) ms = NULL;
 		if (fs) fs = NULL;
 
+        // release from ROT
+        RemoveFromRot();
+
 		// we only do this for our own graph so we don't mess up
 		// the host application when connected to remote graph
 		if (!is_remote) {
@@ -175,6 +180,8 @@ namespace GraphStudio
 			hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, (void**)&gb);
 			if (FAILED(hr)) break;
 
+            AddToRot();
+
 			gb->SetDefaultSyncSource();
 
 			gb->QueryInterface(IID_IMediaControl, (void**)&mc);
@@ -203,6 +210,7 @@ namespace GraphStudio
 		} while (0);
 
 		if (FAILED(hr)) {
+            RemoveFromRot();
 			cgb = NULL;
 			gb = NULL;
 			mc = NULL;
@@ -214,6 +222,48 @@ namespace GraphStudio
 
 		return 0;
 	}
+
+    void DisplayGraph::AddToRot()
+    {
+        IMoniker * pMoniker = NULL;
+        IRunningObjectTable *pROT = NULL;
+
+        if (FAILED(GetRunningObjectTable(0, &pROT))) 
+            return;
+    
+        const size_t STRING_LENGTH = 256;
+
+        WCHAR wsz[STRING_LENGTH];
+ 
+        StringCchPrintfW(
+            wsz, STRING_LENGTH, 
+            L"FilterGraph GraphStudioNext pid %08x",  
+            GetCurrentProcessId()
+            );
+    
+        HRESULT hr = CreateItemMoniker(L"!", wsz, &pMoniker);
+        if (SUCCEEDED(hr)) 
+        {
+            hr = pROT->Register(ROTFLAGS_REGISTRATIONKEEPSALIVE, gb, pMoniker, &rotRegister);
+            pMoniker->Release();
+        }
+        pROT->Release();
+    }
+
+    void DisplayGraph::RemoveFromRot()
+    {
+        if (rotRegister != 0)
+        {
+            IRunningObjectTable *pROT;
+            if (SUCCEEDED(GetRunningObjectTable(0, &pROT)))
+            {
+                pROT->Revoke(rotRegister);
+                pROT->Release();
+            }
+
+            rotRegister = 0;
+        }
+    }
 
 	void DisplayGraph::RemoveAllFilters()
 	{

@@ -344,10 +344,15 @@ namespace GraphStudio
 		CString							graph_name;
 		bool							uses_clock;
 		double							fps;
+        DWORD                           rotRegister;
 
 	public:
 		DisplayGraph();
 		virtual ~DisplayGraph();
+
+        // ROT
+        void AddToRot();
+        void RemoveFromRot();
 
 		// let's build something
 		int MakeNew();

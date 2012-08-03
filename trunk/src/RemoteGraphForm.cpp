@@ -24,6 +24,7 @@ CRemoteGraphForm::CRemoteGraphForm(CWnd* pParent /*=NULL*/) :
 	CDialog(CRemoteGraphForm::IDD, pParent)
 {
 	sel_graph = NULL;
+    isOwnGraph = false;
 }
 
 CRemoteGraphForm::~CRemoteGraphForm()
@@ -150,7 +151,12 @@ void CRemoteGraphForm::OnRefreshClick()
 
 void CRemoteGraphForm::OnConnectClick()
 {
-	OnOK();
+    if(isOwnGraph)
+    {
+        MessageBox(_T("Can't connect to own graph!"),_T("Can't connect"), MB_OK|MB_ICONHAND);
+    }
+    else
+	    OnOK();
 }
 
 void CRemoteGraphForm::OnLbnSelchangeListGraphs()
@@ -161,5 +167,9 @@ void CRemoteGraphForm::OnLbnSelchangeListGraphs()
 	sel_graph = NULL;
 	if (sel >= 0 && sel < graphs.GetCount()) {
 		sel_graph = graphs[sel].moniker;
+
+        CString strPid;
+        strPid.Format(_T("%08x"), GetCurrentProcessId());
+        isOwnGraph = graphs[sel].name.Find(strPid) != -1;
 	}
 }

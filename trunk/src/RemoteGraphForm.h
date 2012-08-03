@@ -54,6 +54,7 @@ public:
 	CArray<RemoteGraph>		graphs;
 
 	CComPtr<IMoniker>		sel_graph;
+    bool                    isOwnGraph;
 
 public:
 	CRemoteGraphForm(CWnd* pParent = NULL);
