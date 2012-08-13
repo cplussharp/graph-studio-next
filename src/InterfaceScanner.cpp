@@ -83,6 +83,29 @@ void GetInterfaceInfo_IAMDroppedFrames(GraphStudio::PropItem* group, IUnknown* p
     }
 }
 
+void GetInterfaceInfo_IAMDecoderCaps(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IAMDecoderCaps> pI = pUnk;
+    if(pI)
+    {
+        DWORD cap;
+        if(SUCCEEDED(pI->GetDecoderCaps(AM_QUERY_DECODER_VMR_SUPPORT, &cap)))
+            group->AddItem(new GraphStudio::PropItem(_T("VMR_SUPPORT"), cap == DECODER_CAP_SUPPORTED));
+        if(SUCCEEDED(pI->GetDecoderCaps(AM_QUERY_DECODER_DXVA_1_SUPPORT, &cap)))
+            group->AddItem(new GraphStudio::PropItem(_T("DXVA_1_SUPPORT"), cap == DECODER_CAP_SUPPORTED));
+        if(SUCCEEDED(pI->GetDecoderCaps(AM_QUERY_DECODER_DVD_SUPPORT, &cap)))
+            group->AddItem(new GraphStudio::PropItem(_T("DVD_SUPPORT"), cap == DECODER_CAP_SUPPORTED));
+        if(SUCCEEDED(pI->GetDecoderCaps(AM_QUERY_DECODER_ATSC_SD_SUPPORT, &cap)))
+            group->AddItem(new GraphStudio::PropItem(_T("ATSC_SD_SUPPORT"), cap == DECODER_CAP_SUPPORTED));
+        if(SUCCEEDED(pI->GetDecoderCaps(AM_QUERY_DECODER_ATSC_HD_SUPPORT, &cap)))
+            group->AddItem(new GraphStudio::PropItem(_T("ATSC_HD_SUPPORT"), cap == DECODER_CAP_SUPPORTED));
+        if(SUCCEEDED(pI->GetDecoderCaps(AM_GETDECODERCAP_QUERY_VMR9_SUPPORT, &cap)))
+            group->AddItem(new GraphStudio::PropItem(_T("VMR9_SUPPORT"), cap == DECODER_CAP_SUPPORTED));
+        if(SUCCEEDED(pI->GetDecoderCaps(AM_GETDECODERCAP_QUERY_EVR_SUPPORT, &cap)))
+            group->AddItem(new GraphStudio::PropItem(_T("EVR_SUPPORT"), cap == DECODER_CAP_SUPPORTED));
+    }
+}
+
 void GetInterfaceInfo_IAsyncReader(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IAsyncReader> pI = pUnk;
@@ -705,7 +728,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{9FD52741-176D-4B36-8F51-CA8F933223BE}"), TEXT("IAMClockSlave"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389163.aspx")),
     CInterfaceInfo(TEXT("{670D1D20-A068-11D0-B3F0-00AA003761C5}"), TEXT("IAMCopyCaptureFileProgress"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389169.aspx")),
     CInterfaceInfo(TEXT("{C6E13380-30AC-11D0-A18C-00A0C9118956}"), TEXT("IAMCrossbar"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389171.aspx")),
-    CInterfaceInfo(TEXT("{C0DFF467-D499-4986-972B-E1D9090FA941}"), TEXT("IAMDecoderCaps"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389177.aspx")),
+    CInterfaceInfo(TEXT("{C0DFF467-D499-4986-972B-E1D9090FA941}"), TEXT("IAMDecoderCaps"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389177.aspx"), GetInterfaceInfo_IAMDecoderCaps),
     CInterfaceInfo(TEXT("{546F4260-D53E-11CF-B3F0-00AA003761C5}"), TEXT("IAMDirectSound"), TEXT("uuids.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389193.aspx")),
     CInterfaceInfo(TEXT("{C6E13344-30AC-11D0-A18C-00A0C9118956}"), TEXT("IAMDroppedFrames"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389311.aspx"), GetInterfaceInfo_IAMDroppedFrames),
     CInterfaceInfo(TEXT("{E43E73A2-0EFA-11D3-9601-00A0C9441E20}"), TEXT("IAMErrorLog"), TEXT("qedit.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389316.aspx")),
