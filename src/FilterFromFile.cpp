@@ -89,7 +89,7 @@ void CFilterFromFile::OnOK()
                     {
                         CString msg;
                         msg.Format(_T("Error loading library (hr = 0x%08x)"), hr);
-                        MessageBox(msg, _T("Error"), MB_ICONERROR);
+                        DSUtil::ShowError(msg);
                         return;
                     }
 
@@ -98,7 +98,7 @@ void CFilterFromFile::OnOK()
                     {
                         CString msg;
                         msg.Format(_T("Error getting IClassFactory for filter (hr = 0x%08x)"), hr);
-                        MessageBox(msg, _T("Error"), MB_ICONERROR);
+                        DSUtil::ShowError(msg);
                         return;
                     }
 
@@ -111,21 +111,21 @@ void CFilterFromFile::OnOK()
                 }
                 else
                 {
-                    MessageBox(_T("CLSID - Parsing Error"), _T("Error"), MB_ICONERROR);
+                    DSUtil::ShowError(_T("CLSID - Parsing Error"));
                     result_clsid = CLSID_NULL;
                     return;
                 }
 		    }
             else
             {
-                MessageBox(_T("No CLSID provided"), _T("Error"), MB_ICONERROR);
+                DSUtil::ShowError(_T("No CLSID provided"));
                 return;
             }
         }
         else
         {
             result_file.Empty();
-            MessageBox(_T("Can not find specified file"), _T("Error"), MB_ICONERROR);
+            DSUtil::ShowError(_T("Can't find specified file"));
             return;
         }
 	}

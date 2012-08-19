@@ -155,7 +155,7 @@ void CMeritChangeDialog::OnOK()
 	}
 
 	if (cnt <= 0) {
-		MessageBox(_T("The value must be either a number\nor a hexadecimal value with the \"0x\" prefix."));
+		DSUtil::ShowError(_T("The value must be either a number\nor a hexadecimal value with the \"0x\" prefix."));
 		return ;
 	}
 

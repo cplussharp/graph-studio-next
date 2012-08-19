@@ -291,17 +291,18 @@ namespace GraphStudio
             {
                 if(p2 != NULL)
                 {
+                    if(p1 == p2) return;
                     if(p1->connected || p2->connected)
                     {
-                        MessageBox(_T("Can't connect to/from already connected pins."), _T("Error"), MB_OK | MB_ICONERROR);
+                        DSUtil::ShowInfo(_T("Can't connect to/from already connected pins."));
                     }
                     else if(p1->filter == p2->filter)
                     {
-                        MessageBox(_T("Can't connect pins on the same filter."), _T("Error"), MB_OK | MB_ICONERROR);
+                        DSUtil::ShowInfo(_T("Can't connect pins on the same filter."));
                     }
                     else if(p1->dir == p2->dir)
                     {
-                        MessageBox(_T("Can't connect pins with the same direction."), _T("Error"), MB_OK | MB_ICONERROR);
+                        DSUtil::ShowInfo(_T("Can't connect pins with the same direction."));
                     }
                     else
                     {
@@ -346,13 +347,13 @@ namespace GraphStudio
                         if(nopins)
                         {
                             if(p1->dir == PINDIR_INPUT)
-                                MessageBox(_T("No output pins on the filter to connect to."), _T("Error"), MB_OK | MB_ICONERROR);
+                                DSUtil::ShowInfo(_T("No output pins on the filter to connect to."));
                             else
-                                MessageBox(_T("No input pins on the filter to connect to."), _T("Error"), MB_OK | MB_ICONERROR);
+                                DSUtil::ShowInfo(_T("No input pins on the filter to connect to."));
                         }
                         else if(nofreepins)
                         {
-                            MessageBox(_T("No free pins on the filter to connect to."), _T("Error"), MB_OK | MB_ICONERROR);
+                            DSUtil::ShowInfo(_T("No free pins on the filter to connect to."));
                         }
                         else
                         {

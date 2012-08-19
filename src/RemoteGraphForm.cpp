@@ -153,7 +153,7 @@ void CRemoteGraphForm::OnConnectClick()
 {
     if(isOwnGraph)
     {
-        MessageBox(_T("Can't connect to own graph!"),_T("Can't connect"), MB_OK|MB_ICONHAND);
+        DSUtil::ShowWarning(_T("Can't connect to own graph!"));
     }
     else
 	    OnOK();
