@@ -503,7 +503,7 @@ void CDecPerformanceForm::OnBuildGraphClick()
 	// try to build the graph.
 	if (BuildPerformanceGraph(view->graph.gb) < 0) {
 		// some message
-		MessageBox(_T("Cannot build performance graph"), _T("Error"), MB_ICONERROR);
+		DSUtil::ShowError(_T("Can't build performance graph"));
 	}
 }
 

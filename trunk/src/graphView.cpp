@@ -692,7 +692,7 @@ void CGraphView::OnFileSaveClick()
 		int ret = graph.SaveGRF(filename);
 		if (ret < 0) {
 			// error
-			MessageBox(_T("Cannot save file"));
+			DSUtil::ShowError(_T("Can't save file"));
 		}
 
 		// updatujeme MRU list
@@ -726,7 +726,7 @@ void CGraphView::OnFileSaveAsClick()
 
 		ret = graph.SaveGRF(filename);	
 		if (ret < 0) {
-			MessageBox(_T("Cannot save file"));
+			DSUtil::ShowError(_T("Can't save file"));
 			return ;
 		}
 
@@ -763,7 +763,7 @@ void CGraphView::OnFileSaveasxml()
 	if (ret == IDOK) {	
 		ret = graph.SaveXML(filename);
 		if (ret < 0) {
-			MessageBox(_T("Cannot save file"));
+			DSUtil::ShowError(_T("Can't save file"));
 		}
 	}
 }
@@ -892,7 +892,7 @@ void CGraphView::OnFileAddmediafile()
 
 		int ret = graph.RenderFile(filename);
 		if (ret < 0) {
-			MessageBox(_T("Cannot render file"));
+			DSUtil::ShowError(_T("Can't render file"));
 			// don't clear graph or graph builder here as we may have existing graph
 		}
 
@@ -917,7 +917,7 @@ void CGraphView::OnRenderUrlClick()
 		OnNewClick();
 		int ret = graph.RenderFile(dlg.result_file);
 		if (ret < 0) {
-			MessageBox(_T("Can't render URL"));
+			DSUtil::ShowError(_T("Can't render URL"));
 			OnNewClick();
 		}
 
@@ -951,7 +951,7 @@ void CGraphView::OnRenderFileClick()
 		OnNewClick();
 		int ret = graph.RenderFile(filename);
 		if (ret < 0) {
-			MessageBox(_T("Can't render file"));
+			DSUtil::ShowError(_T("Can't render file"));
 			OnNewClick();
 		}
 
@@ -1010,7 +1010,7 @@ void CGraphView::OnGraphInsertFilterFromFile()
         {
             CString msg;
             msg.Format(_T("Error creating instance of filter (hr = 0x%08x)"), hr);
-            MessageBox(msg, _T("Error"), MB_ICONERROR);
+            DSUtil::ShowError(msg);
         }
         else
         {
@@ -1353,10 +1353,10 @@ void CGraphView::OnDropFiles(HDROP hDropInfo)
 			// only take one
 			CString fn(temp);
 			ret = TryOpenFile(fn);
-			if (ret == 0) return ;
+			if (ret == 0) return;
 		}
 	}
-	MessageBox(_T("Cannot open file"));
+	DSUtil::ShowError(_T("Can't open file"));
 }
 
 void CGraphView::OnGraphInsertFileSource()

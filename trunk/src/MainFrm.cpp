@@ -208,17 +208,12 @@ LRESULT CMainFrame::OnTaskbarBtnCreated ( UINT uMsg, WPARAM wParam, LPARAM lPara
 {
     // On pre-Win 7, anyone can register a message called "TaskbarButtonCreated"
     // and broadcast it, so make sure the OS is Win 7 or later before acting on
-    // the message. (This isn't a problem for this app, which won't run on pre-7,
-    // but you should definitely do this check if your app will run on pre-7.)
-    DWORD dwMajor = LOBYTE(LOWORD(GetVersion()));
-    DWORD dwMinor = HIBYTE(LOWORD(GetVersion()));
-
-    // Check that the Windows version is at least 6.1 (yes, Win 7 is version 6.1).
-    if ( dwMajor > 6 || ( dwMajor == 6 && dwMinor > 0 ) )
-        {
+    // the message.
+    if (DSUtil::IsOsWin7OrLater())
+    {
         m_pTaskbarList.Release();
         m_pTaskbarList.CoCreateInstance ( CLSID_TaskbarList );
-        }
+    }
 
     return 0;
 }

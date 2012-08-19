@@ -183,7 +183,7 @@ void CSeekForm::OnOK()
 
 		int c = _stscanf_s(t.GetBuffer(), _T("%2d:%2d:%2d.%3d"), &h, &m, &s, &ms);
 		if (c != 4) {			
-			MessageBox(_T("Time format should be in the following form:\nHH:MM:SS.MS\ne.g.: 00:01:30.123"), _T("Error"));
+			DSUtil::ShowError(_T("Time format should be in the following form:\nHH:MM:SS.MS\ne.g.: 00:01:30.123"));
 			return ;
 		} else {
 
@@ -215,7 +215,7 @@ void CSeekForm::OnOK()
 			ms = ((double)(frame+0.5) * 1000.0 / fps);
 			view->graph.Seek(ms, keyframe);
 		} else {
-			MessageBox(_T("Must be a number !!"), _T("Error"));
+			DSUtil::ShowError(_T("Must be a number !!"));
 			return ;
 		}
 	}

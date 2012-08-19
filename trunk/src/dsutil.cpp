@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include <atlbase.h>
 #include <atlpath.h>
+#include <afxtaskdialog.h>
 
 namespace DSUtil
 {
@@ -1950,23 +1951,67 @@ namespace DSUtil
     {
         if (FAILED(hr))
         {
-            CString errStr;
             TCHAR szErr[MAX_ERROR_TEXT_LEN];
             DWORD res = AMGetErrorText(hr, szErr, MAX_ERROR_TEXT_LEN);
             CString strHR;
+            CString strError;
             GraphStudio::NameHResult(hr, strHR);
             if (res == 0)
             {
                 _com_error error(hr);
-                errStr.Format(TEXT("%s\n%s"), strHR, error.ErrorMessage());
+                strError = error.ErrorMessage();
             }
             else
             {
-                errStr.Format(TEXT("%s\n%s"), strHR, szErr);
+                strError = szErr;
             }
                 
-            MessageBox(0, errStr, title != NULL ? title : TEXT("Error"), MB_OK | MB_ICONERROR);
+            if (CTaskDialog::IsSupported())
+            {
+                CTaskDialog taskDialog(strError, strHR, title != NULL ? title : _T("Error"), TDCBF_OK_BUTTON);
+                taskDialog.SetMainIcon(TD_ERROR_ICON);
+                taskDialog.SetCommonButtons(TDCBF_OK_BUTTON);
+                taskDialog.LoadCommandControls(IDS_SEARCH_FOR_ERROR, IDS_SEARCH_FOR_ERROR);
+                INT_PTR result = taskDialog.DoModal();
+
+                if(result == IDS_SEARCH_FOR_ERROR)
+                {
+                    CString url;
+                    url.Format(TEXT("http://www.google.com/search?q=%s"), strHR);
+                    ShellExecute(NULL, _T("open"),url, NULL, NULL, SW_SHOWNORMAL);
+                }
+            }
+            else
+            {
+                CString strMsg;
+                strMsg.Format(_T("%s\n%s"), strHR, szErr);
+                ShowError(strMsg,title);
+            }
         }
+    }
+
+    void ShowError(LPCTSTR text, LPCTSTR title)
+    {
+        if(IsOsWinVistaOrLater())
+            TaskDialog(NULL, NULL, title != NULL ? title : _T("Error"), text, NULL, TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+        else
+            MessageBox(0, text, title != NULL ? title : _T("Error"), MB_OK | MB_ICONERROR);
+    }
+
+    void ShowInfo(LPCTSTR text, LPCTSTR title)
+    {
+        if(IsOsWinVistaOrLater())
+            TaskDialog(NULL, NULL, title != NULL ? title : _T("Info"), text, NULL, TDCBF_OK_BUTTON, TD_INFORMATION_ICON, NULL);
+        else
+            MessageBox(0, text, title != NULL ? title : _T("Info"), MB_OK | MB_ICONERROR);
+    }
+
+    void ShowWarning(LPCTSTR text, LPCTSTR title)
+    {
+        if(IsOsWinVistaOrLater())
+            TaskDialog(NULL, NULL, title != NULL ? title : _T("Warning"), text, NULL, TDCBF_OK_BUTTON, TD_WARNING_ICON, NULL);
+        else
+            MessageBox(0, text, title != NULL ? title : _T("Warning"), MB_OK | MB_ICONWARNING);
     }
 
     bool InitSbeObject(CComQIPtr<IStreamBufferInitialize> pInit)
@@ -1984,6 +2029,22 @@ namespace DSUtil
         }
 
         return true;
+    }
+
+    bool IsOsWin7OrLater()
+    {
+        DWORD dwMajor = LOBYTE(LOWORD(GetVersion()));
+        DWORD dwMinor = HIBYTE(LOWORD(GetVersion()));
+
+        return dwMajor >= 6 && dwMinor >= 1;
+    }
+
+    bool IsOsWinVistaOrLater()
+    {
+        DWORD dwMajor = LOBYTE(LOWORD(GetVersion()));
+        DWORD dwMinor = HIBYTE(LOWORD(GetVersion()));
+
+        return dwMajor >= 6;
     }
 };
 

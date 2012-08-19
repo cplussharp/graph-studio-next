@@ -4,6 +4,7 @@
 //
 #define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             100
+#define IDS_SEARCH_FOR_ERROR            101
 #define IDD_PROPPAGE_DMOQUALCTRL        102
 #define IDD_DIALOGBAR                   103
 #define IDD_BAR_SEEKING                 103

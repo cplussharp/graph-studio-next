@@ -58,7 +58,7 @@ void CBufferNegotiationPage::OnSetClick()
 
 	int				latency_ms;
 	if (_stscanf_s(t.GetBuffer(), _T("%d"), &latency_ms) != 1) {
-		MessageBox(_T("Value must be an integer"));
+		DSUtil::ShowError(_T("Value must be an integer"));
 		return ;
 	}
 	if (latency_ms < 0) latency_ms = 0;
@@ -97,7 +97,7 @@ void CBufferNegotiationPage::OnSetClick()
 
 			hr = bufneg->SuggestAllocatorProperties(&alloc);
 			if (FAILED(hr)) {
-				::MessageBox(0, _T("IAMBufferNegotiation::SuggestAllocatorProperties failed"), _T(""), 0);
+				DSUtil::ShowInfo(_T("IAMBufferNegotiation::SuggestAllocatorProperties failed"));
 			}
 		}
 	} while (0);

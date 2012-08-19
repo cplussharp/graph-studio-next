@@ -138,7 +138,7 @@ void CSbeConfigForm::OnOK()
 
     if(m_nFileCountMax - m_nFileCountMin < 2)
     {
-        MessageBox(_T("The 'max file count' must at least be 'min file count' + 2!"),_T("Wrong parameters"));
+        DSUtil::ShowWarning(_T("The 'max file count' must at least be 'min file count' + 2!"),_T("Wrong parameters"));
         return;
     }
 

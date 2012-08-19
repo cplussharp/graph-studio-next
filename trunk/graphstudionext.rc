@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// German (Germany) resources
+// Deutsch (Deutschland) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
 LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
@@ -27,12 +27,12 @@ LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_ADDFILTER           ICON                    "res\\addFilter.ico"
-#endif    // German (Germany) resources
+#endif    // Deutsch (Deutschland) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (United States) resources
+// Englisch (USA) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -1151,6 +1151,7 @@ END
 STRINGTABLE
 BEGIN
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
+    IDS_SEARCH_FOR_ERROR    "Search for Error\nSearch online for more information about this error."
 END
 
 STRINGTABLE
@@ -1306,7 +1307,7 @@ BEGIN
     ID_BUTTON_REMOVE_CONNECTIONS "Remove all connections between filters"
 END
 
-#endif    // English (United States) resources
+#endif    // Englisch (USA) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

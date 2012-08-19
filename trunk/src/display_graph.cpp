@@ -855,7 +855,7 @@ namespace GraphStudio
 
 				hr = buf_neg->SuggestAllocatorProperties(&alloc);
 				if (FAILED(hr)) {
-					MessageBox(0, _T("IAMBufferNegotiation::SuggestAllocatorProperties failed"), _T(""), 0);
+                    DSUtil::ShowError(_T("IAMBufferNegotiation::SuggestAllocatorProperties failed"));
 				}
 			}
 		} else {
@@ -885,7 +885,7 @@ namespace GraphStudio
 			if (sync >= 0) {
 				hr = gs->SyncUsingStreamOffset((sync == 1 ? TRUE : FALSE));
 				if (FAILED(hr)) {
-					MessageBox(0, _T("Failed to set IAMGraphStreams::SyncUsingStreamOffset"), _T("Error"), MB_ICONERROR);
+					DSUtil::ShowError(_T("Failed to set IAMGraphStreams::SyncUsingStreamOffset"));
 				}
 			}
 
@@ -894,7 +894,7 @@ namespace GraphStudio
 				REFERENCE_TIME		rtMaxLatency = latency;
 				hr = gs->SetMaxGraphLatency(rtMaxLatency);
 				if (FAILED(hr)) {
-					MessageBox(0, _T("Failed to set IAMGraphStreams::SetMaxGraphLatency"), _T("Error"), MB_ICONERROR);
+					DSUtil::ShowError(_T("Failed to set IAMGraphStreams::SetMaxGraphLatency"));
 				}
 			}
 

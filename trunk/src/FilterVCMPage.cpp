@@ -92,7 +92,7 @@ void CFilterVCMPage::OnConfigClick()
 	if (!vfwdialogs) return ;
 	HRESULT hr = vfwdialogs->ShowDialog(VfwCompressDialog_Config, *AfxGetMainWnd());
 	if (FAILED(hr)) {
-		MessageBox(_T("Graph must be in stopped state"), _T("Error"), MB_ICONERROR);
+		DSUtil::ShowError(_T("Graph must be in stopped state"));
 	}
 }
 
@@ -101,7 +101,7 @@ void CFilterVCMPage::OnAboutClick()
 	if (!vfwdialogs) return ;
 	HRESULT hr = vfwdialogs->ShowDialog(VfwCompressDialog_About, *AfxGetMainWnd());
 	if (FAILED(hr)) {
-		MessageBox(_T("Graph must be in stopped state"), _T("Error"), MB_ICONERROR);
+		DSUtil::ShowError(_T("Graph must be in stopped state"));
 	}
 }
 

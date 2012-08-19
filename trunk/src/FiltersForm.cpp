@@ -555,7 +555,7 @@ int ConfigureInsertedFilter(IBaseFilter *filter, const CString& filterName)
 		if (ret == IDOK) {
 			hr = fs->Load((LPCOLESTR)src_form.result_file, NULL);
 			if (FAILED(hr)) {
-				MessageBox(NULL, _T("Cannot load specified file"), _T("Error"), MB_ICONERROR);
+				DSUtil::ShowError(_T("Can't load specified file"));
 			}
 			ret = 1;
 		} else {
@@ -578,7 +578,7 @@ int ConfigureInsertedFilter(IBaseFilter *filter, const CString& filterName)
 		if (ret == IDOK) {
 			hr = fsink->SetFileName((LPCOLESTR)sink_form.result_file, NULL);
 			if (FAILED(hr)) {
-				MessageBox(NULL, _T("Cannot write specified file"), _T("Error"), MB_ICONERROR);
+				DSUtil::ShowError(_T("Can't write specified file"));
 			}
 			ret = 1;
 		} else {
@@ -656,7 +656,7 @@ void CFiltersForm::OnUnregisterClick()
 {
     if(!IsUserAdmin())
     {
-        AfxMessageBox(TEXT("Admin rights required to unregister a filter.\nPlease restart the program as admin."));
+        DSUtil::ShowInfo(_T("Admin rights required to unregister a filter.\nPlease restart the program as admin."));
         return;
     }
 
@@ -678,11 +678,11 @@ void CFiltersForm::OnUnregisterClick()
 			    hr = DMOUnregister(filter->clsid, filter->category);
 			    if (SUCCEEDED(hr)) {
                     changed = true;
-				    MessageBox(_T("Unregister succeeded."), _T("Information"));
+				    DSUtil::ShowInfo(_T("Unregister succeeded."));
 			    } else {
 				    CString		msg;
 				    msg.Format(_T("Unregister failed: 0x%08x"), hr);
-				    MessageBox(msg, _T("Error"), MB_ICONERROR);
+				    DSUtil::ShowError(msg);
 			    }
 
 		    } else
@@ -708,7 +708,7 @@ void CFiltersForm::OnUnregisterClick()
 				    // we simply won't let the users unregister these files...
 				    // If they really try to do this, perhaps they should be
 				    // doing something else than computers...
-				    MessageBox(_T("This file is essential to the system.\nPermission denied."), _T("Warning"), MB_ICONWARNING);
+				    DSUtil::ShowWarning(_T("This file is essential to the system.\nPermission denied."));
 				    continue;
 			    }
 
@@ -733,11 +733,11 @@ void CFiltersForm::OnUnregisterClick()
                             changed = true;
                             CString		msg;
                             msg.Format(_T("Unregister '%s' succeeded."), PathFindFileName(fn));
-						    MessageBox(msg, _T("Information"));
+						    DSUtil::ShowInfo(msg);
 					    } else {
 						    CString		msg;
                             msg.Format(_T("Unregister '%s' failed: 0x%08x"), PathFindFileName(fn), hr);
-						    MessageBox(msg, _T("Error"), MB_ICONERROR);
+						    DSUtil::ShowError(msg);
 					    }
 				    }
 				    FreeLibrary(library);
@@ -753,11 +753,11 @@ void CFiltersForm::OnUnregisterClick()
                         changed = true;
                         CString		msg;
                         msg.Format(_T("Unregister '%s' succeeded."), filter->name);
-					    MessageBox(msg, _T("Information"));
+					    DSUtil::ShowInfo(msg);
 				    } else {
 					    CString		msg;
 					    msg.Format(_T("Unregister '%s' failed: 0x%08x"), filter->name, hr);
-					    MessageBox(msg, _T("Error"), MB_ICONERROR);
+					    DSUtil::ShowError(msg);
 				    }
 			    }
 		    }
@@ -778,7 +778,7 @@ void CFiltersForm::OnMeritClick()
 {
     if(!IsUserAdmin())
     {
-        AfxMessageBox(TEXT("Admin rights required to change the merit of a filter.\nPlease restart the program as admin."));
+        DSUtil::ShowInfo(_T("Admin rights required to change the merit of a filter.\nPlease restart the program as admin."));
         return;
     }
 
@@ -798,10 +798,10 @@ void CFiltersForm::OnMeritClick()
 				filter->merit = newmerit;
 				int ret = filter->WriteMerit();
 				if (ret < 0) {
-					MessageBox(_T("Failed to update merit value"), _T("Error"), MB_ICONERROR);
+					DSUtil::ShowError(_T("Failed to update merit value"));
 					filter->merit = oldmerit;
 				} else {
-					MessageBox(_T("Merit change succeeded."), _T("Information"));
+					DSUtil::ShowInfo(_T("Merit change succeeded."));
 
 					// remember the display name so we can select the same filter again
 					CString		displayname = filter->moniker_name;
@@ -837,7 +837,7 @@ void CFiltersForm::OnRegisterClick()
 {
     if(!IsUserAdmin())
     {
-        AfxMessageBox(TEXT("Admin rights required to register a filter.\nPlease restart the program as admin."));
+        DSUtil::ShowInfo(_T("Admin rights required to register a filter.\nPlease restart the program as admin."));
         return;
     }
 
@@ -876,11 +876,11 @@ void CFiltersForm::OnRegisterClick()
                     changed = true;
                     CString	msg;
                     msg.Format(_T("Register '%s' succeeded."), PathFindFileName(filename));
-					MessageBox(msg, _T("Information"));
+					DSUtil::ShowInfo(msg);
 				} else {
 					CString	msg;
 					msg.Format(_T("Register '%s' failed: 0x%08x"), PathFindFileName(filename), hr);
-					MessageBox(msg, _T("Error"), MB_ICONERROR);
+					DSUtil::ShowError(msg);
 				}
 			}
 			FreeLibrary(library);
