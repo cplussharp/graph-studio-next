@@ -291,8 +291,9 @@ namespace GraphStudio
             {
                 if(p2 != NULL)
                 {
-                    if(p1 == p2) return;
-                    if(p1->connected || p2->connected)
+                    if(p1 == p2)
+						;			// clean up below
+                    else if(p1->connected || p2->connected)
                     {
                         DSUtil::ShowInfo(_T("Can't connect to/from already connected pins."));
                     }
