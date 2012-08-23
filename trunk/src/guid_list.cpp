@@ -619,12 +619,35 @@ namespace GraphStudio
 	bool NameGuid(GUID guid, CString &str, bool alsoAddGuid)
 	{
         bool found = false;
-        for (int i=0; i<KnownGuidCount; i++) {
+
+        for (int i=0; i<KnownGuidCount; i++) {			// lookup known GUIDS
 			if (KnownGuidList[i].guid == guid) {
 				str = CString(KnownGuidList[i].name);
-                if(!alsoAddGuid) return true;
+                if(!alsoAddGuid) 
+					return true;
 				found = true;
                 break;
+			}
+		}
+
+		if (!found) {								// interpret as fourcc GUID
+			const FOURCCMap fourccZeroed;
+			GUID guidZeroed = guid;
+			guidZeroed.Data1 = 0x0;
+			if (fourccZeroed == guidZeroed) {
+				union
+				{
+					DWORD	dwFourCC;
+					char	strFourCC[5];
+				} fcc;
+				fcc.dwFourCC = guid.Data1;
+				fcc.strFourCC[4] = '\0';		// null terminate fourcc string
+				str = _T("MEDIASUBTYPE_");
+				str += fcc.strFourCC;
+
+				if(!alsoAddGuid) 
+					return true;
+				found = true;
 			}
 		}
 
