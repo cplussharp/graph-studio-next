@@ -73,9 +73,14 @@ BOOL CMediaTypeSelectForm::OnInitDialog()
             else if(mediaType.formattype == FORMAT_VideoInfo2 || mediaType.formattype == FORMAT_MPEG2_VIDEO)
                 bmi = &((VIDEOINFOHEADER2*)mediaType.pbFormat)->bmiHeader;
 
-            if(bmi != NULL)
-                formatDetails.Format(_T("%4d x %4d"), bmi->biWidth, bmi->biHeight);
-            else if(mediaType.formattype == FORMAT_WaveFormatEx)
+            if(bmi != NULL) 
+			{
+				const int pixels = bmi->biWidth * bmi->biHeight;
+				const float averageBPP = pixels ? (8.0*bmi->biSizeImage)/pixels : 0;
+				formatDetails.Format(_T("%4d x %4d, %3d bpp, %3.1f av bpp"), 
+							bmi->biWidth, bmi->biHeight, bmi->biBitCount, averageBPP);
+			} 
+			else if(mediaType.formattype == FORMAT_WaveFormatEx)
             {
                 WAVEFORMATEX* wfx = (WAVEFORMATEX*)mediaType.pbFormat;
                 formatDetails.Format(_T("%dx %dHz with %dBits"), wfx->nChannels, wfx->nSamplesPerSec, wfx->wBitsPerSample);
