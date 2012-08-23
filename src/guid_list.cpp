@@ -634,16 +634,10 @@ namespace GraphStudio
 			const FOURCCMap fourccZeroed;
 			GUID guidZeroed = guid;
 			guidZeroed.Data1 = 0x0;
-			if (fourccZeroed == guidZeroed) {
-				union
-				{
-					DWORD	dwFourCC;
-					char	strFourCC[5];
-				} fcc;
-				fcc.dwFourCC = guid.Data1;
-				fcc.strFourCC[4] = '\0';		// null terminate fourcc string
+			CString fourccString;
+			if (fourccZeroed == guidZeroed && 0==GetFourCC(guid.Data1, fourccString)) {
 				str = _T("MEDIASUBTYPE_");
-				str += fcc.strFourCC;
+				str += fourccString;
 
 				if(!alsoAddGuid) 
 					return true;
