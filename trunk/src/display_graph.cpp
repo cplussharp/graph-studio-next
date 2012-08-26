@@ -39,6 +39,7 @@ namespace GraphStudio
 	DisplayGraph::DisplayGraph()
 	{
 		callback = NULL;
+        params = NULL;
 
 		graph_name = _T("Graph");
 
@@ -115,6 +116,7 @@ namespace GraphStudio
 
 		// now we're a remote graph
 		is_remote = true;
+        if(params) params->is_remote = true;
 		return 0;
 	}
 
@@ -169,6 +171,7 @@ namespace GraphStudio
 		}
 
 		is_remote = false;
+        if(params) params->is_remote = false;
 		is_frame_stepping = false;
 		uses_clock = true;
 
@@ -2643,6 +2646,7 @@ namespace GraphStudio
 	RenderParameters::RenderParameters()
 	{
 		color_back = RGB(192, 192, 192);		// default background color
+        color_back_remote = RGB(255, 192, 192);		// default background color
 		select_color = RGB(0,0,255);
 
 		// filter colors
@@ -2677,6 +2681,7 @@ namespace GraphStudio
 		video_renderers = NULL;
 
         use_media_info = false;
+        is_remote = false;
 
 		// load bitmaps
 		BOOL ok;	

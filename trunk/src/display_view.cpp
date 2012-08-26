@@ -600,7 +600,7 @@ namespace GraphStudio
 			CRect	rect;
 
 			// now we repaint the buffer
-			CBrush backBrush(render_params.color_back);
+			CBrush backBrush(!render_params.is_remote ? render_params.color_back : render_params.color_back_remote);
 
 			memDC.SelectObject(&backBrush);
 			memDC.GetClipBox(&rect);
@@ -625,7 +625,7 @@ namespace GraphStudio
 		pDC->BitBlt(0, 0, back_width, back_height, &memDC, 0, 0, SRCCOPY);
 
 		// paint the rest of client area with background brush
-		CBrush backBrush(render_params.color_back);
+		CBrush backBrush(!render_params.is_remote ? render_params.color_back : render_params.color_back_remote);
 		CBrush *prev_brush = pDC->SelectObject(&backBrush);
 		pDC->PatBlt(back_width, 0, r.Width(), r.Height(), PATCOPY);
 		pDC->PatBlt(0, back_height, back_width, r.Height(), PATCOPY);
