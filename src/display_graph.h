@@ -57,6 +57,7 @@ namespace GraphStudio
 
 		// color and font settings
 		DWORD			color_back;
+        DWORD			color_back_remote;
 
 		// filter settings
 		DWORD			filter_color;
@@ -108,6 +109,7 @@ namespace GraphStudio
 		DSUtil::FilterTemplates		*video_renderers;				// list of filters we consider video renderers
 
         bool            use_media_info;
+        bool            is_remote;
 
 	public:
 		RenderParameters();

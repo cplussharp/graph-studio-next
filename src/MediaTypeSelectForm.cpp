@@ -48,8 +48,8 @@ BOOL CMediaTypeSelectForm::OnInitDialog()
     media_types_list.InsertColumn(FORMAT_DETAILS,	_T("Format Details"),	LVCFMT_LEFT, columnWidth, FORMAT_DETAILS); 
     media_types_list.InsertColumn(MAJOR_TYPE,	_T("Major Type"),	LVCFMT_LEFT, columnWidth, MAJOR_TYPE); 
 
-	// First entry is <Any> Media Type
-	LPCTSTR any = _T("<Any>");
+	// First entry is <Default> Media Type
+	LPCTSTR any = _T("<Default>");
 	media_types_list.InsertItem(0, any);
 	media_types_list.SetItemText(0, FORMAT_TYPE, any);
     media_types_list.SetItemText(0, FORMAT_DETAILS, any);
@@ -94,7 +94,17 @@ BOOL CMediaTypeSelectForm::OnInitDialog()
 		media_types_list.SetItemData(index+1, index);
 	}
 
+    // Select default entry
+    LVITEM lvi;
+	ZeroMemory(&lvi, sizeof(lvi));
+	lvi.mask	= LVIF_STATE;
+	lvi.state	= LVIS_SELECTED;
+	lvi.stateMask   = LVIS_SELECTED;
+    media_types_list.SetItemState(0, &lvi);
+
+    // focus to the list, to navigate in it
     media_types_list.SetFocus();
+    //SendMessage(WM_NEXTDLGCTL, (WPARAM)media_types_list.GetSafeHwnd(), TRUE);
 
     return FALSE;
 }
