@@ -1748,6 +1748,14 @@ int CGraphView::InsertFilterFromFavorite(GraphStudio::FavoriteFilter *filter)
 	hr = moniker->BindToObject(NULL, NULL, IID_IBaseFilter, (void**)&instance);
 	if (SUCCEEDED(hr)) {
 
+        // has selected pin, then get IPin interface now, because graph.AddFilter will release current_pin
+        CComPtr<IPin> outpin;
+        if(current_pin)
+        {
+            outpin = current_pin->pin;
+            current_pin = NULL;
+        }
+
 		// now check for a few interfaces
         int ret = ConfigureInsertedFilter(instance, filter->name);
 		if (ret < 0) {
@@ -1759,7 +1767,18 @@ int CGraphView::InsertFilterFromFavorite(GraphStudio::FavoriteFilter *filter)
 			hr = graph.AddFilter(instance, filter->name);
 			if (FAILED(hr)) {
 				// display error message
+                DSUtil::ShowError(hr);
 			} else {
+                // now try to connect the filter
+                if(outpin)
+                {
+				    hr = DSUtil::ConnectPin(graph.gb, outpin, instance);
+                    if(FAILED(hr))
+                        DSUtil::ShowError(hr);
+                }
+
+				graph.RefreshFilters();
+
 				graph.SmartPlacement();
 				Invalidate();
 			}

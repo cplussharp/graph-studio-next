@@ -158,6 +158,8 @@ public:
 	void UpdateFavoriteMenu();
 	void RemoveFilter(HTREEITEM item);
 
+    static int FillMenu(CMenu* filters_menu, GraphStudio::Favorites* favorites, int offset = 0);
+
 	void OnNMRclickTreeFavorites(NMHDR *pNMHDR, LRESULT *pResult);
 	void OnMenuCreategroup();
 	void OnBeginDrag(NMHDR *pNMHDR, LRESULT *pResult);
