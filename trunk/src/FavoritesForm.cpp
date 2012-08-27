@@ -175,70 +175,74 @@ void CFavoritesForm::UpdateFavoriteMenu()
 	int	cnt = favorites->filters.GetCount() + favorites->groups.GetCount();
 
 	if (cnt > 0) {
-
-		int		offset = filters_menu->GetMenuItemCount() - 2;
-		int		i, id;
-		int		c=0;
-		
-		// add groups
-		id = 1;
-		for (i=0; i<favorites->groups.GetCount(); i++) {
-			GraphStudio::FavoriteGroup	*group = favorites->groups[i];
-
-			filters_menu->InsertMenu(offset + c, MF_BYPOSITION | MF_STRING, 0, group->name);
-
-			if (group->filters.GetCount() > 0) {
-				
-				// fill in audio renderers
-				CMenu	group_menu;
-				group_menu.CreatePopupMenu();
-				for (int j=0; j<group->filters.GetCount(); j++) {
-					GraphStudio::FavoriteFilter	*filter = group->filters[j];
-					group_menu.InsertMenu(j, MF_STRING, ID_FAVORITE_FILTER + id, filter->name);
-
-					// associate the menu item with the gavorite filter
-					MENUITEMINFO	info;
-					memset(&info, 0, sizeof(info));
-					info.cbSize = sizeof(info);
-					info.fMask = MIIM_DATA;
-					info.dwItemData = (ULONG_PTR)filter;
-					group_menu.SetMenuItemInfo(j, &info, TRUE);
-					id++;
-				}
-
-				filters_menu->ModifyMenu(offset + c, MF_BYPOSITION | MF_POPUP | MF_STRING, 
-										(UINT_PTR)group_menu.m_hMenu, group->name);
-
-				group_menu.Detach();
-
-			} else {
-
-				filters_menu->EnableMenuItem(offset + c, MF_BYPOSITION | MF_GRAYED);
-			}
-			c++;			
-		}
-
-		// add filters
-		for (i=0; i<favorites->filters.GetCount(); i++) {
-			filters_menu->InsertMenu(offset + c, MF_BYPOSITION | MF_STRING, ID_FAVORITE_FILTER + id, favorites->filters[i]->name);
-
-			// associate the menu item with the gavorite filter
-			MENUITEMINFO	info;
-			memset(&info, 0, sizeof(info));
-			info.cbSize = sizeof(info);
-			info.fMask = MIIM_DATA;
-			info.dwItemData = (ULONG_PTR)favorites->filters[i];
-			filters_menu->SetMenuItemInfo(offset + c, &info, TRUE);
-
-			id++;
-			c++;			
-		}
-
+		int	offset = filters_menu->GetMenuItemCount() - 2;
+		int c = FillMenu(filters_menu, favorites, offset);
 
 		// separator at the end
 		filters_menu->InsertMenu(offset + c, MF_BYPOSITION | MF_SEPARATOR, 0);
 	}
+}
 
+int CFavoritesForm::FillMenu(CMenu* filters_menu, GraphStudio::Favorites* favorites, int offset)
+{
+	int		i, id;
+	int		c=0;
+		
+	// add groups
+	id = 1;
+	for (i=0; i<favorites->groups.GetCount(); i++) {
+		GraphStudio::FavoriteGroup	*group = favorites->groups[i];
+
+		filters_menu->InsertMenu(offset + c, MF_BYPOSITION | MF_STRING, 0, group->name);
+
+		if (group->filters.GetCount() > 0) {
+				
+			// fill in audio renderers
+			CMenu	group_menu;
+			group_menu.CreatePopupMenu();
+			for (int j=0; j<group->filters.GetCount(); j++) {
+				GraphStudio::FavoriteFilter	*filter = group->filters[j];
+				group_menu.InsertMenu(j, MF_STRING, ID_FAVORITE_FILTER + id, filter->name);
+
+				// associate the menu item with the gavorite filter
+				MENUITEMINFO	info;
+				memset(&info, 0, sizeof(info));
+				info.cbSize = sizeof(info);
+				info.fMask = MIIM_DATA;
+				info.dwItemData = (ULONG_PTR)filter;
+				group_menu.SetMenuItemInfo(j, &info, TRUE);
+				id++;
+			}
+
+			filters_menu->ModifyMenu(offset + c, MF_BYPOSITION | MF_POPUP | MF_STRING, 
+									(UINT_PTR)group_menu.m_hMenu, group->name);
+
+			group_menu.Detach();
+
+		} else {
+
+			filters_menu->EnableMenuItem(offset + c, MF_BYPOSITION | MF_GRAYED);
+		}
+		c++;			
+	}
+
+	// add filters
+	for (i=0; i<favorites->filters.GetCount(); i++) {
+		filters_menu->InsertMenu(offset + c, MF_BYPOSITION | MF_STRING, ID_FAVORITE_FILTER + id, favorites->filters[i]->name);
+
+		// associate the menu item with the favorite filter
+		MENUITEMINFO	info;
+		memset(&info, 0, sizeof(info));
+		info.cbSize = sizeof(info);
+		info.fMask = MIIM_DATA;
+		info.dwItemData = (ULONG_PTR)favorites->filters[i];
+		filters_menu->SetMenuItemInfo(offset + c, &info, TRUE);
+
+		id++;
+		c++;			
+	}
+
+    return c;
 }
 
 void CFavoritesForm::UpdateTree()

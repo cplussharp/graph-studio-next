@@ -40,6 +40,7 @@ namespace GraphStudio
 
 		ON_COMMAND_RANGE(ID_STREAM_SELECT, ID_STREAM_SELECT+100, &DisplayView::OnSelectStream)
 		ON_COMMAND_RANGE(ID_COMPATIBLE_FILTER, ID_COMPATIBLE_FILTER+999, &DisplayView::OnCompatibleFilterClick)
+        //ON_COMMAND_RANGE(ID_FAVORITE_FILTER, ID_FAVORITE_FILTER+500, &DisplayView::OnFavoriteFilterClick)
 
 	END_MESSAGE_MAP()
 
@@ -53,6 +54,8 @@ namespace GraphStudio
 		graph.params = &render_params;
 		graph.callback = this;
 		graph.dc = &memDC;
+
+        current_pin = NULL;
 	}
 
 	DisplayView::~DisplayView()
@@ -149,6 +152,9 @@ namespace GraphStudio
 			// check for compatible filters
 			PrepareCompatibleFiltersMenu(menu, current_pin);
 
+            // add Favorite filters
+            PrepareFavoriteFiltersMenu(menu);
+
 			p = menu.GetMenuItemCount();
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_PROPERTYPAGE, _T("Properties"));
@@ -178,7 +184,7 @@ namespace GraphStudio
 		GetCursorPos(&pt);
 
 		// display menu
-		menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, this);
+		menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, AfxGetMainWnd());
 	}
 
 	void DisplayView::OnLButtonDown(UINT nFlags, CPoint point)
@@ -508,6 +514,7 @@ namespace GraphStudio
 				Invalidate();
 			}
 		} else {
+            current_pin = NULL;
 
 			/*
 				No buttons are pressed. We only check for overlay icons
@@ -1105,6 +1112,7 @@ namespace GraphStudio
 				hr = graph.AddFilter(instance, templ.name);
 				if (FAILED(hr)) {
 					// display error message
+                    DSUtil::ShowError(hr);
 				} else {
 
 					// now try to connect the filter
@@ -1116,6 +1124,8 @@ namespace GraphStudio
 				}
 			}
 		}
+        else
+            DSUtil::ShowError(hr);
 
 		outpin = NULL;
 		instance = NULL;
@@ -1242,13 +1252,24 @@ namespace GraphStudio
 	}
 
 
+	void DisplayView::PrepareFavoriteFiltersMenu(CMenu &menu)
+    {
+		CMenu		submenu;
+		submenu.CreatePopupMenu();
+        GraphStudio::Favorites	*favorites = GraphStudio::Favorites::GetInstance();
+        
+        CFavoritesForm::FillMenu(&submenu, favorites);
+
+		// do insert the menu
+		int		count = menu.GetMenuItemCount();
+		menu.InsertMenu(count++, MF_BYPOSITION | MF_SEPARATOR);
+		menu.InsertMenu(count, MF_BYPOSITION | MF_STRING, 0, _T("Favorite filters"));
+		menu.ModifyMenu(count, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("Favorite filters"));
+		submenu.Detach();
+	}
+
     ULONG DisplayView::GetGestureStatus(CPoint ptTouch)
     {
         return 0;
     }
 };
-
-
-
-
-

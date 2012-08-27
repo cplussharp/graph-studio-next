@@ -215,8 +215,8 @@
 #define ID_AUDIO_RENDERER0              6100
 #define ID_VIDEO_RENDERER0              6150
 #define ID_INTERNAL_FILTER0             6200
-#define ID_FAVORITE_FILTER              6250
 #define ID_STREAM_SELECT                6800
+#define ID_FAVORITE_FILTER              7500
 #define ID_PREFERRED_VIDEO_RENDERER     8000
 #define ID_COMPATIBLE_FILTER            9000
 #define ID_Menu                         32771
