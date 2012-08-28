@@ -1971,7 +1971,7 @@ namespace DSUtil
                 CTaskDialog taskDialog(strError, strHR, title != NULL ? title : _T("Error"), TDCBF_OK_BUTTON);
                 taskDialog.SetMainIcon(TD_ERROR_ICON);
                 taskDialog.SetCommonButtons(TDCBF_OK_BUTTON);
-                taskDialog.LoadCommandControls(IDS_SEARCH_FOR_ERROR, IDS_SEARCH_FOR_ERROR);
+                taskDialog.LoadCommandControls(IDS_SEARCH_FOR_ERROR, IDS_SHOW_GRAPH_CONSTRUCTION_REPORT);
                 INT_PTR result = taskDialog.DoModal();
 
                 if(result == IDS_SEARCH_FOR_ERROR)
@@ -1979,6 +1979,10 @@ namespace DSUtil
                     CString url;
                     url.Format(TEXT("http://www.google.com/search?q=%s"), strHR);
                     ShellExecute(NULL, _T("open"),url, NULL, NULL, SW_SHOWNORMAL);
+                }
+                else if(result == IDS_SHOW_GRAPH_CONSTRUCTION_REPORT)
+                {
+                    AfxGetMainWnd()->SendMessage(WM_COMMAND, ID_VIEW_GRAPHCONSTRUCTIONREPORT);
                 }
             }
             else

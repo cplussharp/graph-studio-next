@@ -84,7 +84,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSM
 CAPTION "About GraphStudioNext"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-    LTEXT           "GraphStudioNext v0.4.9.1",IDC_STATIC,6,30,156,8,SS_NOPREFIX
+    LTEXT           "GraphStudioNext v0.5.0.0",IDC_STATIC,6,30,156,8,SS_NOPREFIX
     DEFPUSHBUTTON   "OK",IDOK,198,78,50,16,WS_GROUP
     LTEXT           "This software is free under the GNU GPL license",IDC_STATIC,6,72,153,8
     CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,252,24
@@ -1004,7 +1004,7 @@ BEGIN
         MENUITEM "&GUID Lookup...",             ID_HELP_GUIDLOOKUP
         MENUITEM "&HRESULT Lookup...",          ID_HELP_HRESULTLOOKUP
         MENUITEM SEPARATOR
-        MENUITEM "&About GraphStudio...",       ID_APP_ABOUT
+        MENUITEM "&About GraphStudioNext...",   ID_APP_ABOUT
     END
 END
 
@@ -1071,8 +1071,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,4,9,1
- PRODUCTVERSION 0,4,9,1
+ FILEVERSION 0,5,0,0
+ PRODUCTVERSION 0,5,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1088,10 +1088,10 @@ BEGIN
         BLOCK "000904e4"
         BEGIN
             VALUE "FileDescription", "GraphStudioNext"
-            VALUE "FileVersion", "0.4.9.1"
+            VALUE "FileVersion", "0.5.0.0"
             VALUE "InternalName", "graphstudionext.exe"
             VALUE "OriginalFilename", "graphstudionext.exe"
-            VALUE "ProductVersion", "0.4.9.1"
+            VALUE "ProductVersion", "0.5.0.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -1293,6 +1293,7 @@ STRINGTABLE
 BEGIN
     ID_BUTTON32850          "Seek to specified position"
     ID_BUTTON_SEEK          "Seek to specified position"
+    ID_VIEW_GRAPHCONSTRUCTIONREPORT "Show Graph Construction Report"
 END
 
 STRINGTABLE
@@ -1305,6 +1306,11 @@ BEGIN
     ID_BUTTON_INTELLIGENT   "Intelligent connection mode"
     ID_BUTTON_DIRECT_WITHMT "Direct connection with MediaType mode"
     ID_BUTTON_REMOVE_CONNECTIONS "Remove all connections between filters"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_SHOW_GRAPH_CONSTRUCTION_REPORT "Show Graph Constrution Report"
 END
 
 #endif    // Englisch (USA) resources
