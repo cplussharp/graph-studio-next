@@ -106,6 +106,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_VIEW_INCREASEZOOMLEVEL, &CGraphView::OnViewIncreasezoomlevel)
 	ON_COMMAND(ID_FILTERS_MANAGEFAVORITES, &CGraphView::OnFiltersManageFavorites)
     ON_COMMAND(ID_FILTERS_MANAGEBLACKLIST, &CGraphView::OnFiltersManageBlacklist)
+    ON_UPDATE_COMMAND_UI(ID_FILTERS_MANAGEBLACKLIST, &CGraphView::OnUpdateFiltersManageBlacklist)
 	ON_COMMAND(ID_FILE_OPENFROMXML, &CGraphView::OnFileOpenfromxml)
 	ON_COMMAND(ID_OPTIONS_DISPLAYASFILENAME, &CGraphView::OnOptionsDisplayFileName)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_DISPLAYASFILENAME, &CGraphView::OnUpdateOptionsDisplayFileName)
@@ -1833,6 +1834,11 @@ void CGraphView::OnFiltersDouble()
 void CGraphView::OnFiltersManageFavorites()
 {
 	form_favorites->ShowWindow(SW_SHOW);
+}
+
+void CGraphView::OnUpdateFiltersManageBlacklist(CCmdUI *ui)
+{
+    ui->Enable(FALSE);
 }
 
 void CGraphView::OnFiltersManageBlacklist()

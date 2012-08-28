@@ -153,7 +153,7 @@ namespace GraphStudio
 			PrepareCompatibleFiltersMenu(menu, current_pin);
 
             // add Favorite filters
-            PrepareFavoriteFiltersMenu(menu);
+            PrepareFavoriteFiltersMenu(menu, current_pin);
 
 			p = menu.GetMenuItemCount();
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
@@ -1252,8 +1252,12 @@ namespace GraphStudio
 	}
 
 
-	void DisplayView::PrepareFavoriteFiltersMenu(CMenu &menu)
+	void DisplayView::PrepareFavoriteFiltersMenu(CMenu &menu, Pin *pin)
     {
+        // ignore invalid and connected pins
+		if (!pin || !(pin->pin) || (pin->dir == PINDIR_INPUT)) return ;
+		if (pin->connected) return ;
+
 		CMenu		submenu;
 		submenu.CreatePopupMenu();
         GraphStudio::Favorites	*favorites = GraphStudio::Favorites::GetInstance();

@@ -198,6 +198,7 @@ public:
 	void OnViewIncreasezoomlevel();
 	void OnFiltersManageFavorites();
     void OnFiltersManageBlacklist();
+    void OnUpdateFiltersManageBlacklist(CCmdUI *ui);
 	void OnFileOpenfromxml();
 	void OnOptionsDisplayFileName();
 	void OnUpdateOptionsDisplayFileName(CCmdUI *pCmdUI);

@@ -4,12 +4,13 @@
 //
 #define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             100
-#define IDS_SEARCH_FOR_ERROR            101
 #define IDD_PROPPAGE_DMOQUALCTRL        102
 #define IDD_DIALOGBAR                   103
 #define IDD_BAR_SEEKING                 103
 #define IDD_DIALOG_FILTERDETAILS        105
 #define IDD_PROPPAGE_WMRESIZER          106
+#define IDS_SEARCH_FOR_ERROR            111
+#define IDS_SHOW_GRAPH_CONSTRUCTION_REPORT 112
 #define IDR_MAINFRAME                   128
 #define IDR_graphstudioTYPE             129
 #define IDB_BITMAP_LOGO                 130
