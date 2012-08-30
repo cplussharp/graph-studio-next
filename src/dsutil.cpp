@@ -1970,7 +1970,7 @@ namespace DSUtil
             {
                 CTaskDialog taskDialog(strError, strHR, title != NULL ? title : _T("Error"), TDCBF_OK_BUTTON);
                 taskDialog.SetMainIcon(TD_ERROR_ICON);
-                taskDialog.SetCommonButtons(TDCBF_OK_BUTTON);
+                //taskDialog.SetCommonButtons(TDCBF_OK_BUTTON);
                 taskDialog.LoadCommandControls(IDS_SEARCH_FOR_ERROR, IDS_SHOW_GRAPH_CONSTRUCTION_REPORT);
                 INT_PTR result = taskDialog.DoModal();
 
@@ -1996,24 +1996,36 @@ namespace DSUtil
 
     void ShowError(LPCTSTR text, LPCTSTR title)
     {
-        if(IsOsWinVistaOrLater())
-            TaskDialog(NULL, NULL, title != NULL ? title : _T("Error"), text, NULL, TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+        if(CTaskDialog::IsSupported())
+        {
+            CTaskDialog taskDialog(text, NULL, title != NULL ? title : _T("Error"), TDCBF_OK_BUTTON);
+            taskDialog.SetMainIcon(TD_ERROR_ICON);
+            taskDialog.DoModal();
+        }
         else
             MessageBox(0, text, title != NULL ? title : _T("Error"), MB_OK | MB_ICONERROR);
     }
 
     void ShowInfo(LPCTSTR text, LPCTSTR title)
     {
-        if(IsOsWinVistaOrLater())
-            TaskDialog(NULL, NULL, title != NULL ? title : _T("Info"), text, NULL, TDCBF_OK_BUTTON, TD_INFORMATION_ICON, NULL);
+        if(CTaskDialog::IsSupported())
+        {
+            CTaskDialog taskDialog(text, NULL, title != NULL ? title : _T("Info"), TDCBF_OK_BUTTON);
+            taskDialog.SetMainIcon(TD_INFORMATION_ICON);
+            taskDialog.DoModal();
+        }
         else
             MessageBox(0, text, title != NULL ? title : _T("Info"), MB_OK | MB_ICONERROR);
     }
 
     void ShowWarning(LPCTSTR text, LPCTSTR title)
     {
-        if(IsOsWinVistaOrLater())
-            TaskDialog(NULL, NULL, title != NULL ? title : _T("Warning"), text, NULL, TDCBF_OK_BUTTON, TD_WARNING_ICON, NULL);
+        if(CTaskDialog::IsSupported())
+        {
+            CTaskDialog taskDialog(text, NULL, title != NULL ? title : _T("Warning"), TDCBF_OK_BUTTON);
+            taskDialog.SetMainIcon(TD_WARNING_ICON);
+            taskDialog.DoModal();
+        }
         else
             MessageBox(0, text, title != NULL ? title : _T("Warning"), MB_OK | MB_ICONWARNING);
     }
