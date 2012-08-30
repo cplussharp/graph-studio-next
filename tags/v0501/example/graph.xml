@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<graph name="Testing Graph">
+
+    <!--
+        SOURCE -> AVI Splitter
+    -->
+    <filter name="source" clsid="{E436EBB5-524F-11CE-9F53-0020AF0BA770}">
+        <ifilesourcefilter source="d:\sga.avi"/>
+    </filter>
+    <filter name="AVI Splitter" clsid="{1B544C20-FD0B-11CE-8C63-00AA0044B51E}"/>
+    <connect out="source/Output" in="AVI Splitter/input pin"/>
+
+    <!--
+        AVI Splitter -> Queue
+    -->
+    <filter name="Queue Video" clsid="{067EFD5B-EFE2-42b3-B466-864F5027DBDA}">
+        <imonogramqueue samples="30"/>
+    </filter>
+    <filter name="Queue Audio" clsid="{067EFD5B-EFE2-42b3-B466-864F5027DBDA}">
+        <imonogramqueue samples="30"/>
+    </filter>
+    <connect out="AVI Splitter/Stream 00" in="Queue Video/In"/>
+    <connect out="AVI Splitter/Stream 01" in="Queue Audio/In"/>
+
+    <!--
+        Video Transcoding
+    -->
+    <filter name="ffdshow Video Proc" clsid="{0B390488-D80F-4A68-8408-48DC199F0E97}">
+    </filter>
+    <connect out="Queue Video/Out" in="ffdshow Video Proc/In"/>
+    
+    <filter name="AVC Encoder" clsid="{B51F2FA2-4998-4763-AA3D-6F3BB8F92F2D}">
+        <imonogramavcencoder
+            profile="baseline" level="51"
+            rcmode="vbr" minqp="16" maxqp="32" bitrate="2500000"
+            bframes="0" max_i_interval="125" deblock="1"
+            pred="I16x16, I4x4, P16x16, P16x8, P8x8" subpel="2h, 2q"
+        />
+    </filter>
+    <connect out="ffdshow Video Proc/Out" in="AVC Encoder/In"/>
+
+    <!--
+        Audio Transcoding
+    -->
+    <filter name="Audio Proc" clsid="{F5488CD7-2287-440a-906A-83F71958D290}">
+        <imonogramaudioproc samplerate="44100" channels="2"/>
+    </filter>
+    <connect out="Queue Audio/Out" in="Audio Proc/Input"/>
+
+    <filter name="AAC Encoder" clsid="{88F36DB6-D898-40b5-B409-466A0EECC26A}">
+        <imonogramaacencoder version="mpeg4" object_type="lc" output_type="raw" bitrate="128000"/>
+    </filter>
+    <connect out="Audio Proc/Output" in="AAC Encoder/In"/>
+
+    <!--
+        Meta Source
+    -->
+    <filter name="Meta Source" clsid="{24146FB0-F2B2-43F6-9F10-0D795E30D059}">
+        <imonogrammetasource host="224.5.6.7" port="5000"/>
+    </filter>
+
+    <!--
+        RTP Output
+    -->
+    <filter name="RTP Sink" clsid="{EC8791C5-705F-45A3-B696-86330473E0E6}">
+        <imonogramrtpsink
+            session="live-sga" info="Doplnujuce Informacie"
+            ip_address="224.0.0.1" baseport="6700"
+            sap="1" blocking="1"
+        />
+    </filter>
+
+    <connect out="AVC Encoder/Out" in="RTP Sink/In 0"/>
+    <connect out="AAC Encoder/Out" in="RTP Sink/In 1"/>
+
+    <command msg="run"/>
+</graph>
