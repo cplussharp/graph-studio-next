@@ -53,6 +53,29 @@ void CInterfaceInfo::GetInfo(GraphStudio::PropItem* group, IUnknown* pUnk) const
 /*****************************************************************************************
 * some Interface Infos
 ******************************************************************************************/
+
+void GetInterfaceInfo_IBaseFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IBaseFilter> pI = pUnk;
+    if(pI)
+    {
+		FILTER_INFO info;
+		info.achName[0] = L'\0';
+		info.pGraph = NULL;
+		HRESULT hr = pI->QueryFilterInfo(&info);
+		if (hr == S_OK) {
+			const size_t nameMaxLength = sizeof(info.achName) / sizeof(info.achName[0]);
+            group->AddItem(new GraphStudio::PropItem(_T("Name"), CString(info.achName, wcsnlen(info.achName, nameMaxLength)), false));
+		}
+        LPOLESTR strVendor = NULL;
+        hr = pI->QueryVendorInfo(&strVendor);
+        if(hr == S_OK && strVendor != NULL)
+            group->AddItem(new GraphStudio::PropItem(_T("VendorInfo"), CString(strVendor), false));
+        if(strVendor)
+            CoTaskMemFree(strVendor);
+    }
+}
+
 void GetInterfaceInfo_IAMFilterMiscFlags(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IAMFilterMiscFlags> pI = pUnk;
@@ -162,8 +185,8 @@ void GetInterfaceInfo_IFileSinkFilter(GraphStudio::PropItem* group, IUnknown* pU
     CComQIPtr<IFileSinkFilter> pI = pUnk;
     if(pI)
     {
-        LPOLESTR strFile;
-        AM_MEDIA_TYPE media_type;
+        LPOLESTR strFile = NULL;
+        CMediaType media_type;
         HRESULT hr = pI->GetCurFile(&strFile, &media_type);
         if(hr == S_OK && strFile != NULL)
         {
@@ -179,13 +202,39 @@ void GetInterfaceInfo_IFileSinkFilter(GraphStudio::PropItem* group, IUnknown* pU
     }
 }
 
+void GetInterfaceInfo_IPersist(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IPersist> pI = pUnk;
+    if(pI)
+    {
+		CLSID clsid;
+        if(pI->GetClassID(&clsid) == S_OK)
+            group->AddItem(new GraphStudio::PropItem(_T("ClassID"), clsid));
+	}
+}
+
+void GetInterfaceInfo_IPersistStream(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IPersistStream> pI = pUnk;
+    if(pI)
+    {
+		ULARGE_INTEGER sizeMax;
+		sizeMax.QuadPart = 0ULL;
+        if(pI->GetSizeMax(&sizeMax) == S_OK)
+            group->AddItem(new GraphStudio::PropItem(_T("SizeMax"), sizeMax.QuadPart));
+		const HRESULT hr = pI->IsDirty();
+		if(SUCCEEDED(hr))
+            group->AddItem(new GraphStudio::PropItem(_T("IsDirty"), S_OK==hr));
+	}
+}
+
 void GetInterfaceInfo_IFileSinkFilter2(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IFileSinkFilter2> pI = pUnk;
     if(pI)
     {
-        LPOLESTR strFile;
-        AM_MEDIA_TYPE media_type;
+        LPOLESTR strFile = NULL;
+        CMediaType media_type;
         HRESULT hr = pI->GetCurFile(&strFile, &media_type);
         if(hr == S_OK && strFile != NULL)
         {
@@ -224,8 +273,8 @@ void GetInterfaceInfo_IFileSourceFilter(GraphStudio::PropItem* group, IUnknown* 
     CComQIPtr<IFileSourceFilter> pI = pUnk;
     if(pI)
     {
-        LPOLESTR strFile;
-        AM_MEDIA_TYPE media_type;
+        LPOLESTR strFile = NULL;
+        CMediaType media_type;
         HRESULT hr = pI->GetCurFile(&strFile, &media_type);
         if(hr == S_OK && strFile != NULL)
         {
@@ -713,6 +762,27 @@ void GetInterfaceInfo_IKsTopologyInfo(GraphStudio::PropItem* group, IUnknown* pU
     }
 }
 
+void GetInterfaceInfo_IMemInputPin(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IMemInputPin> pI = pUnk;
+    if(pI)
+    {
+		//ULARGE_INTEGER sizeMax;
+		//sizeMax.QuadPart = 0ULL;
+  //      if(pI->GetSizeMax(&sizeMax) == S_OK)
+  //          group->AddItem(new GraphStudio::PropItem(_T("SizeMax"), sizeMax.QuadPart));
+		HRESULT hr = pI->ReceiveCanBlock();
+		if(SUCCEEDED(hr))
+            group->AddItem(new GraphStudio::PropItem(_T("ReceiveCanBlock"), S_OK==hr));
+
+		ALLOCATOR_PROPERTIES props = { 0, 0, 0, 0 };
+		hr = pI->GetAllocatorRequirements(&props);
+		if (SUCCEEDED(hr)) {
+			GraphStudio::GetAllocatorDetails(&props, group);
+		}
+	}
+}
+
 /*****************************************************************************************
 * known Interfaces to test
 ******************************************************************************************/
@@ -794,7 +864,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{F7537560-A3BE-11D0-8212-00C04FC32C45}"), TEXT("IAudioMediaStream"), TEXT("austream.h"), TEXT("")),
     CInterfaceInfo(TEXT("{E48244B8-7E17-4F76-A763-5090FF1E2F30}"), TEXT("IAuxInTuningSpace"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{B10931ED-8BFE-4AB0-9DCE-E469C29A9729}"), TEXT("IAuxInTuningSpace2"), TEXT("tuner.h"), TEXT("")),
-    CInterfaceInfo(TEXT("{56A86895-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IBaseFilter"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389526.aspx")),
+    CInterfaceInfo(TEXT("{56A86895-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IBaseFilter"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389526.aspx"),GetInterfaceInfo_IBaseFilter),
     CInterfaceInfo(TEXT("{56A868B3-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IBasicAudio"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389532.aspx")),
     CInterfaceInfo(TEXT("{56A868B5-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IBasicVideo"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389540.aspx")),
     CInterfaceInfo(TEXT("{329BB360-F6EA-11D1-9038-00A0C9697298}"), TEXT("IBasicVideo2"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389541.aspx")),
@@ -925,7 +995,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{56A8689C-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IMemAllocator"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd407061.aspx")),
     CInterfaceInfo(TEXT("{379A0CF0-C1DE-11D2-ABF5-00A0C905F375}"), TEXT("IMemAllocatorCallbackTemp"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd407062.aspx")),
     CInterfaceInfo(TEXT("{92980B30-C1DE-11D2-ABF5-00A0C905F375}"), TEXT("IMemAllocatorNotifyCallbackTemp"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd407065.aspx")),
-    CInterfaceInfo(TEXT("{56A8689D-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IMemInputPin"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd407073.aspx")),
+    CInterfaceInfo(TEXT("{56A8689D-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IMemInputPin"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd407073.aspx"), GetInterfaceInfo_IMemInputPin),
     CInterfaceInfo(TEXT("{81A3BD32-DEE1-11D1-8508-00A0C91F9CA0}"), TEXT("IMixerOCX"), TEXT("mixerocx.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd407084.aspx")),
     CInterfaceInfo(TEXT("{81A3BD31-DEE1-11D1-8508-00A0C91F9CA0}"), TEXT("IMixerOCXNotify"), TEXT("mixerocx.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd407085.aspx")),
     CInterfaceInfo(TEXT("{593CDDE1-0759-11D1-9E69-00C04FD7C15B}"), TEXT("IMixerPinConfig"), TEXT("uuids.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd407097.aspx")),
@@ -945,11 +1015,11 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{FC4801A3-2BA9-11CF-A229-00AA003D7352}"), TEXT("IObjectWithSite"), TEXT("ocidl.h"), TEXT("")),
     CInterfaceInfo(TEXT("{56a868a1-0ad4-11ce-b03a-0020af0ba770}"), TEXT("IOverlay"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390357.aspx")),
     CInterfaceInfo(TEXT("{6623B511-4B5F-43C3-9A01-E8FF84188060}"), TEXT("IPAT"), TEXT("mpeg2psiparser.h"), TEXT("")),
-    CInterfaceInfo(TEXT("{0000010C-0000-0000-C000-000000000046}"), TEXT("IPersist"), TEXT("objidl.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms688695.aspx")),
+    CInterfaceInfo(TEXT("{0000010C-0000-0000-C000-000000000046}"), TEXT("IPersist"), TEXT("objidl.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms688695.aspx"), GetInterfaceInfo_IPersist),
     CInterfaceInfo(TEXT("{0000010b-0000-0000-C000-000000000046}"), TEXT("IPersistFile"), TEXT("objidl.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms687223.aspx")),
     CInterfaceInfo(TEXT("{5738E040-B67F-11D0-BD4D-00A0C911CE86}"), TEXT("IPersistMediaPropertyBag"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390387.aspx")),
     CInterfaceInfo(TEXT("{0000010a-0000-0000-C000-000000000046}"), TEXT("IPersistStorage"), TEXT("objidl.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms679731.aspx")),
-    CInterfaceInfo(TEXT("{00000109-0000-0000-C000-000000000046}"), TEXT("IPersistStream"), TEXT("objidl.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms690091.aspx")),
+    CInterfaceInfo(TEXT("{00000109-0000-0000-C000-000000000046}"), TEXT("IPersistStream"), TEXT("objidl.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms690091.aspx"), GetInterfaceInfo_IPersistStream),
     CInterfaceInfo(TEXT("{7FD52380-4E07-101B-AE2D-08002B2EC713}"), TEXT("IPersistStreamInit"), TEXT("objidl.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms682273.aspx")),
     CInterfaceInfo(TEXT("{56A86891-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IPin"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390397.aspx")),
     CInterfaceInfo(TEXT("{4A9A62D3-27D4-403D-91E9-89F540E55534}"), TEXT("IPinConnection"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390398.aspx")),

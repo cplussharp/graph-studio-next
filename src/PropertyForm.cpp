@@ -488,8 +488,8 @@ int CPropertyForm::LoadMediaInfoPage(IUnknown *obj)
     CComQIPtr<IFileSourceFilter> pI = obj;
     if(pI)
     {
-        LPOLESTR strFile;
-        AM_MEDIA_TYPE media_type;
+        LPOLESTR strFile = NULL;
+        CMediaType media_type;
         HRESULT hr = pI->GetCurFile(&strFile, &media_type);
         if(hr == S_OK && strFile != NULL)
             AddPropertyPage(CMediaInfoPage::CreateInstance(NULL, &hr, CString(strFile)), obj);
