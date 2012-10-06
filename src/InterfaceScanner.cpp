@@ -76,6 +76,18 @@ void GetInterfaceInfo_IBaseFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
     }
 }
 
+void GetInterfaceInfo_ISpecifyPropertyPages(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<ISpecifyPropertyPages> pI = pUnk;
+    if(pI) {
+		CAUUID ids = { 0, NULL };
+		const int pages = (S_OK == pI->GetPages(&ids) && ids.pElems) ? ids.cElems : 0;
+		group->AddItem(new GraphStudio::PropItem(_T("Pages"), pages));
+        if(ids.pElems)
+            CoTaskMemFree(ids.pElems);
+    }
+}
+
 void GetInterfaceInfo_IAMFilterMiscFlags(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IAMFilterMiscFlags> pI = pUnk;
@@ -788,6 +800,7 @@ void GetInterfaceInfo_IMemInputPin(GraphStudio::PropItem* group, IUnknown* pUnk)
 ******************************************************************************************/
 const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] = 
 {
+    CInterfaceInfo(TEXT("{CF7B26FC-9A00-485B-8147-3E789D5E8F67}"), TEXT("IAMAsyncReaderTimestampScaling"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389120.aspx")),
     CInterfaceInfo(TEXT("{54C39221-8380-11d0-B3F0-00AA003761C5}"), TEXT("IAMAudioInputMixer"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389123.aspx")),
     CInterfaceInfo(TEXT("{22320CB2-D41A-11D2-BF7C-D7CB9DF0BF93}"), TEXT("IAMAudioRendererStats"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389140.aspx")),
     CInterfaceInfo(TEXT("{56ED71A0-AF5F-11D0-B3F0-00AA003761C5}"), TEXT("IAMBufferNegotiation"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389142.aspx")),
@@ -1044,7 +1057,8 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{1ABDAECA-68B6-4F83-9371-B413907C7B9F}"), TEXT("ISelector"), TEXT("Vidcap.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd377075.aspx")),
     CInterfaceInfo(TEXT("{6D5140C1-7436-11CE-8034-00AA006009FA}"), TEXT("IServiceProvider"), TEXT("servprov.h"), TEXT("")),
     CInterfaceInfo(TEXT("{F03FA8CE-879A-4D59-9B2C-26BB1CF83461}"), TEXT("ISmartRenderEngine"), TEXT("qedit.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd377080.aspx")),
-    CInterfaceInfo(TEXT("{B196B28B-BAB4-101A-B69C-00AA00341D07}"), TEXT("ISpecifyPropertyPages"), TEXT("ocidl.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms695217.aspx")),
+    CInterfaceInfo(TEXT("{B196B28B-BAB4-101A-B69C-00AA00341D07}"), TEXT("ISpecifyPropertyPages"), TEXT("ocidl.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms695217.aspx"), GetInterfaceInfo_ISpecifyPropertyPages),
+    CInterfaceInfo(TEXT("{0000000c-0000-0000-C000-000000000046}"), TEXT("IStream"), TEXT("objidl.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/aa380034.aspx")),
     CInterfaceInfo(TEXT("{CE14DFAE-4098-4AF7-BBF7-D6511F835414}"), TEXT("IStreamBufferConfigure"), TEXT("sbe.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd694927.aspx")),
     CInterfaceInfo(TEXT("{53E037BF-3992-4282-AE34-2487B4DAE06B}"), TEXT("IStreamBufferConfigure2"), TEXT("sbe.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd694928.aspx")),
     CInterfaceInfo(TEXT("{7E2D2A1E-7192-4BD7-80C1-061FD1D10402}"), TEXT("IStreamBufferConfigure3"), TEXT("sbe.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd694933.aspx")),
