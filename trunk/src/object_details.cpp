@@ -300,6 +300,15 @@ namespace GraphStudio
 			group->AddItem(new PropItem(_T("Direction"), CString(_T("PINDIR_OUTPUT"))));
 		}
 
+        LPOLESTR strId = NULL;
+        hr = pin->QueryId(&strId);
+        if(hr == S_OK && strId != NULL)
+            group->AddItem(new GraphStudio::PropItem(_T("Id"), CString(strId), false));
+        if(strId) {
+            CoTaskMemFree(strId);
+			strId = NULL;
+		}
+
 		CComPtr<IPin>	con_pin = NULL;
 		pin->ConnectedTo(&con_pin);
 		if (con_pin == NULL) {
