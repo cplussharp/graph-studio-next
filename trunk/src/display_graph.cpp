@@ -733,6 +733,19 @@ namespace GraphStudio
 			/*
 				Now let's add all the connections
 			*/
+			for (int i=0; i<filters.GetCount(); i++) {
+				Filter	*filter = filters[i];
+				for (int j=0; j<filter->output_pins.GetCount(); j++) {
+					Pin*	pin = filter->output_pins[j];
+					if (pin->peer) {
+						xml.BeginNode(_T("connect"));
+							xml.WriteValue(_T("out"), filter->name + _T("/") + pin->name);
+							xml.WriteValue(_T("in"), pin->peer->filter->name + _T("/") + pin->peer->name);
+							xml.WriteValue(_T("direct"), _T("true"));
+						xml.EndNode();
+					}
+				}
+			}
 
 		xml.EndNode();
 
