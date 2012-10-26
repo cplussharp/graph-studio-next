@@ -800,6 +800,7 @@ void GetInterfaceInfo_IMemInputPin(GraphStudio::PropItem* group, IUnknown* pUnk)
 ******************************************************************************************/
 const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] = 
 {
+    CInterfaceInfo(TEXT("{C6E13350-30AC-11d0-A18C-00A0C9118956}"), TEXT("IAMAnalogVideoDecoder"), TEXT("Strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389101.aspx")),
     CInterfaceInfo(TEXT("{CF7B26FC-9A00-485B-8147-3E789D5E8F67}"), TEXT("IAMAsyncReaderTimestampScaling"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389120.aspx")),
     CInterfaceInfo(TEXT("{54C39221-8380-11d0-B3F0-00AA003761C5}"), TEXT("IAMAudioInputMixer"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389123.aspx")),
     CInterfaceInfo(TEXT("{22320CB2-D41A-11D2-BF7C-D7CB9DF0BF93}"), TEXT("IAMAudioRendererStats"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389140.aspx")),
@@ -926,6 +927,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{2e5ea3e0-e924-11d2-b6da-00a0c995e8df}"), TEXT("IDecimateVideoImage"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406759.aspx")),
     CInterfaceInfo(TEXT("{56A868B8-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IDeferredCommand"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406762.aspx")),
     CInterfaceInfo(TEXT("{19B595D8-839A-47F0-96DF-4F194F3C768C}"), TEXT("IDigitalLocator"), TEXT("tuner.h"), TEXT("")),
+    CInterfaceInfo(TEXT("{36d39eb0-dd75-11ce-bf0e-00aa0055595a}"), TEXT("IDirectDrawVideo"), TEXT("amvideo.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406816.aspx")),
     CInterfaceInfo(TEXT("{65abea96-cf36-453f-af8a-705e98f16260}"), TEXT("IDMOQualityControl"), TEXT("mediaobj.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406839.aspx")),
     CInterfaceInfo(TEXT("{BE8F4F4E-5B16-4D29-B350-7F6B5D9298AC}"), TEXT("IDMOVideoOutputOptimizations"), TEXT("mediaobj.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406843.aspx"), GetInterfaceInfo_IDMOVideoOutputOptimizations),
     CInterfaceInfo(TEXT("{52D6F586-9F0F-4824-8FC8-E32CA04930C2}"), TEXT("IDMOWrapperFilter"), TEXT("dmoshow.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406848.aspx")),
