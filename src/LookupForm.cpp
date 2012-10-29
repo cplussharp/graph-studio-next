@@ -125,6 +125,7 @@ BEGIN_MESSAGE_MAP(CLookupForm, CDialog)
     ON_BN_CLICKED(IDC_BUTTON_SEARCH, &CLookupForm::OnBnClickedButtonSearch)
     ON_WM_SIZE()
     ON_NOTIFY(LVN_COLUMNCLICK, IDC_LIST_LOOKUP, &CLookupForm::OnLvnColumnclickListLookup)
+    ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -208,6 +209,16 @@ void CLookupForm::OnBnClickedButtonSearch()
         m_listCtrl.SetSelectionMark(selItem);
         m_listCtrl.EnsureVisible(selItem, FALSE);
         m_listCtrl.SetFocus();
+    }
+}
+
+void CLookupForm::OnDestroy()
+{
+    int count = m_listCtrl.GetItemCount();
+    for(int i=0;i<count;i++)
+    {
+        CStringArray* arData = (CStringArray*)m_listCtrl.GetItemData(i);
+        delete arData;
     }
 }
 

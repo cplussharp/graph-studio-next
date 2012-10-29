@@ -43,6 +43,7 @@ protected:
 public:
     afx_msg void OnSize(UINT nType, int cx, int cy);
     afx_msg void OnBnClickedButtonSearch();
+    afx_msg void OnDestroy();
 
     GraphStudio::TitleBar	m_title;
     CListCtrl m_listCtrl;

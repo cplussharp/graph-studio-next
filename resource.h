@@ -55,6 +55,7 @@
 #define IDD_DIALOG_SBECONFIG            173
 #define IDD_DIALOG_BLACKLIST            174
 #define IDD_DIALOG_MEDIA_TYPE_SELECT    175
+#define IDD_PROPPAGE_ANALYZER           176
 #define IDC_COMBO_CATEGORIES            1001
 #define IDC_LIST_FILTERS                1002
 #define IDC_COMBO_MERIT                 1003
@@ -84,6 +85,7 @@
 #define IDC_SLIDER_SEEK                 1016
 #define IDC_SLIDER_VOLUME               1016
 #define IDC_SLIDER_IRATE                1016
+#define IDC_BUTTON_REFRESH2             1016
 #define IDC_STATIC_TIME                 1017
 #define IDC_SLIDER_BALANCE              1017
 #define IDC_SLIDER_PRATE                1017
@@ -94,6 +96,7 @@
 #define IDC_BUTTON_CONFIG               1018
 #define IDC_BUTTON_DEF_IRATE            1018
 #define IDC_BUTTON_SET                  1018
+#define IDC_BUTTON_RESET                1018
 #define IDC_EDIT_DETAILS                1019
 #define IDC_BUTTON_DEF_PRATE            1019
 #define IDC_COMBO_REPORTTYPE            1020
@@ -209,6 +212,8 @@
 #define IDC_SPIN_FILECOUNT_MAX          1116
 #define IDC_LIST_MEDIATYPES             1117
 #define IDC_LIST_BLACKLIST              1118
+#define IDC_CHECK_ENABLED               1119
+#define IDC_LIST_DATA                   1123
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -317,9 +322,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        176
+#define _APS_NEXT_RESOURCE_VALUE        177
 #define _APS_NEXT_COMMAND_VALUE         32879
-#define _APS_NEXT_CONTROL_VALUE         1119
+#define _APS_NEXT_CONTROL_VALUE         1124
 #define _APS_NEXT_SYMED_VALUE           103
 #endif
 #endif

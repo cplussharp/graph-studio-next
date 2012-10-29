@@ -1,0 +1,120 @@
+import "unknwn.idl";
+import "oaidl.idl";
+import "ocidl.idl";
+import "objidl.idl";
+import "strmif.idl";
+
+[uuid("EFA80B5A-913E-4806-B7BC-3202234FDE70")]
+typedef enum StatisticRecordKind
+{
+    SRK_Empty = 0,    // Empty Record
+    SRK_MediaSample,
+    SRK_StartStreaming,
+    SRK_StopStreaming
+} StatisticRecordKind;
+
+[uuid("66AA0068-8140-49BB-8125-FEC5AA2FE9F4")]
+typedef struct StatisticRecordEntry
+{ 
+    // Entry
+    __int64 EntryNr;
+    StatisticRecordKind EntryKind;
+
+    [helpstring("TimeStamp when this entry was created")]
+    __int64 EntryTimeStamp;
+
+    // IMediaSample
+    VARIANT_BOOL IsDiscontinuity;
+    VARIANT_BOOL IsPreroll;
+    VARIANT_BOOL IsSyncPoint;
+    VARIANT_BOOL IsMediaTypeChange;
+
+    [helpstring("IMediaSample::GetActualDataLength")]
+    long ActualDataLength;
+
+    [helpstring("IMediaSample::GetSize")]
+    long BufferSize;
+
+    [helpstring("IMediaSample::GetTime; if < 0 => HRESULT")]
+    __int64 StreamTimeStart;
+    [helpstring("IMediaSample::GetTime; if < 0 => HRESULT")]
+    __int64 StreamTimeStop;
+
+    [helpstring("IMediaSample::GetMediaTime; if < 0 => HRESULT")]
+    __int64 MediaTimeStart;
+    [helpstring("IMediaSample::GetMediaTime; if < 0 => HRESULT")]
+    __int64 MediaTimeStop;
+
+    // IMediaSample2
+    [helpstring("Indicates if the sample had the IMediaSample2")]
+    VARIANT_BOOL HadIMediaSample2;
+
+    [helpstring("only when IMediaSample2")]
+    unsigned long TypeSpecificFlags;
+
+    [helpstring("only when IMediaSample2")]
+    unsigned long SampleFlags;
+
+    [helpstring("only when IMediaSample2")]
+    unsigned long StreamId;
+
+    // First bytes of the sample
+    [helpstring("Count of Data taken from the MediaSample")]
+    int nDataCount;
+
+    [unique, size_is(nDataCount), helpstring("First bytes of the Media Sample")]
+    byte *aData;
+} StatisticRecordEntry;
+
+[object, uuid("780E9A9E-0CC8-4EE7-9788-3637D8495C51")]
+interface IAnalyzerFilterCallback : IUnknown
+{
+    [id(1), helpstring("Called after a new entry was added to the statistic")]
+    HRESULT OnStatisticNewEntry(unsigned long entryNr);
+
+    [id(2), helpstring("Called after the statistic was resetted")]
+    HRESULT OnStatisticResetted();
+}
+
+[object, uuid("51039F7F-907D-4E3F-B16F-721BC7317094")]
+interface IAnalyzerFilter : IUnknown
+{
+    [propget, id(1), helpstring("Is the analyzer enabled")] HRESULT Enabled([out, retval] VARIANT_BOOL* pVal);
+    [propput, id(1), helpstring("Is the analyzer enabled")] HRESULT Enabled([in] VARIANT_BOOL newVal);
+
+    [propget, id(2), helpstring("LogFile")] HRESULT LogFile([out, retval] BSTR* pVal);
+    [propput, id(2), helpstring("LogFile")] HRESULT LogFile([in] BSTR newVal);
+
+    [propget, id(3), helpstring("LogFile")] HRESULT PreviewSampleByteCount([out, retval] unsigned short* pVal);
+    [propput, id(3), helpstring("LogFile")] HRESULT PreviewSampleByteCount([in] unsigned short newVal);
+
+    [id(4), helpstring("Reset Statistic")] HRESULT ResetStatistic();
+    [propget, id(5), helpstring("Count of statistic entries")] HRESULT EntryCount([out, retval] __int64 *pVal);
+    
+    [id(6), helpstring("Get an entry from the statistic (if aData != NULL you need to CoTaskMemFree it)")]
+    HRESULT GetEntry([in] __int64 nr, [out, retval] StatisticRecordEntry *pVal);
+
+    [id(7), helpstring("Register or remove a callback for the events of the statistic")]
+    HRESULT SetCallback(IAnalyzerFilterCallback* pCallback);
+};
+
+[
+	uuid("CA6B3460-28B3-4A6E-A7FC-A83CF1DEEC48"), 
+    helpstring("Analyzer Filter Type Library"),
+	lcid(0x0409), // EN-US
+    version(1.0)
+] 
+library AnalyzerFilterLib
+{
+    enum StatisticRecordKind;
+    struct StatisticRecordEntry;
+    interface IAnalyzerFilterCallback;
+    interface IAnalyzerFilter;
+
+    [uuid("CA6B3460-28B3-4A6E-A7FC-A83CF1DEEC49")]
+    coclass AnalyzerFilter
+    {
+        interface IBaseFilter;
+        [default] interface IAnalyzerFilter;
+    }
+};

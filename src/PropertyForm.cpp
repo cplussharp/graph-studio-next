@@ -244,12 +244,8 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
 		// display the filter details page
 		HRESULT					hr;
 
-		AddPropertyPage(new CFilterDetailsPage(NULL, &hr), obj);
-
 		//---------------------------------------------------------------------
-		//
 		//	Support for Video For Windows & ACM objects
-		//
 		//---------------------------------------------------------------------
 		CComPtr<IAMVfwCompressDialogs>		vfw_dialogs;
 		if (SUCCEEDED(obj->QueryInterface(IID_IAMVfwCompressDialogs, (void**)&vfw_dialogs))) {
@@ -257,9 +253,17 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
 		}
 		vfw_dialogs = NULL;
 
+        // Internal Property Pages
         CComQIPtr<IStreamBufferSink> sbeSink = obj;
         if(sbeSink)
             AddPropertyPage(new CSbeSinkPage(NULL, &hr, _T("SbeSink")), obj);
+
+        CComQIPtr<IAnalyzerFilter> analyzer = obj;
+        if(analyzer)
+            AddPropertyPage(new CAnalyzerPage(NULL, &hr, _T("Analyzer")), obj);
+
+        // Filter Details
+        AddPropertyPage(new CFilterDetailsPage(NULL, &hr), obj);
 
 		// check for DMO pages
 		AnalyzeDMO(obj);

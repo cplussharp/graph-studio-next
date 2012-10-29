@@ -226,6 +226,7 @@
     <ResourceCompile Include="graphstudionext.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\AnalyzerPage.h" />
     <ClInclude Include="src\BlacklistForm.h" />
     <ClInclude Include="src\FilterBlacklist.h" />
     <ClInclude Include="interfaces\monofilters.h" />
@@ -233,6 +234,7 @@
     <ClInclude Include="src\display_view.h" />
     <ClInclude Include="src\DMOQualCtrlPage.h" />
     <ClInclude Include="src\FilterFromFile.h" />
+    <ClInclude Include="src\filters\analyzer\analyzer.h" />
     <ClInclude Include="src\filters\fake_m2ts\filter_fake_m2ts_device.h" />
     <ClInclude Include="src\filters\psi_config\psiconfig.h" />
     <ClInclude Include="src\graphDoc.h" />
@@ -293,12 +295,14 @@
     <ClInclude Include="src\filters\dump\filter_dump.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\AnalyzerPage.cpp" />
     <ClCompile Include="src\BlacklistForm.cpp" />
     <ClCompile Include="src\FilterBlacklist.cpp" />
     <ClCompile Include="src\display_graph.cpp" />
     <ClCompile Include="src\display_view.cpp" />
     <ClCompile Include="src\DMOQualCtrlPage.cpp" />
     <ClCompile Include="src\FilterFromFile.cpp" />
+    <ClCompile Include="src\filters\analyzer\analyzer.cpp" />
     <ClCompile Include="src\filters\fake_m2ts\filter_fake_m2ts_device.cpp" />
     <ClCompile Include="src\filters\psi_config\psiconfig.cpp" />
     <ClCompile Include="src\graphDoc.cpp" />
@@ -359,6 +363,9 @@
     <ClCompile Include="src\url_label.cpp" />
     <ClCompile Include="src\filters\time_measure\filter_time.cpp" />
     <ClCompile Include="src\filters\dump\filter_dump.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="src\filters\analyzer\analyzer.idl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

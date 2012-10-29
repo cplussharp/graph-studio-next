@@ -41,6 +41,9 @@
     <Filter Include="Filters\filter_psiconfig">
       <UniqueIdentifier>{d10e5215-e62c-4aa2-bf1c-768e5d3bbefb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Filters\filter_analyzer">
+      <UniqueIdentifier>{2868a6b0-dc6c-408f-9245-3344a448df7c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\bitmap_clock_active_hi.bmp">
@@ -290,6 +293,12 @@
     <ClInclude Include="src\FilterBlacklist.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\filters\analyzer\analyzer.h">
+      <Filter>Filters\filter_analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AnalyzerPage.h">
+      <Filter>Property Pages</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -475,5 +484,16 @@
     <ClCompile Include="src\FilterBlacklist.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\filters\analyzer\analyzer.cpp">
+      <Filter>Filters\filter_analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AnalyzerPage.cpp">
+      <Filter>Property Pages</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="src\filters\analyzer\analyzer.idl">
+      <Filter>Filters\filter_analyzer</Filter>
+    </Midl>
   </ItemGroup>
 </Project>
