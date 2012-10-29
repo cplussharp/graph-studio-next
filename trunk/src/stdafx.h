@@ -60,6 +60,7 @@
 #include <afxtempl.h>
 #include <afxlinkctrl.h>
 #include <afxadv.h> // for jumplist
+//#include <afxlistctrl.h>    // CMFCListCtrl
 
 #include <streams.h>
 #include <initguid.h>
@@ -109,6 +110,8 @@ using namespace std;
 #include "filters\time_measure\filter_time.h"
 #include "filters\fake_m2ts\filter_fake_m2ts_device.h"
 #include "filters\psi_config\psiconfig.h"
+#include "..\analyzer_h.h"    // Interface
+#include "filters\analyzer\analyzer.h"
 
 #include "mtypes_ext.h"
 
@@ -146,6 +149,7 @@ using namespace std;
 #include "WMResizerPage.h"
 #include "DMOQualCtrlPage.h"
 #include "SbeSinkPage.h"
+#include "AnalyzerPage.h"
 
 #include "BrowserControl.h"
 

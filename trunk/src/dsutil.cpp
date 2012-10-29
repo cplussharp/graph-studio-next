@@ -986,6 +986,10 @@ namespace DSUtil
         filter.clsid = CLSID_PsiConfig;
         filters.Add(filter);
 
+        filter.name = _T("Analyzer Filter");
+        filter.clsid = __uuidof(AnalyzerFilter);
+        filters.Add(filter);
+
         return filters.GetCount();
     }
 
