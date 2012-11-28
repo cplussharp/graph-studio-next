@@ -299,6 +299,12 @@
     <ClInclude Include="src\AnalyzerPage.h">
       <Filter>Property Pages</Filter>
     </ClInclude>
+    <ClInclude Include="src\graphCli.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CliOptionsForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -489,6 +495,12 @@
     </ClCompile>
     <ClCompile Include="src\AnalyzerPage.cpp">
       <Filter>Property Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphCli.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CliOptionsForm.cpp">
+      <Filter>Dialogs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

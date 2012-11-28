@@ -264,6 +264,7 @@ namespace DSUtil
 	HRESULT UnregisterFilter(GUID clsid, GUID category);
 	HRESULT UnregisterCOM(GUID clsid);
 
+    static bool m_bExitOnError = false; // terminates the programm if an error is reported and sets the error-code as exit value
     void ShowError(HRESULT hr, LPCTSTR title=NULL);
     void ShowError(LPCTSTR text, LPCTSTR title=NULL);
     void ShowInfo(LPCTSTR text, LPCTSTR title=NULL);

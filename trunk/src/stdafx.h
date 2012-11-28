@@ -128,6 +128,7 @@ using namespace std;
 #include "object_details.h"
 #include "filename_list.h"
 
+#include "graphCli.h"
 #include "graphstudio.h"
 #include "mru_list.h"
 #include "MainFrm.h"
@@ -170,6 +171,7 @@ using namespace std;
 #include "PropertyForm.h"
 #include "NewGroupForm.h"
 #include "SbeConfigForm.h"
+#include "CliOptionsForm.h"
 #include "graphView.h"
 
 #ifdef _UNICODE

@@ -1955,6 +1955,13 @@ namespace DSUtil
     {
         if (FAILED(hr))
         {
+            if (m_bExitOnError)
+            {
+                ASSERT(AfxGetMainWnd() != NULL);
+                ((CgraphstudioApp*)AfxGetApp())->m_nExitCode = hr;
+                AfxGetMainWnd()->SendMessage(WM_CLOSE);
+            }
+
             TCHAR szErr[MAX_ERROR_TEXT_LEN];
             DWORD res = AMGetErrorText(hr, szErr, MAX_ERROR_TEXT_LEN);
             CString strHR;
@@ -2000,6 +2007,13 @@ namespace DSUtil
 
     void ShowError(LPCTSTR text, LPCTSTR title)
     {
+        if (m_bExitOnError)
+        {
+            ASSERT(AfxGetMainWnd() != NULL);
+            ((CgraphstudioApp*)AfxGetApp())->m_nExitCode = -1;
+            AfxGetMainWnd()->SendMessage(WM_CLOSE);
+        }
+
         if(CTaskDialog::IsSupported())
         {
             CTaskDialog taskDialog(text, NULL, title != NULL ? title : _T("Error"), TDCBF_OK_BUTTON);

@@ -16,6 +16,31 @@
 
 namespace GraphStudio
 {
+    static int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* /*lpelfe*/, NEWTEXTMETRICEX* /*lpntme*/, int /*FontType*/, LPARAM lParam)
+    {
+        LPARAM* l = (LPARAM*)lParam;
+        *l = TRUE;
+        return TRUE;
+    }
+
+    bool HasFont(CString fontName)
+    {
+        // Get the screen DC
+        CDC dc;
+        if (!dc.CreateCompatibleDC(NULL))
+        {
+    	    return false;
+        }
+        LOGFONT lf = { 0 };
+        // Any character set will do
+        lf.lfCharSet = DEFAULT_CHARSET;
+        // Set the facename to check for
+        _tcscpy(lf.lfFaceName, fontName);
+        LPARAM lParam = 0;
+        // Enumerate fonts
+        ::EnumFontFamiliesEx(dc.GetSafeHdc(), &lf,  (FONTENUMPROC)EnumFontFamExProc, (LPARAM)&lParam, 0);
+        return lParam ? true : false;
+    }
 
 	void MakeFont(CFont &f, CString name, int size, bool bold, bool italic)
 	{

@@ -119,6 +119,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_VIEW_GRAPHCONSTRUCTIONREPORT, &CGraphView::OnViewGraphconstructionreport)
     ON_COMMAND(ID_HELP_GUIDLOOKUP, &CGraphView::OnHelpGuidLookup)
     ON_COMMAND(ID_HELP_HRESULTLOOKUP, &CGraphView::OnHelpHresultLookup)
+    ON_COMMAND(ID_HELP_COMMANDLINEOPTIONS, &CGraphView::OnShowCliOptions)
     ON_COMMAND(ID_OPTIONS_CONFIGURESBE, &CGraphView::OnConfigureSbe)
 END_MESSAGE_MAP()
 
@@ -150,23 +151,25 @@ CGraphView::CGraphView()
 
 	last_start_time_ns = 0LL;
 	last_stop_time_ns = 0LL;
+
+    m_bExitOnStop = false;
 }
 
 CGraphView::~CGraphView()
 {
-	if (form_construction) { form_construction->DestroyWindow(); delete form_construction; }
-	if (form_volume) { form_volume->DestroyWindow(); delete form_volume; }
-	if (form_progress) { form_progress->DestroyWindow(); delete form_progress; }
-	if (form_dec_performance) { form_dec_performance->DestroyWindow(); delete form_dec_performance; }
-	if (form_filters) { form_filters->DestroyWindow(); delete form_filters; }
-	if (form_events) { form_events->DestroyWindow(); delete form_events; }
-	if (form_schedule) { form_schedule->DestroyWindow(); delete form_schedule; }
-	if (form_seek) { form_seek->DestroyWindow(); delete form_seek; }
-	if (form_textinfo) { form_textinfo->DestroyWindow(); delete form_textinfo; }
-	if (form_favorites) { form_favorites->DestroyWindow(); delete form_favorites; }
-    if (form_blacklist) { form_blacklist->DestroyWindow(); delete form_blacklist; }
-    if (form_guidlookup) { form_guidlookup->DestroyWindow(); delete form_guidlookup; }
-    if (form_hresultlookup) { form_hresultlookup->DestroyWindow(); delete form_hresultlookup; }
+	if (form_construction) { form_construction->DestroyWindow(); delete form_construction; form_construction = NULL; }
+	if (form_volume) { form_volume->DestroyWindow(); delete form_volume; form_volume = NULL; }
+	if (form_progress) { form_progress->DestroyWindow(); delete form_progress; form_progress = NULL; }
+	if (form_dec_performance) { form_dec_performance->DestroyWindow(); delete form_dec_performance; form_dec_performance = NULL; }
+	if (form_filters) { form_filters->DestroyWindow(); delete form_filters; form_filters = NULL; }
+	if (form_events) { form_events->DestroyWindow(); delete form_events; form_events = NULL; }
+	if (form_schedule) { form_schedule->DestroyWindow(); delete form_schedule; form_schedule = NULL; }
+	if (form_seek) { form_seek->DestroyWindow(); delete form_seek; form_seek = NULL; }
+	if (form_textinfo) { form_textinfo->DestroyWindow(); delete form_textinfo; form_textinfo = NULL; }
+	if (form_favorites) { form_favorites->DestroyWindow(); delete form_favorites; form_favorites = NULL; }
+    if (form_blacklist) { form_blacklist->DestroyWindow(); delete form_blacklist; form_blacklist = NULL; }
+    if (form_guidlookup) { form_guidlookup->DestroyWindow(); delete form_guidlookup; form_guidlookup = NULL; }
+    if (form_hresultlookup) { form_hresultlookup->DestroyWindow(); delete form_hresultlookup; form_hresultlookup = NULL; }
 }
 
 BOOL CGraphView::PreCreateWindow(CREATESTRUCT& cs)
@@ -985,6 +988,13 @@ void CGraphView::OnGraphStreamingComplete()
 	if (form_dec_performance) {
 		form_dec_performance->OnPhaseComplete();
 	}	
+
+    // close application?
+    if (m_bExitOnStop)
+    {
+        AfxGetMainWnd()->PostMessageW(WM_CLOSE);
+        return;
+    }
 }
 
 void CGraphView::OnGraphInsertFilter()
@@ -1170,6 +1180,12 @@ void CGraphView::OnHelpHresultLookup()
 	form_hresultlookup->ShowWindow(SW_SHOW);
 }
 
+void CGraphView::OnShowCliOptions()
+{
+    CCliOptionsForm dlg;
+    dlg.DoModal();
+}
+
 void CGraphView::OnConfigureSbe()
 {
     CSbeConfigForm dlg;
@@ -1243,6 +1259,16 @@ void CGraphView::OnUseClock()
 	Invalidate();
 }
 
+void CGraphView::RemoveClock()
+{
+    if (graph.uses_clock)
+    {
+		graph.SetClock(false, NULL);
+        graph.Dirty();
+	    Invalidate();
+    }
+}
+
 void CGraphView::OnUpdateUseClock(CCmdUI *ui)
 {
 	ui->SetCheck(graph.uses_clock);
@@ -1310,7 +1336,7 @@ void CGraphView::OnGraphRunning()
 
 void CGraphView::OnGraphStopped()
 {
-	CMainFrame	*frame = (CMainFrame*)GetParentFrame();
+    CMainFrame	*frame = (CMainFrame*)GetParentFrame();
 	CToolBarCtrl &toolbar = frame->m_wndToolBar.GetToolBarCtrl();
 
 	toolbar.EnableButton(ID_BUTTON_PLAY, TRUE);

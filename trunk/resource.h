@@ -56,6 +56,7 @@
 #define IDD_DIALOG_BLACKLIST            174
 #define IDD_DIALOG_MEDIA_TYPE_SELECT    175
 #define IDD_PROPPAGE_ANALYZER           176
+#define IDD_DIALOG_CLIOPTIONS           177
 #define IDC_COMBO_CATEGORIES            1001
 #define IDC_LIST_FILTERS                1002
 #define IDC_COMBO_MERIT                 1003
@@ -85,7 +86,6 @@
 #define IDC_SLIDER_SEEK                 1016
 #define IDC_SLIDER_VOLUME               1016
 #define IDC_SLIDER_IRATE                1016
-#define IDC_BUTTON_REFRESH2             1016
 #define IDC_STATIC_TIME                 1017
 #define IDC_SLIDER_BALANCE              1017
 #define IDC_SLIDER_PRATE                1017
@@ -126,6 +126,7 @@
 #define IDC_EDIT_SEARCH                 1031
 #define IDC_EDIT_DIR                    1031
 #define IDC_EDIT_BLACKLIST_ENTRY        1031
+#define IDC_EDIT_OPTIONS                1031
 #define IDC_EDIT_DST_TOP                1032
 #define IDC_TREE1                       1033
 #define IDC_TREE                        1033
@@ -316,6 +317,7 @@
 #define ID_BUTTON_INTELLIGENT           32876
 #define ID_BUTTON_DIRECT_WITHMT         32877
 #define ID_BUTTON_REMOVE_CONNECTIONS    32878
+#define ID_HELP_COMMANDLINEOPTIONS      32879
 #define ID_MPEG2DEMUX_CREATE_PSI_PIN    32880
 
 // Next default values for new objects
@@ -323,7 +325,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        177
-#define _APS_NEXT_COMMAND_VALUE         32879
+#define _APS_NEXT_COMMAND_VALUE         32880
 #define _APS_NEXT_CONTROL_VALUE         1124
 #define _APS_NEXT_SYMED_VALUE           103
 #endif

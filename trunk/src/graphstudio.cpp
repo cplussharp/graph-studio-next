@@ -59,6 +59,8 @@ BOOL CgraphstudioApp::InitInstance()
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
+    m_nExitCode = 0;
+
 	CWinApp::InitInstance();
 
     EnableTaskbarInteraction(TRUE);
@@ -83,13 +85,9 @@ BOOL CgraphstudioApp::InitInstance()
 	if (!pDocTemplate) return FALSE;
 	AddDocTemplate(pDocTemplate);
 
-
 	// Parse command line for standard shell commands, DDE, file open
-	CCommandLineInfo cmdInfo;
-	ParseCommandLine(cmdInfo);
-
-
-	if (!ProcessShellCommand(cmdInfo)) return FALSE;
+	ParseCommandLine(m_cmdInfo);
+	if (!ProcessShellCommand(m_cmdInfo)) return FALSE;
 
 	// The one and only window has been initialized, so show and update it
 	CMainFrame	*frame = (CMainFrame *)m_pMainWnd;
@@ -102,11 +100,32 @@ BOOL CgraphstudioApp::InitInstance()
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
 
+    // command line optionen
+    if (m_cmdInfo.m_bExitOnError)
+        DSUtil::m_bExitOnError = true;
+
+    if (m_cmdInfo.m_bShowCliHelp)
+        view->OnShowCliOptions();
+
 	// if we've been started with a command line parameter
 	// do open the file
-	if (cmdInfo.m_strFileName != _T("")) {
-		int ret = view->TryOpenFile(cmdInfo.m_strFileName);
-        DSUtil::ShowError(ret, TEXT("Can't open file"));
+	if (m_cmdInfo.m_strFileName != _T("")) {
+		int ret = view->TryOpenFile(m_cmdInfo.m_strFileName);
+        if (ret) {
+            DSUtil::ShowError(ret, TEXT("Can't open file"));
+        }
+
+        if (m_cmdInfo.m_bNoClock)
+            view->RemoveClock();
+
+        if (m_cmdInfo.m_bExitAfterRun)
+            view->m_bExitOnStop = true;
+
+        if (m_cmdInfo.m_bRunGraph)
+            view->OnPlayClick();
+
+        if (m_cmdInfo.m_bProgressView)
+            view->OnViewProgressview();
 	}
 
     // Jumplist
@@ -120,7 +139,7 @@ BOOL CgraphstudioApp::InitInstance()
     m_jumpList.AddTask(szModule, L"/filters", L"Filters Dialog", szModule, 2);
     m_jumpList.CommitList();
 
-    if (!wcscmp(m_lpCmdLine, L"/filters"))
+    if (m_cmdInfo.m_bShowFilters)
         view->OnGraphInsertFilter();
 
 	// call DragAcceptFiles only if there's a suffix
@@ -185,5 +204,9 @@ int CgraphstudioApp::ExitInstance()
 {
     CMediaInfo::FreeInfoCache();
 
-    return CWinApp::ExitInstance();
+    int ret = CWinApp::ExitInstance();
+    if (m_nExitCode != 0)
+        ret = m_nExitCode;
+
+    return ret;
 }

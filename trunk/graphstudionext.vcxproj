@@ -228,6 +228,7 @@
   <ItemGroup>
     <ClInclude Include="src\AnalyzerPage.h" />
     <ClInclude Include="src\BlacklistForm.h" />
+    <ClInclude Include="src\CliOptionsForm.h" />
     <ClInclude Include="src\FilterBlacklist.h" />
     <ClInclude Include="interfaces\monofilters.h" />
     <ClInclude Include="src\display_graph.h" />
@@ -237,6 +238,7 @@
     <ClInclude Include="src\filters\analyzer\analyzer.h" />
     <ClInclude Include="src\filters\fake_m2ts\filter_fake_m2ts_device.h" />
     <ClInclude Include="src\filters\psi_config\psiconfig.h" />
+    <ClInclude Include="src\graphCli.h" />
     <ClInclude Include="src\graphDoc.h" />
     <ClInclude Include="src\graphstudio.h" />
     <ClInclude Include="src\graphView.h" />
@@ -297,6 +299,7 @@
   <ItemGroup>
     <ClCompile Include="src\AnalyzerPage.cpp" />
     <ClCompile Include="src\BlacklistForm.cpp" />
+    <ClCompile Include="src\CliOptionsForm.cpp" />
     <ClCompile Include="src\FilterBlacklist.cpp" />
     <ClCompile Include="src\display_graph.cpp" />
     <ClCompile Include="src\display_view.cpp" />
@@ -305,6 +308,7 @@
     <ClCompile Include="src\filters\analyzer\analyzer.cpp" />
     <ClCompile Include="src\filters\fake_m2ts\filter_fake_m2ts_device.cpp" />
     <ClCompile Include="src\filters\psi_config\psiconfig.cpp" />
+    <ClCompile Include="src\graphCli.cpp" />
     <ClCompile Include="src\graphDoc.cpp" />
     <ClCompile Include="src\graphstudio.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

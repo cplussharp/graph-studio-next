@@ -446,5 +446,5 @@ namespace GraphStudio
     bool InsertHresultLookup(int i, CListCtrl* pListCtrl);
 
 	void MakeFont(CFont &f, CString name, int size, bool bold, bool italic);
-
+    bool HasFont(CString fontName);
 };

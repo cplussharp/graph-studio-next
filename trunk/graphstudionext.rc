@@ -577,6 +577,16 @@ BEGIN
     PUSHBUTTON      "Save",IDC_BUTTON_SAVE,545,23,50,14
 END
 
+IDD_DIALOG_CLIOPTIONS DIALOGEX 0, 0, 500, 225
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Command Line Options"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,499,24
+    DEFPUSHBUTTON   "OK",IDOK,441,202,50,14
+    EDITTEXT        IDC_EDIT_OPTIONS,0,24,499,170,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -837,6 +847,14 @@ BEGIN
         VERTGUIDE, 225
         BOTTOMMARGIN, 229
     END
+
+    IDD_DIALOG_CLIOPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 493
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 218
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -1023,6 +1041,8 @@ BEGIN
     BEGIN
         MENUITEM "&GUID Lookup...",             ID_HELP_GUIDLOOKUP
         MENUITEM "&HRESULT Lookup...",          ID_HELP_HRESULTLOOKUP
+        MENUITEM SEPARATOR
+        MENUITEM "Command Line Options...",     ID_HELP_COMMANDLINEOPTIONS
         MENUITEM SEPARATOR
         MENUITEM "&About GraphStudioNext...",   ID_APP_ABOUT
     END
@@ -1326,6 +1346,8 @@ BEGIN
     ID_BUTTON_INTELLIGENT   "Intelligent connection mode"
     ID_BUTTON_DIRECT_WITHMT "Direct connection with MediaType mode"
     ID_BUTTON_REMOVE_CONNECTIONS "Remove all connections between filters"
+    ID_HELP_COMMANDLINEOPTIONS 
+                            "Show the command line options for the programm."
 END
 
 STRINGTABLE
