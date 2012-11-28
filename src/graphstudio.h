@@ -23,6 +23,8 @@ class CgraphstudioApp : public CWinApp
 protected:
 	DECLARE_MESSAGE_MAP()
 
+    CGraphStudioCommandLineInfo m_cmdInfo;
+
 public:
 	CgraphstudioApp();
 
@@ -31,6 +33,7 @@ public:
     virtual int ExitInstance();
 
     static bool g_showGuidsOfKnownTypes;
+    int m_nExitCode;
 };
 
 extern CgraphstudioApp theApp;

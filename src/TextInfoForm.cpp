@@ -50,7 +50,10 @@ CTextInfoForm::~CTextInfoForm()
 
 void CTextInfoForm::OnInitialize()
 {
-	GraphStudio::MakeFont(font_report, _T("Courier New"), 10, false, false);
+	if(GraphStudio::HasFont(_T("Consolas")))
+        GraphStudio::MakeFont(font_report, _T("Consolas"), 10, false, false);
+    else
+        GraphStudio::MakeFont(font_report, _T("Courier New"), 10, false, false);
 	edit_report.SetFont(&font_report);
 
 	combo_reporttype.ResetContent();

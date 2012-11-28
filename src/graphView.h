@@ -76,6 +76,8 @@ public:
 	__int64						last_start_time_ns;
 	__int64						last_stop_time_ns;
 
+    bool                        m_bExitOnStop;
+
 public:
 	virtual ~CGraphView();
 
@@ -141,6 +143,7 @@ public:
 	void OnUpdateTimeLabel(CString text);
 	void OnUpdateSeekbar(double pos);
 	void OnUseClock();
+    void RemoveClock();
 
 	void OnUpdateConnectRemote(CCmdUI *ui);
 	void OnUpdateDisconnectRemote(CCmdUI *ui);
@@ -229,6 +232,7 @@ public:
 	afx_msg void OnViewGraphconstructionreport();
     afx_msg void OnHelpGuidLookup();
     afx_msg void OnHelpHresultLookup();
+    afx_msg void OnShowCliOptions();
     afx_msg void OnConfigureSbe();
 };
 
