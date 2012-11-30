@@ -81,6 +81,8 @@ public:
 	void OnBnClickedButtonInsert();
 	BOOL PreTranslateMessage(MSG *pmsg);
 
+	virtual  BOOL OnInitDialog( );
+
 	// filtering
 	DSUtil::FilterTemplate *GetSelected();
 	bool CanBeDisplayed(DSUtil::FilterTemplate &filter);

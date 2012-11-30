@@ -29,15 +29,19 @@ namespace GraphStudio
 	public:
 		CFont			font_filter;
 		CFont			font_info;
+		CFont			font_filter_sel;
 
 		COLORREF		color_font;
 		COLORREF		color_info;
 		COLORREF		color_selected;
 		COLORREF		color_error;
 
-		COLORREF		type_colors[5];
+		COLORREF		type_colors[6];
 
 		FilterListCallback	*callback;
+		CArray<DSUtil::FilterTemplate>  filters;
+		private:     
+		CString         search_str;
 
 	public:
 		FilterListCtrl();
@@ -49,6 +53,10 @@ namespace GraphStudio
 
 		int GetBottomIndex() const;
 		int HitTestEx(CPoint &point, int *col) const;
+		void UpdateList();
+		void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
+		void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+		void Initialize();
 
 	};
 
