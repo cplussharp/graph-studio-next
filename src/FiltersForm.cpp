@@ -178,8 +178,8 @@ void CFiltersForm::OnComboCategoriesChange()
 	DSUtil::FilterCategory	*cat = (DSUtil::FilterCategory*)combo_categories.GetItemDataPtr(item);
 	if (!cat) return ;
 
-	list_filters.DeleteAllItems();
 	filters.Enumerate(*cat);
+	list_filters.Initialize();   
 
 	int i;
 	for (i=0; i<filters.filters.GetCount(); i++) {
@@ -187,10 +187,10 @@ void CFiltersForm::OnComboCategoriesChange()
 
 		// pridame itemu
 		if (CanBeDisplayed(filter)) {
-			int item = list_filters.InsertItem(LVIF_PARAM | LVIF_TEXT, 0, filter.name, 0, 0, 0, (LPARAM)&filter);
-			list_filters.SetItemData(item, (DWORD_PTR)&filter);
+			list_filters.filters.Add(filter);
 		}
 	}
+	list_filters.UpdateList();
 }
 
 bool CFiltersForm::CanBeDisplayed(DSUtil::FilterTemplate &filter)
@@ -912,4 +912,11 @@ void CFiltersForm::OnRegisterClick()
             list_filters.EnsureVisible(sel, TRUE);
         }
     }
+}
+
+BOOL CFiltersForm::OnInitDialog()
+{
+	BOOL res = CDialog::OnInitDialog();
+	list_filters.Initialize();
+	return res;
 }

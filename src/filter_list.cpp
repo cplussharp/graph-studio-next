@@ -13,6 +13,9 @@ namespace GraphStudio
 	IMPLEMENT_DYNCREATE(FilterListCtrl, CListCtrl)
 	BEGIN_MESSAGE_MAP(FilterListCtrl, CListCtrl)
 		ON_WM_LBUTTONDBLCLK()
+		ON_WM_PAINT()
+		ON_WM_CHAR()
+		ON_WM_KEYDOWN()
 	END_MESSAGE_MAP()
 
 	//-------------------------------------------------------------------------
@@ -24,6 +27,7 @@ namespace GraphStudio
 	FilterListCtrl::FilterListCtrl()
 	{
 		MakeFont(font_filter, _T("Tahoma"), 8, false, false);
+		MakeFont(font_filter_sel, _T("Tahoma"), 8, true, false);
 		MakeFont(font_info, _T("Tahoma"), 8, false, false);
 
 		color_font = RGB(0,0,0);
@@ -36,12 +40,16 @@ namespace GraphStudio
 		type_colors[2] = RGB(128,0,0);		// KSProxy
 		type_colors[3] = RGB(0,0,128);		// ACM/ICM
 		type_colors[4] = RGB(128,0,128);	// PNP
+		type_colors[5] = RGB(240,128,0);	// Selection
 
 		callback = NULL;
+		filters.RemoveAll();
+		search_str = TEXT("");
 	}
 
 	FilterListCtrl::~FilterListCtrl()
 	{
+		filters.RemoveAll();
 	}
 
 	void FilterListCtrl::OnLButtonDblClk(UINT nFlags, CPoint point)
@@ -94,7 +102,39 @@ namespace GraphStudio
 
 
 		dc.SelectObject(&font_filter);
-		dc.DrawText(filter->name, &rcText, DT_VCENTER | DT_SINGLELINE);
+		if (search_str.GetLength()) {
+			CString name(filter->name);
+			CString nameUpper = name;
+			nameUpper.MakeUpper();
+			int pos_start = 0;
+			do 
+			{
+				int pos_end = nameUpper.Find(search_str, pos_start);
+				if (pos_end < 0)
+					pos_end = nameUpper.GetLength();
+
+				if (pos_end-pos_start){
+					CString sub = name.Mid(pos_start, pos_end - pos_start);
+					dc.DrawText(sub, &rcText, DT_VCENTER | DT_SINGLELINE);
+					CSize ext = dc.GetTextExtent(sub, sub.GetLength());
+					rcText.left += ext.cx;
+				}
+				if (pos_end<nameUpper.GetLength()){
+					dc.SelectObject(&font_filter_sel);
+					dc.SetTextColor(type_colors[5]);
+					CString sub = name.Mid(pos_end, search_str.GetLength());
+					dc.DrawText(sub, &rcText, DT_VCENTER | DT_SINGLELINE);
+					CSize ext = dc.GetTextExtent(sub, sub.GetLength());
+					rcText.left += ext.cx;
+					dc.SetTextColor(type_colors[idx]);
+					dc.SelectObject(&font_filter);
+				}
+				pos_start = pos_end + search_str.GetLength();
+			} while (pos_start < name.GetLength());            
+		}
+		else {
+			dc.DrawText(filter->name, &rcText, DT_VCENTER | DT_SINGLELINE);
+		}
 
 		// draw merit
 		rcText.left = rcText.right - 70;
@@ -175,6 +215,62 @@ namespace GraphStudio
 		return(nBottomIndex);
 	}
 
+	void FilterListCtrl::UpdateList()
+	{
+		DeleteAllItems();
+		for (int i=0; i<filters.GetCount(); i++) {
+			DSUtil::FilterTemplate	&filter = filters[i];
+
+			if (CString(filter.name).MakeUpper().Find(search_str)<0)
+				continue;
+
+			int item = InsertItem(LVIF_PARAM | LVIF_TEXT, 0, filter.name, 0, 0, 0, (LPARAM)&filter);
+			SetItemData(item, (DWORD_PTR)&filter);
+		}
+
+	}
+	void FilterListCtrl::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+	{
+		if (nChar == VK_DELETE && search_str.GetLength())
+		{
+			search_str.Delete(0, search_str.GetLength());
+			UpdateList();
+			Invalidate(FALSE);
+		}
+		else
+			return CListCtrl::OnKeyDown(nChar, nRepCnt, nFlags);        
+	}
+
+	void FilterListCtrl::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+	{
+
+		if (nChar == VK_BACK && search_str.GetLength())
+		{
+			search_str.Delete(search_str.GetLength()-1);
+		}
+		else if (nChar>=0x30 && nChar<=0x39 || nChar>=0x41 && nChar<=0x5A || nChar == VK_SPACE 
+			|| nChar == 0x2D)
+		{
+			search_str.Insert(search_str.GetLength(), nChar);
+		}
+		else if (nChar>=61 && nChar <=0x7A)
+		{
+			search_str.Insert(search_str.GetLength(), nChar);
+			search_str.MakeUpper();
+		}else
+			return CListCtrl::OnChar(nChar, nRepCnt, nFlags);
+
+		UpdateList();
+	}
+
+	void FilterListCtrl::Initialize()
+	{
+		search_str.Delete(0, search_str.GetLength());
+		filters.RemoveAll();
+		DeleteAllItems();
+	}
+
 };
+
 
 
