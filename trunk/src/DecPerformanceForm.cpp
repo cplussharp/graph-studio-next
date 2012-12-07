@@ -8,6 +8,11 @@
 #include "stdafx.h"
 #include "DecPerformanceForm.h"
 
+namespace
+{
+	const int	PASSES_MAX		= 1000;
+	const int	PASSES_DEFAULT	= 10;
+}
 
 //-----------------------------------------------------------------------------
 //
@@ -113,12 +118,12 @@ void CDecPerformanceForm::OnInitialize()
 	
     OnCbnSelChange();
 
-	phase_count = 10;
+	phase_count = PASSES_DEFAULT;
 
 	CString		str;
 	str.Format(_T("%d"), phase_count);
 	edit_passes.SetWindowText(str);
-	btn_spin.SetRange(1, 10);
+	btn_spin.SetRange(1, PASSES_MAX);
 	btn_spin.SetPos(phase_count);
 }
 
@@ -526,8 +531,8 @@ BOOL CDecPerformanceForm::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT *pResul
 			NMUPDOWN	*ud = (NMUPDOWN*)lParam;
 			int			p   = ud->iPos + ud->iDelta;
 
-			// clip <1; 10>
-			p = (p < 1 ? 1 : p > 10 ? 10 : p);
+			// clip <1; PASSES_MAX>
+			p = (p < 1 ? 1 : p > PASSES_MAX ? PASSES_MAX : p);
 			if (phase_count != p) {
 				phase_count = p;
 				CString		str;
