@@ -73,6 +73,7 @@ namespace GraphStudio
 		void OnRenderNullStream();
 		void OnDumpStream();
 		void OnTimeMeasureStream();
+		void OnTimeAnalyzeStream();
         void OnTeeStream();
 		void OnFileWriterStream();
 		void OnPropertyPage();
@@ -102,6 +103,9 @@ namespace GraphStudio
 		virtual void OnDeleteSelection();
 
         virtual void OnMpeg2DemuxCreatePsiPin();
+
+	private:
+		HRESULT	InsertNewFilter(IBaseFilter* newFilter, const CString& strFilterName, bool connectToCurrentPin = true);
 	};
 
 

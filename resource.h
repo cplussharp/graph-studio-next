@@ -246,6 +246,7 @@
 #define ID_GRAPH_MAKEGRAPHSCREENSHOT    32788
 #define ID_PIN_TEE_STREAM               32789
 #define ID_PIN_TIME_MEASURE_STREAM      32790
+#define ID_PIN_ANALYZE_STREAM			32791
 #define ID_VIEW_50                      32794
 #define ID_VIEW_75                      32795
 #define ID_VIEW_100                     32796

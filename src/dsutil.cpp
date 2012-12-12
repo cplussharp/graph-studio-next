@@ -1809,7 +1809,7 @@ namespace DSUtil
 			gb->Disconnect(ipins[j].pin);
 		}
 		ipins.RemoveAll();
-		return E_FAIL;
+		return FAILED(hr) ? hr : E_FAIL;
 	}
 
 	bool IsVideoUncompressed(GUID subtype)
