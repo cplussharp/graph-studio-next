@@ -32,6 +32,7 @@ namespace GraphStudio
 		ON_COMMAND(ID_PIN_NULL_STREAM, &DisplayView::OnRenderNullStream)
 		ON_COMMAND(ID_PIN_DUMP_STREAM, &DisplayView::OnDumpStream)
 		ON_COMMAND(ID_PIN_TIME_MEASURE_STREAM, &DisplayView::OnTimeMeasureStream)
+		ON_COMMAND(ID_PIN_ANALYZE_STREAM, &DisplayView::OnTimeAnalyzeStream)
         ON_COMMAND(ID_PIN_TEE_STREAM, &DisplayView::OnTeeStream)
 		ON_COMMAND(ID_PIN_FILE_WRITER, &DisplayView::OnFileWriterStream)
 		ON_COMMAND(ID_PROPERTYPAGE, &DisplayView::OnPropertyPage)
@@ -138,15 +139,16 @@ namespace GraphStudio
 			}
 
 			int		p = 0;
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_RENDER, _T("Render Pin"));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_RENDER, _T("&Render Pin"));
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_NULL_STREAM, _T("Insert Null Renderer"));
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_DUMP_STREAM, _T("Insert Dump Filter"));
-            menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_TIME_MEASURE_STREAM, _T("Insert Time Measure Filter"));
-            menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_TEE_STREAM, _T("Insert Tee Filter"));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_NULL_STREAM, _T("Insert &Null Renderer"));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_DUMP_STREAM, _T("Insert &Dump Filter"));
+            menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_TIME_MEASURE_STREAM, _T("Insert Time &Measure Filter"));
+            menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_ANALYZE_STREAM, _T("Insert &Analyzer Filter"));
+            menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_TEE_STREAM, _T("Insert &Tee Filter"));
 
 			if (offer_writer) {
-				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_FILE_WRITER, _T("Insert File Writer"));
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_FILE_WRITER, _T("Insert &File Writer"));
 			}
 
 			// check for compatible filters
@@ -157,23 +159,23 @@ namespace GraphStudio
 
 			p = menu.GetMenuItemCount();
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_PROPERTYPAGE, _T("Properties"));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_PROPERTYPAGE, _T("&Properties"));
 
 			// check for IAMStreamSelect interface
 			PrepareStreamSelectMenu(menu, current_pin->pin);
 
 		} else {
-			menu.InsertMenu(0, MF_STRING, ID_PROPERTYPAGE, _T("Properties"));
+			menu.InsertMenu(0, MF_STRING, ID_PROPERTYPAGE, _T("&Properties"));
 
 			int p = menu.GetMenuItemCount();
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_DELETE_FILTER, _T("Delete Selection"));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_DELETE_FILTER, _T("&Delete Selection"));
 
             CComQIPtr<IMpeg2Demultiplexer> mp2demux = current_filter->filter;
             if(mp2demux)
             {
                 menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
-			    menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_MPEG2DEMUX_CREATE_PSI_PIN, _T("Create PSI Pin"));
+			    menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_MPEG2DEMUX_CREATE_PSI_PIN, _T("&Create PSI Pin"));
             }
 
 			// check for IAMStreamSelect interface
@@ -667,232 +669,105 @@ namespace GraphStudio
 
 	void DisplayView::OnFileWriterStream()
 	{
-		if (!current_pin) return ;
-
-		// now create an instance of this filter
 		CComPtr<IBaseFilter>	instance;
-		HRESULT					hr;
-
-		hr = CoCreateInstance(CLSID_FileWriter, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
+		HRESULT hr = CoCreateInstance(CLSID_FileWriter, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
 		if (FAILED(hr)) {
             DSUtil::ShowError(hr,_T("Can't create File Writer"));
-			return ;
-		} 
-		
-		if (SUCCEEDED(hr)){
-			
-			// now check for a few interfaces
-			int ret = ConfigureInsertedFilter(instance, _T("File Writer"));
-			if (ret < 0) {
-				instance = NULL;
-			}
-
-			if (instance) {
-
-				IPin		*outpin = current_pin->pin;
-				outpin->AddRef();
-
-				// add the filter to graph
-				hr = graph.AddFilter(instance, _T("File Writer"));
-				if (FAILED(hr)) {
-					// display error message
-				} else {
-					// connect the pin to the renderer
-					hr = DSUtil::ConnectPin(graph.gb, outpin, instance);
-
-					graph.RefreshFilters();
-					graph.SmartPlacement();
-					graph.Dirty();
-					Invalidate();
-				}
-
-				outpin->Release();
-			}
+		} else {
+			hr = InsertNewFilter(instance, _T("File Writer"));
 		}
-		instance = NULL;
-		current_pin = NULL;
 	}
-
 
 	void DisplayView::OnTimeMeasureStream()
 	{
-		if (!current_pin) return ;
-
 		CComPtr<IBaseFilter>	instance;
-
-		// Create our time measure filter
 		HRESULT hr = S_OK;
 		CMonoTimeMeasure * const filter = new CMonoTimeMeasure(NULL, &hr);
 		hr = filter->NonDelegatingQueryInterface(IID_IBaseFilter, (void**)&instance);
+		if (SUCCEEDED(hr))
+			hr = InsertNewFilter(instance, _T("Time Measure"));
+	}
 
-		if (SUCCEEDED(hr)){
-			const TCHAR filter_name[] = _T("Time Measure");
-			// now check for a few interfaces
-			int ret = ConfigureInsertedFilter(instance, filter_name);
-			if (ret < 0) {
-				instance = NULL;
-			}
-
-			if (instance) {
-
-				IPin		*outpin = current_pin->pin;
-				outpin->AddRef();
-
-				// add the filter to graph
-				hr = graph.AddFilter(instance, filter_name);
-				if (FAILED(hr)) {
-					// display error message
-                    DSUtil::ShowError(hr,_T("Can't add Time Measure Filter"));
-				} else {
-					// connect the pin to the renderer
-					hr = DSUtil::ConnectPin(graph.gb, outpin, instance);
-
-					graph.RefreshFilters();
-					graph.SmartPlacement();
-					graph.Dirty();
-					Invalidate();
-				}
-
-				outpin->Release();
-			}
-		}
-		instance = NULL;
-		current_pin = NULL;
+	void DisplayView::OnTimeAnalyzeStream()
+	{
+		CComPtr<IBaseFilter>	instance;
+		HRESULT hr = S_OK;
+		CAnalyzerFilter * const filter = new CAnalyzerFilter(NULL, &hr);
+		hr = filter->NonDelegatingQueryInterface(IID_IBaseFilter, (void**)&instance);
+		if (SUCCEEDED(hr))
+			hr = InsertNewFilter(filter, _T("Analyzer"));
 	}
 
 	void DisplayView::OnDumpStream()
 	{
-		if (!current_pin) return ;
-
-		// now create an instance of this filter
 		CComPtr<IBaseFilter>	instance;
-		HRESULT					hr;
-
-		hr = CoCreateInstance(DSUtil::CLSID_Dump, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
+		HRESULT hr = CoCreateInstance(DSUtil::CLSID_Dump, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
 		if (FAILED(hr)) {
 			// try our internal Dump Filter as an alternative
-			CMonoDump	*dump = new CMonoDump(NULL, &hr);
+			CMonoDump * const dump = new CMonoDump(NULL, &hr);
 			hr = dump->NonDelegatingQueryInterface(IID_IBaseFilter, (void**)&instance);
 		} 
 		
-		if (SUCCEEDED(hr)){
-			
-			// now check for a few interfaces
-			int ret = ConfigureInsertedFilter(instance, _T("Dump"));
-			if (ret < 0) {
-				instance = NULL;
-			}
-
-			if (instance) {
-
-				IPin		*outpin = current_pin->pin;
-				outpin->AddRef();
-
-				// add the filter to graph
-				hr = graph.AddFilter(instance, _T("Dump"));
-				if (FAILED(hr)) {
-					// display error message
-                    DSUtil::ShowError(hr,_T("Can't add Dump Filter"));
-				} else {
-					// connect the pin to the renderer
-					hr = DSUtil::ConnectPin(graph.gb, outpin, instance);
-
-					graph.RefreshFilters();
-					graph.SmartPlacement();
-					graph.Dirty();
-					Invalidate();
-				}
-
-				outpin->Release();
-			}
-		}
-		instance = NULL;
-		current_pin = NULL;
+		if (SUCCEEDED(hr))
+			hr = InsertNewFilter(instance, _T("Dump"));
 	}
 
     void DisplayView::OnTeeStream()
 	{
-		if (!current_pin) return ;
-
-		// now create an instance of this filter
 		CComPtr<IBaseFilter>	instance;
-		HRESULT					hr;
-
-        hr = CoCreateInstance(CLSID_InfTee, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
+        HRESULT hr = CoCreateInstance(CLSID_InfTee, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
 		if (FAILED(hr)) {
-			// display error message
             DSUtil::ShowError(hr,_T("Can't create Tee Filter"));
 		} else {
+			hr = InsertNewFilter(instance, _T("Tee Filter"));
+		}
+	}
 
-			IPin		*outpin = current_pin->pin;
-			outpin->AddRef();
+	void DisplayView::OnRenderNullStream()
+	{
+		CComPtr<IBaseFilter>	instance;
+		HRESULT hr = CoCreateInstance(DSUtil::CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
+		if (FAILED(hr)) {
+            DSUtil::ShowError(hr,_T("Can't create Null Renderer"));
+		} else {
+			hr = InsertNewFilter(instance, _T("Null Renderer"));
+		}
+	}
 
-			// add the filter to graph
-			hr = graph.AddFilter(instance, _T("Tee Filter"));
+	HRESULT DisplayView::InsertNewFilter(IBaseFilter* newFilter, const CString& filterName, bool connectToCurrentPin /*= true */ )
+	{
+		HRESULT hr = S_OK;
+
+		// now check for a few interfaces
+		const int ret = ConfigureInsertedFilter(newFilter, filterName);
+		if (ret < 0) {
+			hr = E_FAIL;
+			if (newFilter) {
+				newFilter = NULL;
+			}
+		}
+
+		if (newFilter) {
+			// We need to AddRef current_pin while it's valid before adding the filter
+			CComPtr<IPin> outpin(connectToCurrentPin && current_pin ? current_pin->pin : NULL);
+			hr = graph.AddFilter(newFilter, filterName);
 			if (FAILED(hr)) {
-				// display error message
-                DSUtil::ShowError(hr,_T("Can't add Tee Filter"));
+				DSUtil::ShowError(hr, CString(_T("Can't add ")) + filterName);
 			} else {
-				// connect the pin to the renderer
-				hr = DSUtil::ConnectPin(graph.gb, outpin, instance);
-
+				if (outpin) {
+					hr = DSUtil::ConnectPin(graph.gb, outpin, newFilter);	// connect new filter to currently selected pin
+					if (FAILED(hr))
+						DSUtil::ShowError(hr, CString(_T("Can't connect ")) + filterName);
+				}
 				graph.RefreshFilters();
 				graph.SmartPlacement();
 				graph.Dirty();
 				Invalidate();
 			}
-
-			outpin->Release();
+			outpin = NULL;
+			current_pin = NULL;
 		}
-		instance = NULL;
-		current_pin = NULL;
-	}
-
-	void DisplayView::OnRenderNullStream()
-	{
-		if (!current_pin) return ;
-
-		// now create an instance of this filter
-		CComPtr<IBaseFilter>	instance;
-		HRESULT					hr;
-
-		hr = CoCreateInstance(DSUtil::CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
-		if (FAILED(hr)) {
-			// display error message
-            DSUtil::ShowError(hr,_T("Can't create Null Renderer"));
-		} else {
-			
-			// now check for a few interfaces
-			int ret = ConfigureInsertedFilter(instance, _T("Null Renderer"));
-			if (ret < 0) {
-				instance = NULL;
-			}
-
-			if (instance) {
-
-				IPin		*outpin = current_pin->pin;
-				outpin->AddRef();
-
-				// add the filter to graph
-				hr = graph.AddFilter(instance, _T("Null Renderer"));
-				if (FAILED(hr)) {
-					// display error message
-                    DSUtil::ShowError(hr,_T("Can't add Null Renderer"));
-				} else {
-					// connect the pin to the renderer
-					hr = DSUtil::ConnectPin(graph.gb, outpin, instance);
-
-					graph.RefreshFilters();
-					graph.SmartPlacement();
-					graph.Dirty();
-					Invalidate();
-				}
-
-				outpin->Release();
-			}
-		}
-		instance = NULL;
-		current_pin = NULL;
+		return hr;
 	}
 
 	void DisplayView::OnRenderPin()
@@ -1085,50 +960,16 @@ namespace GraphStudio
 	void DisplayView::OnCompatibleFilterClick(UINT id)
 	{		
 		id -= ID_COMPATIBLE_FILTER;
+		if (id >= compatible_filters.filters.GetCount()) 
+			return ;
 
 		// create an instance of the filter and insert it into the graph
 		CComPtr<IBaseFilter>		instance;
-		CComPtr<IPin>				outpin;
-		HRESULT						hr;
-
-		if (id >= compatible_filters.filters.GetCount()) return ;
-		if (!current_pin) return ;
-		if (!current_pin->pin) return ;
-
-		outpin = current_pin->pin;
-
 		DSUtil::FilterTemplate	&templ = compatible_filters.filters[id];
-		hr = templ.CreateInstance(&instance);
+		HRESULT hr = templ.CreateInstance(&instance);
 		if (SUCCEEDED(hr)) {
-
-			// now check for a few interfaces
-            int ret = ConfigureInsertedFilter(instance, templ.name);
-			if (ret < 0) {
-				instance = NULL;
-			}
-
-			if (instance) {
-				// add the filter to graph
-				hr = graph.AddFilter(instance, templ.name);
-				if (FAILED(hr)) {
-					// display error message
-                    DSUtil::ShowError(hr);
-				} else {
-
-					// now try to connect the filter
-					hr = DSUtil::ConnectPin(graph.gb, outpin, instance);
-
-					graph.RefreshFilters();
-					graph.SmartPlacement();
-					Invalidate();
-				}
-			}
+			hr = InsertNewFilter(instance, templ.name);
 		}
-        else
-            DSUtil::ShowError(hr);
-
-		outpin = NULL;
-		instance = NULL;
 	}
 
 	void DisplayView::PrepareCompatibleFiltersMenu(CMenu &menu, Pin *pin)
@@ -1174,8 +1015,8 @@ namespace GraphStudio
 			// do insert the menu
 			int		count = menu.GetMenuItemCount();
 			menu.InsertMenu(count++, MF_BYPOSITION | MF_SEPARATOR);
-			menu.InsertMenu(count, MF_BYPOSITION | MF_STRING, 0, _T("Compatible filters"));
-			menu.ModifyMenu(count, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("Compatible filters"));
+			menu.InsertMenu(count, MF_BYPOSITION | MF_STRING, 0, _T("&Compatible filters"));
+			menu.ModifyMenu(count, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("&Compatible filters"));
 			submenu.Detach();
 		}
 	}
@@ -1244,8 +1085,8 @@ namespace GraphStudio
 
 		// do insert the menu
 		int		count = menu.GetMenuItemCount();
-		menu.InsertMenu(count, MF_BYPOSITION | MF_STRING, 0, _T("Stream selection"));
-		menu.ModifyMenu(count, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("Stream selection"));
+		menu.InsertMenu(count, MF_BYPOSITION | MF_STRING, 0, _T("&Stream selection"));
+		menu.ModifyMenu(count, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("&Stream selection"));
 		submenu.Detach();
 
 		stream_select = NULL;
@@ -1267,8 +1108,8 @@ namespace GraphStudio
 		// do insert the menu
 		int		count = menu.GetMenuItemCount();
 		menu.InsertMenu(count++, MF_BYPOSITION | MF_SEPARATOR);
-		menu.InsertMenu(count, MF_BYPOSITION | MF_STRING, 0, _T("Favorite filters"));
-		menu.ModifyMenu(count, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("Favorite filters"));
+		menu.InsertMenu(count, MF_BYPOSITION | MF_STRING, 0, _T("&Favorite filters"));
+		menu.ModifyMenu(count, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("&Favorite filters"));
 		submenu.Detach();
 	}
 
