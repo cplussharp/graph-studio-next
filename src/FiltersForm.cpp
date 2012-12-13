@@ -82,7 +82,7 @@ BOOL CFiltersForm::DoCreateDialog()
 	rc.SetRect(0, 0, 100, 23);
 	combo_categories.Create(WS_CHILD | WS_VISIBLE | CBS_SORT | CBS_DROPDOWNLIST, rc, &title, IDC_COMBO_CATEGORIES);
 	combo_merit.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, rc, &title, IDC_COMBO_MERIT);
-	btn_register.Create(_T("Register"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_REGISTER);
+	btn_register.Create(_T("&Register"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_REGISTER);
 
 	tree_details.Create(NULL, WS_CHILD | WS_VISIBLE, rc, this, IDC_TREE);
 
@@ -329,39 +329,10 @@ void CFiltersForm::OnBnClickedButtonInsert()
     POSITION pos = list_filters.GetFirstSelectedItemPosition();
 	while (pos)
     {
-		int item = list_filters.GetNextSelectedItem(pos);
-		DSUtil::FilterTemplate *filter = (DSUtil::FilterTemplate*)list_filters.GetItemData(item);
-		
+		const int item = list_filters.GetNextSelectedItem(pos);
+		DSUtil::FilterTemplate * const filter = (DSUtil::FilterTemplate*)list_filters.GetItemData(item);
         if (filter)
-        {
-		    // now create an instance of this filter
-		    CComPtr<IBaseFilter>	instance;
-		    HRESULT					hr;
-
-		    hr = filter->CreateInstance(&instance);
-		    if (FAILED(hr)) {
-			    // display error message
-		    } else {
-			
-			    // now check for a few interfaces
-			    int ret = ConfigureInsertedFilter(instance, filter->name);
-			    if (ret < 0) {
-				    instance = NULL;
-			    }
-
-			    if (instance) {
-				    // add the filter to graph
-				    hr = view->graph.AddFilter(instance, filter->name);
-				    if (FAILED(hr)) {
-					    // display error message
-				    } else {
-					    view->graph.SmartPlacement();
-					    view->Invalidate();
-				    }
-			    }
-		    }
-		    instance = NULL;
-	    }
+			view->InsertFilterFromTemplate(*filter);
 	}
 }
 

@@ -21,6 +21,8 @@ namespace GraphStudio
 		DECLARE_DYNCREATE(DisplayView)
 		DECLARE_MESSAGE_MAP()
 
+		HRESULT	InsertNewFilter(IBaseFilter* newFilter, const CString& strFilterName, bool connectToCurrentPin = true);
+
 	public:
 
 		RenderParameters	render_params;
@@ -103,9 +105,6 @@ namespace GraphStudio
 		virtual void OnDeleteSelection();
 
         virtual void OnMpeg2DemuxCreatePsiPin();
-
-	private:
-		HRESULT	InsertNewFilter(IBaseFilter* newFilter, const CString& strFilterName, bool connectToCurrentPin = true);
 	};
 
 
