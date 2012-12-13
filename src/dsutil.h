@@ -152,8 +152,8 @@ namespace DSUtil
 	class FilterCategory
 	{
 	public:
-		CString		name;
-		GUID		clsid;
+		CString		name;				// User readable name of category
+		GUID		clsid;				// GUID_NULL for any category
 		bool		is_dmo;				// is this category DMO ?
 	public:
 		FilterCategory();
@@ -188,6 +188,7 @@ namespace DSUtil
 		int Enumerate(FilterCategory &cat);
 		int Enumerate(GUID clsid);
 		int EnumerateDMO(GUID clsid);
+		HRESULT EnumerateAllRegisteredFilters();
 
 		// enumerating compatible filters
 		int EnumerateCompatible(MediaTypes &mtypes, DWORD min_merit, bool need_output, bool exact);

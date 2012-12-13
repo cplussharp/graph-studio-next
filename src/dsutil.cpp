@@ -727,6 +727,10 @@ namespace DSUtil
 		HRESULT				hr;
 		int					ret = -1;
 
+		// Add the special wildcard categories
+		categories.Add(FilterCategory(_T("(ALL) DirectShow Filters"), GUID_NULL, false));
+		categories.Add(FilterCategory(_T("(ALL) DMO"), GUID_NULL, true));
+
 		do {
 			hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC_SERVER, IID_ICreateDevEnum, (void**)&sys_dev_enum);
 			if (FAILED(hr)) break;
@@ -849,6 +853,8 @@ namespace DSUtil
 
 		if (cat.is_dmo) {
 			return EnumerateDMO(cat.clsid);
+		} else if (GUID_NULL == cat.clsid) {
+			return EnumerateAllRegisteredFilters();
 		} else {
 			return Enumerate(cat.clsid);
 		}
@@ -963,6 +969,31 @@ namespace DSUtil
 		SortByName();
 
 		return ret;
+	}
+
+	HRESULT FilterTemplates::EnumerateAllRegisteredFilters()
+	{
+		CComPtr<IFilterMapper2>		mapper;
+		CComPtr<IEnumMoniker>		emoniker;
+		HRESULT						hr;
+
+		filters.RemoveAll();
+
+		hr = mapper.CoCreateInstance(CLSID_FilterMapper2);
+		if (FAILED(hr)) return hr;
+
+		// find all matching filters
+		hr = mapper->EnumMatchingFilters(&emoniker, 0, FALSE,
+					0,								// Passing zero lists more filters than MERIT_DO_NOT_USE
+					FALSE, 0, NULL,	NULL, NULL,
+					FALSE,
+					FALSE, 0, NULL, NULL, NULL);
+		if (SUCCEEDED(hr)) {
+			hr = AddFilters(emoniker) < 0 ? E_FAIL : S_OK;
+		}
+
+		SortByName();
+		return hr;
 	}
 
     int FilterTemplates::EnumerateInternalFilters()
@@ -1559,26 +1590,29 @@ namespace DSUtil
 						case 1:		can_go = IsVideoRenderer(filter); break;
 						}
 
-						// moniker name
-						LPOLESTR	moniker_name;
-						hr = moniker->GetDisplayName(NULL, NULL, &moniker_name);
-						if (SUCCEEDED(hr)) {
-							filter.moniker_name = CString(moniker_name);
+						if (can_go == 0) {
 
-							IMalloc *alloc = NULL;
-							hr = CoGetMalloc(1, &alloc);
+							// moniker name
+							LPOLESTR	moniker_name;
+							hr = moniker->GetDisplayName(NULL, NULL, &moniker_name);
 							if (SUCCEEDED(hr)) {
-								alloc->Free(moniker_name);
-								alloc->Release();
+								filter.moniker_name = CString(moniker_name);
+
+								IMalloc *alloc = NULL;
+								hr = CoGetMalloc(1, &alloc);
+								if (SUCCEEDED(hr)) {
+									alloc->Free(moniker_name);
+									alloc->Release();
+								}
+							} else {
+								filter.moniker_name = _T("");
 							}
-						} else {
-							filter.moniker_name = _T("");
+							filter.ParseMonikerName();
+
+							filter.category = category;
+
+							filters.Add(filter);
 						}
-						filter.ParseMonikerName();
-
-						filter.category = category;
-
-						if (can_go == 0) filters.Add(filter);
 					}
 				}
 				VariantClear(&var);
