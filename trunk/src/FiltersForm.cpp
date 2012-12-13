@@ -138,11 +138,12 @@ void CFiltersForm::OnInitialize()
 	combo_merit.AddString(_T("Non-Standard Merits"));
 	combo_merit.SetCurSel(0);
 
+	DSUtil::FilterTemplates filters;
+
 	for (i=0; i<categories.categories.GetCount(); i++) {
 		DSUtil::FilterCategory	&cat = categories.categories[i];
 
 		// ignore empty categories
-		DSUtil::FilterTemplates		filters;
 		filters.Enumerate(cat);
 		if (filters.filters.GetCount() > 0) {
 			CString	n;
@@ -150,9 +151,9 @@ void CFiltersForm::OnInitialize()
 			int item = combo_categories.AddString(n);
 			combo_categories.SetItemDataPtr(item, (void*)&cat);
 
-			if (cat.clsid == CLSID_LegacyAmFilterCategory) {
+			if (cat.clsid == GUID_NULL && !cat.is_dmo) {	// Set ALL filters as the default entry
 				combo_categories.SetCurSel(item);
-				OnComboCategoriesChange();
+				RefreshFilterList(filters);
 			}
 		}
 	}
@@ -178,12 +179,19 @@ void CFiltersForm::OnComboCategoriesChange()
 	DSUtil::FilterCategory	*cat = (DSUtil::FilterCategory*)combo_categories.GetItemDataPtr(item);
 	if (!cat) return ;
 
+	DSUtil::FilterTemplates	filters;
 	filters.Enumerate(*cat);
+
+	RefreshFilterList(filters);
+}
+
+void CFiltersForm::RefreshFilterList(const DSUtil::FilterTemplates &filters)
+{
 	list_filters.Initialize();   
 
 	int i;
 	for (i=0; i<filters.filters.GetCount(); i++) {
-		DSUtil::FilterTemplate	&filter = filters.filters[i];
+		const DSUtil::FilterTemplate	&filter = filters.filters[i];
 
 		// pridame itemu
 		if (CanBeDisplayed(filter)) {
@@ -193,7 +201,7 @@ void CFiltersForm::OnComboCategoriesChange()
 	list_filters.UpdateList();
 }
 
-bool CFiltersForm::CanBeDisplayed(DSUtil::FilterTemplate &filter)
+bool CFiltersForm::CanBeDisplayed(const DSUtil::FilterTemplate &filter)
 {
 	switch (merit_mode) {
 	case CFiltersForm::MERIT_MODE_ALL:				return true;

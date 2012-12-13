@@ -21,6 +21,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	DECLARE_DYNAMIC(CFiltersForm)
 
+	void RefreshFilterList(const DSUtil::FilterTemplates &filters);
+
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
     HICON m_hIcon;
 
@@ -43,7 +45,6 @@ public:
 
 	// enumerated stuff
 	DSUtil::FilterCategories	categories;
-	DSUtil::FilterTemplates		filters;
 
 	// view to work with
 	CGraphView					*view;
@@ -85,7 +86,7 @@ public:
 
 	// filtering
 	DSUtil::FilterTemplate *GetSelected();
-	bool CanBeDisplayed(DSUtil::FilterTemplate &filter);
+	bool CanBeDisplayed(const DSUtil::FilterTemplate &filter);
 	void OnComboMeritChange();
 	void OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult);
 	void OnBnClickedButtonPropertypage();
