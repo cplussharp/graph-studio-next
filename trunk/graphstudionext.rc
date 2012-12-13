@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Deutsch (Deutschland) resources
+// German (Germany) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
 LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
@@ -27,12 +27,12 @@ LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_ADDFILTER           ICON                    "res\\addFilter.ico"
-#endif    // Deutsch (Deutschland) resources
+#endif    // German (Germany) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Englisch (USA) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -104,13 +104,13 @@ CAPTION "Filters"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         "",IDC_LIST_FILTERS,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_OWNERDRAWFIXED | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_TABSTOP,6,48,300,192
-    CONTROL         "Favorite filter",IDC_CHECK_FAVORITE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,313,188,59,10
-    PUSHBUTTON      "Property page",IDC_BUTTON_PROPERTYPAGE,312,222,67,14
-    PUSHBUTTON      "Unregister",IDC_BUTTON_UNREGISTER,438,222,66,14
-    PUSHBUTTON      "Insert",IDC_BUTTON_INSERT,312,204,66,14
-    PUSHBUTTON      "Locate file",IDC_BUTTON_LOCATE,438,204,66,14
+    CONTROL         "&Favorite filter",IDC_CHECK_FAVORITE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,313,188,59,10
+    PUSHBUTTON      "&Property page",IDC_BUTTON_PROPERTYPAGE,312,222,67,14
+    PUSHBUTTON      "&Unregister",IDC_BUTTON_UNREGISTER,438,222,66,14
+    PUSHBUTTON      "&Insert",IDC_BUTTON_INSERT,312,204,66,14
+    PUSHBUTTON      "&Locate file",IDC_BUTTON_LOCATE,438,204,66,14
     CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,510,20
-    PUSHBUTTON      "Change merit",IDC_BUTTON_MERIT,438,186,66,14
+    PUSHBUTTON      "Change &merit",IDC_BUTTON_MERIT,438,186,66,14
     CONTROL         "search online",IDC_MFCLINK_SEARCH_ONLINE,"MfcLink",WS_TABSTOP,385,185,45,11
 END
 
@@ -1355,7 +1355,7 @@ BEGIN
     IDS_SHOW_GRAPH_CONSTRUCTION_REPORT "Show Graph Constrution Report"
 END
 
-#endif    // Englisch (USA) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -671,11 +671,10 @@ namespace GraphStudio
 	{
 		CComPtr<IBaseFilter>	instance;
 		HRESULT hr = CoCreateInstance(CLSID_FileWriter, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
-		if (FAILED(hr)) {
+		if (FAILED(hr))
             DSUtil::ShowError(hr,_T("Can't create File Writer"));
-		} else {
+		else
 			hr = InsertNewFilter(instance, _T("File Writer"));
-		}
 	}
 
 	void DisplayView::OnTimeMeasureStream()
@@ -748,7 +747,7 @@ namespace GraphStudio
 		}
 
 		if (newFilter) {
-			// We need to AddRef current_pin while it's valid before adding the filter
+			// has selected pin, then get IPin interface now, because graph.AddFilter will release current_pin
 			CComPtr<IPin> outpin(connectToCurrentPin && current_pin ? current_pin->pin : NULL);
 			hr = graph.AddFilter(newFilter, filterName);
 			if (FAILED(hr)) {

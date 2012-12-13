@@ -1018,36 +1018,15 @@ void CGraphView::OnGraphInsertFilterFromFile()
         CComPtr<IBaseFilter> instance;
         HRESULT hr = dlg.filterFactory->CreateInstance(NULL, IID_IBaseFilter, (void**)&instance);
         if(FAILED(hr))
-        {
-            CString msg;
-            msg.Format(_T("Error creating instance of filter (hr = 0x%08x)"), hr);
-            DSUtil::ShowError(msg);
-        }
-        else
-        {
+            DSUtil::ShowError(hr, _T("Error creating instance of filter"));
+        else {
             // Get Filter name
             FILTER_INFO filterInfo = {0};   
             instance->QueryFilterInfo(&filterInfo);
             CString filterName = filterInfo.achName;
             if(filterName == _T(""))
                 filterName = PathFindFileName(dlg.result_file);
-
-            // now check for a few interfaces
-            int ret = ConfigureInsertedFilter(instance, filterName);
-		    if (ret < 0) {
-			    instance = NULL;
-		    }
-
-		    if (instance) {
-			    // add the filter to graph
-			    hr = graph.AddFilter(instance, filterName);
-			    if (FAILED(hr)) {
-				    // display error message
-			    } else {
-				    graph.SmartPlacement();
-				    Invalidate();
-			    }
-		    }
+			InsertNewFilter(instance, filterName, /* connectCurrentPin = */ false);
         }
     }
 }
@@ -1393,29 +1372,10 @@ void CGraphView::OnGraphInsertFileSource()
 	HRESULT					hr;
 
 	hr = CoCreateInstance(CLSID_AsyncReader, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
-	if (FAILED(hr)) {
-		// display error message
+	if (FAILED(hr))
         DSUtil::ShowError(hr, _T("Can't create File Source (Async.)"));
-		return ;
-	} else {
-		
-		int ret = ConfigureInsertedFilter(instance, _T("File Source (Async.)"));
-		if (ret < 0) {
-			instance = NULL;
-		}
-
-		if (instance) {
-			// add the filter to graph
-			hr = graph.AddFilter(instance, _T("File Source (Async.)"));
-			if (FAILED(hr)) {
-				DSUtil::ShowError(hr, _T("Can't insert File Source (Async.)"));
-			} else {
-				graph.SmartPlacement();
-				Invalidate();
-			}
-		}
-	}
-	instance = NULL;
+	else
+		hr = InsertNewFilter(instance, _T("File Source (Async.)"));
 }
 
 void CGraphView::OnGraphInsertTeeFilter()
@@ -1425,21 +1385,10 @@ void CGraphView::OnGraphInsertTeeFilter()
 	HRESULT					hr;
 
     hr = CoCreateInstance(CLSID_InfTee, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
-	if (FAILED(hr)) {
-		// display error message
+	if (FAILED(hr))
         DSUtil::ShowError(hr, _T("Can't create Inf Tee Filter"));
-		return ;
-	} else if (instance) {
-		// add the filter to graph
-		hr = graph.AddFilter(instance, _T("Tee Filter"));
-		if (FAILED(hr)) {
-			DSUtil::ShowError(hr, _T("Can't insert Inf Tee Filter"));
-		} else {
-			graph.SmartPlacement();
-			Invalidate();
-		}
-	}
-	instance = NULL;
+	else if (instance)
+		hr = InsertNewFilter(instance, _T("Tee Filter"));
 }
 
 void CGraphView::OnGraphInsertFileSink()
@@ -1449,29 +1398,10 @@ void CGraphView::OnGraphInsertFileSink()
 	HRESULT					hr;
 
 	hr = CoCreateInstance(CLSID_FileWriter, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
-	if (FAILED(hr)) {
-		// display error message
+	if (FAILED(hr))
 		DSUtil::ShowError(hr, _T("Can't create File Writer"));
-		return ;
-	} else {
-		
-		int ret = ConfigureInsertedFilter(instance, _T("File Writer"));
-		if (ret < 0) {
-			instance = NULL;
-		}
-
-		if (instance) {
-			// add the filter to graph
-			hr = graph.AddFilter(instance, _T("File Writer"));
-			if (FAILED(hr)) {
-				DSUtil::ShowError(hr, _T("Can't insert File Writer"));
-			} else {
-				graph.SmartPlacement();
-				Invalidate();
-			}
-		}
-	}
-	instance = NULL;
+	else
+		hr = InsertNewFilter(instance, _T("File Writer"));
 }
 
 void CGraphView::OnPropertyPageClosed(CPropertyForm *page)
@@ -1773,44 +1703,8 @@ int CGraphView::InsertFilterFromFavorite(GraphStudio::FavoriteFilter *filter)
 	}
 
 	hr = moniker->BindToObject(NULL, NULL, IID_IBaseFilter, (void**)&instance);
-	if (SUCCEEDED(hr)) {
-
-        // has selected pin, then get IPin interface now, because graph.AddFilter will release current_pin
-        CComPtr<IPin> outpin;
-        if(current_pin)
-        {
-            outpin = current_pin->pin;
-            current_pin = NULL;
-        }
-
-		// now check for a few interfaces
-        int ret = ConfigureInsertedFilter(instance, filter->name);
-		if (ret < 0) {
-			instance = NULL;
-		}
-
-		if (instance) {
-			// add the filter to graph
-			hr = graph.AddFilter(instance, filter->name);
-			if (FAILED(hr)) {
-				// display error message
-                DSUtil::ShowError(hr);
-			} else {
-                // now try to connect the filter
-                if(outpin)
-                {
-				    hr = DSUtil::ConnectPin(graph.gb, outpin, instance);
-                    if(FAILED(hr))
-                        DSUtil::ShowError(hr);
-                }
-
-				graph.RefreshFilters();
-
-				graph.SmartPlacement();
-				Invalidate();
-			}
-		}
-	}
+	if (SUCCEEDED(hr))
+		hr = InsertNewFilter(instance, filter->name);
 
 	bind = NULL;
 	instance = NULL;
@@ -1818,36 +1712,14 @@ int CGraphView::InsertFilterFromFavorite(GraphStudio::FavoriteFilter *filter)
 	return 0;
 }
 
-int CGraphView::InsertFilterFromTemplate(DSUtil::FilterTemplate &filter)
+HRESULT CGraphView::InsertFilterFromTemplate(DSUtil::FilterTemplate &filter)
 {
 	// now create an instance of this filter
 	CComPtr<IBaseFilter>	instance;
-	HRESULT					hr;
-
-	hr = filter.CreateInstance(&instance);
-	if (FAILED(hr)) {
-		// display error message
-	} else {
-		
-		// now check for a few interfaces
-		int ret = ConfigureInsertedFilter(instance, filter.name);
-		if (ret < 0) {
-			instance = NULL;
-		}
-
-		if (instance) {
-			// add the filter to graph
-			hr = graph.AddFilter(instance, filter.name);
-			if (FAILED(hr)) {
-				// display error message
-			} else {
-				graph.SmartPlacement();
-				Invalidate();
-			}
-		}
-	}
-	instance = NULL;
-	return 0;
+	HRESULT hr = filter.CreateInstance(&instance);
+	if (SUCCEEDED(hr))
+		hr = InsertNewFilter(instance, filter.name, /* connectCurrentPin = */ false);
+	return hr;
 }
 
 void CGraphView::OnFiltersDouble()
