@@ -643,9 +643,8 @@ void CGraphView::OnViewDecoderPerformance()
 		form_dec_performance = new CDecPerformanceForm(this);
 		form_dec_performance->DoCreateDialog();
 	}
-
-	// bring up the decoder performance form
 	form_dec_performance->ShowWindow(SW_SHOW);
+	form_dec_performance->SetActiveWindow();
 }
 
 
@@ -656,9 +655,9 @@ void CGraphView::OnSeekClick()
 		form_seek->view = this;
 		form_seek->DoCreateDialog();
 	}
-
-	form_seek->UpdateGraphPosition();
 	form_seek->ShowWindow(SW_SHOW);
+	form_seek->UpdateGraphPosition();
+	form_seek->SetActiveWindow();
 }
 
 void CGraphView::OnNewClick()
@@ -999,14 +998,13 @@ void CGraphView::OnGraphStreamingComplete()
 
 void CGraphView::OnGraphInsertFilter()
 {
-	if (!form_filters) {	
+	if (!form_filters) {
 		form_filters = new CFiltersForm();
 		form_filters->view = this;
 		form_filters->DoCreateDialog();
 	}
-
-	// display the form
 	form_filters->ShowWindow(SW_SHOW);
+	form_filters->SetActiveWindow();
 }
 
 void CGraphView::OnGraphInsertFilterFromFile()
@@ -1117,12 +1115,18 @@ void CGraphView::OnRefreshFilters()
 
 void CGraphView::OnAutomaticrestartSchedule()
 {
-	if (form_schedule) form_schedule->ShowWindow(SW_SHOW);
+	if (form_schedule) {
+		form_schedule->ShowWindow(SW_SHOW);
+		form_schedule->SetActiveWindow();
+	}
 }
 
 void CGraphView::OnViewGraphEvents()
 {
-	if (form_events) form_events->ShowWindow(SW_SHOW);
+	if (form_events) { 
+		form_events->ShowWindow(SW_SHOW);
+		form_events->SetActiveWindow();
+	}
 }
 
 void CGraphView::OnViewGraphconstructionreport()
@@ -1133,30 +1137,28 @@ void CGraphView::OnViewGraphconstructionreport()
 		form_construction->DoCreateDialog();
 		form_construction->Reload(&render_params);
 	}
-
 	form_construction->ShowWindow(SW_SHOW);
+	form_construction->SetActiveWindow();
 }
 
 void CGraphView::OnHelpGuidLookup()
 {
-    if(!form_guidlookup)
-    {
+    if(!form_guidlookup) {
         form_guidlookup = new CLookupForm(NULL, FALSE);
 		form_guidlookup->DoCreateDialog();
 	}
-
 	form_guidlookup->ShowWindow(SW_SHOW);
+	form_guidlookup->SetActiveWindow();
 }
 
 void CGraphView::OnHelpHresultLookup()
 {
-    if(!form_hresultlookup)
-    {
+    if(!form_hresultlookup) {
         form_hresultlookup = new CLookupForm(NULL, TRUE);
 		form_hresultlookup->DoCreateDialog();
 	}
-
 	form_hresultlookup->ShowWindow(SW_SHOW);
+	form_hresultlookup->SetActiveWindow();
 }
 
 void CGraphView::OnShowCliOptions()
@@ -1344,6 +1346,7 @@ void CGraphView::OnViewTextInformation()
 {
 	form_textinfo->ShowWindow(SW_SHOW);
     form_textinfo->OnBnClickedButtonRefresh();
+	form_textinfo->SetActiveWindow();
 }
 
 void CGraphView::OnDropFiles(HDROP hDropInfo)
@@ -1732,6 +1735,7 @@ void CGraphView::OnFiltersDouble()
 void CGraphView::OnFiltersManageFavorites()
 {
 	form_favorites->ShowWindow(SW_SHOW);
+	form_favorites->SetActiveWindow();
 }
 
 void CGraphView::OnUpdateFiltersManageBlacklist(CCmdUI *ui)
@@ -1747,6 +1751,7 @@ void CGraphView::OnFiltersManageBlacklist()
 		form_blacklist->DoCreateDialog();
 	}
 	form_blacklist->ShowWindow(SW_SHOW);
+	form_blacklist->SetActiveWindow();
 }
 
 void CGraphView::OnOptionsDisplayFileName()
