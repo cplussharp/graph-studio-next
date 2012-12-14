@@ -30,6 +30,7 @@ BEGIN_MESSAGE_MAP(CDecPerformanceForm, CDialog)
     ON_CBN_SELCHANGE(IDC_COMBO_TYPE, &CDecPerformanceForm::OnCbnSelChange)
     ON_CBN_SELCHANGE(IDC_COMBO_DECODER, &CDecPerformanceForm::OnComboDecoderSelChange)
 	ON_BN_CLICKED(IDC_BUILDGRAPH, &CDecPerformanceForm::OnBuildGraphClick)
+	ON_COMMAND(IDOK, &CDecPerformanceForm::OnStartClick)
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -133,7 +134,7 @@ void CDecPerformanceForm::OnSize(UINT nType, int cx, int cy)
 	CRect		rc, rc2;
 	if (::IsWindow(title)) {
 		title.GetClientRect(&rc2);
-		title.SetWindowPos(NULL, 0, 0, cx, rc2.Height(), SWP_SHOWWINDOW);
+		title.SetWindowPos(NULL, 0, 0, cx, rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 		
 		// invalidate all controls
 		title.Invalidate();
@@ -357,6 +358,7 @@ void CDecPerformanceForm::InsertListItem(const Timings& timings, int index, cons
 	frames_str.Format(_T("%d"), timings.frames);
 
 	list_results.InsertItem(index, label);
+	list_results.EnsureVisible(index, FALSE);			// scroll to item to make visible if necessary
 	list_results.SetItemText(index, 1, runtime_str);
 
 	if (timings.frames != 0) {			// if we have per-frame info from time measure filter
