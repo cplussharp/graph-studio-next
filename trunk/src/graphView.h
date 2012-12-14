@@ -128,7 +128,7 @@ public:
     void OnInternalFilterClick(UINT nID);
 	void OnFavoriteFilterClick(UINT nID);
 	void OnPreferredVideoRendererClick(UINT nID);
-	int InsertFilterFromTemplate(DSUtil::FilterTemplate &filter);
+	HRESULT InsertFilterFromTemplate(DSUtil::FilterTemplate &filter);
 	int InsertFilterFromFavorite(GraphStudio::FavoriteFilter *filter);
 
 	// keyboard events
