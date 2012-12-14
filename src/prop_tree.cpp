@@ -251,6 +251,12 @@ namespace GraphStudio
 	{
 	}
 
+	BOOL PropertyTree::PreCreateWindow(CREATESTRUCT& cs)
+	{
+		cs.dwExStyle |= WS_EX_CONTROLPARENT;
+		return TRUE;
+	}
+
 	void PropertyTree::Initialize()
 	{
 		if (tree.m_hWnd) return ;
@@ -259,7 +265,7 @@ namespace GraphStudio
 		GetClientRect(&rcClient);
 
 		// create tree and header controls as children
-		tree.Create(WS_CHILD | WS_VISIBLE  | TVS_FULLROWSELECT |
+		tree.Create(WS_TABSTOP | WS_CHILD | WS_VISIBLE  | TVS_FULLROWSELECT |
 					TVS_NOHSCROLL | TVS_NOTOOLTIPS,				
 					CRect(), this, ID_TREE);
 		tree.parent = this;

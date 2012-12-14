@@ -136,6 +136,8 @@ namespace GraphStudio
 	protected:
 		DECLARE_MESSAGE_MAP()
 
+		virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+
 	public:
 		DECLARE_DYNCREATE(PropertyTree)
 
