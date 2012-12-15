@@ -80,6 +80,8 @@ namespace GraphStudio
 		void OnFileWriterStream();
 		void OnPropertyPage();
 		void OnDeleteFilter();
+		void OnChooseSourceFile();
+		void OnChooseDestinationFile();
 
 		void MakeScreenshot();
 
