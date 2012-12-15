@@ -72,12 +72,12 @@ void CRemoteGraphForm::OnSize(UINT nType, int cx, int cy)
 	if (IsWindow(list_graphs)) {
 		title.GetClientRect(&rc2);
 
-		btn_refresh.SetWindowPos(NULL, cx - 2*(60+6), 4, 60, 25, SWP_SHOWWINDOW);
-		btn_connect.SetWindowPos(NULL, cx - 1*(60+6), 4, 60, 25, SWP_SHOWWINDOW);
+		btn_refresh.SetWindowPos(NULL, cx - 2*(60+6), 4, 60, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
+		btn_connect.SetWindowPos(NULL, cx - 1*(60+6), 4, 60, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
 
-		list_graphs.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height(), SWP_SHOWWINDOW);
+		list_graphs.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
-		title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW);
+		title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 		title.Invalidate();
 		btn_refresh.Invalidate();
 		btn_connect.Invalidate();

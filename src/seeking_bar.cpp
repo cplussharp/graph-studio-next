@@ -339,7 +339,7 @@ void CSeekingBar::OnSize(UINT nType, int cx, int cy)
 
     int lblSize = 140;
     if(seekbar.GetSafeHwnd() != NULL)
-        seekbar.SetWindowPos(NULL, 0, 2, cx - lblSize - 5, 20, SWP_SHOWWINDOW);
+        seekbar.SetWindowPos(NULL, 0, 2, cx - lblSize - 5, 20, SWP_SHOWWINDOW | SWP_NOZORDER);
     if(label_time.GetSafeHwnd() != NULL)
-        label_time.SetWindowPos(NULL, cx - lblSize, 6, 0,0, SWP_SHOWWINDOW | SWP_NOSIZE);
+        label_time.SetWindowPos(NULL, cx - lblSize, 6, 0,0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER);
 }

@@ -86,8 +86,8 @@ BOOL CFiltersForm::DoCreateDialog()
 	btn_register.Create(_T("&Register"), WS_TABSTOP | WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_REGISTER);
 	tree_details.Create(_T("Filter &Details"), WS_TABSTOP | WS_CHILD | WS_VISIBLE, rc, this, IDC_TREE);
 
-	// put tree_details directly after filter list in tab order
-	tree_details.SetWindowPos(&list_filters, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
+	// change z order put tree_details directly after filter list in tab order
+	tree_details.SetWindowPos(&list_filters, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
 	combo_categories.SetFont(GetFont());
 	combo_merit.SetFont(GetFont());

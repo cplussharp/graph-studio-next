@@ -172,16 +172,16 @@ void CMediaTypeSelectForm::OnSize(UINT nType, int cx, int cy)
 	const int buttonXSpacing = okRect.Width() / 4;
 	const int buttonYSpacing = okRect.Height() / 2;
 
-	media_types_list.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height() - 2*okRect.Height(), SWP_SHOWWINDOW);
+	media_types_list.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height() - 2*okRect.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
 	const int buttonY = cy - okRect.Height() - buttonYSpacing;
 	int buttonX = cx - buttonXSpacing - okRect.Width();
-	cancel_button.SetWindowPos(NULL, buttonX, buttonY, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE);
+	cancel_button.SetWindowPos(NULL, buttonX, buttonY, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER);
 
 	buttonX -= buttonXSpacing + okRect.Width();
-	ok_button.SetWindowPos(NULL, buttonX, buttonY, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE);
+	ok_button.SetWindowPos(NULL, buttonX, buttonY, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER);
 
-    m_title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW);
+    m_title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 	m_title.Invalidate();
 }
 

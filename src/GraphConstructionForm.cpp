@@ -71,9 +71,9 @@ void CGraphConstructionForm::OnSize(UINT nType, int cx, int cy)
 	if (IsWindow(title)) {
 		title.GetClientRect(&rc2);
 
-		browser_window.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height(), SWP_SHOWWINDOW);
+		browser_window.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
-		title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW);
+		title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 		title.Invalidate();
 	}
 }
