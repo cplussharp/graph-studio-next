@@ -78,9 +78,9 @@ void CTextInfoForm::OnSize(UINT nType, int cx, int cy)
 	
 	int	top = 2*8 + 23;
 	if (IsWindow(edit_report)) {
-		edit_report.SetWindowPos(NULL, 9, top, rc.Width() - 9-8, rc.Height()-7-top, SWP_SHOWWINDOW);
+		edit_report.SetWindowPos(NULL, 9, top, rc.Width() - 9-8, rc.Height()-7-top, SWP_SHOWWINDOW | SWP_NOZORDER);
 		combo_reporttype.GetWindowRect(&rc2);
-		combo_reporttype.SetWindowPos(NULL, rc.Width()-8-rc2.Width(), 11, rc2.Width(), rc2.Height(), SWP_SHOWWINDOW);
+		combo_reporttype.SetWindowPos(NULL, rc.Width()-8-rc2.Width(), 11, rc2.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 	}
 }
 

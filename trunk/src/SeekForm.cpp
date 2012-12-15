@@ -124,7 +124,7 @@ void CSeekForm::OnSize(UINT nType, int cx, int cy)
 
 	if (IsWindow(title)) {
 		title.GetClientRect(&rc2);
-		title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW);
+		title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 		title.Invalidate();
 	}
 }

@@ -142,12 +142,12 @@ void CLookupForm::OnSize(UINT nType, int cx, int cy)
 	if (IsWindow(m_listCtrl)) {
 		m_title.GetClientRect(&rc2);
 
-		m_editSearch.SetWindowPos(NULL, cx - 1*(60+6) - 250, 6, 250, 21, SWP_SHOWWINDOW);
-		m_btnSearch.SetWindowPos(NULL, cx - 1*(60+6), 4, 60, 25, SWP_SHOWWINDOW);
+		m_editSearch.SetWindowPos(NULL, cx - 1*(60+6) - 250, 6, 250, 21, SWP_SHOWWINDOW | SWP_NOZORDER);
+		m_btnSearch.SetWindowPos(NULL, cx - 1*(60+6), 4, 60, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
 
-		m_listCtrl.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height(), SWP_SHOWWINDOW);
+		m_listCtrl.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
-		m_title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW);
+		m_title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 		m_title.Invalidate();
 		m_editSearch.Invalidate();
 		m_btnSearch.Invalidate();

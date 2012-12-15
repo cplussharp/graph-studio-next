@@ -105,11 +105,11 @@ void CFavoritesForm::OnSize(UINT nType, int cx, int cy)
 	if (IsWindow(title)) {
 
 		title.GetClientRect(&rc2);
-		title.SetWindowPos(NULL, 0, 0, cx, rc2.Height(), SWP_SHOWWINDOW);
+		title.SetWindowPos(NULL, 0, 0, cx, rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
-		btn_add_filters.SetWindowPos(NULL, cx - 1*(80+6), 4, 80, 25, SWP_SHOWWINDOW);
+		btn_add_filters.SetWindowPos(NULL, cx - 1*(80+6), 4, 80, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
 
-		tree.SetWindowPos(NULL, 0, rc2.Height(), cx, rc.Height() - rc2.Height(), SWP_SHOWWINDOW);
+		tree.SetWindowPos(NULL, 0, rc2.Height(), cx, rc.Height() - rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
 		// invalidate all controls
 		title.Invalidate();

@@ -101,13 +101,13 @@ void CScheduleForm::OnSize(UINT nType, int cx, int cy)
 	if (IsWindow(list_schedule)) {
 		title.GetClientRect(&rc2);
 
-		btn_add.SetWindowPos(NULL, cx - 2*(60+6), 4, 60, 25, SWP_SHOWWINDOW);
-		btn_remove.SetWindowPos(NULL, cx - 1*(60+6), 4, 60, 25, SWP_SHOWWINDOW);
-		btn_close.SetWindowPos(NULL, 6, 4, 60, 25, SWP_SHOWWINDOW);
+		btn_add.SetWindowPos(NULL, cx - 2*(60+6), 4, 60, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
+		btn_remove.SetWindowPos(NULL, cx - 1*(60+6), 4, 60, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
+		btn_close.SetWindowPos(NULL, 6, 4, 60, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
 
-		list_schedule.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height(), SWP_SHOWWINDOW);
+		list_schedule.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
-		title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW);
+		title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 		title.Invalidate();
 		
 		btn_add.Invalidate();
