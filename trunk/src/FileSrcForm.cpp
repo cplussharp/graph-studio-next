@@ -70,6 +70,11 @@ BOOL CFileSrcForm::OnInitDialog()
         SetWindowText(strTitle);
     }
 
+	if (result_file.GetLength() > 0) {
+		combo_file.SetWindowText(result_file);
+		combo_url.SetWindowText(result_file);
+	}
+
 	// load saved lists
 	file_list.LoadList(_T("FileCache"));
 	url_list.LoadList(_T("URLCache"));
@@ -148,3 +153,32 @@ void CFileSrcForm::OnBnClickedButtonClear()
 	combo_file.ResetContent();
 	combo_url.ResetContent();
 }
+
+// static helper to show dialog and set file source
+HRESULT CFileSrcForm::ChooseSourceFile(IFileSourceFilter* fs, const CString& filterName)
+{
+	HRESULT hr = S_FALSE;		// return S_FALSE if user cancelled
+
+	if (!fs)
+		return E_POINTER;
+	
+	CFileSrcForm src_form(filterName);
+
+	LPOLESTR curFile = NULL;
+	if (SUCCEEDED(fs->GetCurFile(&curFile, NULL)) && curFile) {
+		src_form.result_file = curFile;
+	}
+	if (curFile) {
+		CoTaskMemFree(curFile);
+		curFile = NULL;
+	}
+
+	if (src_form.DoModal() == IDOK) {
+		hr = fs->Load((LPCOLESTR)src_form.result_file, NULL);
+		if (FAILED(hr)) {
+			DSUtil::ShowError(_T("Can't load specified file"));
+		}
+	}
+	return hr;
+}
+

@@ -70,6 +70,11 @@ BOOL CFileSinkForm::OnInitDialog()
         SetWindowText(strTitle);
     }
 
+	if (result_file.GetLength() > 0) {
+		combo_file.SetWindowText(result_file);
+		combo_url.SetWindowText(result_file);
+	}
+
 	// load saved lists
 	file_list.LoadList(_T("Sink-FileCache"));
 	url_list.LoadList(_T("Sink-URLCache"));
@@ -147,4 +152,30 @@ void CFileSinkForm::OnBnClickedButtonClear()
 
 	combo_file.ResetContent();
 	combo_url.ResetContent();
+}
+
+HRESULT CFileSinkForm::ChooseSinkFile(IFileSinkFilter* fsink, const CString& filterName)
+{
+	HRESULT hr = S_FALSE;		// return S_FALSE if user cancelled
+	if (!fsink)
+		return E_POINTER;
+
+	CFileSinkForm		sink_form(filterName);
+
+	LPOLESTR curFile = NULL;
+	if (SUCCEEDED(fsink->GetCurFile(&curFile, NULL)) && curFile) {
+		sink_form.result_file = curFile;
+	}
+	if (curFile) {
+		CoTaskMemFree(curFile);
+		curFile = NULL;
+	}
+
+	if (sink_form.DoModal() == IDOK) {
+		hr = fsink->SetFileName((LPCOLESTR)sink_form.result_file, NULL);
+		if (FAILED(hr)) {
+			DSUtil::ShowError(_T("Can't write specified file"));
+		}
+	}
+	return hr;
 }

@@ -509,76 +509,43 @@ void CFiltersForm::OnBnClickedButtonPropertypage()
 				delete page;
 				return ;
 			}
-
-			// add to the list
 			view->property_pages.Add(page);
-
-
 		}
 		instance = NULL;
 	}
-
 }
 
 
 int ConfigureInsertedFilter(IBaseFilter *filter, const CString& filterName)
 {
 	int	ret = 0;
-	HRESULT hr;
+	HRESULT hr = S_OK;
 
 	//-------------------------------------------------------------
 	//	IFileSourceFilter
 	//-------------------------------------------------------------
-	CComPtr<IFileSourceFilter>	fs;
-	hr = filter->QueryInterface(IID_IFileSourceFilter, (void**)&fs);
-	if (SUCCEEDED(hr)) {
-		CFileSrcForm		src_form(filterName);
-		ret = src_form.DoModal();
-		if (ret == IDOK) {
-			hr = fs->Load((LPCOLESTR)src_form.result_file, NULL);
-			if (FAILED(hr)) {
-				DSUtil::ShowError(_T("Can't load specified file"));
-			}
-			ret = 1;
-		} else {
-			// cancel the filter
-			ret = -1;
-		}
-		fs = NULL;
+	CComQIPtr<IFileSourceFilter> fs = filter;
+	if (fs) {
+		CFileSrcForm::ChooseSourceFile(fs, filterName);		// not fatal error if file not chosen yet
 	}
-
-	if (ret < 0) return -1;
 
 	//-------------------------------------------------------------
 	//	IFileSinkFilter
 	//-------------------------------------------------------------
-	CComPtr<IFileSinkFilter>	fsink;
-	hr = filter->QueryInterface(IID_IFileSinkFilter, (void**)&fsink);
-	if (SUCCEEDED(hr)) {
-		CFileSinkForm		sink_form(filterName);
-		ret = sink_form.DoModal();
-		if (ret == IDOK) {
-			hr = fsink->SetFileName((LPCOLESTR)sink_form.result_file, NULL);
-			if (FAILED(hr)) {
-				DSUtil::ShowError(_T("Can't write specified file"));
-			}
-			ret = 1;
-		} else {
-			// cancel the filter
-			ret = -1;
-		}
-		fsink = NULL;
+	CComQIPtr<IFileSinkFilter> fsink = filter;
+	if (fsink) {
+		CFileSinkForm::ChooseSinkFile(fsink, filterName);	// not fatal error if file not chosen yet
 	}
-	if (ret < 0) return -1;
 
     //-------------------------------------------------------------
 	//	IStreamBufferConfigure
 	//-------------------------------------------------------------
     CComQIPtr<IStreamBufferInitialize> pInitSbe = filter;
-    if(pInitSbe) DSUtil::InitSbeObject(pInitSbe);
+    if(pInitSbe) {
+		DSUtil::InitSbeObject(pInitSbe);
+	}
 
-
-	return ret;
+	return hr;
 }
 
 

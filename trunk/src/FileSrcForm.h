@@ -40,6 +40,8 @@ public:
     CFileSrcForm(const CString& filterName, CWnd* pParent = NULL); 
 	virtual ~CFileSrcForm();
 
+	static HRESULT ChooseSourceFile(IFileSourceFilter* fs, const CString& filterName);
+
 	// Dialog Data
 	enum { IDD = IDD_DIALOG_ASYNCOPEN };
 

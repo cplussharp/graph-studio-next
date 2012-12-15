@@ -38,6 +38,8 @@ namespace GraphStudio
 		ON_COMMAND(ID_PROPERTYPAGE, &DisplayView::OnPropertyPage)
 		ON_COMMAND(ID_DELETE_FILTER, &DisplayView::OnDeleteFilter)
         ON_COMMAND(ID_MPEG2DEMUX_CREATE_PSI_PIN, &DisplayView::OnMpeg2DemuxCreatePsiPin)
+        ON_COMMAND(ID_CHOOSE_SOURCE_FILE, &DisplayView::OnChooseSourceFile)
+        ON_COMMAND(ID_CHOOSE_DESTINATION_FILE, &DisplayView::OnChooseDestinationFile)
 
 		ON_COMMAND_RANGE(ID_STREAM_SELECT, ID_STREAM_SELECT+100, &DisplayView::OnSelectStream)
 		ON_COMMAND_RANGE(ID_COMPATIBLE_FILTER, ID_COMPATIBLE_FILTER+999, &DisplayView::OnCompatibleFilterClick)
@@ -159,17 +161,29 @@ namespace GraphStudio
 
 			p = menu.GetMenuItemCount();
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_PROPERTYPAGE, _T("&Properties"));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_PROPERTYPAGE, _T("&Properties..."));
 
 			// check for IAMStreamSelect interface
 			PrepareStreamSelectMenu(menu, current_pin->pin);
 
 		} else {
-			menu.InsertMenu(0, MF_STRING, ID_PROPERTYPAGE, _T("&Properties"));
+			menu.InsertMenu(0, MF_STRING, ID_PROPERTYPAGE, _T("&Properties..."));
 
 			int p = menu.GetMenuItemCount();
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_DELETE_FILTER, _T("&Delete Selection"));
+
+            const CComQIPtr<IFileSourceFilter> file_source(current_filter->filter);
+			if (file_source) {
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_CHOOSE_SOURCE_FILE, _T("Choose &Source File..."));
+			}
+
+            const CComQIPtr<IFileSinkFilter> file_sink(current_filter->filter);
+			if (file_sink) {
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_CHOOSE_DESTINATION_FILE, _T("Choose &Destination File..."));
+			}
 
             CComQIPtr<IMpeg2Demultiplexer> mp2demux = current_filter->filter;
             if(mp2demux)
@@ -797,6 +811,34 @@ namespace GraphStudio
     {
         // to be overriden
     }
+
+	void DisplayView::OnChooseSourceFile()
+	{
+		if (current_filter && current_filter->filter) {
+			CComQIPtr<IFileSourceFilter> source(current_filter->filter);
+			if (source) {
+				CFileSrcForm::ChooseSourceFile(source, current_filter->display_name);
+				graph.RefreshFilters();
+				graph.SmartPlacement();
+				graph.Dirty();
+				Invalidate();
+			}
+		}
+	}
+
+	void DisplayView::OnChooseDestinationFile()
+	{
+		if (current_filter && current_filter->filter) {
+			CComQIPtr<IFileSinkFilter> sink(current_filter->filter);
+			if (sink) {
+				CFileSinkForm::ChooseSinkFile(sink, current_filter->display_name);
+				graph.RefreshFilters();
+				graph.SmartPlacement();
+				graph.Dirty();
+				Invalidate();
+			}
+		}
+	}
 
 	void DisplayView::OnPropertyPage()
 	{
