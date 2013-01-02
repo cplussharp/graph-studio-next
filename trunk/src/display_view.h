@@ -72,10 +72,12 @@ namespace GraphStudio
 		void OnLButtonDblClk(UINT nFlags, CPoint point);
 
 		void OnRenderPin();
+        void OnRemovePin();
 		void OnRenderNullStream();
 		void OnDumpStream();
 		void OnTimeMeasureStream();
-		void OnTimeAnalyzeStream();
+		void OnAnalyzeStream();
+        void OnAnalyzeWriterStream();
         void OnTeeStream();
 		void OnFileWriterStream();
 		void OnPropertyPage();

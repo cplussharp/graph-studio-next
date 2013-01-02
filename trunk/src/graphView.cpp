@@ -1080,6 +1080,24 @@ void CGraphView::OnMpeg2DemuxCreatePsiPin()
             hr = pidMap->MapPID(cPid, Pid, MEDIA_MPEG2_PSI);
             if(SUCCEEDED(hr))
             {
+                // Create PSI Filter
+                DSUtil::FilterTemplate filter;
+                if (internal_filters.Find(CLSID_PsiConfig, &filter) >= 0)
+                {
+                    CComPtr<IBaseFilter> psiConfigFilter;
+	                hr = filter.CreateInstance(&psiConfigFilter);
+	                if (SUCCEEDED(hr))
+                    {
+                        // Set PSI Pin as current Pin
+                        GraphStudio::Pin pin(NULL);
+                        pin.Load(psiPin);
+                        current_pin = &pin;
+
+                        // Insert and connect PSI Config Filter
+		                hr = InsertNewFilter(psiConfigFilter, filter.name, true /* connectCurrentPin */);
+                    }
+                }
+
                 graph.RefreshFilters();
                 graph.Dirty();
                 Invalidate();

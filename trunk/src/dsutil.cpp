@@ -1021,6 +1021,10 @@ namespace DSUtil
         filter.clsid = __uuidof(AnalyzerFilter);
         filters.Add(filter);
 
+        filter.name = _T("Analyzer Writer Filter");
+        filter.clsid = __uuidof(AnalyzerWriterFilter);
+        filters.Add(filter);
+
         return filters.GetCount();
     }
 

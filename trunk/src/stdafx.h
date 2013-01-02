@@ -112,6 +112,8 @@ using namespace std;
 #include "filters\psi_config\psiconfig.h"
 #include "..\analyzer_h.h"    // Interface
 #include "filters\analyzer\analyzer.h"
+#include "filters\analyzer\filter_analyzer.h"
+#include "filters\analyzer\filter_analyzer_writer.h"
 
 #include "mtypes_ext.h"
 

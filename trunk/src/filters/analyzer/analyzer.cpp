@@ -7,37 +7,20 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
-const CFactoryTemplate CAnalyzerFilter::g_Template = {
-		L"Analyzer Filter",
-        &__uuidof(AnalyzerFilter),
-		CAnalyzerFilter::CreateInstance,
-		NULL,
-		NULL
-	};
-
-CUnknown* CAnalyzerFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
-{
-    CAnalyzerFilter* pNewObject = new CAnalyzerFilter(punk, phr);
-    if (NULL == pNewObject) {
-        *phr = E_OUTOFMEMORY;
-    }
-
-    return pNewObject;
-}
 
 //-----------------------------------------------------------------------------
 //
-//	CAnalyzerFilter class
+//	CAnalyzer class
 //
 //-----------------------------------------------------------------------------
 
-CAnalyzerFilter::CAnalyzerFilter(LPUNKNOWN pUnk, HRESULT *phr) :
-	CTransInPlaceFilter(_T("Analyzer"), pUnk, __uuidof(AnalyzerFilter), phr, false),
-        m_enabled(VARIANT_TRUE), m_previewSampleByteCount(16), m_callback(NULL)
+CAnalyzer::CAnalyzer(LPUNKNOWN pUnk) :
+	CUnknown(_T("Analyzer"), pUnk),
+    m_enabled(VARIANT_TRUE), m_previewSampleByteCount(16), m_callback(NULL)
 {
 }
 
-CAnalyzerFilter::~CAnalyzerFilter()
+CAnalyzer::~CAnalyzer()
 {
     if (m_callback != NULL)
     {
@@ -48,7 +31,7 @@ CAnalyzerFilter::~CAnalyzerFilter()
 	ResetStatistic();
 }
 
-STDMETHODIMP CAnalyzerFilter::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
+STDMETHODIMP CAnalyzer::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
 	if (riid == __uuidof(IAnalyzerFilter)) {
 		return GetInterface((IAnalyzerFilter*)this, ppv);
@@ -56,13 +39,7 @@ STDMETHODIMP CAnalyzerFilter::NonDelegatingQueryInterface(REFIID riid, void ** p
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-HRESULT CAnalyzerFilter::CheckInputType(const CMediaType* mtIn)
-{
-	//if (mtIn->majortype != MEDIATYPE_Video && mtIn->majortype != MEDIATYPE_Audio) return E_FAIL;
-	return NOERROR;
-}
-
-HRESULT CAnalyzerFilter::Transform(IMediaSample *pSample)
+HRESULT CAnalyzer::AddSample(IMediaSample *pSample)
 {
     if (!m_enabled) return S_OK;
 
@@ -141,7 +118,7 @@ HRESULT CAnalyzerFilter::Transform(IMediaSample *pSample)
 	return S_OK;
 }
 
-HRESULT CAnalyzerFilter::StartStreaming()
+HRESULT CAnalyzer::StartStreaming()
 {
     if (!m_enabled) return S_OK;
 
@@ -158,7 +135,7 @@ HRESULT CAnalyzerFilter::StartStreaming()
     return S_OK;
 }
 
-HRESULT CAnalyzerFilter::StopStreaming()
+HRESULT CAnalyzer::StopStreaming()
 {
     if (!m_enabled) return S_OK;
 
@@ -176,44 +153,118 @@ HRESULT CAnalyzerFilter::StopStreaming()
 }
 
 
-STDMETHODIMP CAnalyzerFilter::get_Enabled(VARIANT_BOOL *pVal)
+HRESULT CAnalyzer::AddIStreamRead(const void* vp, ULONG cb, ULONG cbReaded)
+{
+    if (!m_enabled) return S_OK;
+
+	StatisticRecordEntry entry = { 0 };
+    entry.EntryNr = m_entries.size();
+    entry.EntryKind = SRK_IS_Read;
+    entry.EntryTimeStamp = timer.GetTimeNS();
+
+    entry.StreamTimeStart = cb;
+    entry.ActualDataLength = cbReaded;
+    entry.nDataCount = m_previewSampleByteCount < entry.ActualDataLength ? m_previewSampleByteCount : entry.ActualDataLength;
+    if (entry.nDataCount > 0)
+    {
+        entry.aData = new BYTE[entry.nDataCount];
+        CopyMemory(entry.aData, vp, entry.nDataCount);
+    }
+
+    m_entries.push_back(entry);
+
+    if (m_callback != NULL)
+        m_callback->OnStatisticNewEntry(entry.EntryNr);
+
+    return S_OK;
+}
+
+HRESULT CAnalyzer::AddIStreamWrite(const void* vp, ULONG cb)
+{
+    if (!m_enabled) return S_OK;
+
+	StatisticRecordEntry entry = { 0 };
+    entry.EntryNr = m_entries.size();
+    entry.EntryKind = SRK_IS_Write;
+    entry.EntryTimeStamp = timer.GetTimeNS();
+
+    entry.ActualDataLength = cb;
+    entry.nDataCount = m_previewSampleByteCount < entry.ActualDataLength ? m_previewSampleByteCount : entry.ActualDataLength;
+    if (entry.nDataCount > 0)
+    {
+        entry.aData = new BYTE[entry.nDataCount];
+        CopyMemory(entry.aData, vp, entry.nDataCount);
+    }
+
+    m_entries.push_back(entry);
+
+    if (m_callback != NULL)
+        m_callback->OnStatisticNewEntry(entry.EntryNr);
+
+    return S_OK;
+}
+
+HRESULT CAnalyzer::AddIStreamSeek(DWORD dwOrigin, const LARGE_INTEGER &liDistanceToMove, const LARGE_INTEGER newPos)
+{
+    if (!m_enabled) return S_OK;
+
+	StatisticRecordEntry entry = { 0 };
+    entry.EntryNr = m_entries.size();
+    entry.EntryKind = SRK_IS_Seek;
+    entry.EntryTimeStamp = timer.GetTimeNS();
+
+    entry.StreamTimeStart = newPos.QuadPart;
+    entry.SampleFlags = dwOrigin;
+
+    m_entries.push_back(entry);
+
+    if (m_callback != NULL)
+        m_callback->OnStatisticNewEntry(entry.EntryNr);
+
+    return S_OK;
+}
+
+
+#pragma region IAnalyzerFilter Members
+
+STDMETHODIMP CAnalyzer::get_Enabled(VARIANT_BOOL *pVal)
 {
     CheckPointer(pVal, E_POINTER);
     *pVal = m_enabled;
     return S_OK;
 }
 
-STDMETHODIMP CAnalyzerFilter::put_Enabled(VARIANT_BOOL val)
+STDMETHODIMP CAnalyzer::put_Enabled(VARIANT_BOOL val)
 {
     m_enabled = val;
     return S_OK;
 }
 
-STDMETHODIMP CAnalyzerFilter::get_LogFile(BSTR *pVal)
+STDMETHODIMP CAnalyzer::get_LogFile(BSTR *pVal)
 {
     CheckPointer(pVal, E_POINTER);
     return E_NOTIMPL;
 }
 
-STDMETHODIMP CAnalyzerFilter::put_LogFile(BSTR val)
+STDMETHODIMP CAnalyzer::put_LogFile(BSTR val)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP CAnalyzerFilter::get_PreviewSampleByteCount(unsigned short *pVal)
+STDMETHODIMP CAnalyzer::get_PreviewSampleByteCount(unsigned short *pVal)
 {
     CheckPointer(pVal, E_POINTER);
     *pVal = m_previewSampleByteCount;
     return S_OK;
 }
 
-STDMETHODIMP CAnalyzerFilter::put_PreviewSampleByteCount(unsigned short val)
+STDMETHODIMP CAnalyzer::put_PreviewSampleByteCount(unsigned short val)
 {
     m_previewSampleByteCount = val;
     return S_OK;
 }
 
-STDMETHODIMP CAnalyzerFilter::ResetStatistic(void)
+STDMETHODIMP CAnalyzer::ResetStatistic(void)
 {
     for (vector<StatisticRecordEntry>::iterator it = m_entries.begin(); it != m_entries.end(); ++it)
     {
@@ -232,14 +283,14 @@ STDMETHODIMP CAnalyzerFilter::ResetStatistic(void)
     return S_OK;
 }
 
-STDMETHODIMP CAnalyzerFilter::get_EntryCount(__int64 *pVal)
+STDMETHODIMP CAnalyzer::get_EntryCount(__int64 *pVal)
 {
     CheckPointer(pVal, E_POINTER);
     *pVal = m_entries.size();
     return S_OK;
 }
 
-STDMETHODIMP CAnalyzerFilter::GetEntry(__int64 nr, StatisticRecordEntry *pVal)
+STDMETHODIMP CAnalyzer::GetEntry(__int64 nr, StatisticRecordEntry *pVal)
 {
     CheckPointer(pVal, E_POINTER);
     if (nr < 0 || nr >= m_entries.size())
@@ -259,7 +310,7 @@ STDMETHODIMP CAnalyzerFilter::GetEntry(__int64 nr, StatisticRecordEntry *pVal)
     return S_OK;
 }
 
-STDMETHODIMP CAnalyzerFilter::SetCallback(IAnalyzerFilterCallback* pCallback)
+STDMETHODIMP CAnalyzer::SetCallback(IAnalyzerFilterCallback* pCallback)
 {
     if (pCallback != NULL)
         pCallback->AddRef();
@@ -271,3 +322,5 @@ STDMETHODIMP CAnalyzerFilter::SetCallback(IAnalyzerFilterCallback* pCallback)
 
     return S_OK;
 }
+
+#pragma endregion

@@ -76,6 +76,25 @@ void GetInterfaceInfo_IBaseFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
     }
 }
 
+void GetInterfaceInfo_IBasicAudio(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IBasicAudio> pI = pUnk;
+    if(pI)
+    {
+		long val;
+		HRESULT hr = pI->get_Volume(&val);
+		if (hr == S_OK) {
+            double dval = val / 100.0;
+            group->AddItem(new GraphStudio::PropItem(_T("Volume (dB)"), dval));
+		}
+        hr = pI->get_Balance(&val);
+		if (hr == S_OK) {
+            double dval = val / 100.0;
+            group->AddItem(new GraphStudio::PropItem(_T("Balance (dB)"), dval));
+		}
+    }
+}
+
 void GetInterfaceInfo_ISpecifyPropertyPages(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<ISpecifyPropertyPages> pI = pUnk;
@@ -879,7 +898,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{E48244B8-7E17-4F76-A763-5090FF1E2F30}"), TEXT("IAuxInTuningSpace"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{B10931ED-8BFE-4AB0-9DCE-E469C29A9729}"), TEXT("IAuxInTuningSpace2"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{56A86895-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IBaseFilter"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389526.aspx"),GetInterfaceInfo_IBaseFilter),
-    CInterfaceInfo(TEXT("{56A868B3-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IBasicAudio"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389532.aspx")),
+    CInterfaceInfo(TEXT("{56A868B3-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IBasicAudio"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389532.aspx"),GetInterfaceInfo_IBasicAudio),
     CInterfaceInfo(TEXT("{56A868B5-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IBasicVideo"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389540.aspx")),
     CInterfaceInfo(TEXT("{329BB360-F6EA-11D1-9038-00A0C9697298}"), TEXT("IBasicVideo2"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389541.aspx")),
     CInterfaceInfo(TEXT("{DDF15B12-BD25-11D2-9CA0-00C04F7971E0}"), TEXT("IBDA_AutoDemodulate"), TEXT("bdaiface.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd693252.aspx")),
