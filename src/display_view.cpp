@@ -29,10 +29,12 @@ namespace GraphStudio
 		ON_WM_LBUTTONUP()
 
 		ON_COMMAND(ID_PIN_RENDER, &DisplayView::OnRenderPin)
+        ON_COMMAND(ID_PIN_REMOVE, &DisplayView::OnRemovePin)
 		ON_COMMAND(ID_PIN_NULL_STREAM, &DisplayView::OnRenderNullStream)
 		ON_COMMAND(ID_PIN_DUMP_STREAM, &DisplayView::OnDumpStream)
 		ON_COMMAND(ID_PIN_TIME_MEASURE_STREAM, &DisplayView::OnTimeMeasureStream)
-		ON_COMMAND(ID_PIN_ANALYZE_STREAM, &DisplayView::OnTimeAnalyzeStream)
+		ON_COMMAND(ID_PIN_ANALYZE_STREAM, &DisplayView::OnAnalyzeStream)
+        ON_COMMAND(ID_PIN_ANALYZE_WRITER_STREAM, &DisplayView::OnAnalyzeWriterStream)
         ON_COMMAND(ID_PIN_TEE_STREAM, &DisplayView::OnTeeStream)
 		ON_COMMAND(ID_PIN_FILE_WRITER, &DisplayView::OnFileWriterStream)
 		ON_COMMAND(ID_PROPERTYPAGE, &DisplayView::OnPropertyPage)
@@ -121,8 +123,8 @@ namespace GraphStudio
 			*/
 
 			bool	offer_writer = false;
+            bool    offer_remove = false;
 			if (current_pin->connected == false) {
-			
 				DSUtil::MediaTypes			mtypes;
 				HRESULT						hr;
 
@@ -138,19 +140,30 @@ namespace GraphStudio
 						}
 					}
 				}
+
+                // Check if we can remove
+                CComQIPtr<IMpeg2Demultiplexer> pMpeg2Demux = current_pin->filter->filter;
+                offer_remove = pMpeg2Demux && current_pin->dir == PINDIR_OUTPUT;
 			}
 
 			int		p = 0;
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_RENDER, _T("&Render Pin"));
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_NULL_STREAM, _T("Insert &Null Renderer"));
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_DUMP_STREAM, _T("Insert &Dump Filter"));
+			if (current_pin->connected == false)
+            {
+                menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_RENDER, _T("&Render Pin"));
+                if (offer_remove)
+                    menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_REMOVE, _T("Remo&ve Pin"));
+                menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
+                menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_NULL_STREAM, _T("Insert &Null Renderer"));
+			    menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_DUMP_STREAM, _T("Insert &Dump Filter"));
+            }
+
+            menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_TEE_STREAM, _T("Insert &Tee Filter"));
             menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_TIME_MEASURE_STREAM, _T("Insert Time &Measure Filter"));
             menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_ANALYZE_STREAM, _T("Insert &Analyzer Filter"));
-            menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_TEE_STREAM, _T("Insert &Tee Filter"));
 
 			if (offer_writer) {
-				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_FILE_WRITER, _T("Insert &File Writer"));
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_ANALYZE_WRITER_STREAM, _T("Insert Analyzer &Writer Filter"));
+                menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_FILE_WRITER, _T("Insert &File Writer"));
 			}
 
 			// check for compatible filters
@@ -701,11 +714,21 @@ namespace GraphStudio
 			hr = InsertNewFilter(instance, _T("Time Measure"));
 	}
 
-	void DisplayView::OnTimeAnalyzeStream()
+	void DisplayView::OnAnalyzeStream()
 	{
 		CComPtr<IBaseFilter>	instance;
 		HRESULT hr = S_OK;
 		CAnalyzerFilter * const filter = new CAnalyzerFilter(NULL, &hr);
+		hr = filter->NonDelegatingQueryInterface(IID_IBaseFilter, (void**)&instance);
+		if (SUCCEEDED(hr))
+			hr = InsertNewFilter(filter, _T("Analyzer"));
+	}
+
+    void DisplayView::OnAnalyzeWriterStream()
+	{
+		CComPtr<IBaseFilter>	instance;
+		HRESULT hr = S_OK;
+		CAnalyzerWriterFilter * const filter = new CAnalyzerWriterFilter(NULL, &hr);
 		hr = filter->NonDelegatingQueryInterface(IID_IBaseFilter, (void**)&instance);
 		if (SUCCEEDED(hr))
 			hr = InsertNewFilter(filter, _T("Analyzer"));
@@ -798,6 +821,28 @@ namespace GraphStudio
 			graph.Dirty();
 			Invalidate();
 		}
+		current_pin = NULL;
+	}
+
+    void DisplayView::OnRemovePin()
+	{
+		if (!current_pin) return;
+
+        CComQIPtr<IMPEG2PIDMap> pPIDMap = current_pin->pin;
+        CComQIPtr<IMpeg2Demultiplexer> pMpeg2Demux = current_pin->filter->filter;
+
+        if (pPIDMap && pMpeg2Demux)
+        {
+            CT2W pinName(current_pin->name);
+            HRESULT hr = pMpeg2Demux->DeleteOutputPin(pinName);
+
+		    if (SUCCEEDED(hr)) {
+			    graph.RefreshFilters();
+			    graph.SmartPlacement();
+			    graph.Dirty();
+			    Invalidate();
+		    }
+        }
 		current_pin = NULL;
 	}
 

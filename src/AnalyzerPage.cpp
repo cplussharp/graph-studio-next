@@ -20,6 +20,7 @@ BEGIN_MESSAGE_MAP(CAnalyzerPage, CDSPropertyPage)
     ON_COMMAND(IDC_CHECK_ENABLED, &CAnalyzerPage::OnCheckClick)
     ON_BN_CLICKED(IDC_BUTTON_RESET, &CAnalyzerPage::OnBnClickedButtonReset)
     ON_NOTIFY(LVN_GETDISPINFO, IDC_LIST_DATA, &CAnalyzerPage::OnLvnGetdispinfoListData)
+    ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_PREVIEWBYTECOUNT, OnSpinDeltaByteCount)
     ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CAnalyzerPage::OnBnClickedButtonRefresh)
     ON_BN_CLICKED(IDC_BUTTON_SAVE, &CAnalyzerPage::OnBnClickedButtonSave)
 END_MESSAGE_MAP()
@@ -30,7 +31,7 @@ END_MESSAGE_MAP()
 //
 //-----------------------------------------------------------------------------
 CAnalyzerPage::CAnalyzerPage(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR strTitle) :
-	CDSPropertyPage(_T("AnalyzerPage"), pUnk, IDD, strTitle), isActiv(false), m_firstTimeStamp(0)
+	CDSPropertyPage(_T("AnalyzerPage"), pUnk, IDD, strTitle), isActiv(false), m_firstTimeStamp(0), m_nPreviewByteCount(0)
 {
 	// retval
 	if (phr) *phr = NOERROR;
@@ -53,6 +54,12 @@ BOOL CAnalyzerPage::OnInitDialog()
 	title.ModifyStyleEx(0, WS_EX_CONTROLPARENT);
 
     // prepare listView
+    if(GraphStudio::HasFont(_T("Consolas")))
+        GraphStudio::MakeFont(font_entries, _T("Consolas"), 8, false, false);
+    else
+        GraphStudio::MakeFont(font_entries, _T("Courier New"), 8, false, false);
+	m_listCtrl.SetFont(&font_entries);
+
     m_listCtrl.InsertColumn(0, _T("Nr"), LVCFMT_RIGHT, 60);
     m_listCtrl.InsertColumn(1, _T("TimeStamp (dif)"), LVCFMT_RIGHT, 80);
     m_listCtrl.InsertColumn(2, _T("Kind"), LVCFMT_LEFT, 50);
@@ -71,6 +78,8 @@ BOOL CAnalyzerPage::OnInitDialog()
 
     m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT );
 
+    m_spinPreviewByteCount.SetRange32(0,64);
+
 	return TRUE;
 }
 
@@ -84,6 +93,8 @@ void CAnalyzerPage::DoDataExchange(CDataExchange* pDX)
     CDialog::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_TITLEBAR, title);
     DDX_Control(pDX, IDC_LIST_DATA, m_listCtrl);
+    DDX_Text(pDX, IDC_EDIT_PREVIEWBYTECOUNT, m_nPreviewByteCount);
+    DDX_Control(pDX, IDC_SPIN_PREVIEWBYTECOUNT, m_spinPreviewByteCount);
 }
 
 HRESULT CAnalyzerPage::OnConnect(IUnknown *pUnknown)
@@ -100,6 +111,11 @@ HRESULT CAnalyzerPage::OnActivate()
     filter->get_Enabled(&isEnabled);
 
     CheckDlgButton(IDC_CHECK_ENABLED, isEnabled ? BST_CHECKED : BST_UNCHECKED);
+
+    WORD previewByteCount;
+    filter->get_PreviewSampleByteCount(&previewByteCount);
+    m_nPreviewByteCount = previewByteCount;
+    UpdateData(FALSE);
 
     __int64 entryCount;
     filter->get_EntryCount(&entryCount);
@@ -121,11 +137,19 @@ HRESULT CAnalyzerPage::OnDisconnect()
 
 HRESULT CAnalyzerPage::OnApplyChanges()
 {
+    UpdateData();
     filter->put_Enabled(IsDlgButtonChecked(IDC_CHECK_ENABLED) ? VARIANT_TRUE : VARIANT_FALSE);
+    filter->put_PreviewSampleByteCount(m_nPreviewByteCount);
 	return NOERROR;
 }
 
 void CAnalyzerPage::OnCheckClick()
+{
+    if(isActiv)
+	    SetDirty();
+}
+
+void CAnalyzerPage::OnSpinDeltaByteCount(NMHDR* pNMHDR, LRESULT* pResult)
 {
     if(isActiv)
 	    SetDirty();
@@ -191,11 +215,20 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field) const
                     case SRK_StopStreaming:
                         val = _T("StopStr");
                         break;
+                    case SRK_IS_Write:
+                        val = _T("IStream::Write");
+                        break;
+                    case SRK_IS_Read:
+                        val = _T("IStream::Read");
+                        break;
+                    case SRK_IS_Seek:
+                        val = _T("IStream::Seek");
+                        break;
                 }
                 break;
         }
 
-        if (entry.EntryKind == SRK_MediaSample)
+        if (entry.EntryKind == SRK_MediaSample || entry.EntryKind == SRK_IS_Write || entry.EntryKind == SRK_IS_Read || entry.EntryKind == SRK_IS_Seek)
         {
             switch(field)
             {
@@ -212,27 +245,28 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field) const
                     break;
 
                 case 6:
-                    if (entry.StreamTimeStart >= 0)
+                    if (entry.StreamTimeStart >= 0 && entry.EntryKind != SRK_IS_Write)
                         val.Format(_T("%I64d"),entry.StreamTimeStart);
                     break;
 
                 case 7:
-                    if (entry.StreamTimeStop >= 0)
+                    if (entry.StreamTimeStop >= 0 && entry.EntryKind == SRK_MediaSample)
                         val.Format(_T("%I64d"),entry.StreamTimeStop);
                     break;
 
                 case 8:
-                    if (entry.MediaTimeStart >= 0)
+                    if (entry.MediaTimeStart >= 0 && entry.EntryKind == SRK_MediaSample)
                         val.Format(_T("%I64d"),entry.MediaTimeStart);
                     break;
 
                 case 9:
-                    if (entry.MediaTimeStop >= 0)
+                    if (entry.MediaTimeStop >= 0 && entry.EntryKind == SRK_MediaSample)
                         val.Format(_T("%I64d"),entry.MediaTimeStop);
                     break;
 
                 case 10:
-                    val.Format(_T("%d"),entry.ActualDataLength);
+                    if (entry.EntryKind != SRK_IS_Seek)
+                        val.Format(_T("%d"),entry.ActualDataLength);
                     break;
 
                 case 11:

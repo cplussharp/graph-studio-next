@@ -27,7 +27,10 @@ public:
 	CComPtr<IAnalyzerFilter>   	        filter;
     bool                                isActiv;
     CListCtrl                           m_listCtrl;
+    CSpinButtonCtrl                     m_spinPreviewByteCount;
+    DWORD                               m_nPreviewByteCount;
     __int64                             m_firstTimeStamp;
+    CFont			                    font_entries;
 
     enum { IDD = /*IDD_DIALOG_WMADECODER*/ IDD_PROPPAGE_ANALYZER };
 public:
@@ -48,5 +51,6 @@ public:
     afx_msg void OnLvnGetdispinfoListData(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnBnClickedButtonRefresh();
     afx_msg void OnBnClickedButtonSave();
+    afx_msg void OnSpinDeltaByteCount(NMHDR* pNMHDR, LRESULT* pResult);
 };
 

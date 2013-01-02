@@ -127,6 +127,7 @@
 #define IDC_EDIT_DIR                    1031
 #define IDC_EDIT_BLACKLIST_ENTRY        1031
 #define IDC_EDIT_OPTIONS                1031
+#define IDC_EDIT_PREVIEWBYTECOUNT       1031
 #define IDC_EDIT_DST_TOP                1032
 #define IDC_TREE1                       1033
 #define IDC_TREE                        1033
@@ -215,6 +216,8 @@
 #define IDC_LIST_BLACKLIST              1118
 #define IDC_CHECK_ENABLED               1119
 #define IDC_LIST_DATA                   1123
+#define IDC_SPIN1                       1124
+#define IDC_SPIN_PREVIEWBYTECOUNT       1124
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -246,7 +249,9 @@
 #define ID_GRAPH_MAKEGRAPHSCREENSHOT    32788
 #define ID_PIN_TEE_STREAM               32789
 #define ID_PIN_TIME_MEASURE_STREAM      32790
-#define ID_PIN_ANALYZE_STREAM			32791
+#define ID_PIN_ANALYZE_STREAM           32791
+#define ID_PIN_ANALYZE_WRITER_STREAM    32792
+#define ID_PIN_REMOVE                   32793
 #define ID_VIEW_50                      32794
 #define ID_VIEW_75                      32795
 #define ID_VIEW_100                     32796
@@ -320,8 +325,8 @@
 #define ID_BUTTON_REMOVE_CONNECTIONS    32878
 #define ID_HELP_COMMANDLINEOPTIONS      32879
 #define ID_MPEG2DEMUX_CREATE_PSI_PIN    32880
-#define ID_CHOOSE_SOURCE_FILE			32881
-#define ID_CHOOSE_DESTINATION_FILE		32882
+#define ID_CHOOSE_SOURCE_FILE           32881
+#define ID_CHOOSE_DESTINATION_FILE      32882
 
 // Next default values for new objects
 // 
@@ -329,7 +334,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        177
 #define _APS_NEXT_COMMAND_VALUE         32883
-#define _APS_NEXT_CONTROL_VALUE         1124
+#define _APS_NEXT_CONTROL_VALUE         1125
 #define _APS_NEXT_SYMED_VALUE           103
 #endif
 #endif

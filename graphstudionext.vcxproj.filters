@@ -305,6 +305,12 @@
     <ClInclude Include="src\CliOptionsForm.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="src\filters\analyzer\filter_analyzer.h">
+      <Filter>Filters\filter_analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filters\analyzer\filter_analyzer_writer.h">
+      <Filter>Filters\filter_analyzer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -501,6 +507,12 @@
     </ClCompile>
     <ClCompile Include="src\CliOptionsForm.cpp">
       <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filters\analyzer\filter_analyzer.cpp">
+      <Filter>Filters\filter_analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filters\analyzer\filter_analyzer_writer.cpp">
+      <Filter>Filters\filter_analyzer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

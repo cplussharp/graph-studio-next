@@ -236,6 +236,8 @@
     <ClInclude Include="src\DMOQualCtrlPage.h" />
     <ClInclude Include="src\FilterFromFile.h" />
     <ClInclude Include="src\filters\analyzer\analyzer.h" />
+    <ClInclude Include="src\filters\analyzer\filter_analyzer.h" />
+    <ClInclude Include="src\filters\analyzer\filter_analyzer_writer.h" />
     <ClInclude Include="src\filters\fake_m2ts\filter_fake_m2ts_device.h" />
     <ClInclude Include="src\filters\psi_config\psiconfig.h" />
     <ClInclude Include="src\graphCli.h" />
@@ -306,6 +308,8 @@
     <ClCompile Include="src\DMOQualCtrlPage.cpp" />
     <ClCompile Include="src\FilterFromFile.cpp" />
     <ClCompile Include="src\filters\analyzer\analyzer.cpp" />
+    <ClCompile Include="src\filters\analyzer\filter_analyzer.cpp" />
+    <ClCompile Include="src\filters\analyzer\filter_analyzer_writer.cpp" />
     <ClCompile Include="src\filters\fake_m2ts\filter_fake_m2ts_device.cpp" />
     <ClCompile Include="src\filters\psi_config\psiconfig.cpp" />
     <ClCompile Include="src\graphCli.cpp" />

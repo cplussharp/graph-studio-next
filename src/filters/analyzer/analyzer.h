@@ -39,11 +39,11 @@ public:
 
 //-----------------------------------------------------------------------------
 //
-//	CAnalyzerFilter class
+//	CAnalyzer class
 //
 //-----------------------------------------------------------------------------
 
-class CAnalyzerFilter : public CTransInPlaceFilter, public IAnalyzerFilter
+class CAnalyzer : public CUnknown, public IAnalyzerFilter
 {
 private:
 	HighResTimer	timer;
@@ -54,18 +54,21 @@ private:
     IAnalyzerFilterCallback* m_callback;
 
 public:
-	CAnalyzerFilter(LPUNKNOWN pUnk, HRESULT *phr);
-	virtual ~CAnalyzerFilter();
+	CAnalyzer(LPUNKNOWN pUnk);
+	virtual ~CAnalyzer();
 
 	// expose some interfaces
 	DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
 
 	// keep track of samples
-	virtual HRESULT Transform(IMediaSample *pSample);
+	virtual HRESULT AddSample(IMediaSample *pSample);
 	virtual HRESULT StartStreaming();
 	virtual HRESULT StopStreaming();
-    virtual HRESULT CheckInputType(const CMediaType* mtIn);
+
+    virtual HRESULT AddIStreamRead(const void* vp, ULONG cb, ULONG cbReaded);
+    virtual HRESULT AddIStreamWrite(const void* vp, ULONG cb);
+    virtual HRESULT AddIStreamSeek(DWORD dwOrigin, const LARGE_INTEGER &liDistanceToMove, const LARGE_INTEGER newPos);
 
 	// IAnalyzerFilter
 	STDMETHODIMP get_Enabled(VARIANT_BOOL *pVal);
@@ -78,8 +81,5 @@ public:
     STDMETHODIMP get_EntryCount(__int64 *pVal);
     STDMETHODIMP GetEntry(__int64 nr, StatisticRecordEntry *pVal);
     STDMETHODIMP SetCallback(IAnalyzerFilterCallback* pCallback);
-
-    static const CFactoryTemplate g_Template;
-    static CUnknown * WINAPI CreateInstance(LPUNKNOWN punk, HRESULT *phr);
 };
 

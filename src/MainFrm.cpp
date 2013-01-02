@@ -167,6 +167,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     (new DSUtil::CClassFactory(&CFakeM2tsDevice::g_Template))->Register();
     (new DSUtil::CClassFactory(&CPsiConfigFilter::g_Template))->Register();
     (new DSUtil::CClassFactory(&CAnalyzerFilter::g_Template))->Register();
+    (new DSUtil::CClassFactory(&CAnalyzerWriterFilter::g_Template))->Register();
 
     // set Process ID in title
     CString strTitle;

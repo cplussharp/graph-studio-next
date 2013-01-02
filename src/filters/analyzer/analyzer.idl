@@ -10,7 +10,18 @@ typedef enum StatisticRecordKind
     SRK_Empty = 0,    // Empty Record
     SRK_MediaSample,
     SRK_StartStreaming,
-    SRK_StopStreaming
+    SRK_StopStreaming,
+
+    // IAsyncReader Entries
+    SRK_AR_Length = 100,
+    SRK_AR_Request,
+    SRK_AR_SyncRead,
+    SRK_AR_WaitNext,
+
+    // IStream Entries
+    SRK_IS_Read = 200,
+    SRK_IS_Write,
+    SRK_IS_Seek
 } StatisticRecordKind;
 
 [uuid("66AA0068-8140-49BB-8125-FEC5AA2FE9F4")]
@@ -85,8 +96,8 @@ interface IAnalyzerFilter : IUnknown
     [propget, id(2), helpstring("LogFile")] HRESULT LogFile([out, retval] BSTR* pVal);
     [propput, id(2), helpstring("LogFile")] HRESULT LogFile([in] BSTR newVal);
 
-    [propget, id(3), helpstring("LogFile")] HRESULT PreviewSampleByteCount([out, retval] unsigned short* pVal);
-    [propput, id(3), helpstring("LogFile")] HRESULT PreviewSampleByteCount([in] unsigned short newVal);
+    [propget, id(3), helpstring("Bytes to Capture for a Sample")] HRESULT PreviewSampleByteCount([out, retval] unsigned short* pVal);
+    [propput, id(3), helpstring("Bytes to Capture for a Sample")] HRESULT PreviewSampleByteCount([in] unsigned short newVal);
 
     [id(4), helpstring("Reset Statistic")] HRESULT ResetStatistic();
     [propget, id(5), helpstring("Count of statistic entries")] HRESULT EntryCount([out, retval] __int64 *pVal);
@@ -115,6 +126,16 @@ library AnalyzerFilterLib
     coclass AnalyzerFilter
     {
         interface IBaseFilter;
+        [default] interface IAnalyzerFilter;
+    }
+
+    [uuid("CA6B3460-28B3-4A6E-A7FC-A83CF1DEEC4A")]
+    coclass AnalyzerWriterFilter
+    {
+        interface IBaseFilter;
+        interface IFileSinkFilter2;
+        interface IAMFilterMiscFlags;
+        interface IMediaSeeking;
         [default] interface IAnalyzerFilter;
     }
 };
