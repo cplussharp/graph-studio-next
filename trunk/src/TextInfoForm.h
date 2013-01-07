@@ -24,6 +24,9 @@ protected:
 
 public:
 
+    GraphStudio::TitleBar	title;
+    CButton         btn_copy;
+    CButton         btn_save;
 	CEdit			edit_report;
 	CComboBox		combo_reporttype;
 	CFont			font_report;
@@ -39,6 +42,7 @@ public:
 
 	// Dialog Data
 	enum { IDD = IDD_DIALOG_TEXTVIEW };
+    BOOL DoCreateDialog();
 
 	void OnSize(UINT nType, int cx, int cy);
 	void OnInitialize();
