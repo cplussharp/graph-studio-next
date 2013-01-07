@@ -18,7 +18,6 @@
 IMPLEMENT_DYNAMIC(CTextInfoForm, CDialog)
 BEGIN_MESSAGE_MAP(CTextInfoForm, CDialog)
 	ON_WM_SIZE()
-	ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CTextInfoForm::OnBnClickedButtonRefresh)
 	ON_BN_CLICKED(IDC_BUTTON_COPYTEXT, &CTextInfoForm::OnBnClickedButtonCopytext)
     ON_CBN_SELCHANGE(IDC_COMBO_REPORTTYPE, &CTextInfoForm::OnBnClickedButtonRefresh)
     ON_BN_CLICKED(IDC_BUTTON_SAVE, &CTextInfoForm::OnClickedButtonSave)
@@ -48,6 +47,36 @@ CTextInfoForm::~CTextInfoForm()
 {
 }
 
+BOOL CTextInfoForm::DoCreateDialog()
+{
+	BOOL ret = Create(IDD);
+	if (!ret) return FALSE;
+
+    // prepare titlebar
+	title.ModifyStyle(0, WS_CLIPCHILDREN);
+	title.ModifyStyleEx(0, WS_EX_CONTROLPARENT);
+
+    CRect	rc;
+	rc.SetRect(0, 0, 60, 23);
+    btn_copy.Create(_T("&Copy"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_COPYTEXT);
+    btn_copy.SetWindowPos(NULL, 4, 4, rc.Width(), rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+    btn_copy.SetFont(GetFont());
+
+    btn_save.Create(_T("&Save"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_SAVE);
+    btn_save.SetWindowPos(NULL, 8 + rc.Width(), 4, rc.Width(), rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+    btn_save.SetFont(GetFont());
+
+    rc.SetRect(0, 0, 150, 23);
+    combo_reporttype.Create(WS_TABSTOP | WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, rc, &title, IDC_COMBO_REPORTTYPE);
+    combo_reporttype.SetFont(GetFont());
+
+    SetWindowPos(NULL, 0, 0, 600, 400, SWP_NOMOVE);
+
+	OnInitialize();
+
+	return TRUE;
+};
+
 void CTextInfoForm::OnInitialize()
 {
 	if(GraphStudio::HasFont(_T("Consolas")))
@@ -66,8 +95,8 @@ void CTextInfoForm::OnInitialize()
 void CTextInfoForm::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+    DDX_Control(pDX, IDC_TITLEBAR, title);
 	DDX_Control(pDX, IDC_EDIT_DETAILS, edit_report);
-	DDX_Control(pDX, IDC_COMBO_REPORTTYPE, combo_reporttype);
 }
 
 void CTextInfoForm::OnSize(UINT nType, int cx, int cy)
@@ -76,11 +105,18 @@ void CTextInfoForm::OnSize(UINT nType, int cx, int cy)
 	CRect		rc, rc2;
 	GetClientRect(&rc);
 	
-	int	top = 2*8 + 23;
 	if (IsWindow(edit_report)) {
-		edit_report.SetWindowPos(NULL, 9, top, rc.Width() - 9-8, rc.Height()-7-top, SWP_SHOWWINDOW | SWP_NOZORDER);
+        title.GetClientRect(&rc2);
+        title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+
+        edit_report.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+
 		combo_reporttype.GetWindowRect(&rc2);
-		combo_reporttype.SetWindowPos(NULL, rc.Width()-8-rc2.Width(), 11, rc2.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+        combo_reporttype.SetWindowPos(NULL, rc.Width()-4-rc2.Width(), 5, rc2.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+
+        title.Invalidate();
+        edit_report.Invalidate();
+
 	}
 }
 

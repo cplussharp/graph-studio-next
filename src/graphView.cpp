@@ -317,9 +317,8 @@ void CGraphView::OnInit()
 	form_schedule->DoCreateDialog();
 
 	form_textinfo = new CTextInfoForm(NULL);
-	form_textinfo->Create(IDD_DIALOG_TEXTVIEW);
 	form_textinfo->view = this;
-	form_textinfo->OnInitialize();
+    form_textinfo->DoCreateDialog();
 
 	form_progress = new CProgressForm(NULL);
 	form_progress->view = this;
