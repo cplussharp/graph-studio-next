@@ -329,6 +329,9 @@
     <ClInclude Include="src\filters\audio_analyzer\audio_analyzer.h">
       <Filter>Filters\filter_audio_analyzer</Filter>
     </ClInclude>
+    <ClInclude Include="src\StatisticForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -543,6 +546,9 @@
     </ClCompile>
     <ClCompile Include="src\filters\audio_analyzer\audio_analyzer.cpp">
       <Filter>Filters\filter_audio_analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StatisticForm.cpp">
+      <Filter>Dialogs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

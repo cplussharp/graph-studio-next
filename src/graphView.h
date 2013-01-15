@@ -39,6 +39,7 @@ public:
 	CVolumeBarForm				*form_volume;
 	CDecPerformanceForm			*form_dec_performance;
 	CSeekForm					*form_seek;
+    CStatisticForm				*form_statistic;
     CLookupForm                 *form_guidlookup;
     CLookupForm                 *form_hresultlookup;
 
@@ -134,6 +135,7 @@ public:
 	// keyboard events
 	void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	void OnViewGraphEvents();
+    void OnViewGraphStatistics();
 	void OnTimer(UINT_PTR nIDEvent);
 
 	void UpdateGraphState();
