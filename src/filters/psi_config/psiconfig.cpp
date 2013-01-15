@@ -69,7 +69,7 @@ static ULONG g_MPEG2_PSI_CRC_32_Lookup [] = {
 //-----------------------------------------------------------------------------
 
 CPsiConfigFilter::CPsiConfigFilter(LPUNKNOWN pUnk, HRESULT *phr)
-    : CBaseFilter(NAME("CPSIConfig"), pUnk, &m_Lock, CLSID_PsiConfig),
+    : CBaseFilter(NAME("PSIConfig"), pUnk, &m_Lock, CLSID_PsiConfig),
     m_pDemux(NULL), m_pMediaCtrl(NULL), m_countPayloadPins(0), m_payloadPins(NULL), m_bRenderPayloadParserOnNextStop(false)
 {
     // Create the single input pin

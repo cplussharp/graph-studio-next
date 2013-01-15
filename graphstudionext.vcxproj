@@ -238,8 +238,12 @@
     <ClInclude Include="src\filters\analyzer\analyzer.h" />
     <ClInclude Include="src\filters\analyzer\filter_analyzer.h" />
     <ClInclude Include="src\filters\analyzer\filter_analyzer_writer.h" />
+    <ClInclude Include="src\filters\audio_analyzer\audio_analyzer.h" />
+    <ClInclude Include="src\filters\audio_analyzer\filter_audio_analyzer.h" />
     <ClInclude Include="src\filters\fake_m2ts\filter_fake_m2ts_device.h" />
     <ClInclude Include="src\filters\psi_config\psiconfig.h" />
+    <ClInclude Include="src\filters\video_analyzer\filter_video_analyzer.h" />
+    <ClInclude Include="src\filters\video_analyzer\video_analyzer.h" />
     <ClInclude Include="src\graphCli.h" />
     <ClInclude Include="src\graphDoc.h" />
     <ClInclude Include="src\graphstudio.h" />
@@ -310,8 +314,12 @@
     <ClCompile Include="src\filters\analyzer\analyzer.cpp" />
     <ClCompile Include="src\filters\analyzer\filter_analyzer.cpp" />
     <ClCompile Include="src\filters\analyzer\filter_analyzer_writer.cpp" />
+    <ClCompile Include="src\filters\audio_analyzer\audio_analyzer.cpp" />
+    <ClCompile Include="src\filters\audio_analyzer\filter_audio_analyzer.cpp" />
     <ClCompile Include="src\filters\fake_m2ts\filter_fake_m2ts_device.cpp" />
     <ClCompile Include="src\filters\psi_config\psiconfig.cpp" />
+    <ClCompile Include="src\filters\video_analyzer\filter_video_analyzer.cpp" />
+    <ClCompile Include="src\filters\video_analyzer\video_analyzer.cpp" />
     <ClCompile Include="src\graphCli.cpp" />
     <ClCompile Include="src\graphDoc.cpp" />
     <ClCompile Include="src\graphstudio.cpp">
@@ -374,6 +382,8 @@
   </ItemGroup>
   <ItemGroup>
     <Midl Include="src\filters\analyzer\analyzer.idl" />
+    <Midl Include="src\filters\audio_analyzer\audio_analyzer.idl" />
+    <Midl Include="src\filters\video_analyzer\video_analyzer.idl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -110,10 +110,19 @@ using namespace std;
 #include "filters\time_measure\filter_time.h"
 #include "filters\fake_m2ts\filter_fake_m2ts_device.h"
 #include "filters\psi_config\psiconfig.h"
+
 #include "..\analyzer_h.h"    // Interface
 #include "filters\analyzer\analyzer.h"
 #include "filters\analyzer\filter_analyzer.h"
 #include "filters\analyzer\filter_analyzer_writer.h"
+
+#include "..\video_analyzer_h.h"    // Interface
+#include "filters\video_analyzer\video_analyzer.h"
+#include "filters\video_analyzer\filter_video_analyzer.h"
+
+#include "..\audio_analyzer_h.h"    // Interface
+#include "filters\audio_analyzer\audio_analyzer.h"
+#include "filters\audio_analyzer\filter_audio_analyzer.h"
 
 #include "mtypes_ext.h"
 

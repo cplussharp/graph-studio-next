@@ -15,7 +15,7 @@
 //-----------------------------------------------------------------------------
 
 CAnalyzer::CAnalyzer(LPUNKNOWN pUnk) :
-	CUnknown(_T("Analyzer"), pUnk),
+	CUnknown(NAME("Analyzer"), pUnk),
     m_enabled(VARIANT_TRUE), m_previewSampleByteCount(16), m_callback(NULL)
 {
 }
