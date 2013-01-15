@@ -6,6 +6,7 @@
 //
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
+#include "SeekForm.h"
 
 
 //-----------------------------------------------------------------------------
@@ -20,7 +21,6 @@ BEGIN_MESSAGE_MAP(CSeekForm, CDialog)
 	ON_WM_TIMER()
 	ON_COMMAND(IDC_RADIO_TIME, &CSeekForm::OnTimeClick)
 	ON_COMMAND(IDC_RADIO_FRAME, &CSeekForm::OnFrameClick)
-
 END_MESSAGE_MAP()
 
 struct VALNAME
@@ -219,8 +219,7 @@ void CSeekForm::OnOK()
 			return ;
 		}
 	}
-
-	CDialog::OnOK();
+	// Don't do default OK processing as this closes the modeless dialog
 }
 
 void MakeNiceTimeMS(int time_ms, CString &v)
@@ -316,7 +315,3 @@ void CSeekForm::UpdateGraphPosition()
 	label_duration.SetWindowText(dur);
 	label_position.SetWindowText(cur);
 }
-
-
-
-
