@@ -271,7 +271,7 @@ STDMETHODIMP CAnalyzerWriterInput::Stat(STATSTG* pStatstg, DWORD grfStatFlag)
 #pragma region CAnalyzerWriterFilter
 
 CAnalyzerWriterFilter::CAnalyzerWriterFilter(LPUNKNOWN pUnk, HRESULT *phr)
-    : CBaseFilter(_T("Analyzer Writer"), pUnk, &m_csFilter, __uuidof(AnalyzerWriterFilter), phr),
+    : CBaseFilter(NAME("Analyzer Writer"), pUnk, &m_csFilter, __uuidof(AnalyzerWriterFilter), phr),
     m_dwFlags(AM_FILE_OVERWRITE), m_file(INVALID_HANDLE_VALUE), m_pPin(NULL)
 {	
     ZeroMemory(m_szFileName, sizeof(WCHAR) * MAX_PATH);

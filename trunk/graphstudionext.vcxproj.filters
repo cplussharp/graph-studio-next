@@ -44,6 +44,12 @@
     <Filter Include="Filters\filter_analyzer">
       <UniqueIdentifier>{2868a6b0-dc6c-408f-9245-3344a448df7c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Filters\filter_audio_analyzer">
+      <UniqueIdentifier>{3409fca2-71a4-485f-82f3-658415d3c095}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Filters\filter_video_analyzer">
+      <UniqueIdentifier>{72cfcfa2-271e-41a6-a860-6502e7d3481b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\bitmap_clock_active_hi.bmp">
@@ -311,6 +317,18 @@
     <ClInclude Include="src\filters\analyzer\filter_analyzer_writer.h">
       <Filter>Filters\filter_analyzer</Filter>
     </ClInclude>
+    <ClInclude Include="src\filters\video_analyzer\filter_video_analyzer.h">
+      <Filter>Filters\filter_video_analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filters\audio_analyzer\filter_audio_analyzer.h">
+      <Filter>Filters\filter_audio_analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filters\video_analyzer\video_analyzer.h">
+      <Filter>Filters\filter_video_analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filters\audio_analyzer\audio_analyzer.h">
+      <Filter>Filters\filter_audio_analyzer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -514,10 +532,28 @@
     <ClCompile Include="src\filters\analyzer\filter_analyzer_writer.cpp">
       <Filter>Filters\filter_analyzer</Filter>
     </ClCompile>
+    <ClCompile Include="src\filters\video_analyzer\filter_video_analyzer.cpp">
+      <Filter>Filters\filter_video_analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filters\audio_analyzer\filter_audio_analyzer.cpp">
+      <Filter>Filters\filter_audio_analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filters\video_analyzer\video_analyzer.cpp">
+      <Filter>Filters\filter_video_analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filters\audio_analyzer\audio_analyzer.cpp">
+      <Filter>Filters\filter_audio_analyzer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="src\filters\analyzer\analyzer.idl">
       <Filter>Filters\filter_analyzer</Filter>
+    </Midl>
+    <Midl Include="src\filters\video_analyzer\video_analyzer.idl">
+      <Filter>Filters\filter_video_analyzer</Filter>
+    </Midl>
+    <Midl Include="src\filters\audio_analyzer\audio_analyzer.idl">
+      <Filter>Filters\filter_audio_analyzer</Filter>
     </Midl>
   </ItemGroup>
 </Project>

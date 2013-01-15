@@ -1,0 +1,40 @@
+import "unknwn.idl";
+import "oaidl.idl";
+import "ocidl.idl";
+import "objidl.idl";
+import "strmif.idl";
+
+[object, uuid("B81C86E4-9D25-4924-A3A3-51BE63A4BEAE")]
+interface IVideoAnalyzerFilterCallback : IUnknown
+{
+
+}
+
+[object, uuid("88512FA3-2AD2-4E5C-A266-E9AB6E8B1AA7")]
+interface IVideoAnalyzerFilter : IUnknown
+{
+    [propget, id(1), helpstring("Is the analyzer enabled")] HRESULT Enabled([out, retval] VARIANT_BOOL* pVal);
+    [propput, id(1), helpstring("Is the analyzer enabled")] HRESULT Enabled([in] VARIANT_BOOL newVal);
+
+    [id(2), helpstring("Register or remove a callback for the events of the statistic")]
+    HRESULT SetCallback(IVideoAnalyzerFilterCallback* pCallback);
+};
+
+[
+	uuid("2E2FDE14-5247-4507-81ED-82157C379AE5"), 
+    helpstring("Video Analyzer Filter Type Library"),
+	lcid(0x0409), // EN-US
+    version(1.0)
+] 
+library VideoAnalyzerFilterLib
+{
+    interface IVideoAnalyzerFilterCallback;
+    interface IVideoAnalyzerFilter;
+
+    [uuid("BF41C054-221E-4596-99AC-5AD555FD9548")]
+    coclass VideoAnalyzerFilter
+    {
+        interface IBaseFilter;
+        [default] interface IVideoAnalyzerFilter;
+    }
+};

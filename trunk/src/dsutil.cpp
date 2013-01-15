@@ -1025,6 +1025,16 @@ namespace DSUtil
         filter.clsid = __uuidof(AnalyzerWriterFilter);
         filters.Add(filter);
 
+#ifdef DEBUG
+        filter.name = _T("Video Analyzer");
+        filter.clsid = __uuidof(VideoAnalyzerFilter);
+        filters.Add(filter);
+
+        filter.name = _T("Audio Analyzer");
+        filter.clsid = __uuidof(AudioAnalyzerFilter);
+        filters.Add(filter);
+#endif
+
         return filters.GetCount();
     }
 

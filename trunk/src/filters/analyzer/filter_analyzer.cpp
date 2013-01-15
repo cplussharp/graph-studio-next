@@ -34,7 +34,7 @@ CUnknown* CAnalyzerFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 //-----------------------------------------------------------------------------
 
 CAnalyzerFilter::CAnalyzerFilter(LPUNKNOWN pUnk, HRESULT *phr) :
-	CTransInPlaceFilter(_T("Analyzer"), pUnk, __uuidof(AnalyzerFilter), phr, false),
+	CTransInPlaceFilter(NAME("Analyzer"), pUnk, __uuidof(AnalyzerFilter), phr, false),
         m_analyzer(NULL)
 {
     m_analyzer = new CAnalyzer(pUnk);
