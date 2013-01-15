@@ -258,6 +258,7 @@
     <ClInclude Include="src\moreuuids.h" />
     <ClInclude Include="src\SbeConfigForm.h" />
     <ClInclude Include="src\SbeSinkPage.h" />
+    <ClInclude Include="src\StatisticForm.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\ConfirmForm.h" />
     <ClInclude Include="src\DecPerformanceForm.h" />
@@ -351,6 +352,7 @@
     <ClCompile Include="src\SbeSinkPage.cpp" />
     <ClCompile Include="src\ScheduleForm.cpp" />
     <ClCompile Include="src\SeekForm.cpp" />
+    <ClCompile Include="src\StatisticForm.cpp" />
     <ClCompile Include="src\TextInfoForm.cpp" />
     <ClCompile Include="src\VolumeBarForm.cpp" />
     <ClCompile Include="src\BufferNegotiationPage.cpp" />

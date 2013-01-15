@@ -54,6 +54,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_GRAPH_INSERTFILTER, &CGraphView::OnGraphInsertFilter)
     ON_COMMAND(ID_GRAPH_INSERTFILTERFROMFILE, &CGraphView::OnGraphInsertFilterFromFile)
 	ON_COMMAND(ID_VIEW_GRAPHEVENTS, &CGraphView::OnViewGraphEvents)
+    ON_COMMAND(ID_VIEW_GRAPHSTATISTICS, &CGraphView::OnViewGraphStatistics)
 	ON_COMMAND(ID_LIST_MRU_CLEAR, &CGraphView::OnClearMRUClick)
 	ON_COMMAND(ID_GRAPH_MAKEGRAPHSCREENSHOT, &CGraphView::OnGraphScreenshot)
 	ON_COMMAND(ID_GRAPH_USECLOCK, &CGraphView::OnUseClock)
@@ -142,6 +143,7 @@ CGraphView::CGraphView()
 	form_progress = NULL;
 	form_volume = NULL;
 	form_seek = NULL;
+    form_statistic = NULL;
 	form_dec_performance = NULL;
     form_guidlookup = NULL;
     form_hresultlookup = NULL;
@@ -165,6 +167,7 @@ CGraphView::~CGraphView()
 	if (form_events) { form_events->DestroyWindow(); delete form_events; form_events = NULL; }
 	if (form_schedule) { form_schedule->DestroyWindow(); delete form_schedule; form_schedule = NULL; }
 	if (form_seek) { form_seek->DestroyWindow(); delete form_seek; form_seek = NULL; }
+    if (form_statistic) { form_statistic->DestroyWindow(); delete form_statistic; form_statistic = NULL; }
 	if (form_textinfo) { form_textinfo->DestroyWindow(); delete form_textinfo; form_textinfo = NULL; }
 	if (form_favorites) { form_favorites->DestroyWindow(); delete form_favorites; form_favorites = NULL; }
     if (form_blacklist) { form_blacklist->DestroyWindow(); delete form_blacklist; form_blacklist = NULL; }
@@ -1144,6 +1147,18 @@ void CGraphView::OnViewGraphEvents()
 		form_events->ShowWindow(SW_SHOW);
 		form_events->SetActiveWindow();
 	}
+}
+
+void CGraphView::OnViewGraphStatistics()
+{
+    if (!form_statistic) {
+		form_statistic = new CStatisticForm();
+		form_statistic->view = this;
+		form_statistic->DoCreateDialog();
+	}
+
+	form_statistic->ShowWindow(SW_SHOW);
+	form_statistic->SetActiveWindow();
 }
 
 void CGraphView::OnViewGraphconstructionreport()

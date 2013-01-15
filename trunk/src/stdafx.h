@@ -173,6 +173,7 @@ using namespace std;
 #include "EventsForm.h"
 #include "ScheduleForm.h"
 #include "SeekForm.h"
+#include "StatisticForm.h"
 #include "RemoteGraphForm.h"
 #include "TextInfoForm.h"
 #include "FileSrcForm.h"

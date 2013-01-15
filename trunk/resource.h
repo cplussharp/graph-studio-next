@@ -57,6 +57,7 @@
 #define IDD_DIALOG_MEDIA_TYPE_SELECT    175
 #define IDD_PROPPAGE_ANALYZER           176
 #define IDD_DIALOG_CLIOPTIONS           177
+#define IDD_DIALOG_STATISTIC            178
 #define IDC_COMBO_CATEGORIES            1001
 #define IDC_LIST_FILTERS                1002
 #define IDC_COMBO_MERIT                 1003
@@ -327,13 +328,14 @@
 #define ID_MPEG2DEMUX_CREATE_PSI_PIN    32880
 #define ID_CHOOSE_SOURCE_FILE           32881
 #define ID_CHOOSE_DESTINATION_FILE      32882
+#define ID_VIEW_GRAPHSTATISTICS         32883
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        177
-#define _APS_NEXT_COMMAND_VALUE         32883
+#define _APS_NEXT_RESOURCE_VALUE        179
+#define _APS_NEXT_COMMAND_VALUE         32884
 #define _APS_NEXT_CONTROL_VALUE         1125
 #define _APS_NEXT_SYMED_VALUE           103
 #endif
