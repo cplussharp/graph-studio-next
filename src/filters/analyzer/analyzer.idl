@@ -21,7 +21,13 @@ typedef enum StatisticRecordKind
     // IStream Entries
     SRK_IS_Read = 200,
     SRK_IS_Write,
-    SRK_IS_Seek
+    SRK_IS_Seek,
+
+    // IMediaSeeking Entries
+    SRK_MS_SetPositions = 300,
+    SRK_MS_SetRate,
+    SRK_MS_SetTimeFormat
+
 } StatisticRecordKind;
 
 [uuid("66AA0068-8140-49BB-8125-FEC5AA2FE9F4")]

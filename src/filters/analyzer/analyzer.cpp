@@ -39,15 +39,22 @@ STDMETHODIMP CAnalyzer::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
+void CAnalyzer::InitEntry(StatisticRecordEntry& entry)
+{
+    entry.EntryNr = m_entries.size();
+    entry.EntryTimeStamp = timer.GetTimeNS();
+	entry.StreamTimeStart = entry.StreamTimeStop = VFW_E_SAMPLE_TIME_NOT_SET;
+	entry.MediaTimeStart = entry.MediaTimeStop = VFW_E_MEDIA_TIME_NOT_SET;
+}
+
 HRESULT CAnalyzer::AddSample(IMediaSample *pSample)
 {
     if (!m_enabled) return S_OK;
 
     // entry
     StatisticRecordEntry entry = { 0 };
-    entry.EntryNr = m_entries.size();
+	InitEntry(entry);
     entry.EntryKind = SRK_MediaSample;
-    entry.EntryTimeStamp = timer.GetTimeNS();
 
     // IMediaSample
     entry.IsDiscontinuity = pSample->IsDiscontinuity() == S_OK ? VARIANT_TRUE : VARIANT_FALSE;
@@ -123,9 +130,8 @@ HRESULT CAnalyzer::StartStreaming()
     if (!m_enabled) return S_OK;
 
     StatisticRecordEntry entry = { 0 };
-    entry.EntryNr = m_entries.size();
+	InitEntry(entry);
     entry.EntryKind = SRK_StartStreaming;
-    entry.EntryTimeStamp = timer.GetTimeNS();
 
     m_entries.push_back(entry);
 
@@ -140,9 +146,8 @@ HRESULT CAnalyzer::StopStreaming()
     if (!m_enabled) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
-    entry.EntryNr = m_entries.size();
+	InitEntry(entry);
     entry.EntryKind = SRK_StopStreaming;
-    entry.EntryTimeStamp = timer.GetTimeNS();
 
     m_entries.push_back(entry);
 
@@ -158,9 +163,8 @@ HRESULT CAnalyzer::AddIStreamRead(const void* vp, ULONG cb, ULONG cbReaded)
     if (!m_enabled) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
-    entry.EntryNr = m_entries.size();
+	InitEntry(entry);
     entry.EntryKind = SRK_IS_Read;
-    entry.EntryTimeStamp = timer.GetTimeNS();
 
     entry.StreamTimeStart = cb;
     entry.ActualDataLength = cbReaded;
@@ -184,9 +188,8 @@ HRESULT CAnalyzer::AddIStreamWrite(const void* vp, ULONG cb)
     if (!m_enabled) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
-    entry.EntryNr = m_entries.size();
+	InitEntry(entry);
     entry.EntryKind = SRK_IS_Write;
-    entry.EntryTimeStamp = timer.GetTimeNS();
 
     entry.ActualDataLength = cb;
     entry.nDataCount = m_previewSampleByteCount < entry.ActualDataLength ? m_previewSampleByteCount : entry.ActualDataLength;
@@ -209,9 +212,8 @@ HRESULT CAnalyzer::AddIStreamSeek(DWORD dwOrigin, const LARGE_INTEGER &liDistanc
     if (!m_enabled) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
-    entry.EntryNr = m_entries.size();
+	InitEntry(entry);
     entry.EntryKind = SRK_IS_Seek;
-    entry.EntryTimeStamp = timer.GetTimeNS();
 
     entry.StreamTimeStart = newPos.QuadPart;
     entry.SampleFlags = dwOrigin;
@@ -222,6 +224,72 @@ HRESULT CAnalyzer::AddIStreamSeek(DWORD dwOrigin, const LARGE_INTEGER &liDistanc
         m_callback->OnStatisticNewEntry(entry.EntryNr);
 
     return S_OK;
+}
+
+HRESULT CAnalyzer::AddMSSetPositions(__inout_opt LONGLONG * pCurrent, DWORD CurrentFlags, __inout_opt LONGLONG * pStop, DWORD StopFlags)
+{
+    if (!m_enabled) return S_OK;
+
+	StatisticRecordEntry entry = { 0 };
+	InitEntry(entry);
+	entry.EntryKind = SRK_MS_SetPositions;
+
+	if (pCurrent && (CurrentFlags & AM_SEEKING_PositioningBitsMask)) {
+		entry.MediaTimeStart = *pCurrent;
+		entry.TypeSpecificFlags = CurrentFlags;
+	}
+
+	if (pStop && (StopFlags & AM_SEEKING_PositioningBitsMask)) {
+		entry.MediaTimeStop  = *pStop;
+		entry.SampleFlags = StopFlags;
+	}
+
+    m_entries.push_back(entry);
+
+    if (m_callback != NULL)
+        m_callback->OnStatisticNewEntry(entry.EntryNr);
+
+    return S_OK;
+}
+
+HRESULT CAnalyzer::AddMSSetRate(double dRate)
+{
+    if (!m_enabled) return S_OK;
+
+	StatisticRecordEntry entry = { 0 };
+	InitEntry(entry);
+	entry.EntryKind = SRK_MS_SetRate;
+
+	entry.MediaTimeStart = 100.0 * dRate;
+
+    m_entries.push_back(entry);
+
+    if (m_callback != NULL)
+        m_callback->OnStatisticNewEntry(entry.EntryNr);
+
+	return S_OK;
+}
+
+HRESULT CAnalyzer::AddMSSetTimeFormat(const GUID * pFormat)
+{
+    if (!m_enabled) return S_OK;
+
+	StatisticRecordEntry entry = { 0 };
+	InitEntry(entry);
+	entry.EntryKind = SRK_MS_SetTimeFormat;
+
+	if (pFormat) {
+		entry.nDataCount = sizeof(*pFormat);
+        entry.aData = new BYTE[entry.nDataCount];
+        CopyMemory(entry.aData, pFormat, entry.nDataCount);
+	}
+
+    m_entries.push_back(entry);
+
+    if (m_callback != NULL)
+        m_callback->OnStatisticNewEntry(entry.EntryNr);
+
+	return S_OK;
 }
 
 
@@ -264,6 +332,7 @@ STDMETHODIMP CAnalyzer::put_PreviewSampleByteCount(unsigned short val)
     return S_OK;
 }
 
+// TODO check memory management of it->aData as we've had memory corruption assertions freeing it
 STDMETHODIMP CAnalyzer::ResetStatistic(void)
 {
     for (vector<StatisticRecordEntry>::iterator it = m_entries.begin(); it != m_entries.end(); ++it)
