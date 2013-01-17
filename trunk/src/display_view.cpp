@@ -94,10 +94,6 @@ namespace GraphStudio
 		point += GetScrollPosition();
 
 		CMenu	menu;
-		// find out if there is any filter being selected
-		current_filter = graph.FindFilterByPos(point);
-		if (!current_filter) return ;
-
 		if (!menu.CreatePopupMenu()) return ;
 
 		FILTER_STATE	state = State_Running;
@@ -105,108 +101,129 @@ namespace GraphStudio
 			state = State_Running;
 		}
 
+		// find out if there is any filter being selected
+		current_filter = graph.FindFilterByPos(point);
+
 		// check for a pin - will have different menu
-		current_pin = current_filter->FindPinByPos(point, false);
+		current_pin = current_filter ? current_filter->FindPinByPos(point, false) : NULL;
+
+		// make rendering inactive for connected pins
+		UINT	renderFlags = 0;
 		if (current_pin) {
+			if (current_pin->connected) renderFlags |= MF_GRAYED;
+			if (current_pin->dir != PINDIR_OUTPUT) renderFlags |= MF_GRAYED;
+		}
+		if (state != State_Stopped) renderFlags |= MF_GRAYED;
 
-			// make rendering inactive for connected pins
-			UINT	flags = 0;
-			if (current_pin->connected) flags |= MF_GRAYED;
-			if (current_pin->dir != PINDIR_OUTPUT) flags |= MF_GRAYED;
-			if (state != State_Stopped) flags |= MF_GRAYED;
+		/*
+			If the pin is not connected we might try to
+			check it for MEDIATYPE_Stream so we can offer to connect
+			the File Writer filter.
+		*/
 
+		bool	offer_writer = !current_filter;		// offer writer filters if no filter selected
+        bool    offer_remove = false;
 
-			/*
-				If the pin is not connected we might try to
-				check it for MEDIATYPE_Stream so we can offer to connect
-				the File Writer filter.
-			*/
+		if (current_pin && !current_pin->connected) {
+			DSUtil::MediaTypes			mtypes;
+			HRESULT						hr;
 
-			bool	offer_writer = false;
-            bool    offer_remove = false;
-			if (current_pin->connected == false) {
-				DSUtil::MediaTypes			mtypes;
-				HRESULT						hr;
-
-				// we will ignore the async file source filter
-				if (current_filter->clsid != CLSID_AsyncReader) {
-					hr = DSUtil::EnumMediaTypes(current_pin->pin, mtypes);
-					if (SUCCEEDED(hr)) {
-						for (int i=0; i<mtypes.GetCount(); i++) {
-							if (mtypes[i].majortype == MEDIATYPE_Stream) {
-								offer_writer = true;
-								break;
-							}
+			// we will ignore the async file source filter
+			if (current_filter->clsid != CLSID_AsyncReader) {
+				hr = DSUtil::EnumMediaTypes(current_pin->pin, mtypes);
+				if (SUCCEEDED(hr)) {
+					for (int i=0; i<mtypes.GetCount(); i++) {
+						if (mtypes[i].majortype == MEDIATYPE_Stream) {
+							offer_writer = true;
+							break;
 						}
 					}
 				}
-
-                // Check if we can remove
-                CComQIPtr<IMpeg2Demultiplexer> pMpeg2Demux = current_pin->filter->filter;
-                offer_remove = pMpeg2Demux && current_pin->dir == PINDIR_OUTPUT;
 			}
 
-			int		p = 0;
-			if (current_pin->connected == false)
-            {
-                menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_RENDER, _T("&Render Pin"));
-                if (offer_remove)
-                    menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_REMOVE, _T("Remo&ve Pin"));
-                menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
-                menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_NULL_STREAM, _T("Insert &Null Renderer"));
-			    menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_DUMP_STREAM, _T("Insert &Dump Filter"));
-            }
+            // Check if we can remove
+            CComQIPtr<IMpeg2Demultiplexer> pMpeg2Demux = current_pin->filter->filter;
+            offer_remove = pMpeg2Demux && current_pin->dir == PINDIR_OUTPUT;
+		}
 
-            menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_TEE_STREAM, _T("Insert &Tee Filter"));
-            menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_TIME_MEASURE_STREAM, _T("Insert Time &Measure Filter"));
-            menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_ANALYZE_STREAM, _T("Insert &Analyzer Filter"));
+		int p = 0;
 
-			if (offer_writer) {
-				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_ANALYZE_WRITER_STREAM, _T("Insert Analyzer &Writer Filter"));
-                menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | flags, ID_PIN_FILE_WRITER, _T("Insert &File Writer"));
-			}
+		/////////////////////// Pin operations
 
-			// check for compatible filters
-			PrepareCompatibleFiltersMenu(menu, current_pin);
+		if (current_pin && !current_pin->connected) {
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_RENDER, _T("&Render Pin"));
+			if (offer_remove)
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_REMOVE, _T("Remo&ve Pin"));
+		}
 
-            // add Favorite filters
-            PrepareFavoriteFiltersMenu(menu, current_pin);
+		/////////////////////// Filter operations
 
-			p = menu.GetMenuItemCount();
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_PROPERTYPAGE, _T("&Properties..."));
+		if (current_filter && !current_pin) {
 
-			// check for IAMStreamSelect interface
-			PrepareStreamSelectMenu(menu, current_pin->pin);
-
-		} else {
-			menu.InsertMenu(0, MF_STRING, ID_PROPERTYPAGE, _T("&Properties..."));
-
-			int p = menu.GetMenuItemCount();
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_DELETE_FILTER, _T("&Delete Selection"));
-
-            const CComQIPtr<IFileSourceFilter> file_source(current_filter->filter);
+			const CComQIPtr<IFileSourceFilter> file_source(current_filter->filter);
 			if (file_source) {
-				menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
 				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_CHOOSE_SOURCE_FILE, _T("Choose &Source File..."));
 			}
 
-            const CComQIPtr<IFileSinkFilter> file_sink(current_filter->filter);
+			const CComQIPtr<IFileSinkFilter> file_sink(current_filter->filter);
 			if (file_sink) {
-				menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
 				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_CHOOSE_DESTINATION_FILE, _T("Choose &Destination File..."));
 			}
 
-            CComQIPtr<IMpeg2Demultiplexer> mp2demux = current_filter->filter;
-            if(mp2demux)
-            {
-                menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
-			    menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_MPEG2DEMUX_CREATE_PSI_PIN, _T("&Create PSI Pin"));
-            }
+			CComQIPtr<IMpeg2Demultiplexer> mp2demux = current_filter->filter;
+			if(mp2demux) {
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_MPEG2DEMUX_CREATE_PSI_PIN, _T("&Create PSI Pin"));
+			}
 
 			// check for IAMStreamSelect interface
 			PrepareStreamSelectMenu(menu, current_filter->filter);
+			p = menu.GetMenuItemCount();
+
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_DELETE_FILTER, _T("&Delete Selected"));
+		}
+
+		////////////////////////// Filter and Pin operations
+
+		if (current_filter || current_pin) {
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_PROPERTYPAGE, _T("&Properties..."));
+		}
+
+		/////////////////////// Inserting new filters
+
+		// Offer to insert new filters unless a filter is selected without pin
+		if (!current_filter || current_pin) {
+
+			if (p > 0)
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
+
+			// add Favorite filters
+			PrepareFavoriteFiltersMenu(menu);
+			p = menu.GetMenuItemCount();
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
+
+			if (current_pin) {
+				// check for compatible filters
+				PrepareCompatibleFiltersMenu(menu, current_pin);
+				// check for IAMStreamSelect interface
+				PrepareStreamSelectMenu(menu, current_pin->pin);
+				p = menu.GetMenuItemCount();
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
+			}
+
+			if (!current_pin || !current_pin->connected) {
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_NULL_STREAM, _T("Insert &Null Renderer"));
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_DUMP_STREAM, _T("Insert &Dump Filter"));
+			}
+
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_TEE_STREAM, _T("Insert &Tee Filter"));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_TIME_MEASURE_STREAM, _T("Insert Time &Measure Filter"));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_ANALYZE_STREAM, _T("Insert &Analyzer Filter"));
+
+			if (offer_writer) {
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_ANALYZE_WRITER_STREAM, _T("Insert Analyzer &Writer Filter"));
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_FILE_WRITER, _T("Insert &File Writer"));
+			}
+
 		}
 
 		CPoint	pt;
@@ -1094,13 +1111,12 @@ namespace GraphStudio
 
 				int idx = active_menu.GetMenuItemCount();
 
-				CString		name = filt.name + _T("\t(0x") + merit;
+				const CString name = _T("&") + filt.name + _T("\t(0x") + merit;
 				active_menu.InsertMenu(idx, MF_BYPOSITION | MF_STRING, ID_COMPATIBLE_FILTER + i, name);
 			}			
 
 			// do insert the menu
 			int		count = menu.GetMenuItemCount();
-			menu.InsertMenu(count++, MF_BYPOSITION | MF_SEPARATOR);
 			menu.InsertMenu(count, MF_BYPOSITION | MF_STRING, 0, _T("&Compatible filters"));
 			menu.ModifyMenu(count, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("&Compatible filters"));
 			submenu.Detach();
@@ -1160,7 +1176,7 @@ namespace GraphStudio
 					int idx = active_menu.GetMenuItemCount();
 					UINT	mflags = MF_BYPOSITION | MF_STRING;
 					if (flags > 0) mflags |= MF_CHECKED;
-					active_menu.InsertMenu(idx, mflags | MF_STRING, ID_STREAM_SELECT+i, name);
+					active_menu.InsertMenu(idx, mflags | MF_STRING, ID_STREAM_SELECT+i, CString(_T("&")) + name);
 				}
 
 				// get rid of the buffers
@@ -1179,12 +1195,8 @@ namespace GraphStudio
 	}
 
 
-	void DisplayView::PrepareFavoriteFiltersMenu(CMenu &menu, Pin *pin)
+	void DisplayView::PrepareFavoriteFiltersMenu(CMenu &menu)
     {
-        // ignore invalid and connected pins
-		if (!pin || !(pin->pin) || (pin->dir == PINDIR_INPUT)) return ;
-		if (pin->connected) return ;
-
 		CMenu		submenu;
 		submenu.CreatePopupMenu();
         GraphStudio::Favorites	*favorites = GraphStudio::Favorites::GetInstance();
@@ -1193,9 +1205,8 @@ namespace GraphStudio
 
 		// do insert the menu
 		int		count = menu.GetMenuItemCount();
-		menu.InsertMenu(count++, MF_BYPOSITION | MF_SEPARATOR);
-		menu.InsertMenu(count, MF_BYPOSITION | MF_STRING, 0, _T("&Favorite filters"));
-		menu.ModifyMenu(count, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("&Favorite filters"));
+		menu.InsertMenu(count, MF_BYPOSITION | MF_STRING, 0, _T("Fa&vorite filters"));
+		menu.ModifyMenu(count, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("Fa&vorite filters"));
 		submenu.Detach();
 	}
 

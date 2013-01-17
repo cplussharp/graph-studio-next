@@ -496,7 +496,7 @@ void CGraphView::UpdatePreferredVideoRenderersMenu()
 
 		int flags	= MF_STRING;
 		if (filter.moniker_name == render_params.preferred_video_renderer) flags |= MF_CHECKED;
-		menu->InsertMenu(menu->GetMenuItemCount(), flags, ID_PREFERRED_VIDEO_RENDERER + 1 + i, filter.name);
+		menu->InsertMenu(menu->GetMenuItemCount(), flags, ID_PREFERRED_VIDEO_RENDERER + 1 + i, _T("&") + filter.name);
 	}
 #endif
 
@@ -521,7 +521,7 @@ void CGraphView::UpdateRenderersMenu()
 	for (i=0; i<audio_sources.filters.GetCount(); i++) {
 		DSUtil::FilterTemplate	&filter = audio_sources.filters[i];
         if(!filter.file_exists) continue;
-		audio_source_menu.InsertMenu(i, MF_STRING, ID_AUDIO_SOURCE0 + i, filter.name);
+		audio_source_menu.InsertMenu(i, MF_STRING, ID_AUDIO_SOURCE0 + i, _T("&") + filter.name);
 	}
 
 	graphmenu->ModifyMenu(ID_GRAPH_INSERTAUDIOSOURCE, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
@@ -535,7 +535,7 @@ void CGraphView::UpdateRenderersMenu()
 	for (i=0; i<video_sources.filters.GetCount(); i++) {
 		DSUtil::FilterTemplate	&filter = video_sources.filters[i];
         if(!filter.file_exists) continue;
-		video_source_menu.InsertMenu(i, MF_STRING, ID_VIDEO_SOURCE0 + i, filter.name);
+		video_source_menu.InsertMenu(i, MF_STRING, ID_VIDEO_SOURCE0 + i, _T("&") + filter.name);
 	}
 
 	graphmenu->ModifyMenu(ID_GRAPH_INSERTVIDEOSOURCE, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
@@ -548,7 +548,7 @@ void CGraphView::UpdateRenderersMenu()
 	for (i=0; i<audio_renderers.filters.GetCount(); i++) {
 		DSUtil::FilterTemplate	&filter = audio_renderers.filters[i];
         if(!filter.file_exists) continue;
-		audio_render_menu.InsertMenu(i, MF_STRING, ID_AUDIO_RENDERER0 + i, filter.name);
+		audio_render_menu.InsertMenu(i, MF_STRING, ID_AUDIO_RENDERER0 + i, _T("&") + filter.name);
 	}
 
 	graphmenu->ModifyMenu(ID_GRAPH_INSERTAUDIORENDERER, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
@@ -562,7 +562,7 @@ void CGraphView::UpdateRenderersMenu()
 	for (i=0; i<video_renderers.filters.GetCount(); i++) {
 		DSUtil::FilterTemplate	&filter = video_renderers.filters[i];
         if(!filter.file_exists) continue;
-		video_render_menu.InsertMenu(i, MF_STRING, ID_VIDEO_RENDERER0 + i, filter.name);
+		video_render_menu.InsertMenu(i, MF_STRING, ID_VIDEO_RENDERER0 + i, _T("&") + filter.name);
 	}
 
 	graphmenu->ModifyMenu(ID_GRAPH_INSERTVIDEORENDERER, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
@@ -575,7 +575,7 @@ void CGraphView::UpdateRenderersMenu()
 
 	for (i=0; i<internal_filters.filters.GetCount(); i++) {
 		DSUtil::FilterTemplate	&filter = internal_filters.filters[i];
-		internal_filter_menu.InsertMenu(i, MF_STRING, ID_INTERNAL_FILTER0 + i, filter.name);
+		internal_filter_menu.InsertMenu(i, MF_STRING, ID_INTERNAL_FILTER0 + i, _T("&") + filter.name);
 	}
 
 	graphmenu->ModifyMenu(ID_GRAPH_INSERTINTERNALFILTER, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
