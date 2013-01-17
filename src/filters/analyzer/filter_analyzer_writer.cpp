@@ -518,10 +518,13 @@ STDMETHODIMP CAnalyzerWriterFilter::IsUsingTimeFormat(const GUID * pFormat)
 
 STDMETHODIMP CAnalyzerWriterFilter::SetTimeFormat(const GUID * pFormat)
 {
+	if (m_analyzer)
+		m_analyzer->AddMSSetTimeFormat(pFormat);
+
     if ((*pFormat == TIME_FORMAT_MEDIA_TIME) ||
         (*pFormat == TIME_FORMAT_NONE))
         return S_OK;
-    return VFW_E_NO_TIME_FORMAT;
+	return VFW_E_NO_TIME_FORMAT;
 }
 
 STDMETHODIMP CAnalyzerWriterFilter::GetDuration(LONGLONG *pDuration)
@@ -559,6 +562,10 @@ STDMETHODIMP CAnalyzerWriterFilter::SetPositions(LONGLONG * pCurrent, DWORD dwCu
 {
     // must be passed to input
 	HRESULT hr = S_OK;
+
+	if (m_analyzer)
+		m_analyzer->AddMSSetPositions(pCurrent, dwCurrentFlags, pStop, dwStopFlags);
+
 	CComQIPtr<IMediaSeeking> pSeek = GetInputSeeking();
 	if (pSeek)
 	{
@@ -594,6 +601,10 @@ STDMETHODIMP CAnalyzerWriterFilter::SetRate(double dRate)
 {
     // must be passed to input
 	HRESULT hr = S_OK;
+
+	if (m_analyzer)
+		m_analyzer->AddMSSetRate(dRate);
+
 	CComQIPtr<IMediaSeeking> pSeek = GetInputSeeking();
 	if (pSeek)
 	{
