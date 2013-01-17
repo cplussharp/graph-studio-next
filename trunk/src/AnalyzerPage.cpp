@@ -60,21 +60,21 @@ BOOL CAnalyzerPage::OnInitDialog()
         GraphStudio::MakeFont(font_entries, _T("Courier New"), 8, false, false);
 	m_listCtrl.SetFont(&font_entries);
 
-    m_listCtrl.InsertColumn(0, _T("Nr"), LVCFMT_RIGHT, 60);
-    m_listCtrl.InsertColumn(1, _T("TimeStamp (dif)"), LVCFMT_RIGHT, 80);
-    m_listCtrl.InsertColumn(2, _T("Kind"), LVCFMT_LEFT, 50);
-    m_listCtrl.InsertColumn(3, _T("Disc."), LVCFMT_CENTER, 40);
-    m_listCtrl.InsertColumn(4, _T("Sync"), LVCFMT_CENTER, 40);
-    m_listCtrl.InsertColumn(5, _T("Prer."), LVCFMT_CENTER, 40);
-    m_listCtrl.InsertColumn(6, _T("Start"), LVCFMT_RIGHT, 70);
-    m_listCtrl.InsertColumn(7, _T("Stop"), LVCFMT_RIGHT, 70);
-    m_listCtrl.InsertColumn(8, _T("MediaStart"), LVCFMT_RIGHT, 70);
-    m_listCtrl.InsertColumn(9, _T("MediaStop"), LVCFMT_RIGHT, 70);
-    m_listCtrl.InsertColumn(10, _T("DataLength"), LVCFMT_RIGHT, 70);
-    m_listCtrl.InsertColumn(11, _T("Data"), LVCFMT_LEFT, 150);
-    m_listCtrl.InsertColumn(12, _T("TypeSpecificFlags"), LVCFMT_LEFT, 150);
-    m_listCtrl.InsertColumn(13, _T("SampleFlags"), LVCFMT_LEFT, 150);
-    m_listCtrl.InsertColumn(14, _T("StreamID"), LVCFMT_LEFT, 70);
+    m_listCtrl.InsertColumn(Number,				_T("Nr"),					LVCFMT_RIGHT,	30);
+    m_listCtrl.InsertColumn(TimeStamp,			_T("TimeStamp (dif)"),		LVCFMT_RIGHT,	110);
+    m_listCtrl.InsertColumn(Kind,				_T("Kind"),					LVCFMT_LEFT,	180);
+    m_listCtrl.InsertColumn(Discontinuity,		_T("Disc."),				LVCFMT_CENTER,	40);
+    m_listCtrl.InsertColumn(Sync,				_T("Sync"),					LVCFMT_CENTER,	40);
+    m_listCtrl.InsertColumn(Preroll,			_T("Prer."),				LVCFMT_CENTER,	40);
+    m_listCtrl.InsertColumn(Start,				_T("Start"),				LVCFMT_RIGHT,	70);
+    m_listCtrl.InsertColumn(Stop,				_T("Stop"),					LVCFMT_RIGHT,	70);
+    m_listCtrl.InsertColumn(MediaStart,			_T("MediaStart"),			LVCFMT_RIGHT,	70);
+    m_listCtrl.InsertColumn(MediaStop,			_T("MediaStop"),			LVCFMT_RIGHT,	70);
+    m_listCtrl.InsertColumn(DataLength,			_T("DataLength"),			LVCFMT_RIGHT,	70);
+    m_listCtrl.InsertColumn(Data,				_T("Data"),					LVCFMT_LEFT,	150);
+    m_listCtrl.InsertColumn(TypeSpecificFlags,	_T("TypeSpecificFlags"),	LVCFMT_LEFT,	150);
+    m_listCtrl.InsertColumn(SampleFlags,		_T("SampleFlags"),			LVCFMT_LEFT,	150);
+    m_listCtrl.InsertColumn(StreamID,			_T("StreamID"),				LVCFMT_LEFT,	150);
 
     m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT );
 
@@ -183,11 +183,11 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field) const
         //Which column?
         switch(field)
         {
-            case 0:
+            case Number:
                 val.Format(_T("%d"), entry.EntryNr);
                 break;
 
-            case 1:
+            case TimeStamp:
                 {
                     __int64 timeStamp = entry.EntryTimeStamp;
                     StatisticRecordEntry prevEntry;
@@ -200,7 +200,7 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field) const
                 }
                 break;
 
-            case 2:
+            case Kind:
                 switch(entry.EntryKind)
                 {
                     case SRK_Empty:
@@ -224,52 +224,66 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field) const
                     case SRK_IS_Seek:
                         val = _T("IStream::Seek");
                         break;
+					case SRK_MS_SetPositions:
+                        val = _T("IMediaSeeking::SetPositions");
+                        break;
+					case SRK_MS_SetRate:
+                        val = _T("IMediaSeeking::SetRate");
+                        break;
+					case SRK_MS_SetTimeFormat:
+                        val = _T("IMediaSeeking::SetTimeFormat");
+                        break;
                 }
                 break;
         }
 
-        if (entry.EntryKind == SRK_MediaSample || entry.EntryKind == SRK_IS_Write || entry.EntryKind == SRK_IS_Read || entry.EntryKind == SRK_IS_Seek)
+        if (entry.EntryKind == SRK_MediaSample 
+			|| entry.EntryKind == SRK_IS_Write || entry.EntryKind == SRK_IS_Read || entry.EntryKind == SRK_IS_Seek
+			|| entry.EntryKind == SRK_MS_SetPositions || entry.EntryKind == SRK_MS_SetRate || entry.EntryKind == SRK_MS_SetTimeFormat)
         {
             switch(field)
             {
-                case 3:
+                case Discontinuity:
                     val = entry.IsDiscontinuity ? _T("x") : _T("");
                     break;
 
-                case 4:
+                case Sync:
                     val = entry.IsSyncPoint ? _T("x") : _T("");
                     break;
 
-                case 5:
+                case Preroll:
                     val = entry.IsPreroll ? _T("x") : _T("");
                     break;
 
-                case 6:
-                    if (entry.StreamTimeStart >= 0 && entry.EntryKind != SRK_IS_Write)
+                case Start:
+                    if (entry.StreamTimeStart >= 0)
                         val.Format(_T("%I64d"),entry.StreamTimeStart);
                     break;
 
-                case 7:
-                    if (entry.StreamTimeStop >= 0 && entry.EntryKind == SRK_MediaSample)
+                case Stop:
+                    if (entry.StreamTimeStop >= 0)
                         val.Format(_T("%I64d"),entry.StreamTimeStop);
                     break;
 
-                case 8:
-                    if (entry.MediaTimeStart >= 0 && entry.EntryKind == SRK_MediaSample)
-                        val.Format(_T("%I64d"),entry.MediaTimeStart);
+                case MediaStart:
+					if  (entry.EntryKind == SRK_MS_SetRate)
+                        val.Format(_T("%I64d %%"), entry.MediaTimeStart);
+                    else if (entry.MediaTimeStart >= 0)
+                        val.Format(_T("%I64d"), entry.MediaTimeStart);
                     break;
 
-                case 9:
-                    if (entry.MediaTimeStop >= 0 && entry.EntryKind == SRK_MediaSample)
+                case MediaStop:
+                    if (entry.MediaTimeStop >= 0)
                         val.Format(_T("%I64d"),entry.MediaTimeStop);
                     break;
 
-                case 10:
-                    if (entry.EntryKind != SRK_IS_Seek)
+                case DataLength:
+					if (entry.EntryKind != SRK_IS_Seek && entry.EntryKind != SRK_MS_SetPositions 
+								&& entry.EntryKind != SRK_MS_SetRate && entry.EntryKind != SRK_MS_SetTimeFormat)
                         val.Format(_T("%d"),entry.ActualDataLength);
                     break;
 
-                case 11:
+                case Data:
                     if (entry.nDataCount > 0 && entry.aData != NULL)
                     {
                         for(int i=0; i<entry.nDataCount; i++)
@@ -290,11 +304,13 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field) const
                     }
                     break;
 
-                case 12:
-                    if (entry.HadIMediaSample2)
-                    {
+                case TypeSpecificFlags:
+					if (entry.EntryKind == SRK_MS_SetPositions) {
+						val = FormatSetPositionsFlags(entry.TypeSpecificFlags);
+
+                    } else if (entry.HadIMediaSample2) {
                         CStringArray values;
-                        long fieldMask = entry.SampleFlags & AM_VIDEO_FLAG_FIELD_MASK;
+						long fieldMask = entry.TypeSpecificFlags & AM_VIDEO_FLAG_FIELD_MASK;
                         if (fieldMask == AM_VIDEO_FLAG_INTERLEAVED_FRAME)
                             values.Add(_T("INTERLEAVED_FRAME"));
                         else if (fieldMask == AM_VIDEO_FLAG_FIELD1)
@@ -302,22 +318,22 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field) const
                         else if (fieldMask == AM_VIDEO_FLAG_FIELD2)
                             values.Add(_T("FIELD2"));
 
-                        if (entry.SampleFlags & AM_VIDEO_FLAG_FIELD1FIRST)
+                        if (entry.TypeSpecificFlags & AM_VIDEO_FLAG_FIELD1FIRST)
                             values.Add(_T("FIELD1FIRST"));
 
-                        if (entry.SampleFlags & AM_VIDEO_FLAG_WEAVE)
+                        if (entry.TypeSpecificFlags & AM_VIDEO_FLAG_WEAVE)
                             values.Add(_T("WEAVE"));
 
-                        if (entry.SampleFlags & AM_VIDEO_FLAG_REPEAT_FIELD)
+                        if (entry.TypeSpecificFlags & AM_VIDEO_FLAG_REPEAT_FIELD)
                             values.Add(_T("REPEAT_FIELD"));
 
-                        if (entry.SampleFlags & AM_ReverseBlockStart)
+                        if (entry.TypeSpecificFlags & AM_ReverseBlockStart)
                             values.Add(_T("AM_ReverseBlockStart"));
 
-                        if (entry.SampleFlags & AM_ReverseBlockEnd)
+                        if (entry.TypeSpecificFlags & AM_ReverseBlockEnd)
                             values.Add(_T("AM_ReverseBlockEnd"));
 
-                        if (entry.SampleFlags & AM_UseNewCSSKey)
+                        if (entry.TypeSpecificFlags & AM_UseNewCSSKey)
                             values.Add(_T("AM_UseNewCSSKey"));
 
                         for(int i=0;i<values.GetCount(); i++)
@@ -325,12 +341,14 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field) const
                             if(i > 0) val += _T(", ");
                             val += values[i];
                         }
-                    }
+					}
                     break;
 
-                case 13:
-                    if (entry.HadIMediaSample2)
-                    {
+                case SampleFlags:
+					if (entry.EntryKind == SRK_MS_SetPositions) {
+						val = FormatSetPositionsFlags(entry.SampleFlags);
+
+                    } else if (entry.HadIMediaSample2) {
                         CStringArray values;
 
                         if (entry.SampleFlags & AM_SAMPLE_SPLICEPOINT)
@@ -360,7 +378,7 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field) const
                     }
                     break;
 
-                case 14:
+                case StreamID:
                     if (entry.HadIMediaSample2)
                     {
                         if(entry.StreamId == 0)
@@ -379,6 +397,38 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field) const
     }
 
     return val;
+}
+
+CString CAnalyzerPage::FormatSetPositionsFlags(DWORD flags)
+{
+	CStringArray values;
+	CString val;
+
+	const DWORD pos = flags & AM_SEEKING_PositioningBitsMask;
+
+	switch (pos) {
+		case AM_SEEKING_AbsolutePositioning:		values.Add(_T("Absolute"));		break;
+		case AM_SEEKING_RelativePositioning:		values.Add(_T("Relative"));		break;
+		case AM_SEEKING_IncrementalPositioning:		values.Add(_T("Incremental"));		break;
+		default:									return val;
+	}
+
+	if (flags & AM_SEEKING_SeekToKeyFrame)
+		values.Add(_T("SeekToKeyFrame"));
+	if (flags & AM_SEEKING_ReturnTime)
+		values.Add(_T("ReturnTime"));
+	if (flags & AM_SEEKING_Segment)
+		values.Add(_T("Segment"));
+	if (flags & AM_SEEKING_NoFlush)
+		values.Add(_T("NoFlush"));
+
+	for(int i=0;i<values.GetCount(); i++)
+	{
+		if(i > 0) val += _T(", ");
+		val += values[i];
+	}
+
+	return val;
 }
 
 // from http://www.codeproject.com/Articles/7891/Using-virtual-lists
@@ -434,7 +484,7 @@ void CAnalyzerPage::OnBnClickedButtonSave()
 
         // Output header
         CString row = _T("");
-        for(int field=0; field < 15; field++)
+        for(int field=0; field < NumColumns; field++)
         {
             LVCOLUMN column = { 0 };
             column.mask = LVCF_TEXT;
@@ -458,7 +508,7 @@ void CAnalyzerPage::OnBnClickedButtonSave()
         for(__int64 i = 0; i<entryCount; i++)
         {
             row = _T("");
-            for(int field=0; field<15; field++)
+            for(int field=0; field<NumColumns; field++)
             {
                 if (field > 0)
                     row.Append(_T(";"));

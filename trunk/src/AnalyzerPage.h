@@ -20,6 +20,28 @@ protected:
 
     void FreeEntryData(StatisticRecordEntry &entry) const;
     const CString GetEntryString(__int64 entryNr, int field) const;
+	static CString FormatSetPositionsFlags(DWORD flags);
+
+	enum Columns
+	{
+		Number = 0,				
+		TimeStamp,
+		Kind,
+		Discontinuity,
+		Sync,
+		Preroll,
+		Start,
+		Stop,
+		MediaStart,
+		MediaStop,
+		DataLength,
+		Data,
+		TypeSpecificFlags,
+		SampleFlags,
+		StreamID,
+		NumColumns			// Must be last member of enum
+	};
+
 
 public:
 	GraphStudio::TitleBar				title;

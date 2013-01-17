@@ -53,6 +53,9 @@ private:
     std::vector<StatisticRecordEntry> m_entries;
     IAnalyzerFilterCallback* m_callback;
 
+	// Helpers
+	void InitEntry(StatisticRecordEntry& entry);
+
 public:
 	CAnalyzer(LPUNKNOWN pUnk);
 	virtual ~CAnalyzer();
@@ -66,9 +69,15 @@ public:
 	virtual HRESULT StartStreaming();
 	virtual HRESULT StopStreaming();
 
+	// IStream logging
     virtual HRESULT AddIStreamRead(const void* vp, ULONG cb, ULONG cbReaded);
     virtual HRESULT AddIStreamWrite(const void* vp, ULONG cb);
     virtual HRESULT AddIStreamSeek(DWORD dwOrigin, const LARGE_INTEGER &liDistanceToMove, const LARGE_INTEGER newPos);
+
+	// IMediaSeeking logging
+	virtual HRESULT AddMSSetPositions(__inout_opt LONGLONG * pCurrent, DWORD CurrentFlags, __inout_opt LONGLONG * pStop, DWORD StopFlags);
+	virtual HRESULT AddMSSetRate(double dRate);
+    virtual HRESULT AddMSSetTimeFormat(const GUID * pFormat);
 
 	// IAnalyzerFilter
 	STDMETHODIMP get_Enabled(VARIANT_BOOL *pVal);
