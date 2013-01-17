@@ -10,6 +10,8 @@
 #include <atlpath.h>
 #include <afxtaskdialog.h>
 
+#include "MediaTypeSelectForm.h"
+
 namespace DSUtil
 {
 
@@ -1833,26 +1835,54 @@ namespace DSUtil
 		return E_FAIL;
 	}
 
-	HRESULT ConnectPin(IGraphBuilder *gb, IPin *output, IBaseFilter *input, bool direct)
+	HRESULT ConnectPin(IGraphBuilder *gb, IPin *output, IPin *input, bool direct, bool chooseMediaType)
+	{
+		HRESULT hr = S_FALSE;
+		bool cancelled = false;
+
+		if (!direct) {
+			hr = gb->Connect(output, input);
+		} else {
+			DSUtil::MediaTypes outputMediaTypes;
+			CMediaType *connectionMediaType = NULL;	// refers to one of outputMediaTypes or is NULL
+
+            if (chooseMediaType) {
+				hr = DSUtil::EnumMediaTypes(output, outputMediaTypes);
+
+				if (SUCCEEDED(hr)) {
+					CMediaTypeSelectForm dlg;
+					dlg.SetMediaTypes(outputMediaTypes);
+					if (IDOK != dlg.DoModal()) {
+						cancelled = true;
+					} else {
+						const int selectedIndex = dlg.SelectedMediaTypeIndex();
+						if (selectedIndex >= 0 && selectedIndex < outputMediaTypes.GetSize()) {
+							connectionMediaType = &(outputMediaTypes[selectedIndex]);
+						}
+					}
+				}
+			}
+			if (!cancelled && SUCCEEDED(hr))
+				hr = gb->ConnectDirect(output, input, connectionMediaType);
+		}
+		return hr;
+	}
+
+	HRESULT ConnectOutputPinToFilter(IGraphBuilder *gb, IPin *output, IBaseFilter *input, bool direct, bool chooseMediaType)
 	{
 		if (!gb) return E_FAIL;
 
 		PinArray		ipins;
-		HRESULT			hr;
+		HRESULT			hr = S_OK;
 
 		EnumPins(input, ipins, Pin::PIN_FLAG_INPUT | Pin::PIN_FLAG_NOT_CONNECTED);
 		for (int j=0; j<ipins.GetCount(); j++) {
 
-			if (direct) {
-				hr = gb->ConnectDirect(output, ipins[j].pin, NULL);
-			} else {
-				hr = gb->Connect(output, ipins[j].pin);
-			}
+			hr = ConnectPin(gb, output, ipins[j].pin, direct, chooseMediaType);
 			if (SUCCEEDED(hr)) {
 				ipins.RemoveAll();
 				return NOERROR;
 			}
-
 			gb->Disconnect(output);
 			gb->Disconnect(ipins[j].pin);
 		}

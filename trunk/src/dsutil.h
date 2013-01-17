@@ -254,7 +254,8 @@ namespace DSUtil
 	HRESULT EnumPins(IBaseFilter *filter, PinArray &pins, int flags);
 	HRESULT EnumMediaTypes(IPin *pin, MediaTypes &types);
 	HRESULT ConnectFilters(IGraphBuilder *gb, IBaseFilter *output, IBaseFilter *input, bool direct=false);
-	HRESULT ConnectPin(IGraphBuilder *gb, IPin *output, IBaseFilter *input, bool direct=false);
+	HRESULT ConnectOutputPinToFilter(IGraphBuilder *gb, IPin *output, IBaseFilter *input, bool direct, bool chooseMediaType);
+	HRESULT ConnectPin(IGraphBuilder *gb, IPin *output, IPin *input, bool direct, bool chooseMediaType);
 
 	bool IsVideoUncompressed(GUID subtype);
     bool IsAudioUncompressed(GUID subtype);
