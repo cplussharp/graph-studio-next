@@ -193,7 +193,7 @@ int CFavoritesForm::FillMenu(CMenu* filters_menu, GraphStudio::Favorites* favori
 	for (i=0; i<favorites->groups.GetCount(); i++) {
 		GraphStudio::FavoriteGroup	*group = favorites->groups[i];
 
-		filters_menu->InsertMenu(offset + c, MF_BYPOSITION | MF_STRING, 0, group->name);
+		filters_menu->InsertMenu(offset + c, MF_BYPOSITION | MF_STRING, 0, _T("&") + group->name);
 
 		if (group->filters.GetCount() > 0) {
 				
@@ -202,7 +202,7 @@ int CFavoritesForm::FillMenu(CMenu* filters_menu, GraphStudio::Favorites* favori
 			group_menu.CreatePopupMenu();
 			for (int j=0; j<group->filters.GetCount(); j++) {
 				GraphStudio::FavoriteFilter	*filter = group->filters[j];
-				group_menu.InsertMenu(j, MF_STRING, ID_FAVORITE_FILTER + id, filter->name);
+				group_menu.InsertMenu(j, MF_STRING, ID_FAVORITE_FILTER + id, _T("&") + filter->name);
 
 				// associate the menu item with the gavorite filter
 				MENUITEMINFO	info;
@@ -228,7 +228,7 @@ int CFavoritesForm::FillMenu(CMenu* filters_menu, GraphStudio::Favorites* favori
 
 	// add filters
 	for (i=0; i<favorites->filters.GetCount(); i++) {
-		filters_menu->InsertMenu(offset + c, MF_BYPOSITION | MF_STRING, ID_FAVORITE_FILTER + id, favorites->filters[i]->name);
+		filters_menu->InsertMenu(offset + c, MF_BYPOSITION | MF_STRING, ID_FAVORITE_FILTER + id, _T("&") + favorites->filters[i]->name);
 
 		// associate the menu item with the favorite filter
 		MENUITEMINFO	info;
