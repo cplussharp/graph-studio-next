@@ -359,8 +359,7 @@ namespace GraphStudio
                     }
                     else
                     {
-			            int ret = graph.ConnectPins(p1, p2, chooseMediaType);
-			            if (ret < -1) DSUtil::ShowError(ret);
+			            HRESULT hr = graph.ConnectPins(p1, p2, chooseMediaType);
                     }
                 }
                 else
@@ -410,10 +409,7 @@ namespace GraphStudio
                         }
                         else
                         {
-                            int ret = graph.ConnectPins(p1, p2, chooseMediaType);
-			                if (ret < -1) {
-				                DSUtil::ShowError(ret);
-			                }
+                            HRESULT hr = graph.ConnectPins(p1, p2, chooseMediaType);
 		                }
                     }
                 }
@@ -791,6 +787,9 @@ namespace GraphStudio
 	{
 		HRESULT hr = S_OK;
 
+		if (!newFilter)
+			return S_OK;			// Nothing to do so finish now
+
 		// now check for a few interfaces
 		const int ret = ConfigureInsertedFilter(newFilter, filterName);
 		if (ret < 0) {
@@ -800,26 +799,26 @@ namespace GraphStudio
 			}
 		}
 
-		if (newFilter) {
-			// has selected pin, then get IPin interface now, because graph.AddFilter will release current_pin
-			CComPtr<IPin> outpin(connectToCurrentPin && current_pin ? current_pin->pin : NULL);
-			hr = graph.AddFilter(newFilter, filterName);
-			if (FAILED(hr)) {
-				DSUtil::ShowError(hr, CString(_T("Can't add ")) + filterName);
-			} else {
-				if (outpin) {
-					hr = DSUtil::ConnectPin(graph.gb, outpin, newFilter);	// connect new filter to currently selected pin
-					if (FAILED(hr))
-						DSUtil::ShowError(hr, CString(_T("Can't connect ")) + filterName);
-				}
-				graph.RefreshFilters();
-				graph.SmartPlacement();
-				graph.Dirty();
-				Invalidate();
+		// has selected pin, then get IPin interface now, because graph.AddFilter will release current_pin
+		CComPtr<IPin> outpin(connectToCurrentPin && current_pin ? current_pin->pin : NULL);
+		hr = graph.AddFilter(newFilter, filterName);
+		if (FAILED(hr)) {
+			DSUtil::ShowError(hr, CString(_T("Can't add ")) + filterName);
+		} else {
+			if (outpin) {
+				hr = DSUtil::ConnectOutputPinToFilter(graph.gb, outpin, newFilter, 
+						graph.params->connect_mode != 0, graph.params->connect_mode == 2);	// connect new filter to currently selected pin
+				if (FAILED(hr))
+					DSUtil::ShowError(hr, CString(_T("Can't connect ")) + filterName);
 			}
-			outpin = NULL;
-			current_pin = NULL;
+			graph.RefreshFilters();
+			graph.SmartPlacement();
+			graph.Dirty();
+			Invalidate();
 		}
+		outpin = NULL;
+		current_pin = NULL;
+
 		return hr;
 	}
 

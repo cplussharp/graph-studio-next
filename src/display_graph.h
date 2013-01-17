@@ -259,6 +259,7 @@ namespace GraphStudio
 		bool IsSource();
 		bool IsRenderer();
 		int NumOfDisconnectedPins(PIN_DIRECTION dir);
+		int NumOfConnectedPins(PIN_DIRECTION dir);
 
 		// placement 
 		void CalculatePlacementChain(int new_depth, int x);
@@ -397,7 +398,7 @@ namespace GraphStudio
 		void LoadPeers();
 		void DeleteSelected();
 		void DoubleSelected();
-		int ConnectPins(Pin *p1, Pin *p2, bool chooseMediaType);
+		HRESULT ConnectPins(Pin *p1, Pin *p2, bool chooseMediaType);
 
 		// Clock manipulation
 		void SetClock(bool default_clock, IReferenceClock *new_clock);

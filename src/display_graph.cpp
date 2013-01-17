@@ -1279,7 +1279,7 @@ namespace GraphStudio
 		}
 	}
 
-	int DisplayGraph::ConnectPins(Pin *p1, Pin *p2, bool chooseMediaType)
+	HRESULT DisplayGraph::ConnectPins(Pin *p1, Pin *p2, bool chooseMediaType)
 	{
 		// verify a few conditions first
 		if (!p1 || !p2) return -1;								// need 2 pins
@@ -1297,44 +1297,20 @@ namespace GraphStudio
 		HRESULT hr = S_OK;
 
 		params->MarkRender(true);
-        bool cancelled = false;
-		if (params->connect_mode == 0) {
-			hr = gb->Connect(p1->pin, p2->pin);
-		} else {
-			DSUtil::MediaTypes outputMediaTypes;
-			CMediaType *connectionMediaType = NULL;	// refers to one of outputMediaTypes or is NULL
-
-            if (chooseMediaType || params->connect_mode == 2) {
-				hr = DSUtil::EnumMediaTypes(p1->pin, outputMediaTypes);
-
-				if (SUCCEEDED(hr)) {
-					CMediaTypeSelectForm dlg;
-					dlg.SetMediaTypes(outputMediaTypes);
-					if (IDOK != dlg.DoModal()) {
-						cancelled = true;
-					} else {
-						const int selectedIndex = dlg.SelectedMediaTypeIndex();
-						if (selectedIndex >= 0 && selectedIndex < outputMediaTypes.GetSize()) {
-							connectionMediaType = &(outputMediaTypes[selectedIndex]);
-						}
-					}
-				}
-			}
-			if (!cancelled && SUCCEEDED(hr))
-				hr = gb->ConnectDirect(p1->pin, p2->pin, connectionMediaType);
-		}
+		hr = DSUtil::ConnectPin(gb, p1->pin, p2->pin, params->connect_mode != 0, params->connect_mode == 2);
 		params->MarkRender(false);
-		if (callback) callback->OnRenderFinished();
+		if (callback)
+			callback->OnRenderFinished();
 		
-		if (FAILED(hr)) return hr;
-
-        if (!cancelled)
-        {
+        if (hr == S_OK) {
 		    RefreshFilters();
 		    SmartPlacement();
         }
 
-		return 0;
+		if (FAILED(hr)) 
+			DSUtil::ShowError(hr, _T("Connecting Pins"));
+
+		return hr;
 	}
 
 	Pin *DisplayGraph::FindPinByPos(CPoint pt)
@@ -1557,8 +1533,8 @@ namespace GraphStudio
 		for (i=0; i<filters.GetCount(); i++) {
 			Filter	* const filter = filters[i];
 			filter->LoadPeers();
-			if (filter->NumOfDisconnectedPins(PINDIR_INPUT) == filter->input_pins.GetCount()
-					&& filter->NumOfDisconnectedPins(PINDIR_OUTPUT) != filter->output_pins.GetCount()) {
+			if (filter->NumOfConnectedPins(PINDIR_INPUT) == 0
+					&& filter->NumOfConnectedPins(PINDIR_OUTPUT) > 0) {
 				// For filters with no connected inputs, and some connected outputs
 				filter->CalculatePlacementChain(0, 8);
 			}
@@ -1659,6 +1635,24 @@ namespace GraphStudio
 			for (int i=0; i<output_pins.GetCount(); i++) {
 				Pin *pin = output_pins[i];
 				if (!pin->IsConnected()) ret++;
+			}
+		}
+		return ret;
+	}
+
+	int Filter::NumOfConnectedPins(PIN_DIRECTION dir)
+	{
+		int ret = 0;
+		if (dir == PINDIR_INPUT) {
+			for (int i=0; i<input_pins.GetCount(); i++) {
+				Pin *pin = input_pins[i];
+				if (pin->IsConnected()) ret++;
+			}
+		} else
+		if (dir == PINDIR_OUTPUT) {
+			for (int i=0; i<output_pins.GetCount(); i++) {
+				Pin *pin = output_pins[i];
+				if (pin->IsConnected()) ret++;
 			}
 		}
 		return ret;
@@ -2409,15 +2403,16 @@ namespace GraphStudio
 	//
 	//-------------------------------------------------------------------------
 	Pin::Pin(Filter *parent) :
-		name(_T("")),
+		params(parent ? parent->params : NULL),
 		filter(parent),
-		id(_T("")),
-		params(NULL)
+		name(),
+		id(),
+		pin(),
+		peer(NULL),
+		dir(PINDIR_INPUT),
+		connected(false),
+		selected(false)
 	{
-		if (parent)	params = parent->params;
-		pin = NULL;
-		peer = NULL;
-		selected = false;
 	}
 
 	Pin::~Pin()
