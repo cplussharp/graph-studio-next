@@ -76,12 +76,6 @@
     <None Include="res\bitmap_volume2.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\graphstudio.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\graphstudio.rc2">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="res\Toolbar.bmp">
       <Filter>Resource Files</Filter>
     </None>
@@ -95,6 +89,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="res\addFilter.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\graphstudionext.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\graphstudionext.rc2">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
@@ -331,6 +331,12 @@
     </ClInclude>
     <ClInclude Include="src\StatisticForm.h">
       <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VersionNo.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VersionNo_SVN.tmpl.h">
+      <Filter>Application</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -110,6 +110,12 @@
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <PreBuildEvent>
+      <Command>SubWCRev.exe $(SolutionDir) $(ProjectDir)\src\VersionNo_SVN.tmpl.h $(ProjectDir)\src\VersionNo_SVN.h</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Generate the VersionNo_SVN.h file with the necessary repo identify info for versioning.</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
@@ -138,6 +144,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
     </Link>
+    <PreBuildEvent>
+      <Command>SubWCRev.exe $(SolutionDir) $(ProjectDir)\src\VersionNo_SVN.tmpl.h $(ProjectDir)\src\VersionNo_SVN.h</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Generate the VersionNo_SVN.h file with the necessary repo identify info for versioning.</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -172,6 +184,12 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
+    <PreBuildEvent>
+      <Command>SubWCRev.exe $(SolutionDir) $(ProjectDir)\src\VersionNo_SVN.tmpl.h $(ProjectDir)\src\VersionNo_SVN.h</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Generate the VersionNo_SVN.h file with the necessary repo identify info for versioning.</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Midl>
@@ -204,6 +222,12 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
+    <PreBuildEvent>
+      <Command>SubWCRev.exe $(SolutionDir) $(ProjectDir)\src\VersionNo_SVN.tmpl.h $(ProjectDir)\src\VersionNo_SVN.h</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Generate the VersionNo_SVN.h file with the necessary repo identify info for versioning.</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="res\addFilter.ico" />
@@ -215,8 +239,8 @@
     <None Include="res\bitmap_tree.bmp" />
     <None Include="res\bitmap_volume.bmp" />
     <None Include="res\bitmap_volume2.bmp" />
-    <None Include="res\graphstudio.ico" />
-    <None Include="res\graphstudio.rc2" />
+    <None Include="res\graphstudionext.ico" />
+    <None Include="res\graphstudionext.rc2" />
     <None Include="res\graphstudioDoc.ico" />
     <None Include="res\icon1.ico" />
     <None Include="res\Toolbar.bmp" />
@@ -276,6 +300,8 @@
     <ClInclude Include="src\ScheduleForm.h" />
     <ClInclude Include="src\SeekForm.h" />
     <ClInclude Include="src\TextInfoForm.h" />
+    <ClInclude Include="src\VersionNo.h" />
+    <ClInclude Include="src\VersionNo_SVN.tmpl.h" />
     <ClInclude Include="src\VolumeBarForm.h" />
     <ClInclude Include="src\BufferNegotiationPage.h" />
     <ClInclude Include="src\CustomPage.h" />
