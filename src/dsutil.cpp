@@ -1801,6 +1801,7 @@ namespace DSUtil
 		return NOERROR;
 	}
 
+	// Currently only used for building decoder performance test graphs
 	HRESULT ConnectFilters(IGraphBuilder *gb, IBaseFilter *output, IBaseFilter *input, bool direct)
 	{
 		PinArray		opins;
@@ -1835,29 +1836,32 @@ namespace DSUtil
 		return E_FAIL;
 	}
 
-	HRESULT ConnectPin(IGraphBuilder *gb, IPin *output, IPin *input, bool direct, bool chooseMediaType)
+	// pin1 and pin2 can be in either order.
+	// If direct is false, intelligent connect is used
+	// If direct is true, direct connection is used and:
+	//		if chooseMediaType is true, media types are enumerated from pin1 and offered to the user for selection. If the user cancels S_FALSE is returned and no connection is made
+	//		if chooseMediaType is false, mediaType parameter is used for connection
+	HRESULT ConnectPin(IGraphBuilder *gb, IPin *pin1, IPin *pin2, bool direct, bool chooseMediaType /* = false */, AM_MEDIA_TYPE* mediaType /* = NULL */ )
 	{
-		if (!gb || !output || !input)
+		if (!gb || !pin1 || !pin2)
 			return E_POINTER;
 
 		HRESULT hr = S_FALSE;			// S_FALSE if user cancels media type selection and connection
 		bool cancelled = false;
 
 		PIN_DIRECTION direction = PINDIR_OUTPUT;
-		hr = output->QueryDirection(&direction);
+		hr = pin1->QueryDirection(&direction);
 		if (FAILED(hr))
 			return hr;
 
 		if (!direct) {
 			if (PINDIR_INPUT == direction)	// swap pins if they're in the wrong order
-				std::swap(output, input);
-			hr = gb->Connect(output, input);
+				std::swap(pin1, pin2);
+			hr = gb->Connect(pin1, pin2);
 		} else {
 			DSUtil::MediaTypes outputMediaTypes;
-			CMediaType *connectionMediaType = NULL;			// refers to one of outputMediaTypes or is NULL
-
             if (chooseMediaType) {
-				hr = DSUtil::EnumMediaTypes(output, outputMediaTypes);
+				hr = DSUtil::EnumMediaTypes(pin1, outputMediaTypes);
 
 				if (SUCCEEDED(hr)) {
 					CMediaTypeSelectForm dlg;
@@ -1868,74 +1872,50 @@ namespace DSUtil
 					} else {
 						const int selectedIndex = dlg.SelectedMediaTypeIndex();
 						if (selectedIndex >= 0 && selectedIndex < outputMediaTypes.GetSize()) {
-							connectionMediaType = &(outputMediaTypes[selectedIndex]);
+							mediaType = &(outputMediaTypes[selectedIndex]);
 						}
 					}
 				}
 			}
 			if (!cancelled && SUCCEEDED(hr)) {
 				if (PINDIR_INPUT == direction)	// swap pins if they're in the wrong order
-					std::swap(output, input);
-				hr = gb->ConnectDirect(output, input, connectionMediaType);
+					std::swap(pin1, pin2);
+				hr = gb->ConnectDirect(pin1, pin2, mediaType);
 			}
 		}
 		return hr;
 	}
 
-	HRESULT ConnectOutputPinToFilter(IGraphBuilder *gb, IPin *output, IBaseFilter *input, bool direct, bool chooseMediaType)
+	// pin is input/output pin and will only be connected to unconnected output/input pins
+	// cf ConnectPin comments
+	HRESULT ConnectPinToFilter(IGraphBuilder *gb, IPin *pin, IBaseFilter *filter, bool direct, bool chooseMediaType /* = false */, AM_MEDIA_TYPE* mediaType /* = NULL */ )
 	{
 		if (!gb) 
 			return E_FAIL;
 
-		PinArray		ipins;
+		PinArray		pins;
 		HRESULT			hr = S_OK;
 
 		PIN_DIRECTION pinDirection = PINDIR_INPUT;
-		hr = output->QueryDirection(&pinDirection);
+		hr = pin->QueryDirection(&pinDirection);
 		if (FAILED(hr))
 			return hr;
 
 		// enumerate pins of opposite direction on filter
 		const int directionFlag = PINDIR_INPUT==pinDirection ? Pin::PIN_FLAG_OUTPUT : Pin::PIN_FLAG_INPUT;
-		EnumPins(input, ipins, directionFlag | Pin::PIN_FLAG_NOT_CONNECTED);
+		EnumPins(filter, pins, directionFlag | Pin::PIN_FLAG_NOT_CONNECTED);
 
-		for (int j=0; j<ipins.GetCount(); j++) {
+		for (int j=0; j<pins.GetCount(); j++) {
 
-			hr = ConnectPin(gb, output, ipins[j].pin, direct, chooseMediaType);
+			hr = ConnectPin(gb, pin, pins[j].pin, direct, chooseMediaType, mediaType);
 			if (SUCCEEDED(hr)) {
-				ipins.RemoveAll();
+				pins.RemoveAll();
 				return NOERROR;
 			}
-			gb->Disconnect(output);
-			gb->Disconnect(ipins[j].pin);
+			gb->Disconnect(pin);
+			gb->Disconnect(pins[j].pin);
 		}
-		ipins.RemoveAll();
-		return FAILED(hr) ? hr : E_FAIL;
-	}
-
-	HRESULT ConnectFilterToInputPin(IGraphBuilder *gb, IBaseFilter *output, IPin *input, bool direct, AM_MEDIA_TYPE* mediaType)
-	{
-		if (!gb) return E_FAIL;
-
-		PinArray		ipins;
-		HRESULT			hr = S_OK;
-
-		EnumPins(output, ipins, Pin::PIN_FLAG_OUTPUT | Pin::PIN_FLAG_NOT_CONNECTED);
-		for (int j=0; j<ipins.GetCount(); j++) {
-
-			if (direct) {
-				hr = gb->ConnectDirect(ipins[j].pin, input, mediaType);
-			} else {
-				hr = gb->Connect(ipins[j].pin, input);
-			}
-			if (SUCCEEDED(hr)) {
-				ipins.RemoveAll();
-				return NOERROR;
-			}
-			gb->Disconnect(input);
-			gb->Disconnect(ipins[j].pin);
-		}
-		ipins.RemoveAll();
+		pins.RemoveAll();
 		return FAILED(hr) ? hr : E_FAIL;
 	}
 
