@@ -7,6 +7,131 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
+
+//-----------------------------------------------------------------------------
+//
+//	CAnalyzerPosPassThru class
+//
+//-----------------------------------------------------------------------------
+
+class CAnalyzerPosPassThru : public CPosPassThru
+{
+public:
+	CAnalyzerPosPassThru(const TCHAR *pName, LPUNKNOWN pUnk, HRESULT *phr, IPin *pPin, CAnalyzer* analyzer)
+		: CPosPassThru(pName, pUnk, phr, pPin)
+		, m_Analyzer(analyzer)
+	{
+	}
+
+    STDMETHODIMP SetPositions( __inout_opt LONGLONG * pCurrent, DWORD CurrentFlags
+                             , __inout_opt LONGLONG * pStop, DWORD StopFlags )
+	{
+		if (m_Analyzer)
+			m_Analyzer->AddMSSetPositions(pCurrent, CurrentFlags, pStop, StopFlags);
+		return __super::SetPositions(pCurrent, CurrentFlags, pStop, StopFlags);
+	}
+
+	STDMETHODIMP SetRate(double dRate)
+	{
+		if (m_Analyzer)
+			m_Analyzer->AddDouble(SRK_MS_SetRate, dRate);
+		return __super::SetRate(dRate);
+	}
+
+	STDMETHODIMP SetTimeFormat(const GUID * pFormat)
+	{
+		if (m_Analyzer)
+			m_Analyzer->AddMSSetTimeFormat(pFormat);
+		return __super::SetTimeFormat(pFormat);
+	}
+
+    STDMETHODIMP put_CurrentPosition(REFTIME llTime)
+	{
+		if (m_Analyzer)
+			m_Analyzer->AddDouble(SRK_MP_SetCurrentPosition, llTime);
+		return __super::put_CurrentPosition(llTime);
+	}
+
+    STDMETHODIMP put_StopTime(REFTIME llTime)
+	{
+		if (m_Analyzer)
+			m_Analyzer->AddDouble(SRK_MP_SetStopTime, llTime);
+		return __super::put_StopTime(llTime);
+	}
+
+    STDMETHODIMP put_PrerollTime(REFTIME llTime)
+	{
+		if (m_Analyzer)
+			m_Analyzer->AddDouble(SRK_MP_SetPrerollTime, llTime);
+		return __super::put_PrerollTime(llTime);
+	}
+
+    STDMETHODIMP put_Rate(double dRate)
+	{
+		if (m_Analyzer)
+			m_Analyzer->AddDouble(SRK_MP_SetRate, dRate);
+		return __super::put_Rate(dRate);
+	}
+
+private:
+	CAnalyzer*		m_Analyzer;
+};
+
+
+//-----------------------------------------------------------------------------
+//
+//	CAnalyzerInputPin class
+//
+//-----------------------------------------------------------------------------
+
+class CAnalyzerInputPin : public CTransInPlaceInputPin
+{
+public:
+	CAnalyzerInputPin( __in_opt LPCTSTR     pObjectName
+			, __inout CTransInPlaceFilter	*pFilter
+			, __inout HRESULT				*phr
+			, __in_opt LPCWSTR				 pName);
+
+protected:
+	CAnalyzer* Analyzer()
+	{
+		CAnalyzerFilter * const filter = dynamic_cast<CAnalyzerFilter*>(m_pFilter);
+		return filter ? filter->Analyzer() : NULL;
+	}
+};
+
+//-----------------------------------------------------------------------------
+//
+//	CAnalyzerOutputPin class
+//
+//-----------------------------------------------------------------------------
+
+class CAnalyzerOutputPin : public CTransInPlaceOutputPin
+{
+public:
+    CAnalyzerOutputPin(
+        __in_opt LPCTSTR				pObjectName,
+        __inout CTransInPlaceFilter	*	pFilter,
+        __inout HRESULT	*				phr,
+        __in_opt LPCWSTR				pName);
+    
+	~CAnalyzerOutputPin();
+
+    DECLARE_IUNKNOWN
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, __deref_out void **ppv);
+
+protected:
+	CAnalyzer*					m_Analyzer;
+	CAnalyzerPosPassThru*		m_PassThru;
+};
+
+
+//-----------------------------------------------------------------------------
+//
+//	CAnalyzerFilter class
+//
+//-----------------------------------------------------------------------------
+
 #pragma region CAnalyzerFilter
 
 const CFactoryTemplate CAnalyzerFilter::g_Template = {
@@ -27,11 +152,6 @@ CUnknown* CAnalyzerFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
     return pNewObject;
 }
 
-//-----------------------------------------------------------------------------
-//
-//	CAnalyzerFilter class
-//
-//-----------------------------------------------------------------------------
 
 CAnalyzerFilter::CAnalyzerFilter(LPUNKNOWN pUnk, HRESULT *phr) :
 	CTransInPlaceFilter(NAME("Analyzer"), pUnk, __uuidof(AnalyzerFilter), phr, false),
@@ -150,14 +270,15 @@ CAnalyzerOutputPin::CAnalyzerOutputPin(
 		, __inout HRESULT*				phr
 		, __in_opt LPCWSTR				pName)
 	: CTransInPlaceOutputPin(pObjectName, pFilter, phr, pName)
+	, m_PassThru(NULL)
 {
 	CAnalyzerFilter * const filter = dynamic_cast<CAnalyzerFilter*>(pFilter);
 	m_Analyzer = filter ? filter->Analyzer() : NULL;
-
 }
 
 CAnalyzerOutputPin::~CAnalyzerOutputPin()
 {
+	delete m_PassThru;
 }
 
 STDMETHODIMP CAnalyzerOutputPin::NonDelegatingQueryInterface(REFIID riid, __deref_out void **ppv)
@@ -166,277 +287,24 @@ STDMETHODIMP CAnalyzerOutputPin::NonDelegatingQueryInterface(REFIID riid, __dere
     ValidateReadWritePtr(ppv,sizeof(PVOID));
     *ppv = NULL;
 
-    if (riid == __uuidof(IMediaSeeking)) {
-		return GetInterface(static_cast<IMediaSeeking*>(this), ppv);
-    } else {
-        return __super::NonDelegatingQueryInterface(riid, ppv);
+    if (riid == IID_IMediaPosition || riid == IID_IMediaSeeking) {
+
+		if (!m_PassThru) {
+			HRESULT hr = S_OK;
+			// we should have an input pin by now
+			IPin* const inputPin = m_pFilter->GetPin(0);
+			ASSERT(inputPin);
+			m_PassThru = new CAnalyzerPosPassThru(_T("Analzyer seeking pass thur"), GetOwner(), &hr, inputPin, m_Analyzer);
+
+			if (FAILED(hr)) {
+                return hr;
+            }
+        }
+		return m_PassThru->NonDelegatingQueryInterface(riid, ppv);
     }
+	return __super::NonDelegatingQueryInterface(riid, ppv);
+
 }
-
-HRESULT CAnalyzerOutputPin::GetPeerSeeking(__deref_out IMediaSeeking **ppMS)
-{
-	CheckPointer(ppMS, E_POINTER);
-
-	// Get IMediaSeeking implementation from our base class to delegate to
-	return __super::NonDelegatingQueryInterface(__uuidof(IMediaSeeking), (void**)ppMS);
-}
-
-
-STDMETHODIMP
-CAnalyzerOutputPin::GetCapabilities(__out DWORD * pCaps)
-{
-    IMediaSeeking* pMS;
-    HRESULT hr = GetPeerSeeking(&pMS);
-    if (FAILED(hr)) {
-	return hr;
-    }
-
-    hr = pMS->GetCapabilities(pCaps);
-    pMS->Release();
-    return hr;
-}
-
-STDMETHODIMP
-CAnalyzerOutputPin::CheckCapabilities(__inout DWORD * pCaps)
-{
-    IMediaSeeking* pMS;
-    HRESULT hr = GetPeerSeeking(&pMS);
-    if (FAILED(hr)) {
-	return hr;
-    }
-
-    hr = pMS->CheckCapabilities(pCaps);
-    pMS->Release();
-    return hr;
-}
-
-STDMETHODIMP
-CAnalyzerOutputPin::IsFormatSupported(const GUID * pFormat)
-{
-    IMediaSeeking* pMS;
-    HRESULT hr = GetPeerSeeking(&pMS);
-    if (FAILED(hr)) {
-	return hr;
-    }
-
-    hr = pMS->IsFormatSupported(pFormat);
-    pMS->Release();
-    return hr;
-}
-
-
-STDMETHODIMP
-CAnalyzerOutputPin::QueryPreferredFormat(__out GUID *pFormat)
-{
-    IMediaSeeking* pMS;
-    HRESULT hr = GetPeerSeeking(&pMS);
-    if (FAILED(hr)) {
-	return hr;
-    }
-
-    hr = pMS->QueryPreferredFormat(pFormat);
-    pMS->Release();
-    return hr;
-}
-
-
-STDMETHODIMP
-CAnalyzerOutputPin::SetTimeFormat(const GUID * pFormat)
-{
-    IMediaSeeking* pMS;
-    HRESULT hr = GetPeerSeeking(&pMS);
-    if (FAILED(hr)) {
-	return hr;
-    }
-
-	if (m_Analyzer)
-		m_Analyzer->AddMSSetTimeFormat(pFormat);
-
-    hr = pMS->SetTimeFormat(pFormat);
-    pMS->Release();
-    return hr;
-}
-
-
-STDMETHODIMP
-CAnalyzerOutputPin::GetTimeFormat(__out GUID *pFormat)
-{
-    IMediaSeeking* pMS;
-    HRESULT hr = GetPeerSeeking(&pMS);
-    if (FAILED(hr)) {
-	return hr;
-    }
-
-    hr = pMS->GetTimeFormat(pFormat);
-    pMS->Release();
-    return hr;
-}
-
-
-STDMETHODIMP
-CAnalyzerOutputPin::IsUsingTimeFormat(const GUID * pFormat)
-{
-    IMediaSeeking* pMS;
-    HRESULT hr = GetPeerSeeking(&pMS);
-    if (FAILED(hr)) {
-	return hr;
-    }
-
-    hr = pMS->IsUsingTimeFormat(pFormat);
-    pMS->Release();
-    return hr;
-}
-
-
-STDMETHODIMP
-CAnalyzerOutputPin::ConvertTimeFormat(__out LONGLONG * pTarget, 
-                                __in_opt const GUID * pTargetFormat,
-				LONGLONG Source, 
-                                __in_opt const GUID * pSourceFormat )
-{
-    IMediaSeeking* pMS;
-    HRESULT hr = GetPeerSeeking(&pMS);
-    if (FAILED(hr)) {
-	return hr;
-    }
-
-    hr = pMS->ConvertTimeFormat(pTarget, pTargetFormat, Source, pSourceFormat );
-    pMS->Release();
-    return hr;
-}
-
-
-STDMETHODIMP
-CAnalyzerOutputPin::SetPositions( __inout_opt LONGLONG * pCurrent, 
-                            DWORD CurrentFlags, 
-                            __inout_opt LONGLONG * pStop, 
-                            DWORD StopFlags )
-{
-    IMediaSeeking* pMS;
-    HRESULT hr = GetPeerSeeking(&pMS);
-    if (FAILED(hr)) {
-		return hr;
-    }
-
-	if (m_Analyzer)
-		m_Analyzer->AddMSSetPositions(pCurrent, CurrentFlags, pStop, StopFlags);
-
-    hr = pMS->SetPositions(pCurrent, CurrentFlags, pStop, StopFlags );
-    pMS->Release();
-    return hr;
-}
-
-STDMETHODIMP
-CAnalyzerOutputPin::GetPositions(__out_opt LONGLONG *pCurrent, __out_opt LONGLONG * pStop)
-{
-    IMediaSeeking* pMS;
-    HRESULT hr = GetPeerSeeking(&pMS);
-    if (FAILED(hr)) {
-	return hr;
-    }
-
-    hr = pMS->GetPositions(pCurrent,pStop);
-    pMS->Release();
-    return hr;
-}
-
-HRESULT
-CAnalyzerOutputPin::GetSeekingLongLong
-( HRESULT (__stdcall IMediaSeeking::*pMethod)( __out LONGLONG * )
-, LONGLONG * pll
-)
-{
-    IMediaSeeking* pMS;
-    HRESULT hr = GetPeerSeeking(&pMS);
-    if (SUCCEEDED(hr))
-    {
-	hr = (pMS->*pMethod)(pll);
-	pMS->Release();
-    }
-    return hr;
-}
-
-// If we don't have a current position then ask upstream
-
-STDMETHODIMP
-CAnalyzerOutputPin::GetCurrentPosition(__out LONGLONG *pCurrent)
-{
-	HRESULT hr = GetSeekingLongLong( &IMediaSeeking::GetCurrentPosition, pCurrent );
-    return hr;
-}
-
-
-STDMETHODIMP
-CAnalyzerOutputPin::GetStopPosition(__out LONGLONG *pStop)
-{
-    return GetSeekingLongLong( &IMediaSeeking::GetStopPosition, pStop );;
-}
-
-STDMETHODIMP
-CAnalyzerOutputPin::GetDuration(__out LONGLONG *pDuration)
-{
-    return GetSeekingLongLong( &IMediaSeeking::GetDuration, pDuration );;
-}
-
-
-STDMETHODIMP
-CAnalyzerOutputPin::GetPreroll(__out LONGLONG *pllPreroll)
-{
-    return GetSeekingLongLong( &IMediaSeeking::GetPreroll, pllPreroll );;
-}
-
-
-STDMETHODIMP
-CAnalyzerOutputPin::GetAvailable( __out_opt LONGLONG *pEarliest, __out_opt LONGLONG *pLatest )
-{
-    IMediaSeeking* pMS;
-    HRESULT hr = GetPeerSeeking(&pMS);
-    if (FAILED(hr)) {
-	return hr;
-    }
-
-    hr = pMS->GetAvailable( pEarliest, pLatest );
-    pMS->Release();
-    return hr;
-}
-
-
-STDMETHODIMP
-CAnalyzerOutputPin::GetRate(__out double * pdRate)
-{
-    IMediaSeeking* pMS;
-    HRESULT hr = GetPeerSeeking(&pMS);
-    if (FAILED(hr)) {
-	return hr;
-    }
-    hr = pMS->GetRate(pdRate);
-    pMS->Release();
-    return hr;
-}
-
-
-STDMETHODIMP
-CAnalyzerOutputPin::SetRate(double dRate)
-{
-    if (0.0 == dRate) {
-		return E_INVALIDARG;
-    }
-
-    IMediaSeeking* pMS;
-    HRESULT hr = GetPeerSeeking(&pMS);
-    if (FAILED(hr)) {
-	return hr;
-    }
-
-	if (m_Analyzer)
-		m_Analyzer->AddMSSetRate(dRate);
-
-    hr = pMS->SetRate(dRate);
-    pMS->Release();
-    return hr;
-}
-
-
 
 #pragma endregion
 

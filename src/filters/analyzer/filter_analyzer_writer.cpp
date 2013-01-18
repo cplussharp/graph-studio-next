@@ -603,7 +603,7 @@ STDMETHODIMP CAnalyzerWriterFilter::SetRate(double dRate)
 	HRESULT hr = S_OK;
 
 	if (m_analyzer)
-		m_analyzer->AddMSSetRate(dRate);
+		m_analyzer->AddDouble(SRK_MS_SetRate, dRate);
 
 	CComQIPtr<IMediaSeeking> pSeek = GetInputSeeking();
 	if (pSeek)

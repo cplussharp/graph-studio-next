@@ -233,13 +233,27 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field) const
 					case SRK_MS_SetTimeFormat:
                         val = _T("IMediaSeeking::SetTimeFormat");
                         break;
+					case SRK_MP_SetCurrentPosition:
+                        val = _T("IMediaPosition::put_CurrentPosition");
+                        break;
+					case SRK_MP_SetPrerollTime:
+                        val = _T("IMediaPosition::put_PrerollTime");
+                        break;
+					case SRK_MP_SetRate:
+                        val = _T("IMediaPosition::put_Rate");
+                        break;
+					case SRK_MP_SetStopTime:
+                        val = _T("IMediaPosition::put_StopTime");
+                        break;
                 }
                 break;
         }
 
         if (entry.EntryKind == SRK_MediaSample 
 			|| entry.EntryKind == SRK_IS_Write || entry.EntryKind == SRK_IS_Read || entry.EntryKind == SRK_IS_Seek
-			|| entry.EntryKind == SRK_MS_SetPositions || entry.EntryKind == SRK_MS_SetRate || entry.EntryKind == SRK_MS_SetTimeFormat)
+			|| entry.EntryKind == SRK_MS_SetPositions || entry.EntryKind == SRK_MS_SetRate || entry.EntryKind == SRK_MS_SetTimeFormat
+			|| entry.EntryKind == SRK_MP_SetCurrentPosition || entry.EntryKind == SRK_MP_SetPrerollTime 
+			|| entry.EntryKind == SRK_MP_SetRate || entry.EntryKind == SRK_MP_SetStopTime)
         {
             switch(field)
             {
@@ -266,8 +280,8 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field) const
                     break;
 
                 case MediaStart:
-					if  (entry.EntryKind == SRK_MS_SetRate)
-                        val.Format(_T("%I64d %%"), entry.MediaTimeStart);
+					if  (entry.EntryKind == SRK_MS_SetRate || entry.EntryKind == SRK_MP_SetRate)
+                        val.Format(_T("%f"), ((double)entry.MediaTimeStart)/UNITS);
                     else if (entry.MediaTimeStart >= 0)
                         val.Format(_T("%I64d"), entry.MediaTimeStart);
                     break;
@@ -278,9 +292,11 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field) const
                     break;
 
                 case DataLength:
-					if (entry.EntryKind != SRK_IS_Seek && entry.EntryKind != SRK_MS_SetPositions 
-								&& entry.EntryKind != SRK_MS_SetRate && entry.EntryKind != SRK_MS_SetTimeFormat)
-                        val.Format(_T("%d"),entry.ActualDataLength);
+					if (entry.ActualDataLength != 0) {
+						if (entry.EntryKind != SRK_IS_Seek && entry.EntryKind != SRK_MS_SetPositions 
+									&& entry.EntryKind != SRK_MS_SetRate && entry.EntryKind != SRK_MS_SetTimeFormat)
+							val.Format(_T("%d"),entry.ActualDataLength);
+					}
                     break;
 
                 case Data:
