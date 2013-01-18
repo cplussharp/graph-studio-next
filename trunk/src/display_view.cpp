@@ -817,14 +817,14 @@ namespace GraphStudio
 				}
 
 				// connect new filter to currently selected pin
-				hr = DSUtil::ConnectOutputPinToFilter(graph.gb, outpin, newFilter, 
+				hr = DSUtil::ConnectPinToFilter(graph.gb, outpin, newFilter, 
 						graph.params->connect_mode != 0, graph.params->connect_mode == 2);	
 				if (FAILED(hr))
 					DSUtil::ShowError(hr, CString(_T("Can't connect ")) + filterName);
 				else {
 					if (previousPin) {
-						hr = DSUtil::ConnectFilterToInputPin(graph.gb, newFilter, previousPin,
-								true, &previousMediaType);
+						hr = DSUtil::ConnectPinToFilter(graph.gb, previousPin, newFilter, 
+								true, false, &previousMediaType);
 					}
 				}
 			}
