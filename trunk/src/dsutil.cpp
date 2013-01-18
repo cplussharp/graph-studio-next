@@ -1837,14 +1837,24 @@ namespace DSUtil
 
 	HRESULT ConnectPin(IGraphBuilder *gb, IPin *output, IPin *input, bool direct, bool chooseMediaType)
 	{
-		HRESULT hr = S_FALSE;
+		if (!gb || !output || !input)
+			return E_POINTER;
+
+		HRESULT hr = S_FALSE;			// S_FALSE if user cancels media type selection and connection
 		bool cancelled = false;
 
+		PIN_DIRECTION direction = PINDIR_OUTPUT;
+		hr = output->QueryDirection(&direction);
+		if (FAILED(hr))
+			return hr;
+
 		if (!direct) {
+			if (PINDIR_INPUT == direction)	// swap pins if they're in the wrong order
+				std::swap(output, input);
 			hr = gb->Connect(output, input);
 		} else {
 			DSUtil::MediaTypes outputMediaTypes;
-			CMediaType *connectionMediaType = NULL;	// refers to one of outputMediaTypes or is NULL
+			CMediaType *connectionMediaType = NULL;			// refers to one of outputMediaTypes or is NULL
 
             if (chooseMediaType) {
 				hr = DSUtil::EnumMediaTypes(output, outputMediaTypes);
@@ -1854,6 +1864,7 @@ namespace DSUtil
 					dlg.SetMediaTypes(outputMediaTypes);
 					if (IDOK != dlg.DoModal()) {
 						cancelled = true;
+						hr = S_FALSE;
 					} else {
 						const int selectedIndex = dlg.SelectedMediaTypeIndex();
 						if (selectedIndex >= 0 && selectedIndex < outputMediaTypes.GetSize()) {
@@ -1862,20 +1873,32 @@ namespace DSUtil
 					}
 				}
 			}
-			if (!cancelled && SUCCEEDED(hr))
+			if (!cancelled && SUCCEEDED(hr)) {
+				if (PINDIR_INPUT == direction)	// swap pins if they're in the wrong order
+					std::swap(output, input);
 				hr = gb->ConnectDirect(output, input, connectionMediaType);
+			}
 		}
 		return hr;
 	}
 
 	HRESULT ConnectOutputPinToFilter(IGraphBuilder *gb, IPin *output, IBaseFilter *input, bool direct, bool chooseMediaType)
 	{
-		if (!gb) return E_FAIL;
+		if (!gb) 
+			return E_FAIL;
 
 		PinArray		ipins;
 		HRESULT			hr = S_OK;
 
-		EnumPins(input, ipins, Pin::PIN_FLAG_INPUT | Pin::PIN_FLAG_NOT_CONNECTED);
+		PIN_DIRECTION pinDirection = PINDIR_INPUT;
+		hr = output->QueryDirection(&pinDirection);
+		if (FAILED(hr))
+			return hr;
+
+		// enumerate pins of opposite direction on filter
+		const int directionFlag = PINDIR_INPUT==pinDirection ? Pin::PIN_FLAG_OUTPUT : Pin::PIN_FLAG_INPUT;
+		EnumPins(input, ipins, directionFlag | Pin::PIN_FLAG_NOT_CONNECTED);
+
 		for (int j=0; j<ipins.GetCount(); j++) {
 
 			hr = ConnectPin(gb, output, ipins[j].pin, direct, chooseMediaType);

@@ -1287,13 +1287,6 @@ namespace GraphStudio
 		if (p1->filter == p2->filter) return -1;				// not on the same filter
 		if (p1->dir == p2->dir) return -1;						// oposite directions
 
-		// swap order
-		if (p1->dir == PINDIR_INPUT) {
-			Pin *temp = p1;
-			p1 = p2;
-			p2 = temp;
-		}
-
 		HRESULT hr = S_OK;
 
 		params->MarkRender(true);
