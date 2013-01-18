@@ -1890,6 +1890,32 @@ namespace DSUtil
 		return FAILED(hr) ? hr : E_FAIL;
 	}
 
+	HRESULT ConnectFilterToInputPin(IGraphBuilder *gb, IBaseFilter *output, IPin *input, bool direct, AM_MEDIA_TYPE* mediaType)
+	{
+		if (!gb) return E_FAIL;
+
+		PinArray		ipins;
+		HRESULT			hr = S_OK;
+
+		EnumPins(output, ipins, Pin::PIN_FLAG_OUTPUT | Pin::PIN_FLAG_NOT_CONNECTED);
+		for (int j=0; j<ipins.GetCount(); j++) {
+
+			if (direct) {
+				hr = gb->ConnectDirect(ipins[j].pin, input, mediaType);
+			} else {
+				hr = gb->Connect(ipins[j].pin, input);
+			}
+			if (SUCCEEDED(hr)) {
+				ipins.RemoveAll();
+				return NOERROR;
+			}
+			gb->Disconnect(input);
+			gb->Disconnect(ipins[j].pin);
+		}
+		ipins.RemoveAll();
+		return FAILED(hr) ? hr : E_FAIL;
+	}
+
 	bool IsVideoUncompressed(GUID subtype)
 	{
 		if (subtype == MEDIASUBTYPE_RGB1 ||
