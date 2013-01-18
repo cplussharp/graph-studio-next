@@ -168,20 +168,25 @@ protected:
 // Implementation
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+    CString m_strVerInfo;
 };
 
 CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
 {
+    m_strVerInfo.Format(_T("GraphStudioNext %s\n\n"), CString(VER_FILE_VERSION_STR));
+    m_strVerInfo.Append(CString(VER_FILE_DESCRIPTION_STR));
 }
 
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_TITLEBAR, titlebar);
-	DDX_Control(pDX, IDC_STATIC_URL, url_label);
+    CDialog::DoDataExchange(pDX);
+    DDX_Control(pDX, IDC_TITLEBAR, titlebar);
+    DDX_Control(pDX, IDC_STATIC_URL, url_label);
+    DDX_Text(pDX, IDC_STATIC_VERSION, m_strVerInfo);
 
-	// navigate to this location
-	url_label.url = _T("http://code.google.com/p/graph-studio-next/");
+    // navigate to this location
+    url_label.url = _T("http://code.google.com/p/graph-studio-next/");
 }
 
 

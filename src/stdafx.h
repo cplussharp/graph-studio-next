@@ -99,6 +99,8 @@ using namespace std;
 #pragma comment(lib, "Version.lib")
 #include "xml_parser.h"
 
+#include "VersionNo.h"
+
 #include "dsutil.h"
 
 #include "bits.h"
