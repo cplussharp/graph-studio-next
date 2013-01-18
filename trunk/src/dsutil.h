@@ -255,6 +255,7 @@ namespace DSUtil
 	HRESULT EnumMediaTypes(IPin *pin, MediaTypes &types);
 	HRESULT ConnectFilters(IGraphBuilder *gb, IBaseFilter *output, IBaseFilter *input, bool direct=false);
 	HRESULT ConnectOutputPinToFilter(IGraphBuilder *gb, IPin *output, IBaseFilter *input, bool direct, bool chooseMediaType);
+	HRESULT ConnectFilterToInputPin(IGraphBuilder *gb, IBaseFilter *output, IPin *input, bool direct, AM_MEDIA_TYPE* mediaType);
 	HRESULT ConnectPin(IGraphBuilder *gb, IPin *output, IPin *input, bool direct, bool chooseMediaType);
 
 	bool IsVideoUncompressed(GUID subtype);

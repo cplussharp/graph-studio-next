@@ -806,10 +806,27 @@ namespace GraphStudio
 			DSUtil::ShowError(hr, CString(_T("Can't add ")) + filterName);
 		} else {
 			if (outpin) {
+				// Get previously connected IPin and media type and disconnect it
+				CComPtr<IPin> previousPin;
+				CMediaType previousMediaType;
+				hr = outpin->ConnectedTo(&previousPin);
+				if (previousPin) {
+					hr = outpin->ConnectionMediaType(&previousMediaType);
+					hr = graph.gb->Disconnect(outpin);
+					hr = graph.gb->Disconnect(previousPin);
+				}
+
+				// connect new filter to currently selected pin
 				hr = DSUtil::ConnectOutputPinToFilter(graph.gb, outpin, newFilter, 
-						graph.params->connect_mode != 0, graph.params->connect_mode == 2);	// connect new filter to currently selected pin
+						graph.params->connect_mode != 0, graph.params->connect_mode == 2);	
 				if (FAILED(hr))
 					DSUtil::ShowError(hr, CString(_T("Can't connect ")) + filterName);
+				else {
+					if (previousPin) {
+						hr = DSUtil::ConnectFilterToInputPin(graph.gb, newFilter, previousPin,
+								true, &previousMediaType);
+					}
+				}
 			}
 			graph.RefreshFilters();
 			graph.SmartPlacement();
