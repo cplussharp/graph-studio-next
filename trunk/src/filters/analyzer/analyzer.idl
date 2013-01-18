@@ -26,7 +26,13 @@ typedef enum StatisticRecordKind
     // IMediaSeeking Entries
     SRK_MS_SetPositions = 300,
     SRK_MS_SetRate,
-    SRK_MS_SetTimeFormat
+    SRK_MS_SetTimeFormat,
+
+    // IMediaPosition Entries
+    SRK_MP_SetCurrentPosition = 400,
+    SRK_MP_SetStopTime,
+    SRK_MP_SetPrerollTime,
+    SRK_MP_SetRate
 
 } StatisticRecordKind;
 

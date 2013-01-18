@@ -252,15 +252,15 @@ HRESULT CAnalyzer::AddMSSetPositions(__inout_opt LONGLONG * pCurrent, DWORD Curr
     return S_OK;
 }
 
-HRESULT CAnalyzer::AddMSSetRate(double dRate)
+HRESULT CAnalyzer::AddDouble(StatisticRecordKind kind, double data)
 {
     if (!m_enabled) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
-	entry.EntryKind = SRK_MS_SetRate;
+	entry.EntryKind = kind;
 
-	entry.MediaTimeStart = 100.0 * dRate;
+	entry.MediaTimeStart = UNITS * data;		// convert from floating point seconds to ref time
 
     m_entries.push_back(entry);
 

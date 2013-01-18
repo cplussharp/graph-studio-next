@@ -76,8 +76,10 @@ public:
 
 	// IMediaSeeking logging
 	virtual HRESULT AddMSSetPositions(__inout_opt LONGLONG * pCurrent, DWORD CurrentFlags, __inout_opt LONGLONG * pStop, DWORD StopFlags);
-	virtual HRESULT AddMSSetRate(double dRate);
     virtual HRESULT AddMSSetTimeFormat(const GUID * pFormat);
+
+	// Generic logging
+	virtual HRESULT AddDouble(StatisticRecordKind kind, double data);
 
 	// IAnalyzerFilter
 	STDMETHODIMP get_Enabled(VARIANT_BOOL *pVal);
