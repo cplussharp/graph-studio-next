@@ -78,8 +78,16 @@ public:
 	virtual HRESULT AddMSSetPositions(__inout_opt LONGLONG * pCurrent, DWORD CurrentFlags, __inout_opt LONGLONG * pStop, DWORD StopFlags);
     virtual HRESULT AddMSSetTimeFormat(const GUID * pFormat);
 
+	// IPin logging
+	virtual HRESULT AddIPNewSegment(LONGLONG start, LONGLONG stop, double rate, HRESULT hr);
+
+	// IQualityControl logging
+	virtual HRESULT AddQCNotify(Quality q, HRESULT hr);
+
 	// Generic logging
 	virtual HRESULT AddDouble(StatisticRecordKind kind, double data);
+	virtual HRESULT AddHRESULT(StatisticRecordKind kind, HRESULT hr);
+	virtual HRESULT AddRefTime(StatisticRecordKind kind, REFERENCE_TIME tStart, HRESULT hr);
 
 	// IAnalyzerFilter
 	STDMETHODIMP get_Enabled(VARIANT_BOOL *pVal);

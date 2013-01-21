@@ -42,7 +42,7 @@ STDMETHODIMP CAnalyzer::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 void CAnalyzer::InitEntry(StatisticRecordEntry& entry)
 {
     entry.EntryNr = m_entries.size();
-    entry.EntryTimeStamp = timer.GetTimeNS();
+    entry.EntryTimeStamp = timer.GetTimeNS() / 100;		// Format in DirectShow time units for consistency
 	entry.StreamTimeStart = entry.StreamTimeStop = VFW_E_SAMPLE_TIME_NOT_SET;
 	entry.MediaTimeStart = entry.MediaTimeStop = VFW_E_MEDIA_TIME_NOT_SET;
 }
@@ -252,6 +252,49 @@ HRESULT CAnalyzer::AddMSSetPositions(__inout_opt LONGLONG * pCurrent, DWORD Curr
     return S_OK;
 }
 
+// TODO log rate
+HRESULT CAnalyzer::AddIPNewSegment(LONGLONG start, LONGLONG stop, double rate, HRESULT hr)
+{
+    if (!m_enabled) return S_OK;
+
+	StatisticRecordEntry entry = { 0 };
+	InitEntry(entry);
+	entry.EntryKind = SRK_IP_NewSegment;
+
+	entry.MediaTimeStart = start;
+	entry.MediaTimeStop  = stop;
+	entry.StreamId = hr;
+
+    m_entries.push_back(entry);
+
+    if (m_callback != NULL)
+        m_callback->OnStatisticNewEntry(entry.EntryNr);
+
+    return S_OK;
+}
+
+HRESULT CAnalyzer::AddQCNotify(Quality q, HRESULT hr)
+{
+    if (!m_enabled) return S_OK;
+
+	StatisticRecordEntry entry = { 0 };
+	InitEntry(entry);
+	entry.EntryKind = SRK_QC_Notify;
+
+	entry.StreamTimeStart = q.TimeStamp;
+	entry.MediaTimeStart  = q.Proportion;
+	entry.MediaTimeStop = q.Late;
+	entry.TypeSpecificFlags = q.Type;
+	entry.StreamId = hr;
+
+    m_entries.push_back(entry);
+
+    if (m_callback != NULL)
+        m_callback->OnStatisticNewEntry(entry.EntryNr);
+
+    return S_OK;
+}
+
 HRESULT CAnalyzer::AddDouble(StatisticRecordKind kind, double data)
 {
     if (!m_enabled) return S_OK;
@@ -270,6 +313,43 @@ HRESULT CAnalyzer::AddDouble(StatisticRecordKind kind, double data)
 	return S_OK;
 }
 
+HRESULT CAnalyzer::AddHRESULT(StatisticRecordKind kind, HRESULT hr)
+{
+    if (!m_enabled) return S_OK;
+
+	StatisticRecordEntry entry = { 0 };
+	InitEntry(entry);
+	entry.EntryKind = kind;
+
+	entry.StreamId = hr;
+
+    m_entries.push_back(entry);
+
+    if (m_callback != NULL)
+        m_callback->OnStatisticNewEntry(entry.EntryNr);
+
+	return S_OK;
+}
+
+HRESULT CAnalyzer::AddRefTime(StatisticRecordKind kind, LONGLONG refTime, HRESULT hr)
+{
+    if (!m_enabled) return S_OK;
+
+	StatisticRecordEntry entry = { 0 };
+	InitEntry(entry);
+	entry.EntryKind = kind;
+
+	entry.MediaTimeStart = refTime;
+	entry.StreamId = hr;
+
+    m_entries.push_back(entry);
+
+    if (m_callback != NULL)
+        m_callback->OnStatisticNewEntry(entry.EntryNr);
+
+	return S_OK;
+}
+
 HRESULT CAnalyzer::AddMSSetTimeFormat(const GUID * pFormat)
 {
     if (!m_enabled) return S_OK;
@@ -279,6 +359,7 @@ HRESULT CAnalyzer::AddMSSetTimeFormat(const GUID * pFormat)
 	entry.EntryKind = SRK_MS_SetTimeFormat;
 
 	if (pFormat) {
+		delete[] entry.aData;
 		entry.nDataCount = sizeof(*pFormat);
         entry.aData = new BYTE[entry.nDataCount];
         CopyMemory(entry.aData, pFormat, entry.nDataCount);
