@@ -87,16 +87,85 @@ private:
 class CAnalyzerInputPin : public CTransInPlaceInputPin
 {
 public:
-	CAnalyzerInputPin( __in_opt LPCTSTR     pObjectName
-			, __inout CTransInPlaceFilter	*pFilter
-			, __inout HRESULT				*phr
-			, __in_opt LPCWSTR				 pName);
+	CAnalyzerInputPin( __in_opt LPCTSTR			pObjectName
+			, __inout CTransInPlaceFilter*		pFilter
+			, __inout HRESULT*					phr
+			, __in_opt LPCWSTR					pName
+			, CAnalyzer*						pAnalyzer)
+		: CTransInPlaceInputPin(pObjectName, pFilter, phr, pName)
+		, m_Analyzer(pAnalyzer)
+	{
+	}
 
 protected:
-	CAnalyzer* Analyzer()
+	CAnalyzer*		m_Analyzer;
+
+	// IPin overrides ////////////////////////////////////////////////////////////////
+
+	STDMETHODIMP BeginFlush()
 	{
-		CAnalyzerFilter * const filter = dynamic_cast<CAnalyzerFilter*>(m_pFilter);
-		return filter ? filter->Analyzer() : NULL;
+		const HRESULT hr = __super::BeginFlush();
+		if (m_Analyzer)
+			m_Analyzer->AddHRESULT(SRK_IP_BeginFlush, hr);
+		return hr;
+	}
+
+	STDMETHODIMP Connect(IPin *pReceivePin, const AM_MEDIA_TYPE *pmt)
+	{
+		const HRESULT hr = __super::Connect(pReceivePin, pmt);
+		if (m_Analyzer)
+			m_Analyzer->AddHRESULT(SRK_IP_Connect, hr);
+		return hr;
+	}
+
+	STDMETHODIMP Disconnect()
+	{
+		const HRESULT hr = __super::Disconnect();
+		if (m_Analyzer)
+			m_Analyzer->AddHRESULT(SRK_IP_Disconnect, hr);
+		return hr;
+	}
+
+	STDMETHODIMP EndFlush()
+	{
+		const HRESULT hr = __super::EndFlush();
+		if (m_Analyzer)
+			m_Analyzer->AddHRESULT(SRK_IP_EndFlush, hr);
+		return hr;
+	}
+
+	STDMETHODIMP EndOfStream()
+	{
+		const HRESULT hr = __super::EndOfStream();
+		if (m_Analyzer)
+			m_Analyzer->AddHRESULT(SRK_IP_EndOfStream, hr);
+		return hr;
+	}
+
+	STDMETHODIMP NewSegment(REFERENCE_TIME tStart, REFERENCE_TIME tStop, double dRate)
+	{
+		const HRESULT hr = __super::NewSegment(tStart, tStop, dRate);
+		if (m_Analyzer)
+			m_Analyzer->AddIPNewSegment(tStart, tStop, dRate, hr);
+		return hr;
+	}
+
+	STDMETHODIMP ReceiveConnection(IPin * pConnector, const AM_MEDIA_TYPE *pmt)
+	{
+		const HRESULT hr = __super::ReceiveConnection(pConnector, pmt);
+		if (m_Analyzer)
+			m_Analyzer->AddHRESULT(SRK_IP_ReceiveConnection, hr);
+		return hr;
+	}
+
+	// IMemInputPin overrides ////////////////////////////////////////////////////////////////
+
+	STDMETHODIMP NotifyAllocator(IMemAllocator *pAllocator, BOOL bReadOnly)
+	{
+		const HRESULT hr = __super::NotifyAllocator(pAllocator, bReadOnly);
+		if (m_Analyzer)
+			m_Analyzer->AddHRESULT(SRK_MIP_NotifyAllocator, hr);
+		return hr;
 	}
 };
 
@@ -123,6 +192,24 @@ public:
 protected:
 	CAnalyzer*					m_Analyzer;
 	CAnalyzerPosPassThru*		m_PassThru;
+
+	// IQualityControl overrides ////////////////////////////////////////////////////////////////
+
+	STDMETHODIMP Notify(IBaseFilter *pSelf, Quality q)
+	{
+		const HRESULT hr = __super::Notify(pSelf, q);
+		if (m_Analyzer)
+			m_Analyzer->AddQCNotify(q, hr);
+		return hr;
+	}
+
+	STDMETHODIMP SetSink(IQualityControl *piqc)
+	{
+		const HRESULT hr = __super::SetSink(piqc);
+		if (m_Analyzer)
+			m_Analyzer->AddHRESULT(SRK_QC_SetSink, hr);
+		return hr;
+	}
 };
 
 
@@ -181,7 +268,7 @@ CBasePin * CAnalyzerFilter::GetPin(int n)
                                             , this        // Owner filter
                                             , &hr         // Result code
                                             , L"Input"    // Pin name
-                                            );
+                                            , m_analyzer);
 
         // Constructor for CTransInPlaceInputPin can't fail
         ASSERT(SUCCEEDED(hr));
@@ -245,18 +332,52 @@ HRESULT CAnalyzerFilter::StopStreaming()
     return m_analyzer->StopStreaming();
 }
 
-#pragma endregion
+	// IBaseFilter overrides ////////////////////////////////////////////////////////////////
 
-
-#pragma region CAnalyzerInputPin
-
-CAnalyzerInputPin::CAnalyzerInputPin( 
-		__in_opt LPCTSTR					pObjectName
-		, __inout CTransInPlaceFilter *		pFilter
-		, __inout HRESULT *					phr
-		, __in_opt LPCWSTR					pName)
-	: CTransInPlaceInputPin(pObjectName, pFilter, phr, pName)
+STDMETHODIMP CAnalyzerFilter::JoinFilterGraph(IFilterGraph *pGraph, LPCWSTR pName)
 {
+	const HRESULT hr = __super::JoinFilterGraph(pGraph, pName);
+	if (m_analyzer)
+		m_analyzer->AddHRESULT(SRK_BF_JoinFilterGraph, hr);
+	return hr;
+}
+
+// IMediaFilter overrides ////////////////////////////////////////////////////////////////
+
+STDMETHODIMP CAnalyzerFilter::Pause()
+{
+	const HRESULT hr = __super::Pause();
+	if (m_analyzer)
+		m_analyzer->AddHRESULT(SRK_BF_Pause, hr);
+	return hr;
+}
+
+STDMETHODIMP CAnalyzerFilter::Run(REFERENCE_TIME tStart)
+{
+	const HRESULT hr = __super::Run(tStart);
+	if (m_analyzer)
+		m_analyzer->AddRefTime(SRK_BF_Run, tStart, hr);
+	return hr;
+}
+
+STDMETHODIMP CAnalyzerFilter::SetSyncSource(IReferenceClock *pClock)
+{
+	const HRESULT hr = __super::SetSyncSource(pClock);
+	if (m_analyzer) {
+		REFERENCE_TIME time = 0LL;
+		if (pClock)
+			pClock->GetTime(&time);
+		m_analyzer->AddRefTime(SRK_BF_SetSyncSource, time, hr);
+	}
+	return hr;
+}
+
+STDMETHODIMP CAnalyzerFilter::Stop()
+{
+	const HRESULT hr = __super::Stop();
+	if (m_analyzer)
+		m_analyzer->AddHRESULT(SRK_BF_Stop, hr);
+	return hr;
 }
 
 #pragma endregion

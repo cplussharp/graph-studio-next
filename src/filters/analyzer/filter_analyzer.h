@@ -19,15 +19,16 @@ class CAnalyzerFilter : public CTransInPlaceFilter
 private:
     CAnalyzer*			m_analyzer;
 
-public:
-	CAnalyzerFilter(LPUNKNOWN pUnk, HRESULT *phr);
-	virtual ~CAnalyzerFilter();
+	// IBaseFilter overrides ////////////////////////////////////////////////////////////////
 
-    virtual CBasePin *GetPin(int n);
+	STDMETHODIMP JoinFilterGraph(IFilterGraph *pGraph, LPCWSTR pName);
 
-	// expose some interfaces
-	DECLARE_IUNKNOWN
-    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
+	// IMediaFilter overrides ////////////////////////////////////////////////////////////////
+
+	STDMETHODIMP Pause();
+	STDMETHODIMP Run(REFERENCE_TIME tStart);
+	STDMETHODIMP SetSyncSource(IReferenceClock *pClock);
+	STDMETHODIMP Stop();
 
 	// keep track of samples
 	virtual HRESULT Transform(IMediaSample *pSample);
@@ -35,8 +36,19 @@ public:
 	virtual HRESULT StopStreaming();
     virtual HRESULT CheckInputType(const CMediaType* mtIn);
 
-    static const CFactoryTemplate g_Template;
     static CUnknown * WINAPI CreateInstance(LPUNKNOWN punk, HRESULT *phr);
+
+public:
+    static const CFactoryTemplate g_Template;
+
+	CAnalyzerFilter(LPUNKNOWN pUnk, HRESULT *phr);
+	virtual ~CAnalyzerFilter();
+
+	// expose some interfaces
+	DECLARE_IUNKNOWN
+    STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
+
+    virtual CBasePin *GetPin(int n);
 
 	CAnalyzer* Analyzer() { return m_analyzer; }
 };

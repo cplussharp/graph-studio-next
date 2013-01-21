@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Deutsch (Deutschland) resources
+// German (Germany) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
 LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
@@ -27,12 +27,12 @@ LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_ADDFILTER           ICON                    "res\\addFilter.ico"
-#endif    // Deutsch (Deutschland) resources
+#endif    // German (Germany) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Englisch (USA) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -561,20 +561,20 @@ BEGIN
     CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,500,21
 END
 
-IDD_PROPPAGE_ANALYZER DIALOGEX 0, 0, 650, 246
+IDD_PROPPAGE_ANALYZER DIALOGEX 0, 0, 781, 246
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
-    CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,649,20
+    CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,776,20
     CONTROL         "Check to capture statistic data",IDC_CHECK_ENABLED,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,3,26,114,10
     PUSHBUTTON      "Reset",IDC_BUTTON_RESET,120,23,50,14
     LTEXT           "Preview Byte Count:",IDC_STATIC,190,26,67,8
     EDITTEXT        IDC_EDIT_PREVIEWBYTECOUNT,260,24,32,12,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY
     CONTROL         "",IDC_SPIN_PREVIEWBYTECOUNT,"msctls_updown32",UDS_SETBUDDYINT | UDS_AUTOBUDDY | UDS_ARROWKEYS,292,23,10,14
-    PUSHBUTTON      "Refresh",IDC_BUTTON_REFRESH,597,23,50,14
-    PUSHBUTTON      "Save",IDC_BUTTON_SAVE,545,23,50,14
-    CONTROL         "",IDC_LIST_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_OWNERDATA | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,2,38,645,206
+    PUSHBUTTON      "Refresh",IDC_BUTTON_REFRESH,726,23,50,14
+    PUSHBUTTON      "Save",IDC_BUTTON_SAVE,674,23,50,14
+    CONTROL         "",IDC_LIST_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_OWNERDATA | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,2,38,774,206
 END
 
 IDD_DIALOG_CLIOPTIONS DIALOGEX 0, 0, 500, 225
@@ -852,9 +852,9 @@ BEGIN
 
     IDD_PROPPAGE_ANALYZER, DIALOG
     BEGIN
-        RIGHTMARGIN, 275
-        VERTGUIDE, 225
-        BOTTOMMARGIN, 229
+        RIGHTMARGIN, 776
+        VERTGUIDE, 778
+        BOTTOMMARGIN, 244
     END
 
     IDD_DIALOG_CLIOPTIONS, DIALOG
@@ -1337,7 +1337,7 @@ BEGIN
     IDS_SHOW_GRAPH_CONSTRUCTION_REPORT "Show Graph Constrution Report"
 END
 
-#endif    // Englisch (USA) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

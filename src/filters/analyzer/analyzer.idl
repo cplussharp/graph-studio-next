@@ -7,6 +7,7 @@ import "strmif.idl";
 [uuid("EFA80B5A-913E-4806-B7BC-3202234FDE70")]
 typedef enum StatisticRecordKind
 {
+	// Core filter events
     SRK_Empty = 0,    // Empty Record
     SRK_MediaSample,
     SRK_StartStreaming,
@@ -32,7 +33,33 @@ typedef enum StatisticRecordKind
     SRK_MP_SetCurrentPosition = 400,
     SRK_MP_SetStopTime,
     SRK_MP_SetPrerollTime,
-    SRK_MP_SetRate
+    SRK_MP_SetRate,
+
+	// IBaseFilter entries (some inherited from IMediaFilter)
+    SRK_BF_JoinFilterGraph = 500,
+    SRK_BF_Pause,
+    SRK_BF_Run,
+    SRK_BF_SetSyncSource,
+    SRK_BF_Stop,
+
+	// IPin entries
+    SRK_IP_BeginFlush = 600,
+    SRK_IP_Connect,
+    SRK_IP_Disconnect,
+    SRK_IP_EndFlush,
+    SRK_IP_EndOfStream,
+    SRK_IP_NewSegment,
+    SRK_IP_ReceiveConnection,
+
+	// IMemInputpin entries
+	SRK_MIP_NotifyAllocator = 700,
+
+	// IQualityControl entries
+    SRK_QC_Notify = 800,
+    SRK_QC_SetSink
+
+
+
 
 } StatisticRecordKind;
 

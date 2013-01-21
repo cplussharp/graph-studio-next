@@ -19,7 +19,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
     void FreeEntryData(StatisticRecordEntry &entry) const;
-    const CString GetEntryString(__int64 entryNr, int field) const;
+    const CString GetEntryString(__int64 entryNr, int field, bool commaFormattedTimestamps) const;
 	static CString FormatSetPositionsFlags(DWORD flags);
 
 	enum Columns
@@ -34,11 +34,11 @@ protected:
 		Stop,
 		MediaStart,
 		MediaStop,
-		DataLength,
-		Data,
 		TypeSpecificFlags,
 		SampleFlags,
 		StreamID,
+		DataLength,
+		Data,
 		NumColumns			// Must be last member of enum
 	};
 
