@@ -165,7 +165,8 @@ HRESULT CFileSrcForm::ChooseSourceFile(IFileSourceFilter* fs, const CString& fil
 	CFileSrcForm src_form(filterName);
 
 	LPOLESTR curFile = NULL;
-	if (SUCCEEDED(fs->GetCurFile(&curFile, NULL)) && curFile) {
+	CMediaType media_type;
+	if (SUCCEEDED(fs->GetCurFile(&curFile, &media_type)) && curFile) {
 		src_form.result_file = curFile;
 	}
 	if (curFile) {
