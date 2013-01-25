@@ -163,7 +163,8 @@ HRESULT CFileSinkForm::ChooseSinkFile(IFileSinkFilter* fsink, const CString& fil
 	CFileSinkForm		sink_form(filterName);
 
 	LPOLESTR curFile = NULL;
-	if (SUCCEEDED(fsink->GetCurFile(&curFile, NULL)) && curFile) {
+	CMediaType media_type;
+	if (SUCCEEDED(fsink->GetCurFile(&curFile, &media_type)) && curFile) {
 		sink_form.result_file = curFile;
 	}
 	if (curFile) {
