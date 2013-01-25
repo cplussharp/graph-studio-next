@@ -148,6 +148,12 @@ namespace GraphStudio
 
 		int p = 0;
 
+		////////////////////////// Filter and Pin operations
+
+		if (current_filter || current_pin) {
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_PROPERTYPAGE, _T("&Properties..."));
+		}
+
 		/////////////////////// Pin operations
 
 		if (current_pin && !current_pin->connected) {
@@ -179,13 +185,7 @@ namespace GraphStudio
 			PrepareStreamSelectMenu(menu, current_filter->filter);
 			p = menu.GetMenuItemCount();
 
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_DELETE_FILTER, _T("&Delete Selected"));
-		}
-
-		////////////////////////// Filter and Pin operations
-
-		if (current_filter || current_pin) {
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_PROPERTYPAGE, _T("&Properties..."));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_DELETE_FILTER, _T("D&elete Selected"));
 		}
 
 		/////////////////////// Inserting new filters
@@ -199,7 +199,6 @@ namespace GraphStudio
 			// add Favorite filters
 			PrepareFavoriteFiltersMenu(menu);
 			p = menu.GetMenuItemCount();
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
 
 			if (current_pin) {
 				// check for compatible filters
@@ -212,7 +211,7 @@ namespace GraphStudio
 
 			if (!current_pin || !current_pin->connected) {
 				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_NULL_STREAM, _T("Insert &Null Renderer"));
-				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_DUMP_STREAM, _T("Insert &Dump Filter"));
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_DUMP_STREAM, _T("Insert D&ump Filter"));
 				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_ANALYZE_WRITER_STREAM, _T("Insert Analyzer &Writer Filter"));
 			}
 
