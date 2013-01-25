@@ -543,7 +543,49 @@ namespace GraphStudio
 				info->AddItem(new PropItem(_T("Extradata"), extrabuf));
 			}
 
-		} else
+		}
+		else 
+		if (pmt->formattype == FORMAT_WaveFormatExFFMPEG) {
+			WAVEFORMATEXFFMPEG	*wfxFfmpeg = (WAVEFORMATEXFFMPEG*)pmt->pbFormat;
+			uint8			*extra = NULL;
+			int				len = 0;
+			
+			if (wfxFfmpeg->wfex.wFormatTag == 21318) 
+			{
+				// WAVEFORMATEX
+				PropItem	*wfxinfo = mtinfo->AddItem(new PropItem(_T("WAVEFORMATEX")));
+				GetWaveFormatExDetails(&wfxFfmpeg->wfex, wfxinfo);
+			}
+
+			PropItem	*info = mtinfo->AddItem(new PropItem(_T("Decoder Specific")));
+			if (wfxFfmpeg->nCodecId == 69645)
+				info->AddItem(new PropItem(_T("CodecID"), CString(L"CODEC_ID_ADPCM_SWF (69645) ")));
+			else
+				info->AddItem(new PropItem(_T("CodecID"), wfxFfmpeg->nCodecId));
+
+			if (pmt->cbFormat > sizeof(WAVEFORMATEXFFMPEG)) 
+			{
+				extra = (uint8*)&(wfxFfmpeg->wfex) + sizeof(WAVEFORMATEXFFMPEG);
+				len = pmt->cbFormat - sizeof(WAVEFORMATEXFFMPEG);
+			}
+
+
+			// are there any extradata left ?
+			if (len > 0) {
+
+				int				i;
+				CString			extrabuf = _T("");
+				for (i=0; i<len; i++) {
+					CString	t;
+					t.Format(_T("%02x "), extra[i]);
+					extrabuf += t;
+				}
+				extrabuf = extrabuf.MakeUpper();
+				info->AddItem(new PropItem(_T("Length"), len));
+				info->AddItem(new PropItem(_T("Extradata"), extrabuf));
+			}
+		}
+		else 
 		if (pmt->formattype == FORMAT_VideoInfo) {
 			VIDEOINFOHEADER	*vih = (VIDEOINFOHEADER*)pmt->pbFormat;
 			PropItem	*vihinfo = mtinfo->AddItem(new PropItem(_T("VIDEOINFOHEADER")));
