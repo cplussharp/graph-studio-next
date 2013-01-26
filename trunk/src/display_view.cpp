@@ -298,7 +298,7 @@ namespace GraphStudio
 		}
 
 		// check if we hit a pin
-		Pin *hitpin = current->FindPinByPos(point);
+		Pin *hitpin = current->FindPinByPos(point, false);	// allow connected pins
 		if (hitpin) {
 			// deselect all filters
 			for (int i=0; i<graph.filters.GetCount(); i++) {
@@ -370,8 +370,11 @@ namespace GraphStudio
 		const bool chooseMediaType = (nFlags&MK_SHIFT) != 0;		// only applies in direct connection mode
 
 		if (drag_mode == DisplayView::DRAG_CONNECTION) {
-			Pin *p1 = graph.FindPinByPos(new_connection_start);
-			Pin *p2 = graph.FindPinByPos(new_connection_end);
+			Filter * const f1 = graph.FindFilterByPos(new_connection_start);
+			Pin * const p1 = f1 ? f1->FindPinByPos(new_connection_start, false) : NULL;
+
+			Filter * const f2 = graph.FindFilterByPos(new_connection_end);
+			Pin * p2 = f2 ? f2->FindPinByPos(new_connection_end, false) : NULL;
 
             if(p1 != NULL)
             {
@@ -379,10 +382,6 @@ namespace GraphStudio
                 {
                     if(p1 == p2)
 						;			// clean up below
-                    else if(p1->connected || p2->connected)
-                    {
-                        DSUtil::ShowInfo(_T("Can't connect to/from already connected pins."));
-                    }
                     else if(p1->filter == p2->filter)
                     {
                         DSUtil::ShowInfo(_T("Can't connect pins on the same filter."));
@@ -393,12 +392,17 @@ namespace GraphStudio
                     }
                     else
                     {
-			            HRESULT hr = graph.ConnectPins(p1, p2, chooseMediaType);
+						if (p1->connected)
+							p1->Disconnect();
+						if (p2->connected)
+							p2->Disconnect();
+
+						if (!p1->connected && !p2->connected)	// check in case disconnection above failed
+							HRESULT hr = graph.ConnectPins(p1, p2, chooseMediaType);
                     }
                 }
                 else
                 {
-                    Filter *f2 = graph.FindFilterByPos(new_connection_end);
                     if(f2 != NULL)
                     {
                         bool nopins = true;
@@ -513,9 +517,12 @@ namespace GraphStudio
 
 					Filter	* const current = graph.FindFilterByPos(point);
 					if (current) {
-						Pin * drop_end = current->FindPinByPos(point);
+						Pin * drop_end = current->FindPinByPos(point, false);	// allow connected pins
 						if (!drop_end) {
-                            Pin * const drop_start = graph.FindPinByPos(new_connection_start);
+							Filter * const filter_start = graph.FindFilterByPos(new_connection_start);
+                            Pin * const drop_start = filter_start ? 
+									filter_start->FindPinByPos(new_connection_start, false)	// allow connected pins
+									: NULL;
                             if(drop_start->dir == PINDIR_OUTPUT) {
                                 for(int i=0; i<current->input_pins.GetSize(); i++)
                                     if(!current->input_pins[i]->IsConnected()) {
