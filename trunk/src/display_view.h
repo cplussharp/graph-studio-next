@@ -68,6 +68,7 @@ namespace GraphStudio
 		void OnMouseMove(UINT nFlags, CPoint point);
 		void OnLButtonDown(UINT nFlags, CPoint point);
 		void OnLButtonUp(UINT nFlags, CPoint point);
+		void OnMButtonDown(UINT nFlags, CPoint point);
 		void OnRButtonDown(UINT nFlags, CPoint point);
 		void OnLButtonDblClk(UINT nFlags, CPoint point);
 
