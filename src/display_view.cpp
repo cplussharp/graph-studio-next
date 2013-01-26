@@ -25,6 +25,7 @@ namespace GraphStudio
 		ON_WM_MOUSEMOVE()
 		ON_WM_LBUTTONDOWN()
 		ON_WM_LBUTTONDBLCLK()
+		ON_WM_MBUTTONDOWN()
 		ON_WM_RBUTTONDOWN()
 		ON_WM_LBUTTONUP()
 
@@ -229,6 +230,41 @@ namespace GraphStudio
 
 		// display menu
 		menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, AfxGetMainWnd());
+	}
+
+	// Select the single thing we've clicked on - pin/filter/connection - and delete it
+	void DisplayView::OnMButtonDown(UINT nFlags, CPoint point)
+	{
+		point += GetScrollPosition();
+
+		current_pin = NULL;
+		current_filter = NULL;
+
+		// deselect all filters but select any connections we've clicked on
+		for (int i=0; i<graph.filters.GetCount(); i++) {
+			if (graph.filters[i]->selected) {
+				graph.filters[i]->Select(false);
+			}
+			graph.filters[i]->SelectConnection(nFlags, point);
+		}
+
+		// find out if there is any filter being selected
+		Filter * const filter = graph.FindFilterByPos(point);
+
+		// check for a pin - will have different menu
+		Pin * const pin = filter ? filter->FindPinByPos(point, false) : NULL;
+
+		if (pin) {
+			if (pin->connected) {
+				pin->Select(true);
+			}
+		} else if (filter) {
+			filter->Select(true);
+		}
+
+		OnDeleteSelection();
+		graph.SmartPlacement();
+		graph.Dirty();
 	}
 
 	void DisplayView::OnLButtonDown(UINT nFlags, CPoint point)
