@@ -6,6 +6,7 @@
 //
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
+#include "MainFrm.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -25,6 +26,8 @@ IMPLEMENT_DYNCREATE(CMainFrame, CFrameWnd)
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_CREATE()
     ON_CBN_SELCHANGE(ID_COMBO_RATE, &CMainFrame::OnComboRateChanged)
+	ON_WM_MOUSEWHEEL()
+	ON_WM_MOUSEHWHEEL()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -263,6 +266,28 @@ void CMainFrame::OnUpdatePlayRate()
     m_comboRate.SetCurSel(sel);
 }
 
+BOOL CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	if ((nFlags&MK_CONTROL) && (nFlags&MK_SHIFT)) {		// Control+shift wheel change speed
+		if (zDelta <= -WHEEL_DELTA || zDelta >= WHEEL_DELTA) {
+			const int sel = m_comboRate.GetCurSel() + ((zDelta > 0) ? -1 : 1);
+			m_comboRate.SetCurSel(sel);
+			OnComboRateChanged();
+		}
+		return 0;
+	} else {
+		return CFrameWnd::OnMouseWheel(nFlags, zDelta, pt);
+	}
+}
+
+void CMainFrame::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	// This feature requires Windows Vista or greater.
+	// The symbol _WIN32_WINNT must be >= 0x0600.
+	// TODO: Add your message handler code here and/or call default
+
+	CFrameWnd::OnMouseHWheel(nFlags, zDelta, pt);
+}
 
 // CMainFrame diagnostics
 

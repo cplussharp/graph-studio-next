@@ -54,6 +54,8 @@ public:
     void OnUpdatePlayRate();
 
     static const UINT m_uTaskbarBtnCreatedMsg;
+	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
 };
 
 
