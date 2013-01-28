@@ -41,6 +41,8 @@ namespace GraphStudio
 		// creating new connection
 		CPoint				new_connection_start;
 		CPoint				new_connection_end;
+		bool				new_connection_start_connected;
+		bool				new_connection_end_connected;
 
 		enum {
 			DRAG_GROUP = 0,
