@@ -308,6 +308,8 @@ namespace GraphStudio
 			// remember the start point
 			hitpin->GetCenterPoint(&new_connection_start);
 			new_connection_end = new_connection_start;
+			new_connection_start_connected = hitpin->connected;
+			new_connection_end_connected = false;
 			drag_mode = DisplayView::DRAG_CONNECTION;
 
 		} else {
@@ -455,6 +457,8 @@ namespace GraphStudio
 		}
 		new_connection_start = CPoint(-100,-100);
 		new_connection_end = CPoint(-101, -101);
+		new_connection_start_connected = false;
+		new_connection_end_connected = false;
 		drag_mode = DisplayView::DRAG_GROUP;
 		ReleaseCapture();
 		graph.Dirty();
@@ -514,6 +518,7 @@ namespace GraphStudio
 			case DisplayView::DRAG_CONNECTION:
 				{
 					new_connection_end = point;
+					new_connection_end_connected = false;
 
 					Filter	* const current = graph.FindFilterByPos(point);
 					if (current) {
@@ -542,6 +547,7 @@ namespace GraphStudio
                             Filter * const start_filter = graph.FindFilterByPos(new_connection_start);
 							if (start_filter != current) {			// don't allow a filter to connect with itself
 								drop_end->GetCenterPoint(&new_connection_end);
+								new_connection_end_connected = drop_end->connected;
 							}
 						}
 					}
@@ -724,8 +730,9 @@ namespace GraphStudio
 
 		// draw arrow
 		if (drag_mode == DisplayView::DRAG_CONNECTION) {
-            DWORD color = RGB(0,128,0);
-            int nPenStyle = PS_DOT;
+			// Draw new connections that require disconnections in red rather than green as a visual cue
+			const DWORD color = (new_connection_start_connected || new_connection_end_connected) ? RGB(192,0,0) : RGB(0,128,0);
+            const int nPenStyle = PS_DOT;
 			graph.DrawArrow(pDC, new_connection_start, new_connection_end, color, nPenStyle);
 		} else
 		if (drag_mode == DisplayView::DRAG_SELECTION) {
