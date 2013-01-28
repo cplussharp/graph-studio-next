@@ -225,6 +225,8 @@ public:
     void OnUpdateRemoveConnections(CCmdUI *pCmdUI);
     void OnRemoveConnections();
 
+	BOOL DoMouseHorzWheel(UINT fFlags, short zDelta, CPoint point);
+
 	afx_msg void OnViewProgressview();
 	afx_msg void OnFileSaveasxml();
 	afx_msg void OnAutomaticrestartSchedule();
@@ -236,6 +238,8 @@ public:
     afx_msg void OnHelpHresultLookup();
     afx_msg void OnShowCliOptions();
     afx_msg void OnConfigureSbe();
+	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
 };
 
 #ifndef _DEBUG  // debug version in graphView.cpp

@@ -14,6 +14,37 @@
 #define new DEBUG_NEW
 #endif
 
+namespace
+{
+
+// Modified from MFC viewscrll.cpp
+UINT PASCAL _AfxGetMouseScrollLines()
+{
+	static UINT uCachedScrollLines;
+	static BOOL _afxGotScrollLines; 
+
+	// if we've already got it and we're not refreshing,
+	// return what we've already got
+
+	if (_afxGotScrollLines)
+		return uCachedScrollLines;
+
+	// see if we can find the mouse window
+
+	_afxGotScrollLines = TRUE;
+
+	static UINT msgGetScrollLines;
+	static WORD nRegisteredMessage;
+
+	// couldn't use the window -- try system settings
+	uCachedScrollLines = 3; // reasonable default
+	::SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &uCachedScrollLines, 0);
+
+	return uCachedScrollLines;
+}
+
+}
+
 //-----------------------------------------------------------------------------
 //
 //	CGraphView class
@@ -122,7 +153,9 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
     ON_COMMAND(ID_HELP_HRESULTLOOKUP, &CGraphView::OnHelpHresultLookup)
     ON_COMMAND(ID_HELP_COMMANDLINEOPTIONS, &CGraphView::OnShowCliOptions)
     ON_COMMAND(ID_OPTIONS_CONFIGURESBE, &CGraphView::OnConfigureSbe)
-END_MESSAGE_MAP()
+	ON_WM_MOUSEWHEEL()
+	ON_WM_MOUSEHWHEEL()
+	END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
 //
@@ -1953,3 +1986,71 @@ void CGraphView::OnRemoveConnections()
     graph.RefreshFilters();
 	Invalidate();
 }
+
+
+BOOL CGraphView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	if ((nFlags&MK_CONTROL) && !(nFlags&MK_SHIFT)) {
+		// Control wheel (without shift)- zoom
+		if (zDelta <= -WHEEL_DELTA) {
+			OnViewDecreasezoomlevel();
+		} else if (zDelta >= -WHEEL_DELTA) {
+			OnViewIncreasezoomlevel();
+		}
+		return 0;
+	} else {
+		return __super::OnMouseWheel(nFlags, zDelta, pt);
+	}
+}
+
+// This feature requires Windows Vista or greater.
+// The symbol _WIN32_WINNT must be >= 0x0600.
+// TODO: Add your message handler code here and/or call default
+void CGraphView::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	// we don't handle anything but scrolling
+	// if the parent is a splitter, it will handle the message
+	if (nFlags & (MK_SHIFT | MK_CONTROL) || GetParentSplitter(this, TRUE) || !DoMouseHorzWheel(nFlags, zDelta, pt))
+		__super::OnMouseHWheel(nFlags, zDelta, pt);
+}
+
+// Modified from CScrollView::DoMouseWheel which implements vertical mouse wheel scrolling
+BOOL CGraphView::DoMouseHorzWheel(UINT fFlags, short zDelta, CPoint point)
+{
+	UNUSED_ALWAYS(point);
+	UNUSED_ALWAYS(fFlags);
+
+	// if we have a horizontal scroll bar, the horizontal wheel scrolls that
+	// otherwise, don't do any work at all
+
+	BOOL bHasHorzBar, bHasVertBar;
+	CheckScrollBars(bHasHorzBar, bHasVertBar);
+	if (!bHasHorzBar)
+		return FALSE;
+
+	BOOL bResult = FALSE;
+	const UINT uWheelScrollLines = _AfxGetMouseScrollLines();
+	int nDisplacement;
+
+	if (uWheelScrollLines == WHEEL_PAGESCROLL)
+	{
+		nDisplacement = m_pageDev.cx;
+		if (zDelta < 0)							// horizontal wheel seems to operate in opposite sign to vertical wheel
+			nDisplacement = -nDisplacement;
+	}
+	else
+	{
+		// horizontal wheel seems to operate in opposite sign to vertical wheel
+		const int nToScroll = ::MulDiv(zDelta, uWheelScrollLines, WHEEL_DELTA);
+		nDisplacement = nToScroll * m_lineDev.cx;
+		nDisplacement = min(nDisplacement, m_pageDev.cx);
+	}
+	bResult = OnScrollBy(CSize(nDisplacement, 0), TRUE);
+
+	if (bResult)
+		UpdateWindow();
+
+	return bResult;
+}
+
+
