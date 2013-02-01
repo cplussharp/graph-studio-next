@@ -304,6 +304,15 @@ void CGraphView::SaveWindowPosition()
 	CRect	rc;
 	GetParentFrame()->GetWindowRect(&rc);
 
+	WINDOWPLACEMENT placement;
+	memset(&placement, 0, sizeof(placement));
+	placement.length = sizeof(placement);
+
+	if (GetParentFrame()->GetWindowPlacement(&placement)) {
+		AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ShowCmd"), placement.showCmd);
+		rc = placement.rcNormalPosition;
+	}
+
 	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("left"), rc.left);
 	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("top"), rc.top);
 	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("width"), rc.Width());

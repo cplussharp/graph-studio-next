@@ -96,8 +96,12 @@ BOOL CgraphstudioApp::InitInstance()
 	// initialize the graph
 	view->OnInit();
 
+	UINT showCmd = AfxGetApp()->GetProfileIntW(_T("Settings"), _T("ShowCmd"), SW_SHOWNORMAL);
+	if (showCmd != SW_SHOWMAXIMIZED)		// Allow only maximized and normal
+		showCmd = SW_SHOWNORMAL;
+
 	m_pMainWnd->SetFocus();
-	m_pMainWnd->ShowWindow(SW_SHOW);
+	m_pMainWnd->ShowWindow(showCmd);
 	m_pMainWnd->UpdateWindow();
 
     // command line optionen
