@@ -108,6 +108,9 @@ namespace GraphStudio
 		// check for a pin - will have different menu
 		current_pin = current_filter ? current_filter->FindPinByPos(point, false) : NULL;
 
+		if (!current_pin)
+			current_pin = GetPinFromFilterClick(current_filter, nFlags, /* findConnectedPin = */ false);
+
 		// make rendering inactive for connected pins
 		UINT	renderFlags = 0;
 		if (current_pin) {
@@ -252,7 +255,15 @@ namespace GraphStudio
 		Filter * const filter = graph.FindFilterByPos(point);
 
 		// check for a pin - will have different menu
-		Pin * const pin = filter ? filter->FindPinByPos(point, false) : NULL;
+		Pin * pin = filter ? filter->FindPinByPos(point, false) : NULL;
+
+		if (filter && !pin) {
+			pin = GetPinFromFilterClick(filter, nFlags, /* findConnectedPin = */ true);
+			if (!pin && (nFlags & (MK_SHIFT | MK_CONTROL) )) {
+				// Used pressed shift or control but no pin found so return to prevent unexpected destructive side effects
+				return;			
+			}
+		}
 
 		if (pin) {
 			if (pin->connected) {
@@ -265,6 +276,41 @@ namespace GraphStudio
 		OnDeleteSelection();
 		graph.SmartPlacement();
 		graph.Dirty();
+	}
+
+	Pin * DisplayView::GetPinFromFilterClick(Filter* filter, int clickFlags, bool findConnectedPin)
+	{
+		if (!filter)
+			return NULL;
+
+		Pin* hitpin = NULL;
+		const UINT keyFlags = clickFlags & (MK_SHIFT | MK_CONTROL);
+		CArray<Pin*> * pins = NULL;
+
+		// Choose while Pin list we're using
+		switch (keyFlags) {
+		case MK_SHIFT:
+			pins = &filter->output_pins;
+			break;
+
+			break;
+		case MK_SHIFT | MK_CONTROL: {
+			pins = &filter->input_pins;
+			break;
+			}
+		}
+
+		// If we have a list, find the first matching Pin or if that fails just the first pin
+		if (pins) {
+			for (int i=0; i<pins->GetCount(); i++) {
+				Pin * const pin = (*pins)[i];
+				if (pin->connected == findConnectedPin) {
+					hitpin = pin;
+					break;
+				}
+			}
+		}
+		return hitpin;
 	}
 
 	void DisplayView::OnLButtonDown(UINT nFlags, CPoint point)
@@ -299,6 +345,10 @@ namespace GraphStudio
 
 		// check if we hit a pin
 		Pin *hitpin = current->FindPinByPos(point, false);	// allow connected pins
+
+		if (!hitpin)
+			hitpin = GetPinFromFilterClick(current, nFlags, /* findConnectedPin = */ false);
+
 		if (hitpin) {
 			// deselect all filters
 			for (int i=0; i<graph.filters.GetCount(); i++) {
@@ -321,7 +371,7 @@ namespace GraphStudio
 			}
 
 			if (current->selected) {
-				if (nFlags & MK_SHIFT) {
+				if (nFlags & MK_CONTROL) {
 					current->Select(false);
 					graph.Dirty();
 					Invalidate();
@@ -329,7 +379,7 @@ namespace GraphStudio
 					// nothing here...
 				}
 			} else {
-				if (nFlags & MK_SHIFT) {
+				if (nFlags & MK_CONTROL) {
 					current->Select(true);
 					graph.Dirty();
 					Invalidate();

@@ -23,6 +23,8 @@ namespace GraphStudio
 
 		HRESULT	InsertNewFilter(IBaseFilter* newFilter, const CString& strFilterName, bool connectToCurrentPin = true);
 
+		static Pin * GetPinFromFilterClick(Filter* filter, int clickFlags, bool findConnectedPin);
+
 	public:
 
 		RenderParameters	render_params;
