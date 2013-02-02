@@ -371,7 +371,7 @@ namespace GraphStudio
 		int LoadXML(CString fn);
 		int LoadXML_Filter(XML::XMLNode *node);
 		int LoadXML_Render(XML::XMLNode *node);
-		int LoadXML_Connect(XML::XMLNode *node);
+		HRESULT LoadXML_Connect(XML::XMLNode *node);
 		int LoadXML_Schedule(XML::XMLNode *node);
 		int LoadXML_Config(XML::XMLNode *node);
 		int LoadXML_Interfaces(XML::XMLNode *node, IBaseFilter *filter);
