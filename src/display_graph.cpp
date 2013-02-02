@@ -12,6 +12,8 @@
 
 #include "MediaTypeSelectForm.h"
 
+#include <set>
+
 #pragma warning(disable: 4244)			// DWORD -> BYTE warning
 
 namespace GraphStudio
@@ -755,19 +757,49 @@ namespace GraphStudio
 				xml.EndNode();
 			}
 
-			/*
-				Now let's add all the connections
-			*/
-			for (int i=0; i<filters.GetCount(); i++) {
-				Filter	*filter = filters[i];
-				for (int j=0; j<filter->output_pins.GetCount(); j++) {
-					Pin*	pin = filter->output_pins[j];
-					if (pin->peer) {
-						xml.BeginNode(_T("connect"));
-							xml.WriteValue(_T("out"), filter->name + _T("/") + pin->name);
-							xml.WriteValue(_T("in"), pin->peer->filter->name + _T("/") + pin->peer->name);
-							xml.WriteValue(_T("direct"), _T("true"));
-						xml.EndNode();
+			std::set<Pin*> saved_input_pins;	// The input pins whose connections have already been saved
+			bool all_inputs_saved = false;		// true when all filters have had their connected inputs saved so we can stop iterating
+			int iterations = 0;
+
+			// Now let's add all the connections
+			// Loop over filters only saving connections from filters whose inputs have been saved already
+			while (!all_inputs_saved) {		
+				if (iterations++ > 500)	{	// Sanity check to prevent pathological infinite looping
+					ASSERT(false);
+					break;
+				}
+
+				all_inputs_saved = true;	// test every filter in loop below
+
+				for (int i=0; i<filters.GetCount(); i++) {
+				
+					Filter * const filter = filters[i];
+					bool inputs_saved = true;
+
+					// Look for any unsaved connections on input pins
+					for (int j=0; j<filter->input_pins.GetCount(); j++) {
+						Pin* const pin = filter->input_pins[j];
+						if (pin->peer && saved_input_pins.find(pin) == saved_input_pins.end()) {		
+							inputs_saved = false;
+							break;
+						}
+					}
+
+					all_inputs_saved = all_inputs_saved && inputs_saved;
+
+					// Only save output connections for filters whose connected input pins are already saved
+					if (inputs_saved) {
+						for (int j=0; j<filter->output_pins.GetCount(); j++) {
+							Pin * const pin = filter->output_pins[j];
+							if (pin->peer && saved_input_pins.find(pin->peer) == saved_input_pins.end()) {
+								saved_input_pins.insert(pin->peer);		// record that we've saved this input pin's connection
+								xml.BeginNode(_T("connect"));
+									xml.WriteValue(_T("out"), filter->name + _T("/") + pin->name);
+									xml.WriteValue(_T("in"), pin->peer->filter->name + _T("/") + pin->peer->name);
+									xml.WriteValue(_T("direct"), _T("true"));
+								xml.EndNode();
+							}
+						}
 					}
 				}
 			}
@@ -988,18 +1020,20 @@ namespace GraphStudio
 		return 0;
 	}
 
-	int DisplayGraph::LoadXML_Connect(XML::XMLNode *node)
+	HRESULT DisplayGraph::LoadXML_Connect(XML::XMLNode *node)
 	{
 		CString		opin_path = node->GetValue(_T("out"));
 		CString		ipin_path = node->GetValue(_T("in"));
 
 		CString		direct    = node->GetValue(_T("direct"));
-		if (direct == _T("")) direct = _T("false");
+		if (direct == _T("")) 
+			direct = _T("false");
 
 		Pin			*opin = FindPin(opin_path);
 		Pin			*ipin = FindPin(ipin_path);
 
-		if (!opin || !ipin) return -1;
+		if (!opin || !ipin) 
+			return E_FAIL;
 
 		HRESULT hr;
 		if (direct == _T("false")) {
@@ -1007,11 +1041,12 @@ namespace GraphStudio
 		} else {
 			hr = gb->ConnectDirect(opin->pin, ipin->pin, NULL);
 		}
-		if (FAILED(hr)) return -1;
+		if (FAILED(hr)) 
+			return hr;
 
 		// reload newly added filters
 		RefreshFilters();
-		return 0;
+		return S_OK;
 	}
 
 	int DisplayGraph::LoadXML_Config(XML::XMLNode *node)
