@@ -47,10 +47,9 @@ namespace GraphStudio
 	//
 	//-------------------------------------------------------------------------
 
-	int DisplayGraph::LoadXML_ConfigInterface(XML::XMLNode *conf, IBaseFilter *filter)
+	HRESULT DisplayGraph::LoadXML_ConfigInterface(XML::XMLNode *conf, IBaseFilter *filter)
 	{
-		int ret = 1;
-		HRESULT hr;
+		HRESULT hr = S_OK;
 		
 		PRESET_START()		
 
@@ -63,8 +62,8 @@ namespace GraphStudio
 				// load the file
 				CString	source = conf->GetValue(_T("source"));
 				hr = fsource->Load((LPCOLESTR)source.GetBuffer(), NULL);
-				if (FAILED(hr)) return -1;			// cannot open file
-				ret = 0;
+				if (FAILED(hr)) 
+					return hr;			// cannot open file
 			}
 
 		PRESET("ifilesinkfilter")
@@ -76,8 +75,8 @@ namespace GraphStudio
 				// save the file
 				CString	dest = conf->GetValue(_T("dest"));
 				hr = fsink->SetFileName((LPCOLESTR)dest.GetBuffer(), NULL);
-				if (FAILED(hr)) return -1;			// cannot open file
-				ret = 0;
+				if (FAILED(hr)) 
+					return hr;			// cannot open file
 			}
 
 		PRESET("imonogramgraphsink")
@@ -92,8 +91,8 @@ namespace GraphStudio
 				BOOL	blocking = (conf->GetValue(_T("blocking"), 1) == 1 ? TRUE : FALSE);
 				sink->SetBlocking(blocking);
 
-				if (FAILED(hr)) return -1;
-				ret = 0;
+				if (FAILED(hr)) 
+					return hr;
 			}
 
 		PRESET("imonogramgraphsource")
@@ -104,8 +103,8 @@ namespace GraphStudio
 			if (SUCCEEDED(hr)) {
 				CString	srcname = conf->GetValue(_T("name"));
 				hr = src->SetSourceName(srcname.GetBuffer());
-				if (FAILED(hr)) return -1;
-				ret = 0;
+				if (FAILED(hr)) 
+					return hr;
 			}
 
 		PRESET("imonogramqueue")
@@ -116,8 +115,8 @@ namespace GraphStudio
 			if (SUCCEEDED(hr)) {
 				int samples = conf->GetValue(_T("samples"), 10);
 				hr = queue->SetBufferSize(samples);
-				if (FAILED(hr)) return -1;
-				ret = 0;
+				if (FAILED(hr)) 
+					return hr;
 			}
 
 		PRESET("imonogramaudioproc")
@@ -145,8 +144,6 @@ namespace GraphStudio
 				default:	mode = 2; break;
 				}
 				proc->SetMixingMode(mode);
-
-				ret = 0;
 			}
 
 		PRESET("imonogramvideoproc")
@@ -183,8 +180,6 @@ namespace GraphStudio
 
 				int		zoom	= conf->GetValue(_T("zoom"), 0);
 				proc->SetZoom(zoom);
-
-				ret = 0;
 			}
 
 		PRESET("imonogramaacencoder")
@@ -217,7 +212,6 @@ namespace GraphStudio
 				config.output_type = output_type;
 				config.bitrate     = bitrate;
 				enc->SetConfig(&config);	
-				ret = 0;
 			}
 
 		PRESET("imonogramx264")
@@ -341,7 +335,6 @@ namespace GraphStudio
 				config.weighted_prediction = 0;
 
 				enc->SetSettings(&config);	
-				ret = 0;
 			}
 
 
@@ -379,7 +372,6 @@ namespace GraphStudio
 				config.blocking			= (conf->GetValue(_T("blocking"), 1) == 1 ? true : false);
 		
 				sink->SetConfig(&config);
-				ret = 0;
 			}
 
 		PRESET("imonogrammetasource")
@@ -408,7 +400,6 @@ namespace GraphStudio
 
 
 				metasrc->SetConfig(&config);
-				ret = 0;
 			}
 
 		PRESET("imonogramhttpsource")
@@ -420,18 +411,17 @@ namespace GraphStudio
 
 				CString		url = conf->GetValue(_T("url"));
 				hr = httpsrc->SetURL(url.GetBuffer());
-				ret = (SUCCEEDED(hr) ? 0 : -1);
 			}
 
 		PRESET("iambuffernegotiation")
 			// <iambuffernegotiation pin="Capture" latency="40"/>
-			ret = LoadXML_IAMBufferNegotiation(conf, filter);
+			hr = LoadXML_IAMBufferNegotiation(conf, filter);
 
 
 		PRESET_END()
 
 
-		return ret;
+		return hr;
 	}
 
 

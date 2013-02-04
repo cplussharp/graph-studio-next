@@ -818,64 +818,71 @@ namespace GraphStudio
 		return 0;
 	}
 
-	int DisplayGraph::LoadXML(CString fn)
+	HRESULT DisplayGraph::LoadXML(CString fn)
 	{
-		XML::XMLFile			xml;
-		int						ret;
-
-		ret = xml.LoadFromFile(fn);
-		if (ret < 0) {
-			return ret;
+		XML::XMLFile xml;
+		
+		HRESULT	hr = xml.LoadFromFile(fn);
+		if (FAILED(hr)) {
+			return hr;
 		}
 
 		graph_name = fn;
 
 		// load graph
-		XML::XMLNode			*root = xml.root;
-		XML::XMLIterator		it;
-		if (root->Find(_T("graph"), &it) < 0) return E_FAIL;
+		XML::XMLNode * const root = xml.root;
+		XML::XMLIterator it;
+		if (root->Find(_T("graph"), &it) < 0) 
+			return VFW_E_NOT_FOUND;
 
-		XML::XMLNode			*gn = *it;
-		CString		gn_name = gn->GetValue(_T("name"));
-		if (gn_name != _T("")) graph_name = gn_name;
+		XML::XMLNode * const gn = *it;
+		const CString gn_name = gn->GetValue(_T("name"));
+		if (gn_name != _T("")) 
+			graph_name = gn_name;
 
 		for (it = gn->nodes.begin(); it != gn->nodes.end(); it++) {
-			XML::XMLNode	*node = *it;
+			XML::XMLNode * const node = *it;
 
-			if (node->name == _T("filter"))	ret = LoadXML_Filter(node); else
-			if (node->name == _T("render")) ret = LoadXML_Render(node); else
-			if (node->name == _T("connect")) ret = LoadXML_Connect(node); else
-			if (node->name == _T("config")) ret = LoadXML_Config(node); else
-			if (node->name == _T("iamgraphstreams")) ret = LoadXML_IAMGraphStreams(node); else
-			if (node->name == _T("schedule")) ret = LoadXML_Schedule(node); else
-			if (node->name == _T("command")) ret = LoadXML_Command(node); else
-			{
-				//ret = -1;
-			}
+			if (node->name == _T("filter"))	
+				hr = LoadXML_Filter(node);
+			else if (node->name == _T("render")) 
+				hr = LoadXML_Render(node); 
+			else if (node->name == _T("connect")) 
+				hr = LoadXML_Connect(node); 
+			else if (node->name == _T("config")) 
+				hr = LoadXML_Config(node); 
+			else if (node->name == _T("iamgraphstreams")) 
+				hr = LoadXML_IAMGraphStreams(node); 
+			else if (node->name == _T("schedule")) 
+				hr = LoadXML_Schedule(node); 
+			else if (node->name == _T("command")) 
+				hr = LoadXML_Command(node); 
 
-			// is everything okay ?
-			if (ret < 0) {
-				return ret;
+			if (FAILED(hr)) {		// TODO continue trying to load after node fails to load
+				return hr;
 			}
 		}
 
-		return 0;
+		return S_OK;
 	}
 
-	int DisplayGraph::LoadXML_Schedule(XML::XMLNode *node)
+	HRESULT DisplayGraph::LoadXML_Schedule(XML::XMLNode *node)
 	{
 		// <schedule pattern="*:*:*" action="restart"/>
-		CMainFrame	*frame = (CMainFrame*)AfxGetMainWnd();
+		CMainFrame * const frame = (CMainFrame*)AfxGetMainWnd();
 		if (frame) {
-			CGraphView	*view = frame->view;
+			CGraphView * const view = frame->view;
 
-			CString	pattern = node->GetValue(_T("pattern"));
-			CString	action  = node->GetValue(_T("action"));
+			const CString	pattern = node->GetValue(_T("pattern"));
+			const CString	action  = node->GetValue(_T("action"));
 
 			int act = 0;
-			if (action == _T("start")) act = ScheduleEvent::ACTION_START; else
-			if (action == _T("stop")) act = ScheduleEvent::ACTION_STOP; else
-			if (action == _T("restart")) act = ScheduleEvent::ACTION_RESTART;
+			if (action == _T("start")) 
+				act = ScheduleEvent::ACTION_START; 
+			else if (action == _T("stop")) 
+				act = ScheduleEvent::ACTION_STOP; 
+			else if (action == _T("restart")) 
+				act = ScheduleEvent::ACTION_RESTART;
 
 			if (view->form_schedule) {
 				// add a new schedule event
@@ -883,33 +890,37 @@ namespace GraphStudio
 			}
 		}
 
-		return 0;
+		return S_OK;
 	}
 
-	int DisplayGraph::LoadXML_IAMBufferNegotiation(XML::XMLNode *conf, IBaseFilter *filter)
+	HRESULT DisplayGraph::LoadXML_IAMBufferNegotiation(XML::XMLNode *conf, IBaseFilter *filter)
 	{
         // <iambuffernegotiation pin="Capture" latency="40"/>
 		Filter		gf(this);
 
 		gf.LoadFromFilter(filter);
 
-		CString		pin_name = conf->GetValue(_T("pin"));
-		Pin			*pin = gf.FindPin(pin_name);
-		if (!pin) return -1;
+		const CString pin_name = conf->GetValue(_T("pin"));
+		Pin	* const pin = gf.FindPin(pin_name);
+		if (!pin) 
+			return VFW_E_NOT_FOUND;
 
 		// let's query for IAMBufferNegotiation
 		DSUtil::MediaTypes				mtlist;
 		CComPtr<IAMBufferNegotiation>	buf_neg;
-		HRESULT							hr;
 
-		hr = pin->pin->QueryInterface(IID_IAMBufferNegotiation, (void**)&buf_neg);
-		if (FAILED(hr)) return -1;
+		HRESULT hr = pin->pin->QueryInterface(IID_IAMBufferNegotiation, (void**)&buf_neg);
+		if (FAILED(hr)) 
+			return hr;
 
 		hr = DSUtil::EnumMediaTypes(pin->pin, mtlist);
-		if (FAILED(hr) || mtlist.GetCount() <= 0) return -1;
+		if (FAILED(hr))
+			return hr;
+		if (mtlist.GetCount() <= 0)
+			return VFW_E_NOT_FOUND;
 
 		// if it's an audio pin, we need to calculate the buffer size
-		CMediaType		mt = mtlist[0];
+		const CMediaType mt = mtlist[0];
 		if (mt.majortype == MEDIATYPE_Audio && 
 			mt.subtype == MEDIASUBTYPE_PCM &&
 			mt.formattype == FORMAT_WaveFormatEx
@@ -917,7 +928,7 @@ namespace GraphStudio
 			int		latency_ms = conf->GetValue(_T("latency"), -1);
 			if (latency_ms > 0) {
 			
-				WAVEFORMATEX	*wfx = (WAVEFORMATEX*)mt.pbFormat;
+				WAVEFORMATEX * const wfx = (WAVEFORMATEX*)mt.pbFormat;
 
 				// just like MSDN said: -1 = we don't care
 				ALLOCATOR_PROPERTIES		alloc;
@@ -934,24 +945,22 @@ namespace GraphStudio
 		} else {
 			// we'll see
 		}
-
-		return 0;
+		return S_OK;
 	}
 
-	int DisplayGraph::LoadXML_IAMGraphStreams(XML::XMLNode *node)
+	HRESULT DisplayGraph::LoadXML_IAMGraphStreams(XML::XMLNode *node)
 	{
-		if (!gb) return -1;
+		if (!gb) 
+			return E_POINTER;
 
 		// <iamgraphstreams sync="1"/>
 		// <iamgraphstreams max_latency="800000"/>
 
-		int		sync    = node->GetValue(_T("sync"), -1);
-		int		latency = node->GetValue(_T("max_latency"), -1);
+		const int	sync    = node->GetValue(_T("sync"), -1);
+		const int	latency = node->GetValue(_T("max_latency"), -1);
 
 		CComPtr<IAMGraphStreams>	gs;
-		HRESULT						hr;
-
-		hr = gb->QueryInterface(IID_IAMGraphStreams, (void**)&gs);
+		HRESULT hr = gb->QueryInterface(IID_IAMGraphStreams, (void**)&gs);
 		if (SUCCEEDED(hr)) {
 
 			// enable sync
@@ -964,73 +973,71 @@ namespace GraphStudio
 
 			// max latency
 			if (sync == 1 && latency >= 0) {
-				REFERENCE_TIME		rtMaxLatency = latency;
+				const REFERENCE_TIME rtMaxLatency = latency;
 				hr = gs->SetMaxGraphLatency(rtMaxLatency);
 				if (FAILED(hr)) {
 					DSUtil::ShowError(_T("Failed to set IAMGraphStreams::SetMaxGraphLatency"));
 				}
 			}
-
-			return 0;
+			return S_OK;
 		}
-
-		return -1;
+		return hr;
 	}
 
-	int DisplayGraph::LoadXML_Command(XML::XMLNode *node)
+	HRESULT DisplayGraph::LoadXML_Command(XML::XMLNode *node)
 	{
-		CString		msg = node->GetValue(_T("msg"));
+		const CString msg = node->GetValue(_T("msg"));
 
 		if (msg == _T("run")) {
 			DoPlay();
-		} else
-		if (msg == _T("pause")) {
+		} else if (msg == _T("pause")) {
 			DoPause();
-		} else
-		if (msg == _T("stop")) {
+		} else if (msg == _T("stop")) {
 			DoStop();
-		} else
-		if (msg == _T("progress")) {
+		} else if (msg == _T("progress")) {
 			
-			CMainFrame	*frame = (CMainFrame*)AfxGetMainWnd();
+			CMainFrame * const frame = (CMainFrame*)AfxGetMainWnd();
 			if (frame) {
 				// run in the progress mode
 				frame->view->OnViewProgressview();
 			}
 		}
 
-		return 0;
+		return S_OK;
 	}
 
-	int DisplayGraph::LoadXML_Render(XML::XMLNode *node)
+	HRESULT DisplayGraph::LoadXML_Render(XML::XMLNode *node)
 	{
-		CString		pin_path = node->GetValue(_T("pin"));
-		Pin			*pin = FindPin(pin_path);
-		if (!pin) return -1;
+		const CString pin_path = node->GetValue(_T("pin"));
+		Pin	* const pin = FindPin(pin_path);
+		if (!pin) 
+			return VFW_E_NOT_FOUND;
 
 		// try to render
 		params->MarkRender(true);
-		HRESULT		hr = gb->Render(pin->pin);
+		HRESULT	hr = gb->Render(pin->pin);
 		params->MarkRender(false);
-		if (callback) callback->OnRenderFinished();
-		if (FAILED(hr)) return -1;
+		if (callback) 
+			callback->OnRenderFinished();
+		if (FAILED(hr)) 
+			return hr;
 
 		// reload newly added filters
 		RefreshFilters();
-		return 0;
+		return S_OK;
 	}
 
 	HRESULT DisplayGraph::LoadXML_Connect(XML::XMLNode *node)
 	{
-		CString		opin_path = node->GetValue(_T("out"));
-		CString		ipin_path = node->GetValue(_T("in"));
+		const CString opin_path = node->GetValue(_T("out"));
+		const CString ipin_path = node->GetValue(_T("in"));
 
-		CString		direct    = node->GetValue(_T("direct"));
+		CString	direct    = node->GetValue(_T("direct"));
 		if (direct == _T("")) 
 			direct = _T("false");
 
-		Pin			*opin = FindPin(opin_path);
-		Pin			*ipin = FindPin(ipin_path);
+		Pin * const opin = FindPin(opin_path);
+		Pin * const ipin = FindPin(ipin_path);
 
 		if (!opin || !ipin) 
 			return E_FAIL;
@@ -1049,38 +1056,39 @@ namespace GraphStudio
 		return S_OK;
 	}
 
-	int DisplayGraph::LoadXML_Config(XML::XMLNode *node)
+	HRESULT DisplayGraph::LoadXML_Config(XML::XMLNode *node)
 	{
-		CString		name = node->GetValue(_T("name"));
-		Filter		*filter = FindFilter(name);
-		if (!filter) return -1;
+		const CString name = node->GetValue(_T("name"));
+		Filter * const filter = FindFilter(name);
+		if (!filter) 
+			return VFW_E_NOT_FOUND;
 
-		XML::XMLIterator	it;
-		for (it = node->nodes.begin(); it != node->nodes.end(); it++) {
-			XML::XMLNode	*conf = *it;
-			int r = LoadXML_ConfigInterface(conf, filter->filter);
-			if (r < 0) return -1;
+		for (XML::XMLIterator it = node->nodes.begin(); it != node->nodes.end(); it++) {
+			XML::XMLNode * conf = *it;
+			const HRESULT hr = LoadXML_ConfigInterface(conf, filter->filter);
+			if (FAILED(hr)) 
+				return hr;
 		}
-
-		return 0;
+		return S_OK;
 	}
 
-	int DisplayGraph::LoadXML_Filter(XML::XMLNode *node)
+	HRESULT DisplayGraph::LoadXML_Filter(XML::XMLNode *node)
 	{
-		CString					name		= node->GetValue(_T("name"));
+		const CString			name		= node->GetValue(_T("name"));
 		CString					clsid_str	= node->GetValue(_T("clsid"));
-		CString					dn			= node->GetValue(_T("displayname"));
+		const CString			dn			= node->GetValue(_T("displayname"));
 		GUID					clsid;
 		CComPtr<IBaseFilter>	instance;
 		HRESULT					hr = NOERROR;
-		int						filter_id_type = -1, ret = 0;
+		int						filter_id_type = -1;
 		bool					is_configured = false;
 
 		// detect how the filter is described
 		if (clsid_str != _T("")) {
 			filter_id_type = 0;
             hr = CLSIDFromString((LPOLESTR)clsid_str.GetBuffer(), &clsid);
-			if (FAILED(hr)) return hr;
+			if (FAILED(hr)) 
+				return hr;
 		} else
 		if (dn != _T("")) {
 			filter_id_type = 1;
@@ -1127,7 +1135,6 @@ namespace GraphStudio
 			hr = AddFilter(instance, name);
 			if (FAILED(hr)) {
 				// display error message
-				ret = hr;
 			} else {
 				SmartPlacement();
 			}
@@ -1135,11 +1142,11 @@ namespace GraphStudio
 
 		// check for known interfaces
 		if (SUCCEEDED(hr)) {
-			ret = LoadXML_Interfaces(node, instance);
-			is_configured = (ret == 0 ? true : false);
+			hr = LoadXML_Interfaces(node, instance);
+			is_configured = SUCCEEDED(hr);
 		}
 
-		if (ret == 0 && instance != NULL && !is_configured) {
+		if (SUCCEEDED(hr) && instance != NULL && !is_configured) {
 
 			// now check for a few interfaces
 			int r = ConfigureInsertedFilter(instance, name);
@@ -1152,25 +1159,22 @@ namespace GraphStudio
 
 		// we're done
 		instance = NULL;
-		return ret;
+		return hr;
 	}
 
-	int DisplayGraph::LoadXML_Interfaces(XML::XMLNode *node, IBaseFilter *filter)
+	// Returns S_OK if configured and S_FALSE if untouched
+	HRESULT DisplayGraph::LoadXML_Interfaces(XML::XMLNode *node, IBaseFilter *filter)
 	{
-		/*
-			Returns 0 if configured and 1 if untouched
-		*/
-		int		ret = 1;
+		HRESULT hr = S_FALSE;
 
-		XML::XMLIterator		it;
-		for (it = node->nodes.begin(); it != node->nodes.end(); it++) {
-			XML::XMLNode	*iface = *it;
-			int r = LoadXML_ConfigInterface(iface, filter);
-			if (r == 0) ret = 0;
-			if (r < 0) return r;
+		for (XML::XMLIterator it = node->nodes.begin(); it != node->nodes.end(); it++) {
+			XML::XMLNode * const iface = *it;
+			hr = LoadXML_ConfigInterface(iface, filter);
+			if (FAILED(hr)) 
+				return hr;
 		}
 
-		return ret;
+		return hr;
 	}
 
 	int DisplayGraph::LoadGRF(CString fn)

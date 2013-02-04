@@ -368,19 +368,19 @@ namespace GraphStudio
 		// XML-based graph construction
 		int SaveXML(CString fn);
 		int SaveXML_Filter(Filter *filter, XML::XMLWriter *writer);
-		int LoadXML(CString fn);
-		int LoadXML_Filter(XML::XMLNode *node);
-		int LoadXML_Render(XML::XMLNode *node);
+		HRESULT LoadXML(CString fn);
+		HRESULT LoadXML_Filter(XML::XMLNode *node);
+		HRESULT LoadXML_Render(XML::XMLNode *node);
 		HRESULT LoadXML_Connect(XML::XMLNode *node);
-		int LoadXML_Schedule(XML::XMLNode *node);
-		int LoadXML_Config(XML::XMLNode *node);
-		int LoadXML_Interfaces(XML::XMLNode *node, IBaseFilter *filter);
-		int LoadXML_ConfigInterface(XML::XMLNode *conf, IBaseFilter *filter);
-		int LoadXML_Command(XML::XMLNode *node);
-		int LoadXML_IAMGraphStreams(XML::XMLNode *node);
+		HRESULT LoadXML_Schedule(XML::XMLNode *node);
+		HRESULT LoadXML_Config(XML::XMLNode *node);
+		HRESULT LoadXML_Interfaces(XML::XMLNode *node, IBaseFilter *filter);
+		HRESULT LoadXML_ConfigInterface(XML::XMLNode *conf, IBaseFilter *filter);
+		HRESULT LoadXML_Command(XML::XMLNode *node);
+		HRESULT LoadXML_IAMGraphStreams(XML::XMLNode *node);
 
 		// IAMBufferNegotiation 
-		int LoadXML_IAMBufferNegotiation(XML::XMLNode *conf, IBaseFilter *filter);
+		HRESULT LoadXML_IAMBufferNegotiation(XML::XMLNode *conf, IBaseFilter *filter);
 
 		// adding filters
 		HRESULT AddFilter(IBaseFilter *filter, CString proposed_name);

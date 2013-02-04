@@ -830,16 +830,14 @@ int CGraphView::TryOpenFile(CString fn)
 			filename = fn;
 			can_save = true;
 		}
-
 	} else 
 	if (ext == _T(".xml")) {
 		OnNewClick();
 		ret = graph.LoadXML(fn);
-		if (ret == 0) {
+		if (SUCCEEDED(ret)) {
 			filename = fn;
 			can_save = false;
 		}
-
 	} else {
 		OnNewClick();
 		ret = graph.RenderFile(fn);
@@ -847,8 +845,7 @@ int CGraphView::TryOpenFile(CString fn)
 			OnNewClick();
 	}
 
-	if (ret == 0)
-    {
+	if (ret == 0) {
 	    mru.NotifyEntry(fn);
 	    UpdateMRUMenu();
 
