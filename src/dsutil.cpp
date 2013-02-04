@@ -1792,7 +1792,8 @@ namespace DSUtil
 			npin.dir = dir;
 			pins.Add(npin);
 
-			info.pFilter->Release();
+			if (info.pFilter)
+				info.pFilter->Release();
 
 		label_next:
 			pin->Release();

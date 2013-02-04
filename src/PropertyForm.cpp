@@ -404,7 +404,8 @@ int CPropertyForm::LoadPinPage(IPin *pin)
 {
 	PIN_INFO		info;
 	pin->QueryPinInfo(&info);
-	if (info.pFilter) info.pFilter->Release();
+	if (info.pFilter) 
+		info.pFilter->Release();
 
 	CString		title(info.achName);
 
