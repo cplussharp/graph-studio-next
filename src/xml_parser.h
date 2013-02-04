@@ -139,7 +139,7 @@ namespace XML
 		virtual ~XMLFile();
 
 		// loading
-		int LoadFromFile(CString fn);
+		HRESULT LoadFromFile(CString fn);
 		int LoadFromXmlReader(IXmlReader *reader);
 	};
 

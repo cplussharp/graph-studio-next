@@ -208,7 +208,7 @@ namespace XML
 		delete root;
 	}
 
-	int XMLFile::LoadFromFile(CString fn)
+	HRESULT XMLFile::LoadFromFile(CString fn)
 	{
 		root->Clear();
 
@@ -219,15 +219,18 @@ namespace XML
 		do {
 			// create file stream
 			hr = SHCreateStreamOnFile(fn, STGM_READ | STGM_SHARE_DENY_WRITE, &stream);
-			if (FAILED(hr)) break;
+			if (FAILED(hr)) 
+				break;
 
 			// reader
 			hr = CreateXmlReader(IID_IXmlReader, (void**)&reader, NULL);
-			if (FAILED(hr)) break;
+			if (FAILED(hr)) 
+				break;
 
 			// select input
 			hr = reader->SetInput(stream);
-			if (FAILED(hr)) break;
+			if (FAILED(hr)) 
+				break;
 
 			int ret = LoadFromXmlReader(reader);
 			if (ret < 0) {
@@ -241,8 +244,7 @@ namespace XML
 		stream = NULL;
 		reader = NULL;
 
-		if (FAILED(hr)) return hr;
-		return 0;
+		return hr;
 	}	
 
 	int XMLFile::LoadFromXmlReader(IXmlReader *reader)
