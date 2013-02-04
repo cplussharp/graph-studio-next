@@ -291,7 +291,8 @@ namespace GraphStudio
 		PIN_INFO	pi;
 		HRESULT		hr;
 		pin->QueryPinInfo(&pi);
-		if (pi.pFilter) pi.pFilter->Release();
+		if (pi.pFilter) 
+			pi.pFilter->Release();
 
 		group->AddItem(new PropItem(_T("Name"), CString(pi.achName)));
 		if (pi.dir == PINDIR_INPUT) {

@@ -247,8 +247,9 @@ namespace GraphStudio
 		void Refresh();
 		void LoadPin(IPin *pin, PIN_DIRECTION dir);
 		Pin *FindPin(IPin *pin);
-		Pin *FindPinByPos(CPoint p, bool not_connected=true);
-		Pin *FindPin(CString name);
+		Pin *FindPinByPos(CPoint p, bool not_connected = true);
+		Pin *FindPinByID(CString id);
+		Pin *FindPinByName(CString id);
 		bool HasPin(IPin *pin);
 		void LoadPeers();
 		void DeleteSelectedConnections();
@@ -391,7 +392,7 @@ namespace GraphStudio
 		Filter *FindFilter(CString name);
 		Filter *FindParentFilter(IPin *pin);
 		Pin *FindPin(IPin *pin);
-		Pin *FindPin(CString pin_path);
+		Pin *FindPinByPath(CString pin_path);
 		void RemoveUnusedFilters();
 		void RemoveAllFilters();
 		void SmartPlacement();

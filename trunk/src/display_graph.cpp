@@ -745,6 +745,7 @@ namespace GraphStudio
 					// save the filter CLSID. If the filter is a wrapper it will initialize properly
 					// after loading IPersistStream 
 					xml.WriteValue(_T("name"), filter->name);
+					xml.WriteValue(_T("index"), i);
 
 					LPOLESTR	strclsid = NULL;
 					StringFromCLSID(filter->clsid, &strclsid);
@@ -793,9 +794,22 @@ namespace GraphStudio
 							Pin * const pin = filter->output_pins[j];
 							if (pin->peer && saved_input_pins.find(pin->peer) == saved_input_pins.end()) {
 								saved_input_pins.insert(pin->peer);		// record that we've saved this input pin's connection
+
+								int inFilterIndex = -1;
+								for (int f=0; f<filters.GetCount(); f++) {
+									if (pin->peer->filter == filters[f]) {
+										inFilterIndex = f;
+									}
+								}
+								ASSERT(inFilterIndex >= 0);
+
 								xml.BeginNode(_T("connect"));
 									xml.WriteValue(_T("out"), filter->name + _T("/") + pin->name);
+									xml.WriteValue(_T("outFilterIndex"), i);
+									xml.WriteValue(_T("outPinId"), pin->id);
 									xml.WriteValue(_T("in"), pin->peer->filter->name + _T("/") + pin->peer->name);
+									xml.WriteValue(_T("inFilterIndex"), inFilterIndex);
+									xml.WriteValue(_T("inPinId"), pin->peer->id);
 									xml.WriteValue(_T("direct"), _T("true"));
 								xml.EndNode();
 							}
@@ -901,7 +915,7 @@ namespace GraphStudio
 		gf.LoadFromFilter(filter);
 
 		const CString pin_name = conf->GetValue(_T("pin"));
-		Pin	* const pin = gf.FindPin(pin_name);
+		Pin	* const pin = gf.FindPinByName(pin_name);
 		if (!pin) 
 			return VFW_E_NOT_FOUND;
 
@@ -1009,7 +1023,7 @@ namespace GraphStudio
 	HRESULT DisplayGraph::LoadXML_Render(XML::XMLNode *node)
 	{
 		const CString pin_path = node->GetValue(_T("pin"));
-		Pin	* const pin = FindPin(pin_path);
+		Pin	* const pin = FindPinByPath(pin_path);
 		if (!pin) 
 			return VFW_E_NOT_FOUND;
 
@@ -1029,25 +1043,50 @@ namespace GraphStudio
 
 	HRESULT DisplayGraph::LoadXML_Connect(XML::XMLNode *node)
 	{
-		const CString opin_path = node->GetValue(_T("out"));
-		const CString ipin_path = node->GetValue(_T("in"));
+		Pin * opin = NULL;
+		Pin * ipin = NULL;
 
-		CString	direct    = node->GetValue(_T("direct"));
-		if (direct == _T("")) 
-			direct = _T("false");
+		const int ofilter_index = _ttoi(node->GetValue(_T("outFilterIndex")));
+		const int ifilter_index = _ttoi(node->GetValue(_T("inFilterIndex")));
 
-		Pin * const opin = FindPin(opin_path);
-		Pin * const ipin = FindPin(ipin_path);
+		if (ofilter_index >= 0 || ofilter_index < filters.GetCount()
+				|| ifilter_index >= 0 || ifilter_index < filters.GetCount()) {
+
+			const CString opin_id = node->GetValue(_T("outPinId"));
+			const CString ipin_id = node->GetValue(_T("inPinId"));
+
+			// Filters get reversed in order during loading
+			Filter * const ofilter = filters[filters.GetCount() - 1 - ofilter_index];
+			Filter * const ifilter = filters[filters.GetCount() - 1 - ifilter_index];
+
+			if (!ofilter || !ifilter)
+				return VFW_E_NOT_FOUND;
+
+			opin = ofilter->FindPinByID(opin_id);
+			ipin = ifilter->FindPinByID(ipin_id);
+		}
+
+		if (!opin || !ipin) {
+			ASSERT(false);
+
+			const CString ofilter_path = node->GetValue(_T("out"));
+			const CString ifilter_path = node->GetValue(_T("in"));
+
+			opin = FindPinByPath(ofilter_path);
+			ipin = FindPinByPath(ifilter_path);
+		}
 
 		if (!opin || !ipin) 
-			return E_FAIL;
+			return VFW_E_NOT_FOUND;
+
+		const CString	direct    = node->GetValue(_T("direct"));
 
 		HRESULT hr;
-		if (direct == _T("false")) {
+		if (direct.IsEmpty() || direct == _T("false"))
 			hr = gb->Connect(opin->pin, ipin->pin);
-		} else {
+		else
 			hr = gb->ConnectDirect(opin->pin, ipin->pin, NULL);
-		}
+
 		if (FAILED(hr)) 
 			return hr;
 
@@ -1264,15 +1303,16 @@ namespace GraphStudio
 		return 0;
 	}
 
-	Pin *DisplayGraph::FindPin(CString pin_path)
+	Pin *DisplayGraph::FindPinByPath(CString pin_path)
 	{
 		// find the filter
 		CString	filter_name = DSUtil::get_next_token(pin_path, _T("/"));
-		Filter	*filter = FindFilter(filter_name);
-		if (!filter) return NULL;
+		Filter * const filter = FindFilter(filter_name);
+		if (!filter) 
+			return NULL;
 
 		// try to find the pin
-		return filter->FindPin(pin_path);
+		return filter->FindPinByName(pin_path);
 	}
 
 	Filter *DisplayGraph::FindFilter(CString name)
@@ -2314,15 +2354,35 @@ namespace GraphStudio
 		for (i=0; i<output_pins.GetCount(); i++) output_pins[i]->Select(select);
 	}
 
-	Pin *Filter::FindPin(CString name)
+	Pin *Filter::FindPinByID(CString name)
 	{
-		int i;
-		for (i=0; i<output_pins.GetCount(); i++) {
-			if (output_pins[i]->name == name) return output_pins[i];
+		CArray<Pin*> *lists[] = {&output_pins, &input_pins};
+		const size_t num_lists = sizeof(lists)/sizeof(lists[0]);
+
+		CComPtr<IPin> ipin;
+		filter->FindPin(name, &ipin);
+
+		for (CArray<Pin*> ** pins = lists; pins<lists+num_lists; pins++) {
+			for (int p=0; p<(**pins).GetCount(); p++) {
+				Pin * const pin = (**pins)[p];
+				if (pin->pin == ipin) 
+					return pin;
+			}
 		}
-		for (i=0; i<input_pins.GetCount(); i++) {
-			Pin *pin = input_pins[i];
-			if (pin->name == name) return pin;
+		return NULL;
+	}
+
+	Pin *Filter::FindPinByName(CString name)
+	{
+		CArray<Pin*> *lists[] = {&output_pins, &input_pins};
+		const size_t num_lists = sizeof(lists)/sizeof(lists[0]);
+
+		for (CArray<Pin*> ** pins = lists; pins<lists+num_lists; pins++) {
+			for (int p=0; p<(**pins).GetCount(); p++) {
+				Pin * const pin = (**pins)[p];
+				if (pin->name == name) 
+					return pin;
+			}
 		}
 		return NULL;
 	}
@@ -2437,9 +2497,6 @@ namespace GraphStudio
 	Pin::Pin(Filter *parent) :
 		params(parent ? parent->params : NULL),
 		filter(parent),
-		name(),
-		id(),
-		pin(),
 		peer(NULL),
 		dir(PINDIR_INPUT),
 		connected(false),
@@ -2525,7 +2582,8 @@ namespace GraphStudio
 		IPin *peerpin = NULL;
 		pin->ConnectedTo(&peerpin);
 		connected = (peerpin != NULL);
-		if (peerpin) peerpin->Release();
+		if (peerpin) 
+			peerpin->Release();
 
 		PIN_INFO	info;
 		memset(&info, 0, sizeof(info));
@@ -2534,7 +2592,15 @@ namespace GraphStudio
 
 		// find out name
 		name = CString(info.achName);
-		if (info.pFilter) info.pFilter->Release();
+		if (info.pFilter) 
+			info.pFilter->Release();
+
+		LPOLESTR idStr = NULL;
+		if (SUCCEEDED(pin->QueryId(&idStr)) && idStr) {
+			id = CString(idStr);
+		}
+		if (idStr)
+			CoTaskMemFree(idStr);
 
 		return 0;
 	}
