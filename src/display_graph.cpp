@@ -839,21 +839,60 @@ namespace GraphStudio
 								saved_input_pins.insert(pin->peer);		// record that we've saved this input pin's connection
 
 								// work out the filter index of the peer input pin
-								int inFilterIndex = -1;
+								int in_filter_index = -1;
 								for (int f=0; f<filters.GetCount(); f++) {
 									if (pin->peer->filter == filters[f]) {
-										inFilterIndex = f;
+										in_filter_index = f;
 									}
 								}
-								ASSERT(inFilterIndex >= 0);
+								ASSERT(in_filter_index >= 0);
+
+								// work out the pin index of the peer input pin
+								int in_pin_index = -1;
+								CString in_duplicate_ids;
+								for (int ip=0; ip<pin->peer->filter->input_pins.GetCount(); ip++) {
+									const Pin * const sibling = pin->peer->filter->input_pins[ip];
+									if (pin->peer == sibling) {
+										in_pin_index = ip;
+									} else if (pin->peer->id == sibling->id) {
+										if (in_duplicate_ids.GetLength() > 0)
+											in_duplicate_ids += ",";
+										CString temp;
+										temp.Format(_T("%d"), ip);
+										in_duplicate_ids += temp;
+									}
+								}
+								ASSERT(in_pin_index >= 0);
+
+								// work out if any duplicate ids on output pins
+								CString out_duplicate_ids;
+								for (int op=0; op<filter->output_pins.GetCount(); op++) {
+									const Pin * const sibling = filter->output_pins[op];
+									if (pin != sibling  && pin->id == sibling->id) {
+										if (out_duplicate_ids.GetLength() > 0)
+											out_duplicate_ids += ",";
+										CString temp;
+										temp.Format(_T("%d"), op);
+										out_duplicate_ids += temp;
+									}
+								}
+								ASSERT(in_pin_index >= 0);
 
 								xml.BeginNode(_T("connect"));
 									xml.WriteValue(_T("out"), filter->name + _T("/") + pin->name);
 									xml.WriteValue(_T("outFilterIndex"), i);
 									xml.WriteValue(_T("outPinId"), pin->id);
+									if (out_duplicate_ids.GetLength() > 0)
+										xml.WriteValue(_T("outPinIdConflicts"), out_duplicate_ids);
+									xml.WriteValue(_T("outPinIndex"), j);
+
 									xml.WriteValue(_T("in"), pin->peer->filter->name + _T("/") + pin->peer->name);
-									xml.WriteValue(_T("inFilterIndex"), inFilterIndex);
+									xml.WriteValue(_T("inFilterIndex"), in_filter_index);
 									xml.WriteValue(_T("inPinId"), pin->peer->id);
+									if (in_duplicate_ids.GetLength() > 0)
+										xml.WriteValue(_T("inPinIdConflicts"), in_duplicate_ids);
+									xml.WriteValue(_T("inPinIndex"), in_pin_index);
+
 									xml.WriteValue(_T("direct"), _T("true"));
 								xml.EndNode();
 							}
@@ -1090,40 +1129,64 @@ namespace GraphStudio
 		Pin * opin = NULL;
 		Pin * ipin = NULL;
 
-		const int ofilter_index = _ttoi(node->GetValue(_T("outFilterIndex")));
-		const int ifilter_index = _ttoi(node->GetValue(_T("inFilterIndex")));
+		const CString ofilter_index_str = node->GetValue(_T("outFilterIndex"));
+		const CString ifilter_index_str = node->GetValue(_T("inFilterIndex"));
 
-		if (ofilter_index >= 0 || ofilter_index < filters.GetCount()
-				|| ifilter_index >= 0 || ifilter_index < filters.GetCount()) {
+		if (ofilter_index_str.GetLength() > 0
+				&& ifilter_index_str.GetLength() > 0) {
 
-			const CString opin_id = node->GetValue(_T("outPinId"));
-			const CString ipin_id = node->GetValue(_T("inPinId"));
+			const int ofilter_index = _ttoi(ofilter_index_str);
+			const int ifilter_index = _ttoi(ifilter_index_str);
 
-			// Filters get reversed in order during loading
-			Filter * const ofilter = filters[filters.GetCount() - 1 - ofilter_index];
-			Filter * const ifilter = filters[filters.GetCount() - 1 - ifilter_index];
+			if (ofilter_index >= 0 || ofilter_index < filters.GetCount()
+					|| ifilter_index >= 0 || ifilter_index < filters.GetCount()) {
 
-			if (!ofilter || !ifilter)
-				return VFW_E_NOT_FOUND;
+				// Filters get reversed in order during loading
+				Filter * const ofilter = filters[filters.GetCount() - 1 - ofilter_index];
+				Filter * const ifilter = filters[filters.GetCount() - 1 - ifilter_index];
 
-			opin = ofilter->FindPinByID(opin_id);
-			ipin = ifilter->FindPinByID(ipin_id);
+				if (!ofilter || !ifilter)
+					return VFW_E_NOT_FOUND;
+
+				// if there are conflicts between the pin IDs, connect pins by index instead
+
+				CString index_str = node->GetValue(_T("outPinIndex"));
+				if (node->GetValue(_T("outPinIdConflicts")).GetLength() > 0 
+						&& index_str.GetLength() > 0) {
+					const int index = _ttoi(index_str);
+					if (index >= 0 && index < ofilter->output_pins.GetCount())
+						opin = ofilter->output_pins[index];
+				}
+
+				index_str = node->GetValue(_T("inPinIndex"));
+				if (node->GetValue(_T("inPinIdConflicts")).GetLength() > 0 
+						&& index_str.GetLength() > 0) {
+					const int index = _ttoi(index_str);
+					if (index >= 0 && index < ifilter->input_pins.GetCount())
+						ipin = ifilter->input_pins[index];
+				}
+
+				// If connecting by index not needed or fails, fallback to connect by pin ID
+
+				if (!opin)
+					opin = ofilter->FindPinByID(node->GetValue(_T("outPinId")));
+				if (!ipin)
+					ipin = ifilter->FindPinByID(node->GetValue(_T("inPinId")));
+			}
 		}
 
-		if (!opin || !ipin) {
-			ASSERT(false);
+		// As further fallback, connect by the old pin path fields
 
-			const CString ofilter_path = node->GetValue(_T("out"));
-			const CString ifilter_path = node->GetValue(_T("in"));
+		if (!opin)
+			opin = FindPinByPath(node->GetValue(_T("out")));
 
-			opin = FindPinByPath(ofilter_path);
-			ipin = FindPinByPath(ifilter_path);
-		}
+		if (!ipin)
+			ipin = FindPinByPath(node->GetValue(_T("in")));
 
 		if (!opin || !ipin) 
 			return VFW_E_NOT_FOUND;
 
-		const CString	direct    = node->GetValue(_T("direct"));
+		const CString direct = node->GetValue(_T("direct"));
 
 		HRESULT hr;
 		if (direct.IsEmpty() || direct == _T("false"))
