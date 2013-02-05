@@ -368,7 +368,7 @@ namespace GraphStudio
 
 		// XML-based graph construction
 		int SaveXML(CString fn);
-		int SaveXML_Filter(Filter *filter, XML::XMLWriter *writer);
+
 		HRESULT LoadXML(CString fn);
 		HRESULT LoadXML_Filter(XML::XMLNode *node);
 		HRESULT LoadXML_Render(XML::XMLNode *node);
