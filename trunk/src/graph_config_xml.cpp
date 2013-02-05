@@ -59,11 +59,21 @@ namespace GraphStudio
 
 			CComQIPtr<IFileSourceFilter> fsource(filter);
 			if (fsource) {
-				// load the file
-				CString	source = conf->GetValue(_T("source"));
-				hr = fsource->Load((LPCOLESTR)source.GetBuffer(), NULL);
-				if (FAILED(hr)) 
-					return hr;			// cannot open file
+
+				CString filename = conf->GetValue(_T("source"));
+
+				hr = fsource->Load((LPCOLESTR)filename.GetBuffer(), NULL);
+				if (SUCCEEDED(hr))
+					return hr;
+
+				do {
+					CString title;
+					title.Format(_T("Cannot load source file %s. Please select another file or cancel to continue"), (const TCHAR*)filename);
+					hr = CFileSrcForm::ChooseSourceFile(fsource, title);
+
+					if (SUCCEEDED(hr))
+						return hr;			// break out of loop if file loaded OK or user chooses cancel
+				} while (true);
 			}
 
 		PRESET("ifilesinkfilter")
@@ -71,11 +81,21 @@ namespace GraphStudio
 
 			CComQIPtr<IFileSinkFilter> fsink(filter);
 			if (fsink) {
-				// save the file
-				CString	dest = conf->GetValue(_T("dest"));
-				hr = fsink->SetFileName((LPCOLESTR)dest.GetBuffer(), NULL);
-				if (FAILED(hr)) 
-					return hr;			// cannot open file
+
+				CString filename = conf->GetValue(_T("dest"));
+
+				hr = fsink->SetFileName((LPCOLESTR)filename.GetBuffer(), NULL);
+				if (SUCCEEDED(hr))
+					return hr;
+
+				do {
+					CString title;
+					title.Format(_T("Cannot load source file %s. Please select another file or cancel to continue"), (const TCHAR*)filename);
+					hr = CFileSinkForm::ChooseSinkFile(fsink, title);
+
+					if (SUCCEEDED(hr))
+						return hr;			// break out of loop if file loaded OK or user chooses cancel
+				} while (true);
 			}
 
 		PRESET("ipersiststream")
