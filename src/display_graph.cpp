@@ -12,6 +12,7 @@
 
 #include "MediaTypeSelectForm.h"
 
+#include <atlenc.h>
 #include <set>
 
 #pragma warning(disable: 4244)			// DWORD -> BYTE warning
@@ -676,7 +677,7 @@ namespace GraphStudio
 		return NOERROR;
 	}
 
-	CStringA UTF16toUTF8(const CStringW &utf16)
+	static CStringA UTF16toUTF8(const CStringW &utf16)
 	{
 	   CStringA utf8;
 	   int len = WideCharToMultiByte(CP_UTF8, 0, utf16, -1, NULL, 0, 0, 0);
@@ -688,44 +689,86 @@ namespace GraphStudio
 	   return utf8;
 	} 
 
-	int DisplayGraph::SaveXML_Filter(Filter *filter, XML::XMLWriter *writer)
+	static HRESULT SaveXML_IFileSourceFilter(IBaseFilter *filter, XML::XMLWriter &xml)
 	{
-		CComPtr<IFileSourceFilter>		src;
-		CComPtr<IFileSinkFilter>		sink;
-		CComPtr<IPersistStream>			persist;
-		HRESULT							hr;
-		
-		hr = filter->filter->QueryInterface(IID_IFileSourceFilter, (void**)&src);
-		if (SUCCEEDED(hr)) {
+		CComQIPtr<IFileSourceFilter> src(filter);
+		if (src) {
 			LPOLESTR		fn = NULL;
             CMediaType media_type;
 			if (SUCCEEDED(src->GetCurFile(&fn, &media_type))) {
 				//	<ifilesourcefilter source="d:\sga.avi"/>
-				writer->BeginNode(_T("ifilesourcefilter"));
-					writer->WriteValue(_T("source"), CString(fn));
-				writer->EndNode();
-				if (fn) CoTaskMemFree(fn);
+				xml.BeginNode(_T("ifilesourcefilter"));
+					xml.WriteValue(_T("source"), CString(fn));
+				xml.EndNode();
+				if (fn) 
+					CoTaskMemFree(fn);
 			}
-			src = NULL;
 		}
+		return S_OK;
+	}
 
-		hr = filter->filter->QueryInterface(IID_IFileSinkFilter, (void**)&sink);
-		if (SUCCEEDED(hr)) {
+	static HRESULT SaveXML_IFileSinkFilter(IBaseFilter *filter, XML::XMLWriter &xml)
+	{
+		CComQIPtr<IFileSinkFilter> sink(filter);
+		if (sink) {
 			LPOLESTR		fn = NULL;
             CMediaType media_type;
 			if (SUCCEEDED(sink->GetCurFile(&fn, &media_type))) {
 				//	<ifilesinkfilter dest="d:\sga.avi"/>
-				writer->BeginNode(_T("ifilesinkfilter"));
-					writer->WriteValue(_T("dest"), CString(fn));
-				writer->EndNode();
-				if (fn) CoTaskMemFree(fn);
+				xml.BeginNode(_T("ifilesinkfilter"));
+					xml.WriteValue(_T("dest"), CString(fn));
+				xml.EndNode();
+				if (fn) 
+					CoTaskMemFree(fn);
 			}
-			sink = NULL;
 		}
+		return S_OK;
+	}
 
+	static HRESULT SaveXML_IPersistStream(IBaseFilter *filter, XML::XMLWriter &xml)
+	{
+		HRESULT hr = E_FAIL;
+		CComQIPtr<IPersistStream> persist_stream(filter);
+		if (persist_stream) {
+			const HGLOBAL hglobal_stream = GlobalAlloc(GHND, 0);	// free by stream unless stream isn't created
+			CComPtr<IStream> stream;
+			CreateStreamOnHGlobal(hglobal_stream, FALSE, &stream);
 
+			const void * binary_data;
+			size_t binary_size;
+			if (stream 
+					&& hglobal_stream  
+					&& SUCCEEDED(hr = persist_stream->Save(stream, TRUE)) 
+					&& (binary_size = GlobalSize(hglobal_stream)) > 0
+					&& (binary_data = GlobalLock(hglobal_stream)) != NULL) {
 
-		return 0;
+				const DWORD base64_flags = ATL_BASE64_FLAG_NOCRLF;
+				const int base64_size = Base64EncodeGetRequiredLength(binary_size, base64_flags);
+				char* const base64_data = new char[base64_size];
+
+				int converted_size = base64_size;
+				if (Base64Encode((const BYTE*)binary_data, binary_size, base64_data, &converted_size, base64_flags)
+						&& converted_size > 0) {
+
+					// <ipersiststream encoding="base64" data="MAAwADAAMAAwADAAMAAwADAAMAAwACAA="/>
+					xml.BeginNode(_T("ipersiststream"));
+						xml.WriteValue(_T("encoding"), _T("base64"));
+						xml.WriteValue(_T("data"), CString(base64_data, converted_size));
+					xml.EndNode();
+				} else {
+					ASSERT(!"base64 conversion failed");
+				}
+
+				delete[] base64_data;
+			} else {
+				ASSERT(!"Failed to create IStream");
+			}
+			if (binary_data)
+				GlobalUnlock(hglobal_stream);
+			if (hglobal_stream)
+				GlobalFree(hglobal_stream);		
+		}
+		return S_OK;
 	}
 
 	int DisplayGraph::SaveXML(CString fn)
@@ -735,9 +778,7 @@ namespace GraphStudio
 		xml.BeginNode(_T("graph"));
 			xml.WriteValue(_T("name"), _T("Unnamed Graph"));
 
-			/*
-				First we add all filters into the graph
-			*/
+			// First we add all filters into the graph
 			for (int i=0; i<filters.GetCount(); i++) {
 				Filter	*filter = filters[i];
 
@@ -753,8 +794,9 @@ namespace GraphStudio
 					CoTaskMemFree(strclsid);
 
 					// now check for interfaces
-					SaveXML_Filter(filter, &xml);
-
+					SaveXML_IFileSourceFilter(filter->filter, xml);
+					SaveXML_IFileSinkFilter(filter->filter, xml);
+					SaveXML_IPersistStream(filter->filter, xml);
 				xml.EndNode();
 			}
 
@@ -763,14 +805,15 @@ namespace GraphStudio
 			int iterations = 0;
 
 			// Now let's add all the connections
-			// Loop over filters only saving connections from filters whose inputs have been saved already
+			// Loop over filters only saving connections from filters whose input connections have been saved already
+			// until all connections have been saved
 			while (!all_inputs_saved) {		
 				if (iterations++ > 500)	{	// Sanity check to prevent pathological infinite looping
 					ASSERT(false);
 					break;
 				}
 
-				all_inputs_saved = true;	// test every filter in loop below
+				all_inputs_saved = true;	// test every filter for unsaved input connections in loop below
 
 				for (int i=0; i<filters.GetCount(); i++) {
 				
@@ -781,20 +824,21 @@ namespace GraphStudio
 					for (int j=0; j<filter->input_pins.GetCount(); j++) {
 						Pin* const pin = filter->input_pins[j];
 						if (pin->peer && saved_input_pins.find(pin) == saved_input_pins.end()) {		
-							inputs_saved = false;
+							inputs_saved = false;		// found input pin with unsaved connection
 							break;
 						}
 					}
 
 					all_inputs_saved = all_inputs_saved && inputs_saved;
 
-					// Only save output connections for filters whose connected input pins are already saved
+					// Only save a filter's output pin connections if all of its input pin connections are already saved
 					if (inputs_saved) {
 						for (int j=0; j<filter->output_pins.GetCount(); j++) {
 							Pin * const pin = filter->output_pins[j];
-							if (pin->peer && saved_input_pins.find(pin->peer) == saved_input_pins.end()) {
+							if (pin->peer && saved_input_pins.find(pin->peer) == saved_input_pins.end()) {	// if connection not saved yet
 								saved_input_pins.insert(pin->peer);		// record that we've saved this input pin's connection
 
+								// work out the filter index of the peer input pin
 								int inFilterIndex = -1;
 								for (int f=0; f<filters.GetCount(); f++) {
 									if (pin->peer->filter == filters[f]) {
@@ -1816,7 +1860,6 @@ namespace GraphStudio
 		name = CString(info.achName);
 		if (name == _T("")) name = _T("(Unnamed filter)");
 
-		// todo: check for IFileSourceFilter
 		display_name = name;
 
 		//---------------------------------------------------------------------

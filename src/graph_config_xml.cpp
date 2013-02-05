@@ -9,6 +9,7 @@
 #include <math.h>
 #include <atlbase.h>
 #include <atlpath.h>
+#include <atlenc.h>
 
 #pragma warning(disable: 4244)			// DWORD -> BYTE warning
 
@@ -56,9 +57,8 @@ namespace GraphStudio
 		PRESET("ifilesourcefilter")
 			//	<ifilesourcefilter source="d:\sga.avi"/>
 
-			CComPtr<IFileSourceFilter>		fsource;
-			hr = filter->QueryInterface(IID_IFileSourceFilter, (void**)&fsource);
-			if (SUCCEEDED(hr)) {
+			CComQIPtr<IFileSourceFilter> fsource(filter);
+			if (fsource) {
 				// load the file
 				CString	source = conf->GetValue(_T("source"));
 				hr = fsource->Load((LPCOLESTR)source.GetBuffer(), NULL);
@@ -69,14 +69,62 @@ namespace GraphStudio
 		PRESET("ifilesinkfilter")
 			//	<ifilesinkfilter dest="d:\sga.avi"/>
 
-			CComPtr<IFileSinkFilter>		fsink;
-			hr = filter->QueryInterface(IID_IFileSinkFilter, (void**)&fsink);
-			if (SUCCEEDED(hr)) {
+			CComQIPtr<IFileSinkFilter> fsink(filter);
+			if (fsink) {
 				// save the file
 				CString	dest = conf->GetValue(_T("dest"));
 				hr = fsink->SetFileName((LPCOLESTR)dest.GetBuffer(), NULL);
 				if (FAILED(hr)) 
 					return hr;			// cannot open file
+			}
+
+		PRESET("ipersiststream")
+			// <ipersiststream encoding="base64" data="MAAwADAAMAAwADAAMAAwADAAMAAwACAA="/>
+
+			CComQIPtr<IPersistStream> persist_stream(filter);
+			
+			const CString base64_str = conf->GetValue(_T("data"));
+			ASSERT(base64_str.GetLength() > 0);
+			ASSERT(conf->GetValue(_T("encoding")) == _T("base64"));
+
+			if (persist_stream && base64_str.GetLength() > 0) {
+
+				const int stream_size = Base64DecodeGetRequiredLength(base64_str.GetLength());
+				HGLOBAL stream_hglobal = GlobalAlloc(GHND, stream_size);
+				BYTE * stream_data = (BYTE *)GlobalLock(stream_hglobal);
+
+				const CStringA base64_mcbs(base64_str);
+				int converted_length = stream_size;
+
+				if (stream_hglobal 
+						&& stream_data 
+						&& base64_mcbs.GetLength() > 0
+						&& Base64Decode(base64_mcbs, base64_mcbs.GetLength(), stream_data, &converted_length)
+						&& converted_length > 0) {
+
+					GlobalUnlock(stream_hglobal);
+					stream_data = NULL;
+
+					const HGLOBAL temp_hglobal = GlobalReAlloc(stream_hglobal, converted_length, GMEM_ZEROINIT);
+					ASSERT(temp_hglobal);
+					if (temp_hglobal) {
+						stream_hglobal = temp_hglobal;
+						ASSERT(GlobalSize(stream_hglobal) == converted_length);
+
+						CComPtr<IStream> stream;
+						CreateStreamOnHGlobal(stream_hglobal, FALSE, &stream);
+						ASSERT(stream);
+
+						if (stream)
+							hr = persist_stream->Load(stream);
+					}
+				} else {
+					ASSERT(!"Failed to decode base64");	// something went wrong in string wrangling
+				}
+				if (stream_data)
+					GlobalUnlock(stream_hglobal);
+				if (stream_hglobal)
+					GlobalFree(stream_hglobal);
 			}
 
 		PRESET("imonogramgraphsink")
