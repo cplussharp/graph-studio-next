@@ -2336,7 +2336,8 @@ namespace GraphStudio
 
 	// new_columns is the column_index we're placing this filter in
 	// x is the x position we've calculated for this filter
-	void Filter::CalculatePlacementChain(int new_column, int x)
+	// y is the y position we've calculated for this filter (or negative for none)
+	void Filter::CalculatePlacementChain(int new_column, int x, int y)
 	{
 		if (new_column > graph->columns.GetCount()) {
 			// this is an error case !!
@@ -2379,8 +2380,9 @@ namespace GraphStudio
 
 			// Set y position of filter if not set before now
 			// and update y position of column for filters added after ths one
+			// Don't position ourselves any higher than the upstream filter that positioned us
 			if (posy == 0)	{
-				posy = DisplayGraph::NextGridPos(current_column.y);
+				posy = DisplayGraph::NextGridPos(max(current_column.y, y));
 				current_column.y = DisplayGraph::NextGridPos(current_column.y + height + MIN_FILTER_Y_GAP);
 			}
 
@@ -2397,7 +2399,7 @@ namespace GraphStudio
 				if (peer_pin) {
 					Filter	* const down_filter = graph->FindParentFilter(peer_pin);
 					if (down_filter) {
-						down_filter->CalculatePlacementChain(new_column + 1, next_column_x);
+						down_filter->CalculatePlacementChain(new_column + 1, next_column_x, posy);
 					}
 					peer_pin->Release();
 				}

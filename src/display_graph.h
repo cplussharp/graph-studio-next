@@ -265,7 +265,7 @@ namespace GraphStudio
 		int NumOfConnectedPins(PIN_DIRECTION dir);
 
 		// placement 
-		void CalculatePlacementChain(int new_depth, int x);
+		void CalculatePlacementChain(int new_depth, int x, int y=-1);
 		void UpdatePinPositions();
 
 		// filter dragging
