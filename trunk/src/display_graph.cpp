@@ -733,8 +733,8 @@ namespace GraphStudio
 			CComPtr<IStream> stream;
 			CreateStreamOnHGlobal(hglobal_stream, FALSE, &stream);
 
-			const void * binary_data;
-			size_t binary_size;
+			const void * binary_data = NULL;
+			size_t binary_size = 0;
 			if (stream 
 					&& hglobal_stream  
 					&& SUCCEEDED(hr = persist_stream->Save(stream, TRUE)) 
@@ -2383,7 +2383,7 @@ namespace GraphStudio
 			// Don't position ourselves any higher than the upstream filter that positioned us
 			if (posy == 0)	{
 				posy = DisplayGraph::NextGridPos(max(current_column.y, y));
-				current_column.y = DisplayGraph::NextGridPos(current_column.y + height + MIN_FILTER_Y_GAP);
+				current_column.y = DisplayGraph::NextGridPos(posy + height + MIN_FILTER_Y_GAP);
 			}
 
 			// calculate position of next column that leaves enough space for this filter
