@@ -274,8 +274,6 @@ namespace GraphStudio
 		}
 
 		OnDeleteSelection();
-		graph.SmartPlacement();
-		graph.Dirty();
 	}
 
 	Pin * DisplayView::GetPinFromFilterClick(Filter* filter, int clickFlags, bool findConnectedPin)
