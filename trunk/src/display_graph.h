@@ -187,6 +187,8 @@ namespace GraphStudio
 	class Filter
 	{
 	public:
+		static const int MIN_FILTER_X_GAP = 40;
+		static const int MIN_FILTER_Y_GAP = 30;
 
 		DisplayGraph			*graph;
 		RenderParameters		*params;
@@ -318,6 +320,11 @@ namespace GraphStudio
 	class DisplayGraph
 	{
 	public:
+		// Coordinates for graph are on a grid. 
+		static const int GRID_SIZE = 8;
+		// These helpers round the next previous grid coordinate. If already on a grid line same value is returned
+		static inline int NextGridPos(const int coord) { return (coord+7) &~ 0x07; } 
+		static inline int PrevGridPos(const int coord) { return coord &~ 0x07; } 
 
 		// graph itself
 		CComPtr<IGraphBuilder>			gb;
