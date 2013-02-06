@@ -207,7 +207,7 @@ namespace GraphStudio
 		CPoint					start_drag_pos;
 
 		int						tag;				// helper
-		int						depth;	
+		int						column;				// The column index that we're arranged in. Not set if negative
 		bool					selected;
 		bool					connected;
 
@@ -341,8 +341,8 @@ namespace GraphStudio
 		RenderParameters				*params;
 		GraphCallbackImpl				*graph_callback;
 
-		// bins in filters are (smart placement)
-		CArray<CPoint>					bins;
+		// columns that filters are arranged in (smart placement). Columns can be different widths
+		CArray<CPoint>					columns;
 
 		// 
 		HWND							wndEvents;

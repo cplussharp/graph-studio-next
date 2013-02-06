@@ -184,7 +184,7 @@ namespace GraphStudio
 			ZeroTags();
 			RemoveAllFilters();
 			RemoveUnusedFilters();
-			bins.RemoveAll();
+			columns.RemoveAll();
 			gb = NULL;
 			cgb = NULL;
 		} else {
@@ -193,7 +193,7 @@ namespace GraphStudio
 
 			ZeroTags();
 			RemoveUnusedFilters();
-			bins.RemoveAll();
+			columns.RemoveAll();
 			gb = NULL;
 			cgb = NULL;
 		}
@@ -1694,8 +1694,8 @@ namespace GraphStudio
 	// do some nice automatic filter placement
 	void DisplayGraph::SmartPlacement()
 	{
-		// Reset all bins and placement information cached in Filters
-		bins.RemoveAll();
+		// Reset all columns and placement information cached in Filters
+		columns.RemoveAll();
 
 		int i;
 		for (i=0; i<filters.GetCount(); i++) {
@@ -1703,7 +1703,7 @@ namespace GraphStudio
 			filter->Refresh();
 
 			// reset placement helpers
-			filter->depth = -1;		// flag not placed in bin
+			filter->column = -1;	// flag not placed in column
 			filter->posy = 0;
 			filter->posx = 0;
 		}
@@ -1721,7 +1721,7 @@ namespace GraphStudio
 		// then align the not connected filters
 		for (i=0; i<filters.GetCount(); i++) {
 			Filter	* const filter = filters[i];
-			if (filter->depth < 0) {		// if not already placed
+			if (filter->column < 0) {		// if not already placed
 				filter->CalculatePlacementChain(0, DisplayGraph::GRID_SIZE);
 			}
 		}
@@ -1729,9 +1729,9 @@ namespace GraphStudio
 		// now set proper posX
 		for (i=0; i<filters.GetCount(); i++) {
 			Filter	* const filter = filters[i];
-			ASSERT(filter->depth >= 0);
-			filter->depth = max(0, filter->depth);		// sanity check on depth
-			CPoint	&pt     = bins[filter->depth];
+			ASSERT(filter->column >= 0);
+			filter->column = max(0, filter->column);		// sanity check on depth
+			CPoint	&pt     = columns[filter->column];
 			filter->posx = pt.x;
 		}
 	}
@@ -1743,12 +1743,11 @@ namespace GraphStudio
 	//-------------------------------------------------------------------------
 
 	Filter::Filter(DisplayGraph *parent)
+		: column(-1)
 	{
 		graph = parent;
 		params = (graph != NULL ? graph->params : NULL);
-		name = _T("");
 		clsid = CLSID_VideoMixingRenderer9;
-		clsid_str = _T("");
 		filter = NULL;
 		posx = 0;
 		posy = 0;
@@ -1757,7 +1756,6 @@ namespace GraphStudio
 		clock = NULL;
 		videowindow = NULL;
 		overlay_icon_active = -1;
-		overlay_icons.RemoveAll();
 	}
 
 	Filter::~Filter()
@@ -2336,66 +2334,70 @@ namespace GraphStudio
 		}
 	}
 
-	void Filter::CalculatePlacementChain(int new_depth, int x)
+	// new_columns is the column_index we're placing this filter in
+	// x is the x position we've calculated for this filter
+	void Filter::CalculatePlacementChain(int new_column, int x)
 	{
-		if (new_depth > graph->bins.GetCount()) {
+		if (new_column > graph->columns.GetCount()) {
 			// this is an error case !!
 			return ;
-		} else
-		if (new_depth == graph->bins.GetCount()) {
+		}
+
+		// Create column for this filter if required
+		if (new_column == graph->columns.GetCount()) {
 			// add one more
 			CPoint	pt;
 			pt.x = x;
 			pt.y = DisplayGraph::GRID_SIZE;
-			graph->bins.Add(pt);
-			pt.x = DisplayGraph::NextGridPos(x + width + MIN_FILTER_X_GAP);
-			graph->bins.Add(pt);
-		} else
-		if (new_depth == graph->bins.GetCount()-1) {
-			// check the next bin X position
+			graph->columns.Add(pt);
+		}
+
+		// if not already added, add the next column beyond this one to leave enough space for this filter
+		if (new_column == graph->columns.GetCount()-1) {
 			CPoint	pt;
 			pt.x = DisplayGraph::NextGridPos(x + width + MIN_FILTER_X_GAP);
 			pt.y = DisplayGraph::GRID_SIZE;
-			graph->bins.Add(pt);
+			graph->columns.Add(pt);
 		}
 
-		CPoint		&pt = graph->bins[new_depth];
+		CPoint &current_column = graph->columns[new_column];
 
 		// we distribute new values, if they are larger
-		if (new_depth == 0 || new_depth > depth || x > pt.x) {
-			depth = new_depth;
+		// If we're adding to column zero, 
+		// OR this filter has been added to column for first time or pushed into a later column than it was already
+		// OR this filter's position is further right than the current column
+		if (new_column == 0 || new_column > column || x > current_column.x) {
+			column = new_column;
 
-			if (x > pt.x) {
-				pt.x = x;
-
-				if (x > pt.x) {
-					int dif = x - pt.x;
-					// move all following bins
-					for (int i=new_depth; i<graph->bins.GetCount(); i++) {
-						CPoint	&p = graph->bins[i];
-						p.x += dif;
-					}
+			if (x > current_column.x) {		// required position of this filter is further right than current column x position
+				const int dif = x - current_column.x;
+				// move this and all following columns right to line up with this filter
+				for (int i=new_column; i<graph->columns.GetCount(); i++) {
+					graph->columns[i].x += dif;
 				}
 			}
-			const int	newx = DisplayGraph::NextGridPos(pt.x + width + MIN_FILTER_X_GAP);
 
+			// Set y position of filter if not set before now
+			// and update y position of column for filters added after ths one
 			if (posy == 0)	{
-				// next row
-				posy = DisplayGraph::NextGridPos(pt.y);
-				pt.y = DisplayGraph::NextGridPos(pt.y + height + MIN_FILTER_Y_GAP);
+				posy = DisplayGraph::NextGridPos(current_column.y);
+				current_column.y = DisplayGraph::NextGridPos(current_column.y + height + MIN_FILTER_Y_GAP);
 			}
 
-			// find downstream filters
+			// calculate position of next column that leaves enough space for this filter
+			const int next_column_x = DisplayGraph::NextGridPos(current_column.x + width + MIN_FILTER_X_GAP);
+
+			// position downstream filters recursively
 			for (int i=0; i<output_pins.GetCount(); i++) {
 				Pin *pin = output_pins[i];
 				IPin *peer_pin = NULL;
-				if (pin && pin->pin) pin->pin->ConnectedTo(&peer_pin);
+				if (pin && pin->pin) 
+					pin->pin->ConnectedTo(&peer_pin);
 
-				// find parent of the downstream filter
 				if (peer_pin) {
-					Filter	*down_filter = graph->FindParentFilter(peer_pin);
+					Filter	* const down_filter = graph->FindParentFilter(peer_pin);
 					if (down_filter) {
-						down_filter->CalculatePlacementChain(new_depth + 1, newx);
+						down_filter->CalculatePlacementChain(new_column + 1, next_column_x);
 					}
 					peer_pin->Release();
 				}
