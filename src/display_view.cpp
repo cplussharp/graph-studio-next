@@ -546,12 +546,8 @@ namespace GraphStudio
 					for (i=0; i<graph.filters.GetCount(); i++) {
 						Filter *filter = graph.filters[i];
 						if (filter->selected) {
-							int px = filter->start_drag_pos.x + deltax;
-							int py = filter->start_drag_pos.y + deltay;
-
-							// snap to grid
-							px = (px+7)&~0x07;
-							py = (py+7)&~0x07;
+							const int px = DisplayGraph::NextGridPos(filter->start_drag_pos.x + deltax);
+							const int py = DisplayGraph::NextGridPos(filter->start_drag_pos.y + deltay);
 
 							if (px != filter->posx || py != filter->posy) {
 								filter->posx = px;
@@ -1076,10 +1072,15 @@ namespace GraphStudio
 			if (filter->posy + filter->height > maxy) maxy = filter->posy+filter->height;
 		}
 
-		minx = minx &~ 0x07; minx -= 8;	if (minx < 0) minx = 0;
-		miny = miny &~ 0x07; miny -= 8;	if (miny < 0) miny = 0;
-		maxx = (maxx+7) &~ 0x07; maxx += 8;
-		maxy = (maxy+7) &~ 0x07; maxy += 8;
+		// Round outwards and add an extra grid of border
+		minx = DisplayGraph::PrevGridPos(minx) - DisplayGraph::GRID_SIZE;
+		minx = max(minx, 0);
+
+		miny = DisplayGraph::PrevGridPos(miny) - DisplayGraph::GRID_SIZE;
+		miny = max(miny, 0);
+
+		maxx = DisplayGraph::NextGridPos(maxx) + DisplayGraph::GRID_SIZE;
+		maxy = DisplayGraph::NextGridPos(maxy) + DisplayGraph::GRID_SIZE;
 
 		// now copy the bitmap
 		int	cx = (maxx-minx);

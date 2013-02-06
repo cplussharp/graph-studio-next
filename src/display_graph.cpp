@@ -319,9 +319,8 @@ namespace GraphStudio
 			if (filter->posy + filter->height > maxy) maxy = filter->posy+filter->height;
 		}
 
-		// 8-pixel alignment
-		maxx = (maxx+7) &~ 0x07; maxx += 8;
-		maxy = (maxy+7) &~ 0x07; maxy += 8;
+		maxx = NextGridPos(maxx) + DisplayGraph::GRID_SIZE;
+		maxy = NextGridPos(maxy) + DisplayGraph::GRID_SIZE;
 
 		return CSize(maxx, maxy);
 	}
@@ -1692,11 +1691,12 @@ namespace GraphStudio
                 filterPersistData[i]->Release();
 	}
 
+	// do some nice automatic filter placement
 	void DisplayGraph::SmartPlacement()
 	{
+		// Reset all bins and placement information cached in Filters
 		bins.RemoveAll();
 
-		// do some nice automatic filter placement
 		int i;
 		for (i=0; i<filters.GetCount(); i++) {
 			Filter	* const filter = filters[i];
@@ -1708,14 +1708,13 @@ namespace GraphStudio
 			filter->posx = 0;
 		}
 
-		// First position the sources that have connected outputs
+		// First position the sources that have no connected inputs, and some connected outputs
 		for (i=0; i<filters.GetCount(); i++) {
 			Filter	* const filter = filters[i];
 			filter->LoadPeers();
 			if (filter->NumOfConnectedPins(PINDIR_INPUT) == 0
 					&& filter->NumOfConnectedPins(PINDIR_OUTPUT) > 0) {
-				// For filters with no connected inputs, and some connected outputs
-				filter->CalculatePlacementChain(0, 8);
+				filter->CalculatePlacementChain(0, DisplayGraph::GRID_SIZE);
 			}
 		}
 
@@ -1723,7 +1722,7 @@ namespace GraphStudio
 		for (i=0; i<filters.GetCount(); i++) {
 			Filter	* const filter = filters[i];
 			if (filter->depth < 0) {		// if not already placed
-				filter->CalculatePlacementChain(0, 8);
+				filter->CalculatePlacementChain(0, DisplayGraph::GRID_SIZE);
 			}
 		}
 
@@ -2347,17 +2346,16 @@ namespace GraphStudio
 			// add one more
 			CPoint	pt;
 			pt.x = x;
-			pt.y = 8;
+			pt.y = DisplayGraph::GRID_SIZE;
 			graph->bins.Add(pt);
-			pt.x = (x+width+40+7) &~ 0x07;
+			pt.x = DisplayGraph::NextGridPos(x + width + MIN_FILTER_X_GAP);
 			graph->bins.Add(pt);
 		} else
 		if (new_depth == graph->bins.GetCount()-1) {
 			// check the next bin X position
 			CPoint	pt;
-			int		newx = (x+width+40+7)&~ 0x07;
-			pt.x = newx;
-			pt.y = 8;
+			pt.x = DisplayGraph::NextGridPos(x + width + MIN_FILTER_X_GAP);
+			pt.y = DisplayGraph::GRID_SIZE;
 			graph->bins.Add(pt);
 		}
 
@@ -2379,14 +2377,12 @@ namespace GraphStudio
 					}
 				}
 			}
-			int	newx = ((pt.x + width + 40) + 7) &~ 0x07;
+			const int	newx = DisplayGraph::NextGridPos(pt.x + width + MIN_FILTER_X_GAP);
 
 			if (posy == 0)	{
 				// next row
-				posy = pt.y;
-				posy = (posy + 7) &~ 0x07;
-				pt.y += height + 30;
-				pt.y = (pt.y + 7) &~ 0x07;
+				posy = DisplayGraph::NextGridPos(pt.y);
+				pt.y = DisplayGraph::NextGridPos(pt.y + height + MIN_FILTER_Y_GAP);
 			}
 
 			// find downstream filters
@@ -2441,12 +2437,12 @@ namespace GraphStudio
 
 	void Filter::VerifyDrag(int *deltax, int *deltay)
 	{
-		// verify so we don't go outside the area
-		if (start_drag_pos.x + (*deltax) < 8) {
-			*deltax = 8 - start_drag_pos.x;
+		// adjust drag delta so we don't drag less than one grid space from 0
+		if (start_drag_pos.x + (*deltax) < DisplayGraph::GRID_SIZE) {
+			*deltax = DisplayGraph::GRID_SIZE - start_drag_pos.x;
 		}
-		if (start_drag_pos.y + (*deltay) < 8) {
-			*deltay = 8 - start_drag_pos.y;
+		if (start_drag_pos.y + (*deltay) < DisplayGraph::GRID_SIZE) {
+			*deltay = DisplayGraph::GRID_SIZE - start_drag_pos.y;
 		}
 	}
 
@@ -2938,8 +2934,8 @@ namespace GraphStudio
 	{
 		zoom = z;
 
-		min_filter_width = (((int)(z * def_min_width / 100.0))); // &~ 0x08;
-		min_filter_height = (((int)(z * def_min_height / 100.0))); // &~ 0x08;
+		min_filter_width = (((int)(z * def_min_width / 100.0)));
+		min_filter_height = (((int)(z * def_min_height / 100.0)));
 		pin_spacing = (int)(z * def_pin_spacing / 100.0);
 
 		if (font_filter.m_hObject != 0) { font_filter.DeleteObject(); }
