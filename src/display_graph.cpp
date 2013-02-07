@@ -2361,19 +2361,19 @@ namespace GraphStudio
 			graph->columns.Add(pt);
 		}
 
-		CPoint &current_column = graph->columns[new_column];
-
 		// we distribute new values, if they are larger
 		// If we're adding to column zero, 
 		// OR this filter has been added to column for first time or pushed into a later column than it was already
 		// OR this filter's position is further right than the current column
-		if (new_column == 0 || new_column > column || x > current_column.x) {
-			column = new_column;
+		if (new_column == 0 || new_column > column || x > graph->columns[new_column].x) {
+			column = max(column, new_column);
+
+			CPoint& current_column = graph->columns[column];
 
 			if (x > current_column.x) {		// required position of this filter is further right than current column x position
 				const int dif = x - current_column.x;
 				// move this and all following columns right to line up with this filter
-				for (int i=new_column; i<graph->columns.GetCount(); i++) {
+				for (int i=column; i<graph->columns.GetCount(); i++) {
 					graph->columns[i].x += dif;
 				}
 			}
@@ -2399,7 +2399,7 @@ namespace GraphStudio
 				if (peer_pin) {
 					Filter	* const down_filter = graph->FindParentFilter(peer_pin);
 					if (down_filter) {
-						down_filter->CalculatePlacementChain(new_column + 1, next_column_x, posy);
+						down_filter->CalculatePlacementChain(column + 1, next_column_x, posy);
 					}
 					peer_pin->Release();
 				}
