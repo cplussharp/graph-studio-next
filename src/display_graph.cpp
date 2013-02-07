@@ -770,6 +770,141 @@ namespace GraphStudio
 		return S_OK;
 	}
 
+	// Save connection from given output pin
+	static void SaveXML_Connection(XML::XMLWriter &xml, const CArray<Filter*>& filters, const Pin* const pin, int out_filter_index, int out_pin_index)
+	{
+		const Filter* const filter = pin->filter;
+
+		// work out the filter index of the peer input pin
+		int in_filter_index = -1;
+		for (int f=0; f<filters.GetCount(); f++) {
+			if (pin->peer->filter == filters[f]) {
+				in_filter_index = f;
+			}
+		}
+		ASSERT(in_filter_index >= 0);
+
+		// work out the pin index of the peer input pin
+		int in_pin_index = -1;
+		CString in_duplicate_ids;
+
+		for (int ip=0; ip<pin->peer->filter->input_pins.GetCount(); ip++) {
+			const Pin * const sibling = pin->peer->filter->input_pins[ip];
+			if (pin->peer == sibling) {
+				in_pin_index = ip;
+			} else if (pin->peer->id == sibling->id) {
+				if (in_duplicate_ids.GetLength() > 0)
+					in_duplicate_ids += ",";
+				CString temp;
+				temp.Format(_T("%d"), ip);
+				in_duplicate_ids += temp;
+			}
+		}
+		ASSERT(in_pin_index >= 0);
+
+		// work out if any duplicate ids on output pins
+		CString out_duplicate_ids;
+
+		for (int op=0; op<filter->output_pins.GetCount(); op++) {
+			const Pin * const sibling = filter->output_pins[op];
+			if (pin != sibling  && pin->id == sibling->id) {
+				if (out_duplicate_ids.GetLength() > 0)
+					out_duplicate_ids += ",";
+				CString temp;
+				temp.Format(_T("%d"), op);
+				out_duplicate_ids += temp;
+			}
+		}
+		ASSERT(in_pin_index >= 0);
+
+		xml.BeginNode(_T("connect"));
+			xml.WriteValue(_T("out"), filter->name + _T("/") + pin->name);
+			xml.WriteValue(_T("outFilterIndex"), out_filter_index);
+			xml.WriteValue(_T("outPinId"), pin->id);
+			if (out_duplicate_ids.GetLength() > 0)
+				xml.WriteValue(_T("outPinIdConflicts"), out_duplicate_ids);
+			xml.WriteValue(_T("outPinIndex"), out_pin_index);
+
+			xml.WriteValue(_T("in"), pin->peer->filter->name + _T("/") + pin->peer->name);
+			xml.WriteValue(_T("inFilterIndex"), in_filter_index);
+			xml.WriteValue(_T("inPinId"), pin->peer->id);
+			if (in_duplicate_ids.GetLength() > 0)
+				xml.WriteValue(_T("inPinIdConflicts"), in_duplicate_ids);
+			xml.WriteValue(_T("inPinIndex"), in_pin_index);
+
+			xml.WriteValue(_T("direct"), _T("true"));
+		xml.EndNode();
+	}
+
+	static void SaveXML_GraphConnections(XML::XMLWriter& xml, const CArray<Filter*>& filters)
+	{
+		std::set<const Pin*> saved_input_pins;	// The input pins whose connections have already been saved
+		bool all_inputs_saved = false;		// true when all filters have had their connected inputs saved so we can stop iterating
+		int iterations = 0;
+
+		// Now let's add all the connections
+		// Loop over filters only saving connections from filters whose input connections have been saved already
+		// until all connections have been saved
+		while (!all_inputs_saved) {		
+			if (iterations++ > 500)	{	// Sanity check to prevent pathological infinite looping
+				ASSERT(false);
+				break;
+			}
+
+			all_inputs_saved = true;	// test every filter for unsaved input connections in loop below
+
+			for (int of=0; of<filters.GetCount(); of++) {
+				
+				const Filter * const filter = filters[of];
+				bool inputs_saved = true;
+
+				// Look for any unsaved connections on input pins
+				for (int j=0; j<filter->input_pins.GetCount(); j++) {
+					const Pin* const pin = filter->input_pins[j];
+					if (pin->peer && saved_input_pins.find(pin) == saved_input_pins.end()) {		
+						inputs_saved = false;		// found input pin with unsaved connection
+						break;
+					}
+				}
+
+				all_inputs_saved = all_inputs_saved && inputs_saved;
+
+				// Only save a filter's output pin connections if all of its input pin connections are already saved
+				if (inputs_saved) {
+					for (int op=0; op<filter->output_pins.GetCount(); op++) {
+						Pin * const pin = filter->output_pins[op];
+						if (pin->peer && saved_input_pins.find(pin->peer) == saved_input_pins.end()) {	// if connection not saved yet
+							saved_input_pins.insert(pin->peer);		// record that we've saved this input pin's connection
+
+							SaveXML_Connection(xml, filters, pin, of, op);
+						}
+					}
+				}
+			}
+		}
+
+	}
+
+	static void SaveXML_Filter(XML::XMLWriter &xml, const Filter* filter, int index)
+	{
+		xml.BeginNode(_T("filter"));
+			// save the filter CLSID. If the filter is a wrapper it will initialize properly
+			// after loading IPersistStream 
+			xml.WriteValue(_T("name"), filter->name);
+			xml.WriteValue(_T("index"), index);
+
+			LPOLESTR	strclsid = NULL;
+			StringFromCLSID(filter->clsid, &strclsid);
+			xml.WriteValue(_T("clsid"), strclsid);
+			CoTaskMemFree(strclsid);
+
+			// now check for interfaces
+			SaveXML_IFileSourceFilter(filter->filter, xml);
+			SaveXML_IFileSinkFilter(filter->filter, xml);
+			SaveXML_IPersistStream(filter->filter, xml);
+		xml.EndNode();
+	}
+
 	int DisplayGraph::SaveXML(CString fn)
 	{
 		XML::XMLWriter			xml;
@@ -777,128 +912,11 @@ namespace GraphStudio
 		xml.BeginNode(_T("graph"));
 			xml.WriteValue(_T("name"), _T("Unnamed Graph"));
 
-			// First we add all filters into the graph
 			for (int i=0; i<filters.GetCount(); i++) {
-				Filter	*filter = filters[i];
-
-				xml.BeginNode(_T("filter"));
-					// save the filter CLSID. If the filter is a wrapper it will initialize properly
-					// after loading IPersistStream 
-					xml.WriteValue(_T("name"), filter->name);
-					xml.WriteValue(_T("index"), i);
-
-					LPOLESTR	strclsid = NULL;
-					StringFromCLSID(filter->clsid, &strclsid);
-					xml.WriteValue(_T("clsid"), strclsid);
-					CoTaskMemFree(strclsid);
-
-					// now check for interfaces
-					SaveXML_IFileSourceFilter(filter->filter, xml);
-					SaveXML_IFileSinkFilter(filter->filter, xml);
-					SaveXML_IPersistStream(filter->filter, xml);
-				xml.EndNode();
+				SaveXML_Filter(xml, filters[i], i);
 			}
 
-			std::set<Pin*> saved_input_pins;	// The input pins whose connections have already been saved
-			bool all_inputs_saved = false;		// true when all filters have had their connected inputs saved so we can stop iterating
-			int iterations = 0;
-
-			// Now let's add all the connections
-			// Loop over filters only saving connections from filters whose input connections have been saved already
-			// until all connections have been saved
-			while (!all_inputs_saved) {		
-				if (iterations++ > 500)	{	// Sanity check to prevent pathological infinite looping
-					ASSERT(false);
-					break;
-				}
-
-				all_inputs_saved = true;	// test every filter for unsaved input connections in loop below
-
-				for (int i=0; i<filters.GetCount(); i++) {
-				
-					Filter * const filter = filters[i];
-					bool inputs_saved = true;
-
-					// Look for any unsaved connections on input pins
-					for (int j=0; j<filter->input_pins.GetCount(); j++) {
-						Pin* const pin = filter->input_pins[j];
-						if (pin->peer && saved_input_pins.find(pin) == saved_input_pins.end()) {		
-							inputs_saved = false;		// found input pin with unsaved connection
-							break;
-						}
-					}
-
-					all_inputs_saved = all_inputs_saved && inputs_saved;
-
-					// Only save a filter's output pin connections if all of its input pin connections are already saved
-					if (inputs_saved) {
-						for (int j=0; j<filter->output_pins.GetCount(); j++) {
-							Pin * const pin = filter->output_pins[j];
-							if (pin->peer && saved_input_pins.find(pin->peer) == saved_input_pins.end()) {	// if connection not saved yet
-								saved_input_pins.insert(pin->peer);		// record that we've saved this input pin's connection
-
-								// work out the filter index of the peer input pin
-								int in_filter_index = -1;
-								for (int f=0; f<filters.GetCount(); f++) {
-									if (pin->peer->filter == filters[f]) {
-										in_filter_index = f;
-									}
-								}
-								ASSERT(in_filter_index >= 0);
-
-								// work out the pin index of the peer input pin
-								int in_pin_index = -1;
-								CString in_duplicate_ids;
-								for (int ip=0; ip<pin->peer->filter->input_pins.GetCount(); ip++) {
-									const Pin * const sibling = pin->peer->filter->input_pins[ip];
-									if (pin->peer == sibling) {
-										in_pin_index = ip;
-									} else if (pin->peer->id == sibling->id) {
-										if (in_duplicate_ids.GetLength() > 0)
-											in_duplicate_ids += ",";
-										CString temp;
-										temp.Format(_T("%d"), ip);
-										in_duplicate_ids += temp;
-									}
-								}
-								ASSERT(in_pin_index >= 0);
-
-								// work out if any duplicate ids on output pins
-								CString out_duplicate_ids;
-								for (int op=0; op<filter->output_pins.GetCount(); op++) {
-									const Pin * const sibling = filter->output_pins[op];
-									if (pin != sibling  && pin->id == sibling->id) {
-										if (out_duplicate_ids.GetLength() > 0)
-											out_duplicate_ids += ",";
-										CString temp;
-										temp.Format(_T("%d"), op);
-										out_duplicate_ids += temp;
-									}
-								}
-								ASSERT(in_pin_index >= 0);
-
-								xml.BeginNode(_T("connect"));
-									xml.WriteValue(_T("out"), filter->name + _T("/") + pin->name);
-									xml.WriteValue(_T("outFilterIndex"), i);
-									xml.WriteValue(_T("outPinId"), pin->id);
-									if (out_duplicate_ids.GetLength() > 0)
-										xml.WriteValue(_T("outPinIdConflicts"), out_duplicate_ids);
-									xml.WriteValue(_T("outPinIndex"), j);
-
-									xml.WriteValue(_T("in"), pin->peer->filter->name + _T("/") + pin->peer->name);
-									xml.WriteValue(_T("inFilterIndex"), in_filter_index);
-									xml.WriteValue(_T("inPinId"), pin->peer->id);
-									if (in_duplicate_ids.GetLength() > 0)
-										xml.WriteValue(_T("inPinIdConflicts"), in_duplicate_ids);
-									xml.WriteValue(_T("inPinIndex"), in_pin_index);
-
-									xml.WriteValue(_T("direct"), _T("true"));
-								xml.EndNode();
-							}
-						}
-					}
-				}
-			}
+			SaveXML_GraphConnections(xml, filters);
 
 		xml.EndNode();
 
@@ -1140,9 +1158,9 @@ namespace GraphStudio
 			if (ofilter_index >= 0 || ofilter_index < filters.GetCount()
 					|| ifilter_index >= 0 || ifilter_index < filters.GetCount()) {
 
-				// Filters get reversed in order during loading
-				Filter * const ofilter = filters[filters.GetCount() - 1 - ofilter_index];
-				Filter * const ifilter = filters[filters.GetCount() - 1 - ifilter_index];
+				// Filters now inserted in correct order during loading
+				Filter * const ofilter = filters[ofilter_index];
+				Filter * const ifilter = filters[ifilter_index];
 
 				if (!ofilter || !ifilter)
 					return VFW_E_NOT_FOUND;
@@ -1531,7 +1549,7 @@ namespace GraphStudio
 				if (!filter) {
 					filter = new Filter(this);
 					filter->LoadFromFilter(filt);
-					filters.InsertAt(0, filter);
+					filters.Add(filter);
 				} else {
 					filter->Refresh();
 				}
