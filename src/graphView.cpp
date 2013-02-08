@@ -2004,6 +2004,19 @@ BOOL CGraphView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 			OnViewIncreasezoomlevel();
 		}
 		return 0;
+	} else if (~(nFlags&MK_CONTROL) && (nFlags&MK_SHIFT)) {
+		// shift wheel
+		const int delta = (abs(zDelta) / WHEEL_DELTA) * GraphStudio::DisplayGraph::GRID_SIZE;
+
+		int new_gap = GraphStudio::DisplayGraph::g_filterYGap + (zDelta < 0 ? delta : -delta);
+		new_gap = max(GraphStudio::DisplayGraph::GRID_SIZE, new_gap);
+
+		if (new_gap != GraphStudio::DisplayGraph::g_filterYGap ) {
+			GraphStudio::DisplayGraph::g_filterYGap = new_gap;
+			graph.SmartPlacement();
+			Invalidate();
+		}
+		return 0;
 	} else {
 		return __super::OnMouseWheel(nFlags, zDelta, pt);
 	}
@@ -2014,9 +2027,22 @@ BOOL CGraphView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 // TODO: Add your message handler code here and/or call default
 void CGraphView::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
 {
+	if (~(nFlags&MK_CONTROL) && (nFlags&MK_SHIFT)) {
+		// shift wheel
+		const int delta = (abs(zDelta) / WHEEL_DELTA) * GraphStudio::DisplayGraph::GRID_SIZE;
+
+		int new_gap = GraphStudio::DisplayGraph::g_filterXGap + (zDelta < 0 ? -delta : delta);
+		new_gap = max(GraphStudio::DisplayGraph::GRID_SIZE, new_gap);
+
+		if (new_gap != GraphStudio::DisplayGraph::g_filterXGap ) {
+			GraphStudio::DisplayGraph::g_filterXGap = new_gap;
+			graph.SmartPlacement();
+			Invalidate();
+		}
+	}
 	// we don't handle anything but scrolling
 	// if the parent is a splitter, it will handle the message
-	if (nFlags & (MK_SHIFT | MK_CONTROL) || GetParentSplitter(this, TRUE) || !DoMouseHorzWheel(nFlags, zDelta, pt))
+	else if (nFlags & (MK_SHIFT | MK_CONTROL) || GetParentSplitter(this, TRUE) || !DoMouseHorzWheel(nFlags, zDelta, pt))
 		__super::OnMouseHWheel(nFlags, zDelta, pt);
 }
 
