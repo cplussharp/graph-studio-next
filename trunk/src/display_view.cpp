@@ -273,13 +273,7 @@ namespace GraphStudio
 			filter->Select(true);
 		}
 
-		if (pin || filter)
-			OnDeleteSelection();
-		else {
-			graph.RefreshFilters();
-			graph.SmartPlacement();
-			Invalidate();
-		}
+		OnDeleteSelection();
 	}
 
 	Pin * DisplayView::GetPinFromFilterClick(Filter* filter, int clickFlags, bool findConnectedPin)
