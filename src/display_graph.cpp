@@ -770,6 +770,88 @@ namespace GraphStudio
 		return S_OK;
 	}
 
+	static void SaveXML_MediaType(XML::XMLWriter &xml, const CMediaType& mt)
+	{
+		xml.BeginNode(_T("mediaType"));
+
+			CString type_name;
+			CString guid_name;
+
+			// name major and/or sub type if known for readability of XML file
+			if (NameGuid(mt.majortype, guid_name, false)) {		
+				type_name = guid_name;
+			}
+			if (NameGuid(mt.subtype, guid_name, false)) {
+				type_name += _T(" / ");
+				type_name += guid_name;
+			}
+			if (type_name.GetLength() > 0) {
+				xml.WriteValue(_T("type"), type_name);
+			}
+
+			xml.WriteValue(_T("sampleSize"),			mt.lSampleSize);
+			xml.WriteValue(_T("fixedSizeSamples"),		mt.bFixedSizeSamples ? _T("true") : _T("false"));
+			xml.WriteValue(_T("temporalCompression"),	mt.bTemporalCompression ? _T("true") : _T("false"));
+
+			LPOLESTR clsid_olestr = NULL;
+			StringFromCLSID(mt.majortype, &clsid_olestr);
+			if (clsid_olestr) {
+				xml.WriteValue(_T("majorType"), clsid_olestr);
+				CoTaskMemFree(clsid_olestr);
+			}
+			clsid_olestr = NULL;
+
+			StringFromCLSID(mt.subtype, &clsid_olestr);
+			if (clsid_olestr) {
+				xml.WriteValue(_T("subType"), clsid_olestr);
+				CoTaskMemFree(clsid_olestr);
+			}
+			clsid_olestr = NULL;
+
+		xml.EndNode();
+	}
+
+	static void SaveXML_MediaTypeFormat(XML::XMLWriter &xml, const CMediaType& mt)
+	{
+		const BYTE* const format_data = mt.Format();
+		const ULONG format_length = mt.FormatLength();
+
+		if (format_data && format_length) {
+
+			xml.BeginNode(_T("format"));
+			{
+				CString guid_name;
+				if (NameGuid(mt.formattype, guid_name, false)) {		
+					xml.WriteValue(_T("type"), guid_name);
+				}
+
+				LPOLESTR clsid_olestr = NULL;
+				StringFromCLSID(mt.formattype, &clsid_olestr);
+				if (clsid_olestr) {
+					xml.WriteValue(_T("formatType"), clsid_olestr);
+					CoTaskMemFree(clsid_olestr);
+				}
+
+				const DWORD base64_flags = ATL_BASE64_FLAG_NOCRLF;
+				const int base64_size = Base64EncodeGetRequiredLength(format_length, base64_flags);
+				char* const base64_data = new char[base64_size];
+
+				int converted_size = base64_size;
+				if (Base64Encode((const BYTE*)format_data, format_length, base64_data, &converted_size, base64_flags)
+						&& converted_size > 0) {
+
+						xml.WriteValue(_T("encoding"), _T("base64"));
+						xml.WriteValue(_T("data"), CString(base64_data, converted_size));
+
+				} else {
+					ASSERT(!"base64 conversion failed");
+				}
+				delete [] base64_data;
+			}
+			xml.EndNode();
+		}
+	}
+
 	// Save connection from given output pin
 	static void SaveXML_Connection(XML::XMLWriter &xml, const CArray<Filter*>& filters, const Pin* const pin, int out_filter_index, int out_pin_index)
 	{
@@ -833,6 +915,13 @@ namespace GraphStudio
 			xml.WriteValue(_T("inPinIndex"), in_pin_index);
 
 			xml.WriteValue(_T("direct"), _T("true"));
+
+			CMediaType mt;
+			if (SUCCEEDED(pin->pin->ConnectionMediaType(&mt))) {
+				SaveXML_MediaType(xml, mt);
+				SaveXML_MediaTypeFormat(xml, mt);
+			}
+
 		xml.EndNode();
 	}
 
@@ -892,6 +981,11 @@ namespace GraphStudio
 			// after loading IPersistStream 
 			xml.WriteValue(_T("name"), filter->name);
 			xml.WriteValue(_T("index"), index);
+
+			CString guid_name;
+			if (NameGuid(filter->clsid, guid_name, false)) {		
+				xml.WriteValue(_T("class"), guid_name);
+			}
 
 			LPOLESTR	strclsid = NULL;
 			StringFromCLSID(filter->clsid, &strclsid);
@@ -1141,6 +1235,64 @@ namespace GraphStudio
 		return S_OK;
 	}
 
+	// Returns success HRESULT fif media type loaded
+	static HRESULT LoadXML_MediaType(XML::XMLNode *node, CMediaType& mt)
+	{
+		HRESULT hr = E_FAIL;	// not loaded
+
+		XML::XMLIterator it;
+		if (node->Find(_T("mediaType"), &it) >= 0) {
+			XML::XMLNode * const node = *it;
+			if (node) {
+				mt.bFixedSizeSamples			= node->GetValue(_T("fixedSizeSamples"))	== _T("true") ? TRUE : FALSE;
+				mt.bTemporalCompression			= node->GetValue(_T("temporalCompression")) == _T("true") ? TRUE : FALSE;
+				mt.lSampleSize					= node->GetValue(_T("sampleSize"), 0);
+
+				CString clsid_str = node->GetValue(_T("majorType"));
+				hr = CLSIDFromString((LPOLESTR)clsid_str.GetBuffer(), &mt.majortype);
+
+				clsid_str = node->GetValue(_T("subType"));
+				CLSIDFromString((LPOLESTR)clsid_str.GetBuffer(), &mt.subtype);
+			}
+		}
+		return hr;
+	}
+
+	static HRESULT LoadXML_MediaTypeFormat(XML::XMLNode *node, CMediaType& mt)
+	{
+		HRESULT hr = E_FAIL;	// not loaded
+
+		XML::XMLIterator it;
+		if (node->Find(_T("format"), &it) >= 0) {
+			XML::XMLNode * const node = *it;
+			if (node) {
+
+				CString clsid_str = node->GetValue(_T("formatType"));
+				hr = CLSIDFromString((LPOLESTR)clsid_str.GetBuffer(), &mt.formattype);
+
+				const CString base64_str = node->GetValue(_T("data"));
+				ASSERT(base64_str.GetLength() > 0);
+				ASSERT(node->GetValue(_T("encoding")) == _T("base64"));
+
+				if (base64_str.GetLength() > 0) {
+
+					const int stream_size = Base64DecodeGetRequiredLength(base64_str.GetLength());
+					mt.AllocFormatBuffer(stream_size);
+
+					const CStringA base64_mcbs(base64_str);
+					int converted_length = mt.FormatLength();
+
+					if (Base64Decode(base64_mcbs, base64_mcbs.GetLength(), mt.Format(), &converted_length)
+							&& converted_length > 0
+							&& mt.ReallocFormatBuffer(converted_length)) {
+						hr = S_OK;
+					}
+				}
+			}
+		}
+		return hr;
+	}
+
 	HRESULT DisplayGraph::LoadXML_Connect(XML::XMLNode *node)
 	{
 		Pin * opin = NULL;
@@ -1208,8 +1360,19 @@ namespace GraphStudio
 		HRESULT hr;
 		if (direct.IsEmpty() || direct == _T("false"))
 			hr = gb->Connect(opin->pin, ipin->pin);
-		else
-			hr = gb->ConnectDirect(opin->pin, ipin->pin, NULL);
+		else {
+			CMediaType media_type;
+			const bool use_media_type = SUCCEEDED(LoadXML_MediaType(node, media_type));
+			if (use_media_type)
+				LoadXML_MediaTypeFormat(node, media_type);
+				
+			// Only use media type for connection if we managed to load it
+			hr = gb->ConnectDirect(opin->pin, ipin->pin, use_media_type ? &media_type : NULL);
+			if (FAILED(hr) && use_media_type) {
+				// If connection with media type failed reattempt connection without media type
+				hr = gb->ConnectDirect(opin->pin, ipin->pin, NULL);
+			}
+		}
 
 		if (FAILED(hr)) 
 			return hr;
