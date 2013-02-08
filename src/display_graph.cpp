@@ -1877,14 +1877,58 @@ namespace GraphStudio
                 filterPersistData[i]->Release();
 	}
 
+	// Recurse upstream depth first using visited_filters to only process filters once
+	// add leaf filters without connected input pins to inputs array
+	static void FindUpstreamInputs(Filter* filter, std::set<Filter*>& visited_filters, CArray<Filter*>& inputs)
+	{
+		if (visited_filters.find(filter) != visited_filters.end())		// already visited - nothing to do
+			return;
+		visited_filters.insert(filter);		// mark this one as visited
+
+		bool connected_inputs = false;
+		for (int i=0; i<filter->input_pins.GetCount(); i++) {
+			const Pin* const pin = filter->input_pins[i];
+			if (pin->connected) {
+				connected_inputs = true;
+				FindUpstreamInputs(pin->peer->filter, visited_filters, inputs);		// recurse upstream for each connected input
+			}
+		}
+		if (!connected_inputs)
+			inputs.Add(filter);		// No connected inputs - add this to the list of input filters
+	}
+
+	// Return a subset list of filters in the correct order to place first vertically so ensure
+	// filters upstream from multiple connected inputs are in reasonable vertical order with minimal crossing
+	static void FindInputFilters(const CArray<Filter*>& all_filters, CArray<Filter*>& input_filters)
+	{
+		std::set<Filter*> visited_filters;	// maintains record of filters we've already processed and don't have to process again
+
+		//	Recurse upstream depth first from each filter with multiple connected inputs
+		for (int i=0; i<all_filters.GetCount(); i++) {
+			Filter * const filter = all_filters[i];
+			if (filter->NumOfConnectedPins(PINDIR_INPUT) > 1) {
+				FindUpstreamInputs(filter, visited_filters, input_filters);
+			}
+		}
+
+		//	Then recurse upstream from each filter with multiple inputs with only 1 connected
+		for (int i=0; i<all_filters.GetCount(); i++) {
+			Filter * const filter = all_filters[i];
+			if (filter->input_pins.GetCount() > 1
+					&& filter->NumOfConnectedPins(PINDIR_INPUT) == 1) {
+				FindUpstreamInputs(filter, visited_filters, input_filters);
+			}
+		}
+
+	}
+
 	// do some nice automatic filter placement
 	void DisplayGraph::SmartPlacement()
 	{
 		// Reset all columns and placement information cached in Filters
 		columns.RemoveAll();
 
-		int i;
-		for (i=0; i<filters.GetCount(); i++) {
+		for (int i=0; i<filters.GetCount(); i++) {
 			Filter	* const filter = filters[i];
 			filter->Refresh();
 
@@ -1894,26 +1938,46 @@ namespace GraphStudio
 			filter->posx = 0;
 		}
 
-		// First position the sources that have no connected inputs, and some connected outputs
-		for (i=0; i<filters.GetCount(); i++) {
+		// Load connections between filters
+		for (int i=0; i<filters.GetCount(); i++) {
+			filters[i]->LoadPeers();
+		}
+
+		// Deal with filters that have multiple inputs to prevent crossing input lines
+		// Find upstream inputs from filters with multiple connected inputs in depth-first, first input pin order 
+		CArray<Filter*> input_filters;
+		FindInputFilters(filters, input_filters);
+
+		// Position these filters first
+		for (int i=0; i<input_filters.GetCount(); i++) {
+			Filter	* const filter = input_filters[i];
+			if (filter->column < 0
+					&& filter->NumOfConnectedPins(PINDIR_INPUT) == 0
+					&& filter->NumOfConnectedPins(PINDIR_OUTPUT) > 0) {
+				filter->CalculatePlacementChain(0, DisplayGraph::GRID_SIZE);
+			}
+		}
+
+		// Next position remaining filters that have no connected inputs, and some connected outputs
+		for (int i=0; i<filters.GetCount(); i++) {
 			Filter	* const filter = filters[i];
-			filter->LoadPeers();
-			if (filter->NumOfConnectedPins(PINDIR_INPUT) == 0
+			if (filter->column < 0
+					&& filter->NumOfConnectedPins(PINDIR_INPUT) == 0
 					&& filter->NumOfConnectedPins(PINDIR_OUTPUT) > 0) {
 				filter->CalculatePlacementChain(0, DisplayGraph::GRID_SIZE);
 			}
 		}
 
 		// then align the not connected filters
-		for (i=0; i<filters.GetCount(); i++) {
+		for (int i=0; i<filters.GetCount(); i++) {
 			Filter	* const filter = filters[i];
 			if (filter->column < 0) {		// if not already placed
 				filter->CalculatePlacementChain(0, DisplayGraph::GRID_SIZE);
 			}
 		}
 
-		// now set proper posX
-		for (i=0; i<filters.GetCount(); i++) {
+		// then set final x values for every filter
+		for (int i=0; i<filters.GetCount(); i++) {
 			Filter	* const filter = filters[i];
 			ASSERT(filter->column >= 0);
 			filter->column = max(0, filter->column);		// sanity check on depth
