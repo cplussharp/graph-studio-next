@@ -738,37 +738,46 @@ namespace GraphStudio
 			CComPtr<IStream> stream;
 			CreateStreamOnHGlobal(hglobal_stream, FALSE, &stream);
 
-			const void * binary_data = NULL;
-			size_t binary_size = 0;
 			if (stream 
 					&& hglobal_stream  
-					&& SUCCEEDED(hr = persist_stream->Save(stream, TRUE)) 
-					&& (binary_size = GlobalSize(hglobal_stream)) > 0
-					&& (binary_data = GlobalLock(hglobal_stream)) != NULL) {
+					&& SUCCEEDED(hr = persist_stream->Save(stream, TRUE))) {
 
-				const DWORD base64_flags = ATL_BASE64_FLAG_NOCRLF;
-				const int base64_size = Base64EncodeGetRequiredLength(binary_size, base64_flags);
-				char* const base64_data = new char[base64_size];
+				const SIZE_T binary_max_size = GlobalSize(hglobal_stream);
+				BYTE * const binary_data = new BYTE[binary_max_size];	// create buffer big enough for all data
+				LARGE_INTEGER start_offset;
+				start_offset.QuadPart = 0LL;
+				HRESULT hr2 = stream->Seek(start_offset, STREAM_SEEK_SET, NULL);
+				ASSERT(SUCCEEDED(hr2));
 
-				int converted_size = base64_size;
-				if (Base64Encode((const BYTE*)binary_data, binary_size, base64_data, &converted_size, base64_flags)
-						&& converted_size > 0) {
+				ULONG binary_size = 0;
+				hr2 = stream->Read(binary_data, binary_max_size, &binary_size);	// read as much data as is available
+				ASSERT(SUCCEEDED(hr2));
 
-					// <ipersiststream encoding="base64" data="MAAwADAAMAAwADAAMAAwADAAMAAwACAA="/>
-					xml.BeginNode(_T("ipersiststream"));
-						xml.WriteValue(_T("encoding"), _T("base64"));
-						xml.WriteValue(_T("data"), CString(base64_data, converted_size));
-					xml.EndNode();
-				} else {
-					ASSERT(!"base64 conversion failed");
+				if (binary_size > 0) {		// Some datas have zero bytes of IPersistStream data
+					const DWORD base64_flags = ATL_BASE64_FLAG_NOCRLF;
+					const int base64_size = Base64EncodeGetRequiredLength(binary_size, base64_flags);
+					char* const base64_data = new char[base64_size];
+
+					int converted_size = base64_size;
+					if (Base64Encode((const BYTE*)binary_data, binary_size, base64_data, &converted_size, base64_flags)
+							&& converted_size > 0) {
+
+						// <ipersiststream encoding="base64" data="MAAwADAAMAAwADAAMAAwADAAMAAwACAA="/>
+						xml.BeginNode(_T("ipersiststream"));
+							xml.WriteValue(_T("encoding"), _T("base64"));
+							xml.WriteValue(_T("data"), CString(base64_data, converted_size));
+						xml.EndNode();
+					} else {
+						ASSERT(!"base64 conversion failed");
+					}
+
+					delete[] base64_data;
 				}
 
-				delete[] base64_data;
+				delete[] binary_data;
 			} else {
 				ASSERT(!"Failed to create IStream");
 			}
-			if (binary_data)
-				GlobalUnlock(hglobal_stream);
 			if (hglobal_stream)
 				GlobalFree(hglobal_stream);		
 		}
