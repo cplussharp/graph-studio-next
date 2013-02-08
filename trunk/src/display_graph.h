@@ -187,9 +187,6 @@ namespace GraphStudio
 	class Filter
 	{
 	public:
-		static const int MIN_FILTER_X_GAP = 40;
-		static const int MIN_FILTER_Y_GAP = 30;
-
 		DisplayGraph			*graph;
 		RenderParameters		*params;
 		CString					name;				// name of the filter
@@ -325,6 +322,9 @@ namespace GraphStudio
 		// These helpers round the next previous grid coordinate. If already on a grid line same value is returned
 		static inline int NextGridPos(const int coord) { return (coord+7) &~ 0x07; } 
 		static inline int PrevGridPos(const int coord) { return coord &~ 0x07; } 
+
+		static int g_filterXGap;
+		static int g_filterYGap;
 
 		// graph itself
 		CComPtr<IGraphBuilder>			gb;

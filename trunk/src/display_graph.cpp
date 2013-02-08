@@ -19,6 +19,11 @@
 
 namespace GraphStudio
 {
+
+	int DisplayGraph::g_filterXGap = 40;
+	int DisplayGraph::g_filterYGap = 32;
+
+
     static int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* /*lpelfe*/, NEWTEXTMETRICEX* /*lpntme*/, int /*FontType*/, LPARAM lParam)
     {
         LPARAM* l = (LPARAM*)lParam;
@@ -2537,7 +2542,7 @@ namespace GraphStudio
 		// if not already added, add the next column beyond this one to leave enough space for this filter
 		if (new_column == graph->columns.GetCount()-1) {
 			CPoint	pt;
-			pt.x = DisplayGraph::NextGridPos(x + width + MIN_FILTER_X_GAP);
+			pt.x = DisplayGraph::NextGridPos(x + width + DisplayGraph::g_filterXGap);
 			pt.y = DisplayGraph::GRID_SIZE;
 			graph->columns.Add(pt);
 		}
@@ -2564,11 +2569,11 @@ namespace GraphStudio
 			// Don't position ourselves any higher than the upstream filter that positioned us
 			if (posy == 0)	{
 				posy = DisplayGraph::NextGridPos(max(current_column.y, y));
-				current_column.y = DisplayGraph::NextGridPos(posy + height + MIN_FILTER_Y_GAP);
+				current_column.y = DisplayGraph::NextGridPos(posy + height + DisplayGraph::g_filterYGap);
 			}
 
 			// calculate position of next column that leaves enough space for this filter
-			const int next_column_x = DisplayGraph::NextGridPos(current_column.x + width + MIN_FILTER_X_GAP);
+			const int next_column_x = DisplayGraph::NextGridPos(current_column.x + width + DisplayGraph::g_filterXGap);
 
 			// position downstream filters recursively
 			for (int i=0; i<output_pins.GetCount(); i++) {
