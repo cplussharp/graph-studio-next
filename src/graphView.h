@@ -62,8 +62,8 @@ public:
 		TIMER_AUTO_RESTART = 3
 	};
 
-	CString						filename;
-	bool						can_save;
+	CString						document_filename;
+	bool						document_saveable;
 
 	// filter state
 	bool						state_ready;
