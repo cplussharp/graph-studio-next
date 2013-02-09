@@ -1513,6 +1513,14 @@ void CGraphView::OnFilterRemoved(GraphStudio::DisplayGraph *sender, GraphStudio:
 {
 	// close the property pages associated with this filter
 	ClosePropertyPage(filter->filter);
+
+	// Prevent any dangling references to Filters or Pins that are about to be deleted
+	if (overlay_filter == filter)
+		overlay_filter = NULL;
+	if (current_filter == filter)
+		current_filter = NULL;
+	if (current_pin && filter->FindPin(current_pin->pin))
+		current_pin = NULL;
 }
 
 void CGraphView::OnDisplayPropertyPage(IUnknown *object, IUnknown *filter, CString title)
