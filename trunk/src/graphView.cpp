@@ -181,8 +181,7 @@ CGraphView::CGraphView()
     form_guidlookup = NULL;
     form_hresultlookup = NULL;
 
-	filename = _T("");
-	can_save = false;
+	document_saveable = false;
 
 	last_start_time_ns = 0LL;
 	last_stop_time_ns = 0LL;
@@ -726,8 +725,8 @@ void CGraphView::OnNewClick()
 	ClosePropertyPages();
 	graph.MakeNew();
 
-	filename = _T("");
-	can_save = false;
+	document_filename.Empty();
+	document_saveable = false;
 
 	Invalidate();
     AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
@@ -735,15 +734,15 @@ void CGraphView::OnNewClick()
 
 void CGraphView::OnFileSaveClick()
 {
-	if (can_save) {
-		int ret = graph.SaveGRF(filename);
+	if (document_saveable) {
+		int ret = graph.SaveGRF(document_filename);
 		if (ret < 0) {
 			// error
 			DSUtil::ShowError(_T("Can't save file"));
 		}
 
 		// updatujeme MRU list
-		mru.NotifyEntry(filename);
+		mru.NotifyEntry(document_filename);
 		UpdateMRUMenu();
 	} else {
 		OnFileSaveAsClick();
@@ -754,20 +753,23 @@ void CGraphView::OnFileSaveAsClick()
 {
 	// nabrowsujeme subor
 	CString		filter;
-	CString		filename;
 
 	filter = _T("GraphEdit Files|*.grf|");
 
 	CFileDialog dlg(FALSE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_PATHMUSTEXIST,filter);
+
+	CString input_filename = document_filename;
+	dlg.m_ofn.lpstrFile = input_filename.GetBufferSetLength(MAX_PATH + 1);
+	dlg.m_ofn.nMaxFile = MAX_PATH + 1;
+
     int ret = dlg.DoModal();
 
-	filename = dlg.GetPathName();
+	CString filename = dlg.GetPathName();
 	if (ret == IDOK) {
 
 		CPath	path(filename);
 		if (path.GetExtension() == _T("")) {
 			path.AddExtension(_T(".grf"));
-
 			filename = CString(path);
 		}
 
@@ -777,16 +779,15 @@ void CGraphView::OnFileSaveAsClick()
 			return ;
 		}
 
-		// updatujeme MRU list
+		// update MRU list
 		mru.NotifyEntry(filename);
 		UpdateMRUMenu();
 
-		this->filename = filename;
-		can_save = true;
-
+		document_filename = filename;
+		document_saveable = true;
 		
-		CGraphDoc *doc = GetDocument();
-		int pos = path.FindFileName();
+		CGraphDoc * const doc = GetDocument();
+		const int pos = path.FindFileName();
 		CString	short_fn = filename;
 		short_fn.Delete(0, pos);
 		doc->SetTitle(short_fn);
@@ -797,21 +798,37 @@ void CGraphView::OnFileSaveasxml()
 {
 	// nabrowsujeme subor
 	CString		filter;
-	CString		filename;
 
 	filter =  _T("");
 	filter += _T("GraphStudio XML Files (xml)|*.xml|");
 	filter += _T("All Files|*.*|");
 
-	CFileDialog dlg(FALSE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING,filter);
-    int ret = dlg.DoModal();
+	CFileDialog dlg(FALSE, NULL, NULL, OFN_OVERWRITEPROMPT|OFN_ENABLESIZING, filter);
 
-	filename = dlg.GetPathName();
-	if (ret == IDOK) {	
-		ret = graph.SaveXML(filename);
+	CPath input_path(document_filename);
+	input_path.RemoveExtension();
+	input_path.AddExtension(_T(".xml"));
+	CString input_filename = CString(input_path);
+	
+	dlg.m_ofn.lpstrFile = input_filename.GetBufferSetLength(MAX_PATH + 1);
+	dlg.m_ofn.nMaxFile = MAX_PATH + 1;
+
+	if (dlg.DoModal() == IDOK) {
+		CString filename = dlg.GetPathName();
+		CPath path = filename;
+		if (path.GetExtension() == _T("")) {
+			path.AddExtension(_T(".xml"));
+			filename = CString(path);
+		}
+
+		const int ret = graph.SaveXML(filename);
 		if (ret < 0) {
 			DSUtil::ShowError(_T("Can't save file"));
 		}
+
+		// update MRU list
+		mru.NotifyEntry(filename);
+		UpdateMRUMenu();
 	}
 }
 
@@ -827,16 +844,16 @@ int CGraphView::TryOpenFile(CString fn)
 		ret = graph.LoadGRF(fn);	
 
 		if (ret == 0) {
-			filename = fn;
-			can_save = true;
+			document_filename = fn;
+			document_saveable = true;
 		}
 	} else 
 	if (ext == _T(".xml")) {
 		OnNewClick();
 		ret = graph.LoadXML(fn);
 		if (SUCCEEDED(ret)) {
-			filename = fn;
-			can_save = false;
+			document_filename = fn;
+			document_saveable = false;
 		}
 	} else {
 		OnNewClick();
