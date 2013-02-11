@@ -90,7 +90,7 @@ namespace GraphStudio
 		void OnChooseSourceFile();
 		void OnChooseDestinationFile();
 
-		void MakeScreenshot();
+		void MakeScreenshot(const CString& base_filename);
 
 		// stream selection
 		void PrepareStreamSelectMenu(CMenu &menu, IUnknown *obj);

@@ -758,7 +758,12 @@ void CGraphView::OnFileSaveAsClick()
 
 	CFileDialog dlg(FALSE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_PATHMUSTEXIST,filter);
 
-	CString input_filename = document_filename;
+	// make sure document extension is .grf by default (e.g. if graph created by render media file)
+	CPath input_path(document_filename);
+	input_path.RemoveExtension();
+	input_path.AddExtension(_T(".grf"));
+
+	CString input_filename = input_path;
 	dlg.m_ofn.lpstrFile = input_filename.GetBufferSetLength(MAX_PATH + 1);
 	dlg.m_ofn.nMaxFile = MAX_PATH + 1;
 
@@ -767,10 +772,10 @@ void CGraphView::OnFileSaveAsClick()
 	CString filename = dlg.GetPathName();
 	if (ret == IDOK) {
 
-		CPath	path(filename);
-		if (path.GetExtension() == _T("")) {
-			path.AddExtension(_T(".grf"));
-			filename = CString(path);
+		CPath output_path = filename;
+		if (output_path.GetExtension() == _T("")) {
+			output_path.AddExtension(_T(".grf"));
+			filename = CString(output_path);
 		}
 
 		ret = graph.SaveGRF(filename);	
@@ -787,7 +792,7 @@ void CGraphView::OnFileSaveAsClick()
 		document_saveable = true;
 		
 		CGraphDoc * const doc = GetDocument();
-		const int pos = path.FindFileName();
+		const int pos = output_path.FindFileName();
 		CString	short_fn = filename;
 		short_fn.Delete(0, pos);
 		doc->SetTitle(short_fn);
@@ -832,42 +837,38 @@ void CGraphView::OnFileSaveasxml()
 	}
 }
 
-int CGraphView::TryOpenFile(CString fn)
+// render_media_file - default false but allows caller to force render as media file if needed
+HRESULT CGraphView::TryOpenFile(CString fn, bool render_media_file)
 {
-	int		ret;
+	HRESULT hr = S_OK;
 	CPath	path(fn);
 	CString	ext = path.GetExtension();
+	bool saveable = false;
 
 	ext = ext.MakeLower();
-	if (ext == _T(".grf")) {
+	if (ext == _T(".grf") && !render_media_file) {
+		saveable = true;
 		OnNewClick();
-		ret = graph.LoadGRF(fn);	
-
-		if (ret == 0) {
-			document_filename = fn;
-			document_saveable = true;
-		}
-	} else 
-	if (ext == _T(".xml")) {
+		hr = graph.LoadGRF(fn);
+	} else if (ext == _T(".xml") && !render_media_file) {
 		OnNewClick();
-		ret = graph.LoadXML(fn);
-		if (SUCCEEDED(ret)) {
-			document_filename = fn;
-			document_saveable = false;
-		}
+		hr = graph.LoadXML(fn);
 	} else {
-		OnNewClick();
-		ret = graph.RenderFile(fn);
-		if (ret < 0)
-			OnNewClick();
+		hr = graph.RenderFile(fn);
+		graph.Dirty();
 	}
 
-	if (ret == 0) {
+	if (FAILED(hr))
+		DSUtil::ShowError(hr, TEXT("Can't open file"));
+	else {
+		document_filename = fn;
+		document_saveable = saveable;
+
 	    mru.NotifyEntry(fn);
 	    UpdateMRUMenu();
 
-	    CGraphDoc *doc = GetDocument();
-	    int pos = path.FindFileName();
+	    CGraphDoc * const doc = GetDocument();
+	    const int pos = path.FindFileName();
 	    CString	short_fn = fn;
 	    short_fn.Delete(0, pos);
 	    doc->SetTitle(short_fn);
@@ -878,7 +879,7 @@ int CGraphView::TryOpenFile(CString fn)
 	graph.RefreshFilters();
 	graph.SmartPlacement();
 	Invalidate();
-	return ret;
+	return hr;
 }
 
 void CGraphView::OnFileOpenfromxml()
@@ -897,11 +898,7 @@ void CGraphView::OnFileOpenfromxml()
 	filename = dlg.GetPathName();
 	if (ret == IDOK) {
 		ret = TryOpenFile(filename);
-		if (ret < 0) {
-            DSUtil::ShowError(ret, TEXT("Can't open file"));
-		}
 	}
-
     AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
 
@@ -909,9 +906,6 @@ void CGraphView::OnFileOpenClick()
 {
 	// nabrowsujeme subor
 	CString		filter;
-	CString		filename;
-
-	filter =  _T("");
 	filter += _T("GraphEdit Files (grf)|*.grf|");
 	filter += _T("GraphStudio XML Files (xml)|*.xml|");
 	filter += _T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
@@ -922,14 +916,11 @@ void CGraphView::OnFileOpenClick()
     dlg.m_ofn.nFilterIndex = 5;
     int ret = dlg.DoModal();
 
-	filename = dlg.GetPathName();
+	CString filename = dlg.GetPathName();
 	if (ret == IDOK) {
+		OnNewClick();
 		ret = TryOpenFile(filename);
-		if (ret < 0) {
-			DSUtil::ShowError(ret, _T("Can't open file"));
-		}
 	}
-
     AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
 
@@ -937,9 +928,6 @@ void CGraphView::OnFileAddmediafile()
 {
 	// nabrowsujeme subor
 	CString		filter;
-	CString		filename;
-
-	filter =  _T("");
 	filter += _T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
 	filter += _T("Audio Files |*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
 	filter += _T("All Files|*.*|");
@@ -948,24 +936,9 @@ void CGraphView::OnFileAddmediafile()
     dlg.m_ofn.nFilterIndex = 3;
     int ret = dlg.DoModal();
 
-	filename = dlg.GetPathName();
+	CString filename = dlg.GetPathName();
 	if (ret == IDOK) {
-
-		int ret = graph.RenderFile(filename);
-		if (ret < 0) {
-			DSUtil::ShowError(_T("Can't render file"));
-			// don't clear graph or graph builder here as we may have existing graph
-		}
-
-		// updatujeme MRU list
-		mru.NotifyEntry(filename);
-		UpdateMRUMenu();
-
-		graph.SetClock(true, NULL);
-		graph.RefreshFilters();
-		graph.SmartPlacement();
-		graph.Dirty();
-		Invalidate();
+		ret = TryOpenFile(filename, /* render_media_file= */ true);
 	}
 }
 
@@ -974,21 +947,9 @@ void CGraphView::OnRenderUrlClick()
 	CRenderUrlForm		dlg;
 	int ret = dlg.DoModal();
 	if (ret == IDOK) {
-
 		OnNewClick();
-		int ret = graph.RenderFile(dlg.result_file);
-		if (ret < 0) {
-			DSUtil::ShowError(_T("Can't render URL"));
-			OnNewClick();
-		}
-
-		graph.SetClock(true, NULL);
-		graph.RefreshFilters();
-		graph.SmartPlacement();
-		graph.Dirty();
-		Invalidate();
+		ret = TryOpenFile(dlg.result_file, /* render_media_file= */ true);
 	}
-
     AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
 
@@ -996,9 +957,6 @@ void CGraphView::OnRenderFileClick()
 {
 	// nabrowsujeme subor
 	CString		filter;
-	CString		filename;
-
-	filter =  _T("");
 	filter += _T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
 	filter += _T("Audio Files |*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
 	filter += _T("All Files|*.*|");
@@ -1007,26 +965,11 @@ void CGraphView::OnRenderFileClick()
 	dlg.m_ofn.nFilterIndex = 3;
     int ret = dlg.DoModal();
 
-	filename = dlg.GetPathName();
+	const CString filename = dlg.GetPathName();
 	if (ret == IDOK) {
 		OnNewClick();
-		int ret = graph.RenderFile(filename);
-		if (ret < 0) {
-			DSUtil::ShowError(_T("Can't render file"));
-			OnNewClick();
-		}
-
-		// updatujeme MRU list
-		mru.NotifyEntry(filename);
-		UpdateMRUMenu();
-
-		graph.SetClock(true, NULL);
-		graph.RefreshFilters();
-		graph.SmartPlacement();
-		graph.Dirty();
-		Invalidate();
+		ret = TryOpenFile(filename, /* render_media_file= */ true);
 	}
-
     AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
 
@@ -1449,11 +1392,11 @@ void CGraphView::OnDropFiles(HDROP hDropInfo)
 
 			// only take one
 			CString fn(temp);
-			ret = TryOpenFile(fn);
-			if (ret == 0) return;
+			const HRESULT hr = TryOpenFile(fn);
+			if (SUCCEEDED(hr)) 
+				return;
 		}
 	}
-	DSUtil::ShowError(_T("Can't open file"));
 }
 
 void CGraphView::OnGraphInsertFileSource()
@@ -1587,12 +1530,11 @@ void CGraphView::OnMRUClick(UINT nID)
 
 	CString	fn = mru.list[idx];
 	HRESULT hr = TryOpenFile(fn);
-    DSUtil::ShowError(hr, _T("Cannot open file"));
 }
 
 void CGraphView::OnGraphScreenshot()
 {
-	MakeScreenshot();
+	MakeScreenshot(document_filename);
 }
 
 void CGraphView::OnConnectRemote()
@@ -1945,7 +1887,12 @@ void CGraphView::OnOptionsShowGuidOfKnownTypesClick()
 
 void CGraphView::OnViewProgressview()
 {
-	form_progress->UpdateCaption(graph.graph_name);
+	CPath path(document_filename);
+	const int pos = path.FindFileName();
+	CString	short_fn = document_filename;
+	short_fn.Delete(0, pos);
+
+	form_progress->UpdateCaption(short_fn);
 	form_progress->ShowWindow(SW_SHOW);
 	AfxGetMainWnd()->ShowWindow(SW_HIDE);
 }

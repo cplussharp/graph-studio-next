@@ -1056,7 +1056,7 @@ namespace GraphStudio
 
 	}
 
-	void DisplayView::MakeScreenshot()
+	void DisplayView::MakeScreenshot(const CString& base_filename)
 	{
 		// find out the rectangle
 		int	minx = 10000000;
@@ -1117,6 +1117,14 @@ namespace GraphStudio
 	    filter = _T("PNG (*.png)|*.png|JPEG (*.jpg,*.jpeg)|*.jpg;*.jpeg|GIF (*.gif)|*.gif|TIFF (*.tiff,*.tif)|*.tiff;*.tif|Bitmap (*.bmp)|*.bmp|All Files (*.*)|*.*|");
 
 	    CFileDialog dlg(FALSE,_T("png"),NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_PATHMUSTEXIST,filter);
+
+		CPath input_path(base_filename);
+		input_path.RemoveExtension();
+		CString input_filename = CString(input_path);
+	
+		dlg.m_ofn.lpstrFile = input_filename.GetBufferSetLength(MAX_PATH + 1);
+		dlg.m_ofn.nMaxFile = MAX_PATH + 1;
+
         int ret = dlg.DoModal();
 
 	    filename = dlg.GetPathName();

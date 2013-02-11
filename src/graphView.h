@@ -155,7 +155,7 @@ public:
 	void OnUpdateRenderMediaFile(CCmdUI *ui);
 	void OnUpdateUseClock(CCmdUI *ui);
 	void OnDropFiles(HDROP hDropInfo);
-	int TryOpenFile(CString fn);
+	HRESULT TryOpenFile(CString fn, bool render_media_file = false);
 	int TryOpenXML(CString fn);
 
 	virtual LRESULT OnWmCommand(WPARAM wParam, LPARAM lParam);
