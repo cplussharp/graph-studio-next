@@ -74,15 +74,7 @@ namespace GraphStudio
 		callback = NULL;
         params = NULL;
 
-		graph_name = _T("Graph");
-
-		mc = NULL;
-		me = NULL;
-		ms = NULL;
-		gb = NULL;
-		cgb = NULL;
 		dc = NULL;
-		fs = NULL;
 		is_remote = false;
 		is_frame_stepping = false;
 		uses_clock = true;
@@ -99,13 +91,6 @@ namespace GraphStudio
 
 	DisplayGraph::~DisplayGraph()
 	{
-		mc = NULL;
-		me = NULL;
-		fs = NULL;
-		if (ms) ms = NULL;
-		cgb = NULL;
-		gb = NULL;
-
 		if (graph_callback) {
 			graph_callback->NonDelegatingRelease();
 			graph_callback = NULL;
@@ -207,8 +192,6 @@ namespace GraphStudio
         if(params) params->is_remote = false;
 		is_frame_stepping = false;
 		uses_clock = true;
-
-		graph_name = _T("Graph");
 
 		// create new instance of filter graph
 		HRESULT hr;
@@ -1049,8 +1032,6 @@ namespace GraphStudio
 			return hr;
 		}
 
-		graph_name = fn;
-
 		// load graph
 		XML::XMLNode * const root = xml.root;
 		XML::XMLIterator it;
@@ -1058,9 +1039,6 @@ namespace GraphStudio
 			return VFW_E_NOT_FOUND;
 
 		XML::XMLNode * const gn = *it;
-		const CString gn_name = gn->GetValue(_T("name"));
-		if (gn_name != _T("")) 
-			graph_name = gn_name;
 
 		for (it = gn->nodes.begin(); it != gn->nodes.end(); it++) {
 			XML::XMLNode * const node = *it;
@@ -1080,11 +1058,8 @@ namespace GraphStudio
 			else if (node->name == _T("command")) 
 				hr = LoadXML_Command(node); 
 
-			if (FAILED(hr)) {		// TODO continue trying to load after node fails to load
-				return hr;
-			}
+			// TODO report errors but allow loading to continue
 		}
-
 		return S_OK;
 	}
 
@@ -1517,20 +1492,21 @@ namespace GraphStudio
 		return hr;
 	}
 
-	int DisplayGraph::LoadGRF(CString fn)
+	HRESULT DisplayGraph::LoadGRF(CString fn)
 	{
-		IStorage *pStorage = 0;
-		if (StgIsStorageFile(fn) != S_OK) return -1;
+		IStorage * pStorage = NULL;
+		HRESULT hr = StgIsStorageFile(fn);
+		if (hr != S_OK)
+			return hr;
 
-		graph_name = fn;
+		hr = StgOpenStorage(fn, 0, STGM_TRANSACTED | STGM_READ | STGM_SHARE_DENY_WRITE, 0, 0, &pStorage);
+		if (FAILED(hr)) 
+			return hr;
 
-		HRESULT hr = StgOpenStorage(fn, 0, STGM_TRANSACTED | STGM_READ | STGM_SHARE_DENY_WRITE, 0, 0, &pStorage);
-		if (FAILED(hr)) return hr;
-
-		IPersistStream *pPersistStream = 0;
+		IPersistStream *pPersistStream = NULL;
 		hr = gb->QueryInterface(IID_IPersistStream, (void**)&pPersistStream);
 		if (SUCCEEDED(hr)) {
-			IStream *pStream = 0;
+			IStream *pStream = NULL;
 			hr = pStorage->OpenStream(L"ActiveMovieGraph", 0, STGM_READ | STGM_SHARE_EXCLUSIVE, 0, &pStream);
 			if (SUCCEEDED(hr)) {
 				hr = pPersistStream->Load(pStream);
@@ -1548,8 +1524,6 @@ namespace GraphStudio
 		const WCHAR wszStreamName[] = L"ActiveMovieGraph"; 
 		HRESULT hr;
 		    
-		graph_name = fn;
-
 		IStorage *pStorage = NULL;
 		hr = StgCreateDocfile(fn, STGM_CREATE | STGM_TRANSACTED | STGM_READWRITE | STGM_SHARE_EXCLUSIVE, 0, &pStorage);
 		if (FAILED(hr)) return hr;
@@ -1574,13 +1548,11 @@ namespace GraphStudio
 	}
 
 	// Caller must do any required clean up if this returns error code
-	int DisplayGraph::RenderFile(CString fn)
+	HRESULT DisplayGraph::RenderFile(CString fn)
 	{
 		HRESULT	hr = E_FAIL;
 
 		do {
-
-			// mark 
 			params->MarkRender(true);
 			if (!gb) {
 				hr = E_POINTER;	
@@ -1588,20 +1560,13 @@ namespace GraphStudio
 			}
 			hr = gb->RenderFile(fn, NULL);
 			params->MarkRender(false);
-			if (callback) callback->OnRenderFinished();
-
-			if (FAILED(hr)) break;
-
-			graph_name = fn;
+			if (callback) 
+				callback->OnRenderFinished();
 
 		} while (0);
 
-		if (FAILED(hr)) {
-			return -1;
-		}
-
 		RefreshFPS();
-		return 0;
+		return hr;
 	}
 
 	Pin *DisplayGraph::FindPinByPath(CString pin_path)

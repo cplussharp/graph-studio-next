@@ -240,10 +240,6 @@ namespace XML
 			}
 		} while (0);
 
-		// release objects
-		stream = NULL;
-		reader = NULL;
-
 		return hr;
 	}	
 

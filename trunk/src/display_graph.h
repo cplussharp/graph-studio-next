@@ -352,7 +352,6 @@ namespace GraphStudio
 		bool							dirty;
 
 		// helpers
-		CString							graph_name;
 		bool							uses_clock;
 		double							fps;
         DWORD                           rotRegister;
@@ -367,8 +366,8 @@ namespace GraphStudio
 
 		// let's build something
 		int MakeNew();
-		int RenderFile(CString fn);
-		int LoadGRF(CString fn);
+		HRESULT RenderFile(CString fn);
+		HRESULT LoadGRF(CString fn);
 		int SaveGRF(CString fn);
 		int ConnectToRemote(IFilterGraph *remote_graph);
 		int AttachCaptureGraphBuilder();

@@ -114,10 +114,8 @@ BOOL CgraphstudioApp::InitInstance()
 	// if we've been started with a command line parameter
 	// do open the file
 	if (m_cmdInfo.m_strFileName != _T("")) {
-		int ret = view->TryOpenFile(m_cmdInfo.m_strFileName);
-        if (ret) {
-            DSUtil::ShowError(ret, TEXT("Can't open file"));
-        }
+		view->OnNewClick();
+		view->TryOpenFile(m_cmdInfo.m_strFileName);
 
         if (m_cmdInfo.m_bNoClock)
             view->RemoveClock();
