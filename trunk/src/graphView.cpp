@@ -761,7 +761,6 @@ void CGraphView::OnFileSaveAsClick()
 	// make sure document extension is .grf by default (e.g. if graph created by render media file)
 	CPath input_path(document_filename);
 	input_path.RemoveExtension();
-	input_path.AddExtension(_T(".grf"));
 
 	CString input_filename = input_path;
 	dlg.m_ofn.lpstrFile = input_filename.GetBufferSetLength(MAX_PATH + 1);
@@ -812,7 +811,6 @@ void CGraphView::OnFileSaveasxml()
 
 	CPath input_path(document_filename);
 	input_path.RemoveExtension();
-	input_path.AddExtension(_T(".xml"));
 	CString input_filename = CString(input_path);
 	
 	dlg.m_ofn.lpstrFile = input_filename.GetBufferSetLength(MAX_PATH + 1);
@@ -820,20 +818,30 @@ void CGraphView::OnFileSaveasxml()
 
 	if (dlg.DoModal() == IDOK) {
 		CString filename = dlg.GetPathName();
-		CPath path = filename;
-		if (path.GetExtension() == _T("")) {
-			path.AddExtension(_T(".xml"));
-			filename = CString(path);
+		CPath output_path = filename;
+		if (output_path.GetExtension() == _T("")) {
+			output_path.AddExtension(_T(".xml"));
+			filename = CString(output_path);
 		}
 
 		const int ret = graph.SaveXML(filename);
 		if (ret < 0) {
 			DSUtil::ShowError(_T("Can't save file"));
+			return;
 		}
 
 		// update MRU list
 		mru.NotifyEntry(filename);
 		UpdateMRUMenu();
+
+		document_filename = filename;
+		document_saveable = false;
+		
+		CGraphDoc * const doc = GetDocument();
+		const int pos = output_path.FindFileName();
+		CString	short_fn = filename;
+		short_fn.Delete(0, pos);
+		doc->SetTitle(short_fn);
 	}
 }
 
