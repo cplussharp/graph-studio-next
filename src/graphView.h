@@ -63,7 +63,13 @@ public:
 	};
 
 	CString						document_filename;
-	bool						document_saveable;
+
+	enum DocumentType
+	{
+		NONE,
+		GRF,
+		XML
+	}							document_type;
 
 	// filter state
 	bool						state_ready;
@@ -116,6 +122,9 @@ public:
 	void OnDummyEvent(UINT nID) { };
 	void OnGraphStreamingStarted();
 	void OnGraphStreamingComplete();
+
+	void FileSaveAs(DocumentType input_type);
+	void UpdateTitleBar();
 
 	// menu
 	void UpdateMRUMenu();
@@ -204,7 +213,6 @@ public:
 	void OnFiltersManageFavorites();
     void OnFiltersManageBlacklist();
     void OnUpdateFiltersManageBlacklist(CCmdUI *ui);
-	void OnFileOpenfromxml();
 	void OnOptionsDisplayFileName();
 	void OnUpdateOptionsDisplayFileName(CCmdUI *pCmdUI);
 	

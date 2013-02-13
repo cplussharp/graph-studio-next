@@ -968,9 +968,8 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
-        MENUITEM "&Open Graph (.GRF)...\tCtrl+O", ID_FILE_OPEN
-        MENUITEM "Open &From XML...",           ID_FILE_OPENFROMXML
-        MENUITEM "&Save Graph (.GRF)\tCtrl+S",  ID_FILE_SAVE
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
         MENUITEM "Save &As Graph (.GRF)...",    ID_FILE_SAVE_AS
         MENUITEM "Sav&e As XML...",             ID_FILE_SAVEASXML
         MENUITEM SEPARATOR
