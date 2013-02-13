@@ -139,7 +139,6 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_FILTERS_MANAGEFAVORITES, &CGraphView::OnFiltersManageFavorites)
     ON_COMMAND(ID_FILTERS_MANAGEBLACKLIST, &CGraphView::OnFiltersManageBlacklist)
     ON_UPDATE_COMMAND_UI(ID_FILTERS_MANAGEBLACKLIST, &CGraphView::OnUpdateFiltersManageBlacklist)
-	ON_COMMAND(ID_FILE_OPENFROMXML, &CGraphView::OnFileOpenfromxml)
 	ON_COMMAND(ID_OPTIONS_DISPLAYASFILENAME, &CGraphView::OnOptionsDisplayFileName)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_DISPLAYASFILENAME, &CGraphView::OnUpdateOptionsDisplayFileName)
 	ON_COMMAND(ID_VIEW_PROGRESSVIEW, &CGraphView::OnViewProgressview)
@@ -181,7 +180,7 @@ CGraphView::CGraphView()
     form_guidlookup = NULL;
     form_hresultlookup = NULL;
 
-	document_saveable = false;
+	document_type = NONE;
 
 	last_start_time_ns = 0LL;
 	last_stop_time_ns = 0LL;
@@ -721,127 +720,138 @@ void CGraphView::OnNewClick()
 		form_dec_performance->StopTiming();
 	}
 
-	GetDocument()->SetTitle(_T("Untitled"));
 	ClosePropertyPages();
 	graph.MakeNew();
 
 	document_filename.Empty();
-	document_saveable = false;
+	document_type = NONE;
+	UpdateTitleBar();
 
 	Invalidate();
     AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
 
+void CGraphView::UpdateTitleBar()
+{
+	if (!GetDocument())
+		return;
+
+	if (document_filename.IsEmpty()) {
+		GetDocument()->SetTitle(_T("Untitled"));
+		return;
+	}
+
+	const CPath document_path(document_filename);
+	const int name_pos = document_path.FindFileName();
+	CString	short_name = document_path;
+	short_name.Delete(0, name_pos);
+
+	GetDocument()->SetTitle(short_name);
+}
+
 void CGraphView::OnFileSaveClick()
 {
-	if (document_saveable) {
-		int ret = graph.SaveGRF(document_filename);
-		if (ret < 0) {
-			// error
-			DSUtil::ShowError(_T("Can't save file"));
-		}
+	HRESULT hr = S_OK;
 
+	switch (document_type) {
+	case GRF:
+		hr = graph.SaveGRF(document_filename);
+		break;
+	case XML:
+		hr = graph.SaveXML(document_filename);
+		break;
+	case NONE:
+		FileSaveAs(XML);
+		return;
+	}
+
+	if (SUCCEEDED(hr)) {
 		// updatujeme MRU list
 		mru.NotifyEntry(document_filename);
 		UpdateMRUMenu();
 	} else {
-		OnFileSaveAsClick();
+		DSUtil::ShowError(hr, _T("Can't save file"));
 	}
 }
 
 void CGraphView::OnFileSaveAsClick()
 {
-	// nabrowsujeme subor
-	CString		filter;
-
-	filter = _T("GraphEdit Files|*.grf|");
-
-	CFileDialog dlg(FALSE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_PATHMUSTEXIST,filter);
-
-	// make sure document extension is .grf by default (e.g. if graph created by render media file)
-	CPath input_path(document_filename);
-	input_path.RemoveExtension();
-
-	CString input_filename = input_path;
-	dlg.m_ofn.lpstrFile = input_filename.GetBufferSetLength(MAX_PATH + 1);
-	dlg.m_ofn.nMaxFile = MAX_PATH + 1;
-
-    int ret = dlg.DoModal();
-
-	CString filename = dlg.GetPathName();
-	if (ret == IDOK) {
-
-		CPath output_path = filename;
-		if (output_path.GetExtension() == _T("")) {
-			output_path.AddExtension(_T(".grf"));
-			filename = CString(output_path);
-		}
-
-		ret = graph.SaveGRF(filename);	
-		if (ret < 0) {
-			DSUtil::ShowError(_T("Can't save file"));
-			return ;
-		}
-
-		// update MRU list
-		mru.NotifyEntry(filename);
-		UpdateMRUMenu();
-
-		document_filename = filename;
-		document_saveable = true;
-		
-		CGraphDoc * const doc = GetDocument();
-		const int pos = output_path.FindFileName();
-		CString	short_fn = filename;
-		short_fn.Delete(0, pos);
-		doc->SetTitle(short_fn);
-	}
+	FileSaveAs(GRF);
 }
 
 void CGraphView::OnFileSaveasxml()
 {
+	FileSaveAs(XML);
+}
+
+void CGraphView::FileSaveAs(DocumentType input_type)
+{
 	// nabrowsujeme subor
+	// NB references to indices below
 	CString		filter;
+	filter =	_T("GraphStudio XML Files (xml)|*.xml|");
+	filter +=	_T("GraphEdit Files|*.grf|");
+	filter +=	_T("All Graph Files|*.grf;*.xml|");
+	filter +=	_T("All Files|*.*|");
 
-	filter =  _T("");
-	filter += _T("GraphStudio XML Files (xml)|*.xml|");
-	filter += _T("All Files|*.*|");
+	CFileDialog dlg(FALSE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_PATHMUSTEXIST,filter);
 
-	CFileDialog dlg(FALSE, NULL, NULL, OFN_OVERWRITEPROMPT|OFN_ENABLESIZING, filter);
+	// Pick initial type filter
+	dlg.m_ofn.nFilterIndex = XML==input_type ? 1 : 2;
 
+	// make sure document extension is not set by default (e.g. if graph created by render media file)
 	CPath input_path(document_filename);
 	input_path.RemoveExtension();
-	CString input_filename = CString(input_path);
-	
+
+	// set default name
+	CString input_filename = input_path;
 	dlg.m_ofn.lpstrFile = input_filename.GetBufferSetLength(MAX_PATH + 1);
 	dlg.m_ofn.nMaxFile = MAX_PATH + 1;
 
 	if (dlg.DoModal() == IDOK) {
 		CString filename = dlg.GetPathName();
+		DocumentType save_as = GRF;
+
 		CPath output_path = filename;
-		if (output_path.GetExtension() == _T("")) {
-			output_path.AddExtension(_T(".xml"));
-			filename = CString(output_path);
+		const CString output_extension = output_path.GetExtension();
+
+		// decide type of file to save
+		if (output_extension.CompareNoCase(_T(".grf")) == 0) {
+			// If GRF extension, save as GRF
+			save_as = GRF;
+		} else if (output_extension.CompareNoCase(_T(".xml")) == 0) {
+			// If XML extension, save as XML
+			save_as = XML;
+		} else if (output_extension.IsEmpty()) {
+			switch (dlg.m_ofn.nFilterIndex) {
+			case 1:		save_as = XML;			break;
+			case 2:		save_as = GRF;			break;
+			default:	save_as = input_type;	break;	// ambigous, use type passed in
+			}
 		}
 
-		const int ret = graph.SaveXML(filename);
-		if (ret < 0) {
-			DSUtil::ShowError(_T("Can't save file"));
-			return;
+		// add file exension if none
+		if (output_extension.IsEmpty()) {
+			if (XML == save_as)
+				output_path.AddExtension(_T(".xml"));
+			else
+				output_path.AddExtension(_T(".grf"));
 		}
 
-		// update MRU list
-		mru.NotifyEntry(filename);
-		UpdateMRUMenu();
+		filename = CString(output_path);
 
-		document_filename = filename;
-		document_saveable = false;
-		
-		CGraphDoc * const doc = GetDocument();
-		const int pos = output_path.FindFileName();
-		CString	short_fn = filename;
-		short_fn.Delete(0, pos);
-		doc->SetTitle(short_fn);
+		HRESULT hr = XML==save_as ? graph.SaveXML(filename) : graph.SaveGRF(filename);
+		if (FAILED(hr)) {
+			DSUtil::ShowError(hr, _T("Can't save file"));
+		} else {
+			document_filename = filename;
+			document_type = save_as;
+
+			// update MRU list
+			mru.NotifyEntry(filename);
+			UpdateMRUMenu();
+			UpdateTitleBar();
+		}
 	}
 }
 
@@ -851,16 +861,19 @@ HRESULT CGraphView::TryOpenFile(CString fn, bool render_media_file)
 	HRESULT hr = S_OK;
 	CPath	path(fn);
 	CString	ext = path.GetExtension();
-	bool saveable = false;
+	DocumentType save_as = NONE;
 
 	ext = ext.MakeLower();
 	if (ext == _T(".grf") && !render_media_file) {
-		saveable = true;
+		save_as = GRF;
 		OnNewClick();
 		hr = graph.LoadGRF(fn);
+		
 	} else if (ext == _T(".xml") && !render_media_file) {
+		save_as = XML;
 		OnNewClick();
 		hr = graph.LoadXML(fn);
+
 	} else {
 		hr = graph.RenderFile(fn);
 		graph.Dirty();
@@ -869,17 +882,18 @@ HRESULT CGraphView::TryOpenFile(CString fn, bool render_media_file)
 	if (FAILED(hr))
 		DSUtil::ShowError(hr, TEXT("Can't open file"));
 	else {
-		document_filename = fn;
-		document_saveable = saveable;
+
+		// Don't change document type if just rendering a media file
+		if (save_as != NONE)
+			document_type = save_as;
+
+		if (save_as != NONE							// Save as XML or GRF always sets filename
+				|| document_filename.IsEmpty())		// OR rendering media file only sets name if name currently empty
+			document_filename = fn;
 
 	    mru.NotifyEntry(fn);
 	    UpdateMRUMenu();
-
-	    CGraphDoc * const doc = GetDocument();
-	    const int pos = path.FindFileName();
-	    CString	short_fn = fn;
-	    short_fn.Delete(0, pos);
-	    doc->SetTitle(short_fn);
+		UpdateTitleBar();
     }
 
 	UpdateGraphState();
@@ -890,38 +904,19 @@ HRESULT CGraphView::TryOpenFile(CString fn, bool render_media_file)
 	return hr;
 }
 
-void CGraphView::OnFileOpenfromxml()
-{
-	// nabrowsujeme subor
-	CString		filter;
-	CString		filename;
-
-	filter =  _T("");
-	filter += _T("GraphStudio XML Files|*.xml|");
-	filter += _T("All Files|*.*|");
-
-	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
-    int ret = dlg.DoModal();
-
-	filename = dlg.GetPathName();
-	if (ret == IDOK) {
-		ret = TryOpenFile(filename);
-	}
-    AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
-}
-
 void CGraphView::OnFileOpenClick()
 {
 	// nabrowsujeme subor
 	CString		filter;
-	filter += _T("GraphEdit Files (grf)|*.grf|");
-	filter += _T("GraphStudio XML Files (xml)|*.xml|");
-	filter += _T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
-	filter += _T("Audio Files |*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
-	filter += _T("All Files|*.*|");
+	filter =	_T("All Graph Files|*.grf;*.xml|");
+	filter +=	_T("GraphEdit Files (grf)|*.grf|");
+	filter +=	_T("GraphStudio XML Files (xml)|*.xml|");
+	filter +=	_T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
+	filter +=	_T("Audio Files |*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
+	filter +=	_T("All Files|*.*|");
 
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
-    dlg.m_ofn.nFilterIndex = 5;
+    dlg.m_ofn.nFilterIndex = 6;
     int ret = dlg.DoModal();
 
 	CString filename = dlg.GetPathName();
@@ -1895,12 +1890,12 @@ void CGraphView::OnOptionsShowGuidOfKnownTypesClick()
 
 void CGraphView::OnViewProgressview()
 {
-	CPath path(document_filename);
-	const int pos = path.FindFileName();
-	CString	short_fn = document_filename;
-	short_fn.Delete(0, pos);
+	CString name(_T("Untitled"));
+	const CDocument * const doc  = GetDocument();
+	if (doc)
+		name = doc->GetTitle();
 
-	form_progress->UpdateCaption(short_fn);
+	form_progress->UpdateCaption(name);
 	form_progress->ShowWindow(SW_SHOW);
 	AfxGetMainWnd()->ShowWindow(SW_HIDE);
 }
