@@ -906,6 +906,8 @@ HRESULT CGraphView::TryOpenFile(CString fn, bool render_media_file)
 
 void CGraphView::OnFileOpenClick()
 {
+	static int current_filter_index = 6;
+
 	// nabrowsujeme subor
 	CString		filter;
 	filter =	_T("All Graph Files|*.grf;*.xml|");
@@ -916,8 +918,9 @@ void CGraphView::OnFileOpenClick()
 	filter +=	_T("All Files|*.*|");
 
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
-    dlg.m_ofn.nFilterIndex = 6;
+    dlg.m_ofn.nFilterIndex = current_filter_index;
     int ret = dlg.DoModal();
+	current_filter_index = dlg.m_ofn.nFilterIndex;
 
 	CString filename = dlg.GetPathName();
 	if (ret == IDOK) {
@@ -929,6 +932,8 @@ void CGraphView::OnFileOpenClick()
 
 void CGraphView::OnFileAddmediafile()
 {
+	static int current_filter_index = 3;
+
 	// nabrowsujeme subor
 	CString		filter;
 	filter += _T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
@@ -936,8 +941,9 @@ void CGraphView::OnFileAddmediafile()
 	filter += _T("All Files|*.*|");
 
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
-    dlg.m_ofn.nFilterIndex = 3;
+    dlg.m_ofn.nFilterIndex = current_filter_index;
     int ret = dlg.DoModal();
+	current_filter_index = dlg.m_ofn.nFilterIndex;
 
 	CString filename = dlg.GetPathName();
 	if (ret == IDOK) {
@@ -958,6 +964,8 @@ void CGraphView::OnRenderUrlClick()
 
 void CGraphView::OnRenderFileClick()
 {
+	static int current_filter_index = 3;
+
 	// nabrowsujeme subor
 	CString		filter;
 	filter += _T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
@@ -965,8 +973,9 @@ void CGraphView::OnRenderFileClick()
 	filter += _T("All Files|*.*|");
 
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
-	dlg.m_ofn.nFilterIndex = 3;
+	dlg.m_ofn.nFilterIndex = current_filter_index;
     int ret = dlg.DoModal();
+	current_filter_index = dlg.m_ofn.nFilterIndex;
 
 	const CString filename = dlg.GetPathName();
 	if (ret == IDOK) {
