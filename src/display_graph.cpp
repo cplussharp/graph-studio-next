@@ -95,9 +95,7 @@ namespace GraphStudio
 			graph_callback->NonDelegatingRelease();
 			graph_callback = NULL;
 		}
-
-		ZeroTags();
-		RemoveUnusedFilters();
+		DeleteAllFilters();
 	}
 
 	// caller must clean up graph if error returned
@@ -171,18 +169,16 @@ namespace GraphStudio
 				me = NULL;
 			}
 
-			ZeroTags();
-			RemoveAllFilters();
-			RemoveUnusedFilters();
+			SelectAllFilters(true);
+			RemoveSelectionFromGraph();
+			DeleteAllFilters();
 			columns.RemoveAll();
 			gb = NULL;
 			cgb = NULL;
 		} else {
 			mc = NULL;
 			me = NULL;
-
-			ZeroTags();
-			RemoveUnusedFilters();
+			DeleteAllFilters();
 			columns.RemoveAll();
 			gb = NULL;
 			cgb = NULL;
@@ -284,15 +280,11 @@ namespace GraphStudio
         }
     }
 
-	void DisplayGraph::RemoveAllFilters()
+	void DisplayGraph::SelectAllFilters(bool select)
 	{
-		// we find all filters, disconnect them and remove from graph
 		for (int i=0; i<filters.GetCount(); i++) {
-			if (callback) callback->OnFilterRemoved(this, filters[i]);
-			filters[i]->DeleteFilter();
+			filters[i]->Select(select);
 		}
-		RefreshFilters();
-		Dirty();
 	}
 
 	CSize DisplayGraph::GetGraphSize()
@@ -615,16 +607,17 @@ namespace GraphStudio
 		return 0;
 	}
 
-	void DisplayGraph::DeleteSelected()
+	void DisplayGraph::RemoveSelectionFromGraph()
 	{
 		// first delete connections and then filters
 		for (int i=0; i<filters.GetCount(); i++) {
-			filters[i]->DeleteSelectedConnections();
+			filters[i]->RemoveSelectedConnections();
 		}
 		for (int i=0; i<filters.GetCount(); i++) {
 			if (filters[i]->selected) {
-				if (callback) callback->OnFilterRemoved(this, filters[i]);
-				filters[i]->DeleteFilter();
+				if (callback) 
+					callback->OnFilterRemoved(this, filters[i]);
+				filters[i]->RemoveFromGraph();
 			}
 		}
 		RefreshFilters();
@@ -1603,25 +1596,15 @@ namespace GraphStudio
 		return NULL;		
 	}
 
-	void DisplayGraph::ZeroTags()
+	void DisplayGraph::DeleteAllFilters()
 	{
-		for (int i=0; i<filters.GetCount(); i++) {
-			Filter *filt = filters[i];
-			filt->tag = 0;
-		}
-	}
-
-	void DisplayGraph::RemoveUnusedFilters()
-	{
-		// remove all those, whose TAG is zero
 		for (int i=filters.GetCount()-1; i>=0; i--) {
 			Filter *filt = filters[i];
-			if (filt->tag == 0) {				
-				if (callback) callback->OnFilterRemoved(this, filt);
-				delete filt;
-				filters.RemoveAt(i);
-			}
+			if (callback) 
+				callback->OnFilterRemoved(this, filt);
+			delete filt;
 		}
+		filters.RemoveAll();
 	}
 
 	HRESULT DisplayGraph::ConnectPins(Pin *p1, Pin *p2, bool chooseMediaType)
@@ -1672,45 +1655,65 @@ namespace GraphStudio
 
 	void DisplayGraph::RefreshFilters()
 	{
-		ZeroTags();
+		HRESULT hr = S_OK;
 
-		IEnumFilters	*efilt;
-		IBaseFilter		*filt;
-		ULONG			ff;
+		CComPtr<IEnumFilters> enum_filters;
+		CComPtr<IBaseFilter> ifilter;
 
-		if (!gb) {
-			RemoveUnusedFilters();
-			return ;
-		}
+		// Make a backup of stale list and clear the main list
+		CArray<Filter*> stale_filters;
+		stale_filters.Copy(filters);
+		filters.RemoveAll();
 
-		HRESULT			hr = gb->EnumFilters(&efilt);
-		if (SUCCEEDED(hr) && efilt) {
-			efilt->Reset();
-			while (efilt->Next(1, &filt, &ff) == NOERROR) {
-				Filter	*filter = FindFilter(filt);
-				if (!filter) {
-					filter = new Filter(this);
-					filter->LoadFromFilter(filt);
+		if (gb) {
+			hr = gb->EnumFilters(&enum_filters);
+			if (SUCCEEDED(hr) && enum_filters) {
+				enum_filters->Reset();
+				ULONG ff = 0;
+				while (enum_filters->Next(1, &ifilter, &ff) == NOERROR) {
+		
+					Filter	* filter = NULL;
+
+					// Find matching existing Filter if any and delete from stale list
+					for (int i=0; i<stale_filters.GetCount(); i++) {
+						Filter * const f = stale_filters[i];
+						if (f->filter == ifilter) {
+							filter = f;
+							stale_filters.RemoveAt(i);
+							break;
+						}
+					}
+
+					// Create new Filter if not found in stale list
+					if (!filter) {
+						filter = new Filter(this);
+						filter->filter = ifilter;
+					}
+
+					// add Filter back to main list in same order as enumerated
 					filters.Add(filter);
-				} else {
-					filter->Refresh();
+					ifilter.Release();
 				}
-
-				// mark this one as active...
-				if (filter) {
-					filter->tag = 1;
-				}
-				filt->Release();
 			}
-			efilt->Release();
 		}
-	
-		// kill those inactive
-		RemoveUnusedFilters();
+
+		// Remaining Filters in stale list are not in graph so need to be deleted
+		for (int i=0; i<stale_filters.GetCount(); i++) {
+			Filter * const f = stale_filters[i];
+			if (callback) 
+				callback->OnFilterRemoved(this, f);
+			delete f;
+			// no need to clear list as it's not used below
+		}
+
+		// Refresh updated list of Filters in the main list
+		for (int i=0; i<filters.GetCount(); i++) {
+			filters[i]->Refresh();
+		}
+
 		LoadPeers();
 		RefreshClock();
 		Dirty();
-
 	}
 
 	void DisplayGraph::LoadPeers()
@@ -2063,7 +2066,7 @@ namespace GraphStudio
 		LoadFromFilter(filter);
 	}
 
-	void Filter::DeleteSelectedConnections()
+	void Filter::RemoveSelectedConnections()
 	{
 		int i;
 		for (i=0; i<output_pins.GetCount(); i++) {
@@ -2074,7 +2077,7 @@ namespace GraphStudio
 		}
 	}
 
-	void Filter::DeleteFilter()
+	void Filter::RemoveFromGraph()
 	{
 		// now all our connections need to be broken
 		int i;
