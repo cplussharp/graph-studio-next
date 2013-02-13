@@ -154,6 +154,10 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
     ON_COMMAND(ID_OPTIONS_CONFIGURESBE, &CGraphView::OnConfigureSbe)
 	ON_WM_MOUSEWHEEL()
 	ON_WM_MOUSEHWHEEL()
+	ON_COMMAND(ID_VIEW_DECREASEHORIZONTALSPACING, &CGraphView::OnViewDecreaseHorizontalSpacing)
+	ON_COMMAND(ID_VIEW_INCREASEHORIZONTALSPACING, &CGraphView::OnViewIncreaseHorizontalSpacing)
+	ON_COMMAND(ID_VIEW_DECREASEVERTICALSPACING, &CGraphView::OnViewDecreaseVerticalSpacing)
+	ON_COMMAND(ID_VIEW_INCREASEVERTICALSPACING, &CGraphView::OnViewIncreaseVerticalSpacing)
 	END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -1984,22 +1988,15 @@ BOOL CGraphView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 		// Control wheel (without shift)- zoom
 		if (zDelta <= -WHEEL_DELTA) {
 			OnViewDecreasezoomlevel();
-		} else if (zDelta >= -WHEEL_DELTA) {
+		} else if (zDelta >= WHEEL_DELTA) {
 			OnViewIncreasezoomlevel();
 		}
 		return 0;
 	} else if (~(nFlags&MK_CONTROL) && (nFlags&MK_SHIFT)) {
 		// shift wheel
-		const int delta = (abs(zDelta) / WHEEL_DELTA) * GraphStudio::DisplayGraph::GRID_SIZE;
-
-		int new_gap = GraphStudio::DisplayGraph::g_filterYGap + (zDelta < 0 ? delta : -delta);
-		new_gap = max(GraphStudio::DisplayGraph::GRID_SIZE, new_gap);
-
-		if (new_gap != GraphStudio::DisplayGraph::g_filterYGap ) {
-			GraphStudio::DisplayGraph::g_filterYGap = new_gap;
-			graph.SmartPlacement();
-			Invalidate();
-		}
+		int delta = (abs(zDelta) / WHEEL_DELTA);	// Round towards zero
+		delta = (zDelta < 0 ? delta : -delta);
+		ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterYGap, delta);
 		return 0;
 	} else {
 		return __super::OnMouseWheel(nFlags, zDelta, pt);
@@ -2013,16 +2010,10 @@ void CGraphView::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
 {
 	if (~(nFlags&MK_CONTROL) && (nFlags&MK_SHIFT)) {
 		// shift wheel
-		const int delta = (abs(zDelta) / WHEEL_DELTA) * GraphStudio::DisplayGraph::GRID_SIZE;
-
-		int new_gap = GraphStudio::DisplayGraph::g_filterXGap + (zDelta < 0 ? -delta : delta);
-		new_gap = max(GraphStudio::DisplayGraph::GRID_SIZE, new_gap);
-
-		if (new_gap != GraphStudio::DisplayGraph::g_filterXGap ) {
-			GraphStudio::DisplayGraph::g_filterXGap = new_gap;
-			graph.SmartPlacement();
-			Invalidate();
-		}
+		// shift wheel
+		int delta = (abs(zDelta) / WHEEL_DELTA);	// Round towards zero
+		delta = (zDelta < 0 ? -delta : delta);
+		ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterXGap, delta);
 	}
 	// we don't handle anything but scrolling
 	// if the parent is a splitter, it will handle the message
@@ -2069,4 +2060,34 @@ BOOL CGraphView::DoMouseHorzWheel(UINT fFlags, short zDelta, CPoint point)
 	return bResult;
 }
 
+void CGraphView::ChangeFilterSpacing(int& value, int delta)
+{
+	int new_gap = value + (delta * GraphStudio::DisplayGraph::GRID_SIZE);
+	new_gap = max(GraphStudio::DisplayGraph::GRID_SIZE, new_gap);
 
+	if (new_gap != value) {
+		value = new_gap;
+		graph.SmartPlacement();
+		Invalidate();
+	}
+}
+
+void CGraphView::OnViewDecreaseHorizontalSpacing()
+{
+	ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterXGap, -1);
+}
+
+void CGraphView::OnViewIncreaseHorizontalSpacing()
+{
+	ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterXGap, +1);
+}
+
+void CGraphView::OnViewDecreaseVerticalSpacing()
+{
+	ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterYGap, -1);
+}
+
+void CGraphView::OnViewIncreaseVerticalSpacing()
+{
+	ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterYGap, +1);
+}
