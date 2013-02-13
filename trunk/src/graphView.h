@@ -233,6 +233,7 @@ public:
     void OnUpdateRemoveConnections(CCmdUI *pCmdUI);
     void OnRemoveConnections();
 
+	void ChangeFilterSpacing(int& value, int delta);
 	BOOL DoMouseHorzWheel(UINT fFlags, short zDelta, CPoint point);
 
 	afx_msg void OnViewProgressview();
@@ -248,6 +249,10 @@ public:
     afx_msg void OnConfigureSbe();
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
+	afx_msg void OnViewDecreaseHorizontalSpacing();
+	afx_msg void OnViewIncreaseHorizontalSpacing();
+	afx_msg void OnViewDecreaseVerticalSpacing();
+	afx_msg void OnViewIncreaseVerticalSpacing();
 };
 
 #ifndef _DEBUG  // debug version in graphView.cpp

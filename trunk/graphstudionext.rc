@@ -970,11 +970,11 @@ BEGIN
         MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
         MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
-        MENUITEM "Save &As Graph (.GRF)...",    ID_FILE_SAVE_AS
-        MENUITEM "Sav&e As XML...",             ID_FILE_SAVEASXML
+        MENUITEM "Save &As Graph (.GRF)...\tCtrl+Shift+S", ID_FILE_SAVE_AS
+        MENUITEM "Sav&e As XML....\tAlt+Shift+S", ID_FILE_SAVEASXML
         MENUITEM SEPARATOR
         MENUITEM "&Render Media File...\tCtrl+R", ID_FILE_RENDERFILE
-        MENUITEM "Add &Media File...",          ID_FILE_ADDMEDIAFILE
+        MENUITEM "Add &Media File...\tCtrl+A",  ID_FILE_ADDMEDIAFILE
         MENUITEM "Render &URL...\tCtrl+U",      ID_FILE_RENDERURL
         MENUITEM "&Build DVD Graph...",         ID_FILE_RENDERDVD
         MENUITEM "Build Capture &Graph...",     ID_FILE_RENDERCAPTURE
@@ -994,7 +994,7 @@ BEGIN
         MENUITEM "Seeking &Bar",                ID_VIEW_SEEKINGBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
         MENUITEM SEPARATOR
-        MENUITEM "Progress &View...\tF5",       ID_VIEW_PROGRESSVIEW
+        MENUITEM "Progress &View...\tCtrl+F5",  ID_VIEW_PROGRESSVIEW
         MENUITEM SEPARATOR
         MENUITEM "Graph &Construction Report",  ID_VIEW_GRAPHCONSTRUCTIONREPORT
         MENUITEM "Graph &Events\tCtrl+E",       ID_VIEW_GRAPHEVENTS
@@ -1010,6 +1010,10 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Decrease Zoom Level\t-",     ID_VIEW_DECREASEZOOMLEVEL
         MENUITEM "Increase &Zoom Level\t+",     ID_VIEW_INCREASEZOOMLEVEL
+        MENUITEM "Decrease Horizontal Spacing\tCtrl -", ID_VIEW_DECREASEHORIZONTALSPACING
+        MENUITEM "Increase Horizontal Spacing\tCtrl +", ID_VIEW_INCREASEHORIZONTALSPACING
+        MENUITEM "Decrease Vertical Spacing\tAlt -", ID_VIEW_DECREASEVERTICALSPACING
+        MENUITEM "Increase Vertical Spacing\tAlt +", ID_VIEW_INCREASEVERTICALSPACING
     END
     POPUP "&Graph"
     BEGIN
@@ -1028,7 +1032,7 @@ BEGIN
         MENUITEM "Insert Audio Renderer",       ID_GRAPH_INSERTAUDIORENDERER
         MENUITEM "Insert Video Renderer",       ID_GRAPH_INSERTVIDEORENDERER
         MENUITEM SEPARATOR
-        MENUITEM "&Refresh Graph\tCtrl+F5",     ID_BUTTON_REFRESH
+        MENUITEM "&Refresh Graph\tF5",          ID_BUTTON_REFRESH
         MENUITEM "Make &Graph Screenshot\tCtrl+F12", ID_GRAPH_MAKEGRAPHSCREENSHOT
         MENUITEM SEPARATOR
         MENUITEM "Use &Clock",                  ID_GRAPH_USECLOCK
@@ -1085,7 +1089,7 @@ END
 IDR_MAINFRAME ACCELERATORS
 BEGIN
     VK_SPACE,       ID_BUTTON_PLAYPAUSE,    VIRTKEY, NOINVERT
-    VK_F5,          ID_BUTTON_REFRESH,      VIRTKEY, CONTROL, NOINVERT
+    VK_F5,          ID_BUTTON_REFRESH,      VIRTKEY, NOINVERT
     VK_RIGHT,       ID_BUTTON_STEP,         VIRTKEY, NOINVERT
     VK_ESCAPE,      ID_BUTTON_STOP,         VIRTKEY, NOINVERT
     "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
@@ -1096,6 +1100,7 @@ BEGIN
     VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
     VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
     "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    "A",            ID_FILE_ADDMEDIAFILE,   VIRTKEY, CONTROL, NOINVERT
     "G",            ID_FILE_CONNECTTOREMOTEGRAPH, VIRTKEY, CONTROL, NOINVERT
     "H",            ID_FILE_DISCONNECTFROMREMOTEGRAPH, VIRTKEY, CONTROL, NOINVERT
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
@@ -1103,6 +1108,8 @@ BEGIN
     "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
     "R",            ID_FILE_RENDERFILE,     VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE_AS,        VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVEASXML,      VIRTKEY, SHIFT, ALT, NOINVERT
     "D",            ID_FILTERS_DOUBLESELECTEDFILTERS, VIRTKEY, CONTROL, NOINVERT
     "F",            ID_GRAPH_INSERTFILTER,  VIRTKEY, CONTROL, NOINVERT
     VK_F12,         ID_GRAPH_MAKEGRAPHSCREENSHOT, VIRTKEY, CONTROL, NOINVERT
@@ -1113,12 +1120,16 @@ BEGIN
     "6",            ID_VIEW_200,            VIRTKEY, CONTROL, NOINVERT
     "2",            ID_VIEW_50,             VIRTKEY, CONTROL, NOINVERT
     "3",            ID_VIEW_75,             VIRTKEY, CONTROL, NOINVERT
+    VK_OEM_MINUS,   ID_VIEW_DECREASEHORIZONTALSPACING, VIRTKEY, CONTROL, NOINVERT
+    VK_OEM_MINUS,   ID_VIEW_DECREASEVERTICALSPACING, VIRTKEY, ALT, NOINVERT
     "-",            ID_VIEW_DECREASEZOOMLEVEL, ASCII, NOINVERT
     "E",            ID_VIEW_GRAPHEVENTS,    VIRTKEY, CONTROL, NOINVERT
+    VK_OEM_PLUS,    ID_VIEW_INCREASEHORIZONTALSPACING, VIRTKEY, CONTROL, NOINVERT
+    VK_OEM_PLUS,    ID_VIEW_INCREASEVERTICALSPACING, VIRTKEY, ALT, NOINVERT
     "+",            ID_VIEW_INCREASEZOOMLEVEL, ASCII, NOINVERT
     "=",            ID_VIEW_INCREASEZOOMLEVEL, ASCII, NOINVERT
-    "T",            ID_VIEW_TEXTINFORMATION, VIRTKEY, CONTROL, NOINVERT
     VK_F5,          ID_VIEW_PROGRESSVIEW,   VIRTKEY, NOINVERT
+    "T",            ID_VIEW_TEXTINFORMATION, VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -1301,6 +1312,8 @@ END
 STRINGTABLE
 BEGIN
     ID_FILE_ADDMEDIAFILE    "Add media from file"
+    ID_VIEW_DECREASEZOOMLEVEL "Zoom out of graph (also Ctrl-Wheel)"
+    ID_VIEW_INCREASEZOOMLEVEL "Zoom in to graph (also Ctrl-Wheel)"
 END
 
 STRINGTABLE
@@ -1334,6 +1347,18 @@ END
 STRINGTABLE
 BEGIN
     IDS_SHOW_GRAPH_CONSTRUCTION_REPORT "Show Graph Constrution Report"
+END
+
+STRINGTABLE
+BEGIN
+    ID_VIEW_INCREASEHORIZONTALSPACING 
+                            "Change horizontal spacing (also Shift-Horizontal-Wheel)"
+    ID_VIEW_INCREASEVERTICALSPACING 
+                            "Change vertical spacing (also Shift-Wheel)"
+    ID_VIEW_DECREASEHORIZONTALSPACING 
+                            "Change horizontal spacing (also Shift-Horizontal-Wheel)"
+    ID_VIEW_DECREASEVERTICALSPACING 
+                            "Change vertical spacing (also Shift-Wheel)"
 END
 
 #endif    // English (United States) resources
