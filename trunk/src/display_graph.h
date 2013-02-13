@@ -203,7 +203,6 @@ namespace GraphStudio
 		int						width, height;
 		CPoint					start_drag_pos;
 
-		int						tag;				// helper
 		int						column;				// The column index that we're arranged in. Not set if negative
 		bool					selected;
 		bool					connected;
@@ -251,8 +250,8 @@ namespace GraphStudio
 		Pin *FindPinByName(CString id);
 		bool HasPin(IPin *pin);
 		void LoadPeers();
-		void DeleteSelectedConnections();
-		void DeleteFilter();
+		void RemoveSelectedConnections();
+		void RemoveFromGraph();
 		void UpdateClock();
 
 		// Helpers
@@ -392,18 +391,19 @@ namespace GraphStudio
 		// adding filters
 		HRESULT AddFilter(IBaseFilter *filter, CString proposed_name);
 
-		void RefreshFilters();
-		void ZeroTags();
 		Filter *FindFilter(IBaseFilter *filter);
 		Filter *FindFilter(CString name);
 		Filter *FindParentFilter(IPin *pin);
 		Pin *FindPin(IPin *pin);
 		Pin *FindPinByPath(CString pin_path);
-		void RemoveUnusedFilters();
-		void RemoveAllFilters();
-		void SmartPlacement();
+
+		void RefreshFilters();
+		void DeleteAllFilters();
+		void SelectAllFilters(bool select);
 		void LoadPeers();
-		void DeleteSelected();
+		void RemoveSelectionFromGraph();
+
+		void SmartPlacement();
 		void DoubleSelected();
 		HRESULT ConnectPins(Pin *p1, Pin *p2, bool chooseMediaType);
 

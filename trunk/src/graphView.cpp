@@ -1055,7 +1055,7 @@ void CGraphView::OnDeleteSelection()
 	overlay_filter = NULL;
 
 	// delete selected objects
-	graph.DeleteSelected();
+	graph.RemoveSelectionFromGraph();
 	Invalidate();
 
     AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
