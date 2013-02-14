@@ -1856,7 +1856,7 @@ namespace GraphStudio
 
 	// Recurse upstream depth first using visited_filters to only process filters once
 	// add leaf filters without connected input pins to inputs array
-	static void FindUpstreamInputs(Filter* filter, std::set<Filter*>& visited_filters, CArray<Filter*>& inputs)
+	static void FindUpstreamInputs(Filter* const filter, std::set<Filter*>& visited_filters, CArray<Filter*>& inputs)
 	{
 		if (visited_filters.find(filter) != visited_filters.end())		// already visited - nothing to do
 			return;
@@ -1887,7 +1887,6 @@ namespace GraphStudio
 				FindUpstreamInputs(filter, visited_filters, input_filters);
 			}
 		}
-
 		//	Then recurse upstream from each filter with multiple inputs with only 1 connected
 		for (int i=0; i<all_filters.GetCount(); i++) {
 			Filter * const filter = all_filters[i];
@@ -1896,7 +1895,39 @@ namespace GraphStudio
 				FindUpstreamInputs(filter, visited_filters, input_filters);
 			}
 		}
+	}
 
+	// Iterate downstream depth first until we find a filter that's already been assigned a column
+	static Filter* FindFirstPositionedDownstreamFilter(Filter* const start_filter)
+	{
+		if (start_filter->column >= 0)
+			return start_filter;				// found
+
+		for (int i=0; i<start_filter->output_pins.GetCount(); i++) {
+			Pin * const out_pin = start_filter->output_pins[i];
+			if (out_pin->peer) {
+				Filter * const positioned_filter = FindFirstPositionedDownstreamFilter(out_pin->peer->filter);
+				if (positioned_filter)
+					return positioned_filter;	// found
+			}
+		}
+		return NULL;							// not found
+	}
+
+	int DisplayGraph::CalcDownstreamYPosition(Filter* const start_filter) const
+	{
+		int y = -1;
+		const Filter* const downstream_positioned_filter = FindFirstPositionedDownstreamFilter(start_filter);
+		if (downstream_positioned_filter) {
+			// Don't position any higher than the first downstream filter that's already positioned
+			y = downstream_positioned_filter->posy;
+
+			// Don't position any higher than the end of the columns before this filter
+			for (int col=0; col<downstream_positioned_filter->column; col++) {
+				y = max(y, columns[col].y);
+			}
+		}
+		return y;
 	}
 
 	// do some nice automatic filter placement
@@ -1928,10 +1959,8 @@ namespace GraphStudio
 		// Position these filters first
 		for (int i=0; i<input_filters.GetCount(); i++) {
 			Filter	* const filter = input_filters[i];
-			if (filter->column < 0
-					&& filter->NumOfConnectedPins(PINDIR_INPUT) == 0
-					&& filter->NumOfConnectedPins(PINDIR_OUTPUT) > 0) {
-				filter->CalculatePlacementChain(0, DisplayGraph::GRID_SIZE);
+			if (filter->column < 0) {
+				filter->CalculatePlacementChain(0, DisplayGraph::GRID_SIZE, CalcDownstreamYPosition(filter));
 			}
 		}
 
@@ -1941,7 +1970,7 @@ namespace GraphStudio
 			if (filter->column < 0
 					&& filter->NumOfConnectedPins(PINDIR_INPUT) == 0
 					&& filter->NumOfConnectedPins(PINDIR_OUTPUT) > 0) {
-				filter->CalculatePlacementChain(0, DisplayGraph::GRID_SIZE);
+				filter->CalculatePlacementChain(0, DisplayGraph::GRID_SIZE, CalcDownstreamYPosition(filter));
 			}
 		}
 
@@ -1999,13 +2028,11 @@ namespace GraphStudio
 
 		RemovePins();
 		ReleaseIcons();
-		name = _T("");
+		name.Empty();
 
 		basic_audio = NULL;
 		clock = NULL;
-		if (filter != NULL) {
-			filter = NULL;
-		}
+		filter = NULL;
 
 		overlay_icon_active = -1;
 	}
@@ -2126,7 +2153,7 @@ namespace GraphStudio
 			Release();
 
 			// keep a reference
-			f->QueryInterface(IID_IBaseFilter, (void**)&filter);
+			filter = f;
 
 			if (params) {
 				width = params->min_filter_width;
@@ -2453,7 +2480,7 @@ namespace GraphStudio
 
 	void Filter::Draw(CDC *dc)
 	{
-		DWORD	back_color = params->filter_type_colors[0];
+		DWORD	back_color = params->filter_type_colors[Filter::FILTER_UNKNOWN];
 		if (connected) {
 			back_color = params->filter_type_colors[filter_type];
 		}

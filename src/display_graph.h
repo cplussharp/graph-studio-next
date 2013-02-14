@@ -403,6 +403,7 @@ namespace GraphStudio
 		void LoadPeers();
 		void RemoveSelectionFromGraph();
 
+		int CalcDownstreamYPosition(Filter* const start_filter) const;
 		void SmartPlacement();
 		void DoubleSelected();
 		HRESULT ConnectPins(Pin *p1, Pin *p2, bool chooseMediaType);
