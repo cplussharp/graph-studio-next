@@ -1939,19 +1939,40 @@ namespace GraphStudio
 		return NULL;							// not found
 	}
 
+	// Recurse depth first down the first connected output pin and find the depth of this chain
+	static int DepthOfFirstConnectedOuputChain(Filter *start_filter, int current_depth)
+	{
+		for (int i=0; i<start_filter->output_pins.GetCount(); i++) {
+			Pin * const out_pin = start_filter->output_pins[i];
+			if (out_pin->peer)
+				return DepthOfFirstConnectedOuputChain(out_pin->peer->filter, current_depth+1);	// found connected output
+		}
+		return current_depth;
+	}
+
 	int DisplayGraph::CalcDownstreamYPosition(Filter* const start_filter) const
 	{
 		int y = -1;
+		int spanned_columns = -1;
+
 		const Filter* const downstream_positioned_filter = FindFirstPositionedDownstreamFilter(start_filter);
 		if (downstream_positioned_filter) {
 			// Don't position any higher than the first downstream filter that's already positioned
 			y = downstream_positioned_filter->posy;
 
-			// Don't position any higher than the end of the columns before this filter
-			for (int col=0; col<downstream_positioned_filter->column; col++) {
-				y = max(y, columns[col].y);
-			}
+			spanned_columns = downstream_positioned_filter->column - 1;
+		} else {
+			spanned_columns = DepthOfFirstConnectedOuputChain(start_filter, 0);
 		}
+
+		if (spanned_columns >= columns.GetSize())
+			spanned_columns = columns.GetSize() - 1;
+
+		// Don't position any higher than the end of the columns we cross
+		for (int col=0; col<=spanned_columns; col++) {
+			y = max(y, columns[col].y);
+		}
+
 		return y;
 	}
 
