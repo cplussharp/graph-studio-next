@@ -29,6 +29,8 @@ BEGIN_MESSAGE_MAP(CgraphstudioApp, CWinApp)
 END_MESSAGE_MAP()
 
 bool CgraphstudioApp::g_showGuidsOfKnownTypes = true;
+CgraphstudioApp::PinResolution CgraphstudioApp::g_ResolvePins = CgraphstudioApp::BY_NAME;
+
 
 //-----------------------------------------------------------------------------
 //

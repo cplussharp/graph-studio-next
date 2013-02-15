@@ -970,8 +970,14 @@ BEGIN
         MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
         MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
-        MENUITEM "Save &As Graph (.GRF)...\tCtrl+Shift+S", ID_FILE_SAVE_AS
-        MENUITEM "Sav&e As XML....\tAlt+Shift+S", ID_FILE_SAVEASXML
+        MENUITEM "Save As Graph (.&GRF)...\tCtrl+Shift+S", ID_FILE_SAVE_AS
+        MENUITEM "Save &As XML....\tAlt+Shift+S", ID_FILE_SAVEASXML
+        POPUP "XML Opt&ions"
+        BEGIN
+            MENUITEM "Load Pins by &Name",          ID_FILEOPTIONS_LOADPINSBYNAME
+            MENUITEM "Load Pins by Inde&x",         ID_FILEOPTIONS_LOADPINSBYINDEX
+            MENUITEM "Load Pins by &ID",            ID_FILEOPTIONS_LOADPINSBYID
+        END
         MENUITEM SEPARATOR
         MENUITEM "&Render Media File...\tCtrl+R", ID_FILE_RENDERFILE
         MENUITEM "Add &Media File...\tCtrl+A",  ID_FILE_ADDMEDIAFILE
@@ -1359,6 +1365,12 @@ BEGIN
                             "Change horizontal spacing (also Shift-Horizontal-Wheel)"
     ID_VIEW_DECREASEVERTICALSPACING 
                             "Change vertical spacing (also Shift-Wheel)"
+    ID_FILEOPTIONS_LOADPINSBYNAME 
+                            "Resolve pin references in XML files by pin name (most robust)"
+    ID_FILEOPTIONS_LOADPINSBYINDEX 
+                            "Resolve pin references in XML files by pin index"
+    ID_FILEOPTIONS_LOADPINSBYID 
+                            "Resolve pin references in XML files by pin ID. Sometimes broken by buggy filters."
 END
 
 #endif    // English (United States) resources

@@ -890,16 +890,20 @@ namespace GraphStudio
 		ASSERT(in_pin_index >= 0);
 
 		xml.BeginNode(_T("connect"));
+			// Write these first to make XML more human readable
 			xml.WriteValue(_T("out"), filter->name + _T("/") + pin->name);
+			xml.WriteValue(_T("in"), pin->peer->filter->name + _T("/") + pin->peer->name);
+
 			xml.WriteValue(_T("outFilterIndex"), out_filter_index);
 			xml.WriteValue(_T("outPinId"), pin->id);
+			xml.WriteValue(_T("outPinName"), pin->name);
 			if (out_duplicate_ids.GetLength() > 0)
 				xml.WriteValue(_T("outPinIdConflicts"), out_duplicate_ids);
 			xml.WriteValue(_T("outPinIndex"), out_pin_index);
 
-			xml.WriteValue(_T("in"), pin->peer->filter->name + _T("/") + pin->peer->name);
 			xml.WriteValue(_T("inFilterIndex"), in_filter_index);
 			xml.WriteValue(_T("inPinId"), pin->peer->id);
+			xml.WriteValue(_T("inPinName"), pin->peer->name);
 			if (in_duplicate_ids.GetLength() > 0)
 				xml.WriteValue(_T("inPinIdConflicts"), in_duplicate_ids);
 			xml.WriteValue(_T("inPinIndex"), in_pin_index);
@@ -1033,16 +1037,32 @@ namespace GraphStudio
 
 		XML::XMLNode * const gn = *it;
 
+		// Filter list stored in the same order as stored in XML file for fixing up Filter index references
+		// Only store for the duration of loading
+		// The IBaseFilter* are only used to find matching Filters so will not crash if pointers are invalid
+		CArray<IBaseFilter *>	filters_loaded_order;
+
+		HRESULT connection_hresult = S_OK;
+		HRESULT filter_hresult = S_OK;
+
 		for (it = gn->nodes.begin(); it != gn->nodes.end(); it++) {
 			XML::XMLNode * const node = *it;
 
-			if (node->name == _T("filter"))	
-				hr = LoadXML_Filter(node);
-			else if (node->name == _T("render")) 
+			if (node->name == _T("filter"))	{
+				CComPtr<IBaseFilter> created_filter;
+				hr = LoadXML_Filter(node, created_filter);
+				filters_loaded_order.Add(created_filter.p);		// Add NULL if filter failed to load
+				if (FAILED(hr))
+					filter_hresult = hr;
+
+			} else if (node->name == _T("render")) 
 				hr = LoadXML_Render(node); 
-			else if (node->name == _T("connect")) 
-				hr = LoadXML_Connect(node); 
-			else if (node->name == _T("config")) 
+			else if (node->name == _T("connect")) {
+				hr = LoadXML_Connect(node, filters_loaded_order); 
+				if (FAILED(hr))
+					connection_hresult = hr;
+
+			} else if (node->name == _T("config")) 
 				hr = LoadXML_Config(node); 
 			else if (node->name == _T("iamgraphstreams")) 
 				hr = LoadXML_IAMGraphStreams(node); 
@@ -1050,9 +1070,20 @@ namespace GraphStudio
 				hr = LoadXML_Schedule(node); 
 			else if (node->name == _T("command")) 
 				hr = LoadXML_Command(node); 
-
-			// TODO report errors but allow loading to continue
 		}
+
+		// TODO report all errors - perhaps in graph construction window?
+
+		if (FAILED(filter_hresult)) {
+			SmartPlacement();			// arrange filters so user can see what's failed
+			DSUtil::ShowError(filter_hresult, _T("Failed to create filter(s)"));
+		}
+
+		if (FAILED(connection_hresult)) {
+			SmartPlacement();			// arrange filters so user can see what's failed
+			DSUtil::ShowError(connection_hresult, _T("Connection(s) failed - try different XML options"));
+		}
+
 		return S_OK;
 	}
 
@@ -1275,71 +1306,71 @@ namespace GraphStudio
 		return hr;
 	}
 
-	HRESULT DisplayGraph::LoadXML_Connect(XML::XMLNode *node)
+	HRESULT DisplayGraph::LoadXML_Connect(XML::XMLNode *node, const CArray<IBaseFilter *> & indexed_filters)
 	{
 		Pin * opin = NULL;
 		Pin * ipin = NULL;
 
-		const CString ofilter_index_str = node->GetValue(_T("outFilterIndex"));
-		const CString ifilter_index_str = node->GetValue(_T("inFilterIndex"));
+		const int ofilter_index = node->GetValue(_T("outFilterIndex"), -1);
+		const int ifilter_index = node->GetValue(_T("inFilterIndex"), -1);
 
-		if (ofilter_index_str.GetLength() > 0
-				&& ifilter_index_str.GetLength() > 0) {
+		if (ofilter_index >= 0 && ofilter_index < indexed_filters.GetCount()
+				&& ifilter_index >= 0 && ifilter_index < indexed_filters.GetCount()) {
 
-			const int ofilter_index = _ttoi(ofilter_index_str);
-			const int ifilter_index = _ttoi(ifilter_index_str);
+			// Look filter up in out list as DirectShow may have rearranged order within the graph
+			Filter * const ofilter = FindFilter(indexed_filters[ofilter_index]);
+			Filter * const ifilter = FindFilter(indexed_filters[ifilter_index]);
 
-			if (ofilter_index >= 0 || ofilter_index < filters.GetCount()
-					|| ifilter_index >= 0 || ifilter_index < filters.GetCount()) {
+			if (ofilter && ifilter) {
+				switch (CgraphstudioApp::g_ResolvePins) {
+					case CgraphstudioApp::BY_ID: {
+					
+						CString id = node->GetValue(_T("outPinId"));
+						opin = ofilter->FindPinByID(id);
+					
+						id = node->GetValue(_T("inPinId"));
+						ipin = ifilter->FindPinByID(id);
+					
+					}	break;
 
-				// Filters now inserted in correct order during loading
-				Filter * const ofilter = filters[ofilter_index];
-				Filter * const ifilter = filters[ifilter_index];
+					case CgraphstudioApp::BY_INDEX: {
+					
+						int index = node->GetValue(_T("outPinIndex"), -1);
+						if (index >= 0 && index < ofilter->output_pins.GetCount())
+							opin = ofilter->output_pins[index];
 
-				if (!ofilter || !ifilter)
-					return VFW_E_NOT_FOUND;
+						index = node->GetValue(_T("inPinIndex"), -1);
+						if (index >= 0 && index < ifilter->input_pins.GetCount())
+							ipin = ifilter->input_pins[index];
 
-				// if there are conflicts between the pin IDs, connect pins by index instead
+					}	break;
 
-				CString index_str = node->GetValue(_T("outPinIndex"));
-				if (node->GetValue(_T("outPinIdConflicts")).GetLength() > 0 
-						&& index_str.GetLength() > 0) {
-					const int index = _ttoi(index_str);
-					if (index >= 0 && index < ofilter->output_pins.GetCount())
-						opin = ofilter->output_pins[index];
+					case CgraphstudioApp::BY_NAME:
+					default: {
+
+						CString id = node->GetValue(_T("outPinName"));
+						opin = ofilter->FindPinByName(id);
+					
+						id = node->GetValue(_T("inPinName"));
+						ipin = ifilter->FindPinByName(id);
+
+					}	break;
 				}
-
-				index_str = node->GetValue(_T("inPinIndex"));
-				if (node->GetValue(_T("inPinIdConflicts")).GetLength() > 0 
-						&& index_str.GetLength() > 0) {
-					const int index = _ttoi(index_str);
-					if (index >= 0 && index < ifilter->input_pins.GetCount())
-						ipin = ifilter->input_pins[index];
-				}
-
-				// If connecting by index not needed or fails, fallback to connect by pin ID
-
-				if (!opin)
-					opin = ofilter->FindPinByID(node->GetValue(_T("outPinId")));
-				if (!ipin)
-					ipin = ifilter->FindPinByID(node->GetValue(_T("inPinId")));
 			}
 		}
 
 		// As further fallback, connect by the old pin path fields
-
-		if (!opin)
+		if (!opin || !ipin) {
 			opin = FindPinByPath(node->GetValue(_T("out")));
-
-		if (!ipin)
 			ipin = FindPinByPath(node->GetValue(_T("in")));
+		}
 
 		if (!opin || !ipin) 
 			return VFW_E_NOT_FOUND;
 
 		const CString direct = node->GetValue(_T("direct"));
 
-		HRESULT hr;
+		HRESULT hr = S_OK;
 		if (direct.IsEmpty() || direct == _T("false"))
 			hr = gb->Connect(opin->pin, ipin->pin);
 		else {
@@ -1356,12 +1387,9 @@ namespace GraphStudio
 			}
 		}
 
-		if (FAILED(hr)) 
-			return hr;
-
 		// reload newly added filters
 		RefreshFilters();
-		return S_OK;
+		return hr;
 	}
 
 	HRESULT DisplayGraph::LoadXML_Config(XML::XMLNode *node)
@@ -1380,16 +1408,17 @@ namespace GraphStudio
 		return S_OK;
 	}
 
-	HRESULT DisplayGraph::LoadXML_Filter(XML::XMLNode *node)
+	HRESULT DisplayGraph::LoadXML_Filter(XML::XMLNode *node, CComPtr<IBaseFilter>& instance)
 	{
 		const CString			name		= node->GetValue(_T("name"));
 		CString					clsid_str	= node->GetValue(_T("clsid"));
 		const CString			dn			= node->GetValue(_T("displayname"));
 		GUID					clsid;
-		CComPtr<IBaseFilter>	instance;
 		HRESULT					hr = NOERROR;
 		int						filter_id_type = -1;
 		bool					is_configured = false;
+
+		instance = NULL;
 
 		// detect how the filter is described
 		if (clsid_str != _T("")) {
@@ -1443,8 +1472,6 @@ namespace GraphStudio
 			hr = AddFilter(instance, name);
 			if (FAILED(hr)) {
 				// display error message
-			} else {
-				SmartPlacement();
 			}
 		}
 
@@ -1464,9 +1491,6 @@ namespace GraphStudio
 		}
 
 		RefreshFilters();
-
-		// we're done
-		instance = NULL;
 		return hr;
 	}
 
@@ -1584,6 +1608,7 @@ namespace GraphStudio
 		return NULL;
 	}
 
+	// Will not crash if IBaseFilter* is invalid pointer - but may return wrongly matched filter
 	Filter *DisplayGraph::FindFilter(IBaseFilter *filter)
 	{
 		// find by filter interface
@@ -2714,13 +2739,13 @@ namespace GraphStudio
 		for (i=0; i<output_pins.GetCount(); i++) output_pins[i]->Select(select);
 	}
 
-	Pin *Filter::FindPinByID(CString name)
+	Pin *Filter::FindPinByID(CString pin_id)
 	{
 		CArray<Pin*> *lists[] = {&output_pins, &input_pins};
 		const size_t num_lists = sizeof(lists)/sizeof(lists[0]);
 
 		CComPtr<IPin> ipin;
-		filter->FindPin(name, &ipin);
+		HRESULT hr = filter->FindPin(pin_id, &ipin);
 
 		for (CArray<Pin*> ** pins = lists; pins<lists+num_lists; pins++) {
 			for (int p=0; p<(**pins).GetCount(); p++) {
@@ -2729,6 +2754,20 @@ namespace GraphStudio
 					return pin;
 			}
 		}
+
+		// Alternative Pin ID search - don't ask filter
+		// Work around for buggy filters where IBaseFilter::FindPin returns wrong pin
+		//CArray<Pin*> *lists[] = {&output_pins, &input_pins};
+		//const size_t num_lists = sizeof(lists)/sizeof(lists[0]);
+
+		//for (CArray<Pin*> ** pins = lists; pins<lists+num_lists; pins++) {
+		//	for (int p=0; p<(**pins).GetCount(); p++) {
+		//		Pin * const pin = (**pins)[p];
+		//		if (pin->id == pin_id) 
+		//			return pin;
+		//	}
+		//}
+
 		return NULL;
 	}
 
@@ -2871,14 +2910,17 @@ namespace GraphStudio
 
 	int Pin::Disconnect()
 	{
-		if (!connected || !peer) return 0;
+		if (!connected || !peer) 
+			return S_OK;
 
 		// we need to disconnect both pins
-		HRESULT	hr;
-		hr = filter->graph->gb->Disconnect(peer->pin);
-		if (FAILED(hr)) return -1;
+		HRESULT hr = filter->graph->gb->Disconnect(peer->pin);
+		if (FAILED(hr)) 
+			return hr;
+
 		hr = filter->graph->gb->Disconnect(pin);
-		if (FAILED(hr)) return -1;
+		if (FAILED(hr)) 
+			return hr;
 
 		// clear variables
 		peer->peer = NULL;
@@ -2889,7 +2931,7 @@ namespace GraphStudio
 		selected = false;
 
 		// we're okay
-		return 0;
+		return S_OK;
 	}
 
 	void Pin::Select(bool select)
