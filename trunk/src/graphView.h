@@ -123,6 +123,7 @@ public:
 	void OnGraphStreamingStarted();
 	void OnGraphStreamingComplete();
 
+	void FileOpen(bool clear_before_opening, bool media_file);
 	void FileSaveAs(DocumentType input_type);
 	void UpdateTitleBar();
 

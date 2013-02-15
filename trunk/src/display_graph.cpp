@@ -890,7 +890,7 @@ namespace GraphStudio
 		ASSERT(in_pin_index >= 0);
 
 		xml.BeginNode(_T("connect"));
-			// Write these first to make XML more human readable
+			// Write these first to make XML more 
 			xml.WriteValue(_T("out"), filter->name + _T("/") + pin->name);
 			xml.WriteValue(_T("in"), pin->peer->filter->name + _T("/") + pin->peer->name);
 
