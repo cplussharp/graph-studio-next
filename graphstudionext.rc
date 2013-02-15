@@ -968,7 +968,8 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
-        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Open Graph/Media file...\tCtrl+O", ID_FILE_OPEN
+        MENUITEM "Add Graph/&Media File...\tCtrl+A", ID_FILE_ADDMEDIAFILE
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
         MENUITEM "Save As Graph (.&GRF)...\tCtrl+Shift+S", ID_FILE_SAVE_AS
         MENUITEM "Save &As XML....\tAlt+Shift+S", ID_FILE_SAVEASXML
@@ -980,7 +981,6 @@ BEGIN
         END
         MENUITEM SEPARATOR
         MENUITEM "&Render Media File...\tCtrl+R", ID_FILE_RENDERFILE
-        MENUITEM "Add &Media File...\tCtrl+A",  ID_FILE_ADDMEDIAFILE
         MENUITEM "Render &URL...\tCtrl+U",      ID_FILE_RENDERURL
         MENUITEM "&Build DVD Graph...",         ID_FILE_RENDERDVD
         MENUITEM "Build Capture &Graph...",     ID_FILE_RENDERCAPTURE

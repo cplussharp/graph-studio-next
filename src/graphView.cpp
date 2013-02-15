@@ -884,7 +884,6 @@ HRESULT CGraphView::TryOpenFile(CString fn, bool render_media_file)
 		
 	} else if (ext == _T(".xml") && !render_media_file) {
 		save_as = XML;
-		OnNewClick();
 		hr = graph.LoadXML(fn);
 
 	} else {
@@ -917,51 +916,54 @@ HRESULT CGraphView::TryOpenFile(CString fn, bool render_media_file)
 	return hr;
 }
 
-void CGraphView::OnFileOpenClick()
+void CGraphView::FileOpen(bool clear_before_opening, bool media_file)
 {
-	static int current_filter_index = 6;
+	static int current_file_index = 1;
+	static int current_media_index = 2;
 
 	// nabrowsujeme subor
 	CString		filter;
-	filter =	_T("All Graph Files|*.grf;*.xml|");
-	filter +=	_T("GraphEdit Files (grf)|*.grf|");
-	filter +=	_T("GraphStudio XML Files (xml)|*.xml|");
-	filter +=	_T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
-	filter +=	_T("Audio Files |*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
+
 	filter +=	_T("All Files|*.*|");
 
-	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
-    dlg.m_ofn.nFilterIndex = current_filter_index;
-    int ret = dlg.DoModal();
-	current_filter_index = dlg.m_ofn.nFilterIndex;
+	if (!media_file) {
+		filter +=	_T("GraphStudio XML Files (xml)|*.xml|");
 
-	CString filename = dlg.GetPathName();
+		if (clear_before_opening) {
+			filter +=	_T("GraphEdit Files (grf)|*.grf|");
+			filter +=	_T("All Graph Files|*.grf;*.xml|");
+		}
+	}
+
+	filter +=	_T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
+	filter +=	_T("Audio Files |*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa;*.awb|");
+
+	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
+    dlg.m_ofn.nFilterIndex = media_file ? current_media_index : current_file_index;
+    int ret = dlg.DoModal();
+
+	if (media_file)
+		current_media_index = dlg.m_ofn.nFilterIndex;
+	else
+		current_file_index = dlg.m_ofn.nFilterIndex;
+
+	const CString filename = dlg.GetPathName();
 	if (ret == IDOK) {
-		OnNewClick();
-		ret = TryOpenFile(filename);
+		if (clear_before_opening)
+			OnNewClick();
+		ret = TryOpenFile(filename, media_file);
 	}
     AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
 
+void CGraphView::OnFileOpenClick()
+{
+	FileOpen( /* clear_before_opening= */ true, /* media_file= */ false);
+}
+
 void CGraphView::OnFileAddmediafile()
 {
-	static int current_filter_index = 3;
-
-	// nabrowsujeme subor
-	CString		filter;
-	filter += _T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
-	filter += _T("Audio Files |*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
-	filter += _T("All Files|*.*|");
-
-	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
-    dlg.m_ofn.nFilterIndex = current_filter_index;
-    int ret = dlg.DoModal();
-	current_filter_index = dlg.m_ofn.nFilterIndex;
-
-	CString filename = dlg.GetPathName();
-	if (ret == IDOK) {
-		ret = TryOpenFile(filename, /* render_media_file= */ true);
-	}
+	FileOpen( /* clear_before_opening= */ false, /* media_file= */ false);
 }
 
 void CGraphView::OnRenderUrlClick()
@@ -977,25 +979,7 @@ void CGraphView::OnRenderUrlClick()
 
 void CGraphView::OnRenderFileClick()
 {
-	static int current_filter_index = 3;
-
-	// nabrowsujeme subor
-	CString		filter;
-	filter += _T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
-	filter += _T("Audio Files |*.aac;*.ac3;*.mp3;*.wma;*.mka;*.ogg;*.mpc;*.flac;*.ape;*.wav;*.ra;*.wv;*.m4a;*.tta;*.dts;*.spx;*.mp2;*.ofr;*.ofs;*.mpa|");
-	filter += _T("All Files|*.*|");
-
-	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
-	dlg.m_ofn.nFilterIndex = current_filter_index;
-    int ret = dlg.DoModal();
-	current_filter_index = dlg.m_ofn.nFilterIndex;
-
-	const CString filename = dlg.GetPathName();
-	if (ret == IDOK) {
-		OnNewClick();
-		ret = TryOpenFile(filename, /* render_media_file= */ true);
-	}
-    AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
+	FileOpen( /* clear_before_opening= */ true, /* media_file= */ true);
 }
 
 void CGraphView::OnGraphStreamingStarted()
