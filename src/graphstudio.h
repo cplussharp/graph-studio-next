@@ -33,6 +33,15 @@ public:
     virtual int ExitInstance();
 
     static bool g_showGuidsOfKnownTypes;
+    
+	enum PinResolution
+	{
+		BY_NAME,
+		BY_INDEX,
+		BY_ID
+	};
+	static PinResolution g_ResolvePins;
+
     int m_nExitCode;
 };
 

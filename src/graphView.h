@@ -253,6 +253,12 @@ public:
 	afx_msg void OnViewIncreaseHorizontalSpacing();
 	afx_msg void OnViewDecreaseVerticalSpacing();
 	afx_msg void OnViewIncreaseVerticalSpacing();
+	afx_msg void OnFileoptionsLoadpinsbyname();
+	afx_msg void OnUpdateFileoptionsLoadpinsbyname(CCmdUI *pCmdUI);
+	afx_msg void OnFileoptionsLoadpinsbyindex();
+	afx_msg void OnUpdateFileoptionsLoadpinsbyindex(CCmdUI *pCmdUI);
+	afx_msg void OnFileoptionsLoadpinsbyid();
+	afx_msg void OnUpdateFileoptionsLoadpinsbyid(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in graphView.cpp

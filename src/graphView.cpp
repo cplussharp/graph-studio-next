@@ -158,6 +158,12 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_VIEW_INCREASEHORIZONTALSPACING, &CGraphView::OnViewIncreaseHorizontalSpacing)
 	ON_COMMAND(ID_VIEW_DECREASEVERTICALSPACING, &CGraphView::OnViewDecreaseVerticalSpacing)
 	ON_COMMAND(ID_VIEW_INCREASEVERTICALSPACING, &CGraphView::OnViewIncreaseVerticalSpacing)
+	ON_COMMAND(ID_FILEOPTIONS_LOADPINSBYNAME, &CGraphView::OnFileoptionsLoadpinsbyname)
+	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_LOADPINSBYNAME, &CGraphView::OnUpdateFileoptionsLoadpinsbyname)
+	ON_COMMAND(ID_FILEOPTIONS_LOADPINSBYINDEX, &CGraphView::OnFileoptionsLoadpinsbyindex)
+	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_LOADPINSBYINDEX, &CGraphView::OnUpdateFileoptionsLoadpinsbyindex)
+	ON_COMMAND(ID_FILEOPTIONS_LOADPINSBYID, &CGraphView::OnFileoptionsLoadpinsbyid)
+	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_LOADPINSBYID, &CGraphView::OnUpdateFileoptionsLoadpinsbyid)
 	END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -401,6 +407,9 @@ void CGraphView::OnInit()
 
     int showGuids = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowGuidsOfKnownTypes"), 1);
     CgraphstudioApp::g_showGuidsOfKnownTypes = showGuids != 0;
+
+	CgraphstudioApp::g_ResolvePins = (CgraphstudioApp::PinResolution) AfxGetApp()->GetProfileInt(_T("Settings"), _T("ResolvePins"), 
+		CgraphstudioApp::BY_NAME);
 
 	UpdateGraphState();
 	UpdateMRUMenu();
@@ -2090,4 +2099,44 @@ void CGraphView::OnViewDecreaseVerticalSpacing()
 void CGraphView::OnViewIncreaseVerticalSpacing()
 {
 	ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterYGap, +1);
+}
+
+static void SetResolvePins(CgraphstudioApp::PinResolution r)
+{
+	CgraphstudioApp::g_ResolvePins = r;
+	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ResolvePins"), r);
+}
+
+void CGraphView::OnFileoptionsLoadpinsbyname()
+{
+	SetResolvePins(CgraphstudioApp::BY_NAME);
+}
+
+void CGraphView::OnFileoptionsLoadpinsbyindex()
+{
+	SetResolvePins(CgraphstudioApp::BY_INDEX);
+}
+
+void CGraphView::OnFileoptionsLoadpinsbyid()
+{
+	SetResolvePins(CgraphstudioApp::BY_ID);
+}
+
+void CGraphView::OnUpdateFileoptionsLoadpinsbyname(CCmdUI *pCmdUI)
+{
+	const bool check = CgraphstudioApp::g_ResolvePins != CgraphstudioApp::BY_INDEX
+			&& CgraphstudioApp::g_ResolvePins != CgraphstudioApp::BY_ID;
+	pCmdUI->SetCheck(check);
+}
+
+void CGraphView::OnUpdateFileoptionsLoadpinsbyindex(CCmdUI *pCmdUI)
+{
+	const bool check = CgraphstudioApp::g_ResolvePins == CgraphstudioApp::BY_INDEX;
+	pCmdUI->SetCheck(check);
+}
+
+void CGraphView::OnUpdateFileoptionsLoadpinsbyid(CCmdUI *pCmdUI)
+{
+	const bool check = CgraphstudioApp::g_ResolvePins == CgraphstudioApp::BY_ID;
+	pCmdUI->SetCheck(check);
 }
