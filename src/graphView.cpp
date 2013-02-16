@@ -879,7 +879,6 @@ HRESULT CGraphView::TryOpenFile(CString fn, bool render_media_file)
 	ext = ext.MakeLower();
 	if (ext == _T(".grf") && !render_media_file) {
 		save_as = GRF;
-		OnNewClick();
 		hr = graph.LoadGRF(fn);
 		
 	} else if (ext == _T(".xml") && !render_media_file) {
@@ -927,12 +926,9 @@ void CGraphView::FileOpen(bool clear_before_opening, bool media_file)
 	filter +=	_T("All Files|*.*|");
 
 	if (!media_file) {
+		filter +=	_T("All Graph Files|*.grf;*.xml|");
+		filter +=	_T("GraphEdit Files (grf)|*.grf|");
 		filter +=	_T("GraphStudio XML Files (xml)|*.xml|");
-
-		if (clear_before_opening) {
-			filter +=	_T("GraphEdit Files (grf)|*.grf|");
-			filter +=	_T("All Graph Files|*.grf;*.xml|");
-		}
 	}
 
 	filter +=	_T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");
