@@ -10,12 +10,42 @@
 #include <atlbase.h>
 #include <atlpath.h>
 
+#include <io.h>
+#include <fcntl.h>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 namespace
 {
+	void ShowConsole(bool show)
+	{
+		if (show) {
+			// allocate a console for this app
+			AllocConsole();
+
+			static bool done_init = false;	// only do setup the first time the console is shown
+			if (!done_init) {
+				done_init = true;
+
+				int hConHandle;
+				long lStdHandle;
+				FILE *fp;
+
+				// redirect unbuffered STDOUT to the console
+				lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
+				hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+				fp = _fdopen( hConHandle, "w" );
+				*stdout = *fp;
+
+				setvbuf( stdout, NULL, _IONBF, 0 );
+			}
+		} else {
+
+			FreeConsole();
+		}
+	}
 
 // Modified from MFC viewscrll.cpp
 UINT PASCAL _AfxGetMouseScrollLines()
@@ -164,6 +194,8 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_LOADPINSBYINDEX, &CGraphView::OnUpdateFileoptionsLoadpinsbyindex)
 	ON_COMMAND(ID_FILEOPTIONS_LOADPINSBYID, &CGraphView::OnFileoptionsLoadpinsbyid)
 	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_LOADPINSBYID, &CGraphView::OnUpdateFileoptionsLoadpinsbyid)
+	ON_COMMAND(ID_OPTIONS_SHOWCONSOLEWINDOW, &CGraphView::OnOptionsShowconsolewindow)
+	ON_UPDATE_COMMAND_UI(ID_OPTIONS_SHOWCONSOLEWINDOW, &CGraphView::OnUpdateOptionsShowconsolewindow)
 	END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -405,6 +437,10 @@ void CGraphView::OnInit()
     else if(connectMode>2) connectMode = 2;
     render_params.connect_mode = connectMode;
 
+	CgraphstudioApp::g_showConsole = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowConsole"), 1) ? true : false;
+	if (CgraphstudioApp::g_showConsole)
+		ShowConsole(true);				// Don't do anything on startup unless show console setting is true
+
     int showGuids = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowGuidsOfKnownTypes"), 1);
     CgraphstudioApp::g_showGuidsOfKnownTypes = showGuids != 0;
 
@@ -493,15 +529,6 @@ void CGraphView::UpdatePreferredVideoRenderersMenu()
 {
 	/*	Not working yet :(
 	*/
-	CMenu	*mainmenu  = GetParentFrame()->GetMenu();
-	CMenu	*optionsmenu = mainmenu->GetSubMenu(4);
-
-	if (optionsmenu->GetMenuItemCount() > 9) {
-		optionsmenu->RemoveMenu(9, MF_BYPOSITION);
-		optionsmenu->RemoveMenu(9, MF_BYPOSITION);
-	}
-
-	return ;
 
 #if 0
 	CMenu	newmenu;		
@@ -2119,4 +2146,16 @@ void CGraphView::OnUpdateFileoptionsLoadpinsbyid(CCmdUI *pCmdUI)
 {
 	const bool check = CgraphstudioApp::g_ResolvePins == CgraphstudioApp::BY_ID;
 	pCmdUI->SetCheck(check);
+}
+
+void CGraphView::OnOptionsShowconsolewindow()
+{
+	CgraphstudioApp::g_showConsole = ! CgraphstudioApp::g_showConsole;
+	ShowConsole(CgraphstudioApp::g_showConsole);
+	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ShowConsole"), CgraphstudioApp::g_showConsole);
+}
+
+void CGraphView::OnUpdateOptionsShowconsolewindow(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(CgraphstudioApp::g_showConsole);
 }
