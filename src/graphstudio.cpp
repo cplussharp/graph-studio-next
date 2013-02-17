@@ -28,6 +28,7 @@ BEGIN_MESSAGE_MAP(CgraphstudioApp, CWinApp)
 	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinApp::OnFilePrintSetup)
 END_MESSAGE_MAP()
 
+bool CgraphstudioApp::g_showConsole = false;
 bool CgraphstudioApp::g_showGuidsOfKnownTypes = true;
 CgraphstudioApp::PinResolution CgraphstudioApp::g_ResolvePins = CgraphstudioApp::BY_NAME;
 
