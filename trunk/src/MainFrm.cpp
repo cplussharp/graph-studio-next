@@ -38,6 +38,41 @@ static UINT indicators[] =
 	ID_INDICATOR_SCRL,
 };
 
+static void RegisterInternalFiltersForCurrentApartment(void)
+{
+    // Register Internal Filters for COM-Creation
+    (new DSUtil::CClassFactory(&CMonoTimeMeasure::g_Template))->Register();
+    (new DSUtil::CClassFactory(&CMonoDump::g_Template))->Register();
+    (new DSUtil::CClassFactory(&CFakeM2tsDevice::g_Template))->Register();
+    (new DSUtil::CClassFactory(&CPsiConfigFilter::g_Template))->Register();
+    (new DSUtil::CClassFactory(&CAnalyzerFilter::g_Template))->Register();
+    (new DSUtil::CClassFactory(&CAnalyzerWriterFilter::g_Template))->Register();
+}
+
+DWORD WINAPI RegisterInternalFiltersForMTAThreadProc(_In_  LPVOID /*lpParameter*/ )
+{
+	// Register our internal filters for the single MTA in the process
+	// so that registrations are accessible from the filter graph manager worker thread
+	HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+	if (SUCCEEDED(hr)) {
+		RegisterInternalFiltersForCurrentApartment();
+		// Don't exit from this thread otherwise the registrations will die intermittently
+		// Instead, sleep until process exist
+		while(true)
+			Sleep(0x8FFFFFFF);
+	}
+	return 0;
+}
+
+// Need to call this function when we switch filter graph models
+// TODO call CoRevokeClassObject and free CClassFactory objects
+static void RegisterInternalFilters()
+{
+	// Register internal filters for main thread and STA
+	RegisterInternalFiltersForCurrentApartment();
+	// Register internal filters for single MTA for filter graph manager to use when loading GRF files
+	const HANDLE thread_handle = CreateThread(NULL, 0, RegisterInternalFiltersForMTAThreadProc, NULL, STACK_SIZE_PARAM_IS_A_RESERVATION, NULL);
+}
 
 //-----------------------------------------------------------------------------
 //
@@ -163,14 +198,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     n = m_comboRate.AddString(_T("-100%"));
     m_comboRate.SetItemData(n, -1000);
 
-
-    // Register Internal Filters for COM-Creation
-    (new DSUtil::CClassFactory(&CMonoTimeMeasure::g_Template))->Register();
-    (new DSUtil::CClassFactory(&CMonoDump::g_Template))->Register();
-    (new DSUtil::CClassFactory(&CFakeM2tsDevice::g_Template))->Register();
-    (new DSUtil::CClassFactory(&CPsiConfigFilter::g_Template))->Register();
-    (new DSUtil::CClassFactory(&CAnalyzerFilter::g_Template))->Register();
-    (new DSUtil::CClassFactory(&CAnalyzerWriterFilter::g_Template))->Register();
+	RegisterInternalFilters();
 
     // set Process ID in title
     CString strTitle;
