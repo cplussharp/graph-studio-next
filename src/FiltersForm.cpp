@@ -526,7 +526,8 @@ int ConfigureInsertedFilter(IBaseFilter *filter, const CString& filterName)
 	//-------------------------------------------------------------
 	CComQIPtr<IFileSourceFilter> fs = filter;
 	if (fs) {
-		CFileSrcForm::ChooseSourceFile(fs, filterName);		// not fatal error if file not chosen yet
+		CFileSrcForm form(filterName);
+		hr = form.ChooseSourceFile(fs);					// not fatal error if file not chosen yet
 	}
 
 	//-------------------------------------------------------------
@@ -534,7 +535,8 @@ int ConfigureInsertedFilter(IBaseFilter *filter, const CString& filterName)
 	//-------------------------------------------------------------
 	CComQIPtr<IFileSinkFilter> fsink = filter;
 	if (fsink) {
-		CFileSinkForm::ChooseSinkFile(fsink, filterName);	// not fatal error if file not chosen yet
+		CFileSinkForm form(filterName);
+		HRESULT hr = form.ChooseSinkFile(fsink);	// not fatal error if file not chosen yet
 	}
 
     //-------------------------------------------------------------

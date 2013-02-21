@@ -987,7 +987,8 @@ namespace GraphStudio
 		if (current_filter && current_filter->filter) {
 			CComQIPtr<IFileSourceFilter> source(current_filter->filter);
 			if (source) {
-				CFileSrcForm::ChooseSourceFile(source, current_filter->display_name);
+				CFileSrcForm form(current_filter->display_name);
+				HRESULT hr = form.ChooseSourceFile(source);
 				graph.RefreshFilters();
 				graph.SmartPlacement();
 				graph.Dirty();
@@ -1001,7 +1002,8 @@ namespace GraphStudio
 		if (current_filter && current_filter->filter) {
 			CComQIPtr<IFileSinkFilter> sink(current_filter->filter);
 			if (sink) {
-				CFileSinkForm::ChooseSinkFile(sink, current_filter->display_name);
+				CFileSinkForm form(current_filter->display_name);
+				HRESULT hr = form.ChooseSinkFile(sink);
 				graph.RefreshFilters();
 				graph.SmartPlacement();
 				graph.Dirty();

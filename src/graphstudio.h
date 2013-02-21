@@ -32,6 +32,7 @@ public:
 	afx_msg void OnAppAbout();
     virtual int ExitInstance();
 
+    static bool g_useInternalGrfParser;
     static bool g_showConsole;
     static bool g_showGuidsOfKnownTypes;
     

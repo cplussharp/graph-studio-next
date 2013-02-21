@@ -40,7 +40,7 @@ public:
     CFileSinkForm(const CString& filtername, CWnd* pParent = NULL); 
 	virtual ~CFileSinkForm();
 
-	static HRESULT ChooseSinkFile(IFileSinkFilter* fs, const CString& filterName);	// wrapper to do it in one call
+	HRESULT ChooseSinkFile(IFileSinkFilter* fs);		// wrapper to do it in one call
 	
 	// Dialog Data
 	enum { IDD = IDD_DIALOG_FILESINK };

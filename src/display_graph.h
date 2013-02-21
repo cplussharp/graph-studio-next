@@ -441,6 +441,9 @@ namespace GraphStudio
 		CSize GetGraphSize();
 
 		inline void Dirty() { dirty = true; }
+
+	private:
+		HRESULT ParseGRFFile(LPCWSTR filename);
 	};
 
 	// helpers

@@ -66,14 +66,11 @@ namespace GraphStudio
 				if (SUCCEEDED(hr))
 					return hr;
 
-				do {
-					CString title;
-					title.Format(_T("Cannot load source file %s. Please select another file or cancel to continue"), (const TCHAR*)filename);
-					hr = CFileSrcForm::ChooseSourceFile(fsource, title);
-
-					if (SUCCEEDED(hr))
-						return hr;			// break out of loop if file loaded OK or user chooses cancel
-				} while (true);
+				while (FAILED(hr)) {
+					CFileSrcForm form(_T("Missing source file"));
+					form.result_file = filename;
+					hr = form.ChooseSourceFile(fsource);
+				}
 			}
 
 		PRESET("ifilesinkfilter")
@@ -88,14 +85,11 @@ namespace GraphStudio
 				if (SUCCEEDED(hr))
 					return hr;
 
-				do {
-					CString title;
-					title.Format(_T("Cannot load source file %s. Please select another file or cancel to continue"), (const TCHAR*)filename);
-					hr = CFileSinkForm::ChooseSinkFile(fsink, title);
-
-					if (SUCCEEDED(hr))
-						return hr;			// break out of loop if file loaded OK or user chooses cancel
-				} while (true);
+				CFileSinkForm form(_T("Missing destination file"));
+				while (FAILED(hr)) {
+					form.result_file = filename;
+					hr = form.ChooseSinkFile(fsink);
+				}
 			}
 
 		PRESET("ipersiststream")

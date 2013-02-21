@@ -154,26 +154,24 @@ void CFileSinkForm::OnBnClickedButtonClear()
 	combo_url.ResetContent();
 }
 
-HRESULT CFileSinkForm::ChooseSinkFile(IFileSinkFilter* fsink, const CString& filterName)
+HRESULT CFileSinkForm::ChooseSinkFile(IFileSinkFilter* fsink)
 {
 	HRESULT hr = S_FALSE;		// return S_FALSE if user cancelled
 	if (!fsink)
 		return E_POINTER;
 
-	CFileSinkForm		sink_form(filterName);
-
 	LPOLESTR curFile = NULL;
 	CMediaType media_type;
 	if (SUCCEEDED(fsink->GetCurFile(&curFile, &media_type)) && curFile) {
-		sink_form.result_file = curFile;
+		result_file = curFile;
 	}
 	if (curFile) {
 		CoTaskMemFree(curFile);
 		curFile = NULL;
 	}
 
-	if (sink_form.DoModal() == IDOK) {
-		hr = fsink->SetFileName((LPCOLESTR)sink_form.result_file, NULL);
+	if (DoModal() == IDOK) {
+		hr = fsink->SetFileName((LPCOLESTR)result_file, NULL);
 		if (FAILED(hr)) {
 			DSUtil::ShowError(_T("Can't write specified file"));
 		}

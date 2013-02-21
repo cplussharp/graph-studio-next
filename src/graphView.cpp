@@ -196,6 +196,8 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_LOADPINSBYID, &CGraphView::OnUpdateFileoptionsLoadpinsbyid)
 	ON_COMMAND(ID_OPTIONS_SHOWCONSOLEWINDOW, &CGraphView::OnOptionsShowconsolewindow)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_SHOWCONSOLEWINDOW, &CGraphView::OnUpdateOptionsShowconsolewindow)
+	ON_COMMAND(ID_OPTIONS_USEINTERNALGRFFILEPARSER, &CGraphView::OnOptionsUseinternalgrffileparser)
+	ON_UPDATE_COMMAND_UI(ID_OPTIONS_USEINTERNALGRFFILEPARSER, &CGraphView::OnUpdateOptionsUseinternalgrffileparser)
 	END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -441,7 +443,9 @@ void CGraphView::OnInit()
 	if (CgraphstudioApp::g_showConsole)
 		ShowConsole(true);				// Don't do anything on startup unless show console setting is true
 
-    int showGuids = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowGuidsOfKnownTypes"), 1);
+	CgraphstudioApp::g_useInternalGrfParser = AfxGetApp()->GetProfileInt(_T("Settings"), _T("UseInternalGrfParser"), 0) ? true : false;
+
+	int showGuids = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowGuidsOfKnownTypes"), 1);
     CgraphstudioApp::g_showGuidsOfKnownTypes = showGuids != 0;
 
 	CgraphstudioApp::g_ResolvePins = (CgraphstudioApp::PinResolution) AfxGetApp()->GetProfileInt(_T("Settings"), _T("ResolvePins"), 
@@ -2158,4 +2162,15 @@ void CGraphView::OnOptionsShowconsolewindow()
 void CGraphView::OnUpdateOptionsShowconsolewindow(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(CgraphstudioApp::g_showConsole);
+}
+
+void CGraphView::OnOptionsUseinternalgrffileparser()
+{
+	CgraphstudioApp::g_useInternalGrfParser = ! CgraphstudioApp::g_useInternalGrfParser;
+	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("UseInternalGrfParser"), CgraphstudioApp::g_useInternalGrfParser);
+}
+
+void CGraphView::OnUpdateOptionsUseinternalgrffileparser(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(CgraphstudioApp::g_useInternalGrfParser);
 }

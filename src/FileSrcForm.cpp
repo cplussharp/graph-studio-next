@@ -155,27 +155,25 @@ void CFileSrcForm::OnBnClickedButtonClear()
 }
 
 // static helper to show dialog and set file source
-HRESULT CFileSrcForm::ChooseSourceFile(IFileSourceFilter* fs, const CString& filterName)
+HRESULT CFileSrcForm::ChooseSourceFile(IFileSourceFilter* fs)
 {
 	HRESULT hr = S_FALSE;		// return S_FALSE if user cancelled
 
 	if (!fs)
 		return E_POINTER;
 	
-	CFileSrcForm src_form(filterName);
-
 	LPOLESTR curFile = NULL;
 	CMediaType media_type;
 	if (SUCCEEDED(fs->GetCurFile(&curFile, &media_type)) && curFile) {
-		src_form.result_file = curFile;
+		result_file = curFile;
 	}
 	if (curFile) {
 		CoTaskMemFree(curFile);
 		curFile = NULL;
 	}
 
-	if (src_form.DoModal() == IDOK) {
-		hr = fs->Load((LPCOLESTR)src_form.result_file, NULL);
+	if (DoModal() == IDOK) {
+		hr = fs->Load((LPCOLESTR)result_file, NULL);
 		if (FAILED(hr)) {
 			DSUtil::ShowError(_T("Can't load specified file"));
 		}
