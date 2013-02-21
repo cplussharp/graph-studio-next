@@ -272,6 +272,7 @@
     <ClInclude Include="src\graphDoc.h" />
     <ClInclude Include="src\graphstudio.h" />
     <ClInclude Include="src\graphView.h" />
+    <ClInclude Include="src\GRF_File.h" />
     <ClInclude Include="src\InterfaceScanner.h" />
     <ClInclude Include="src\LookupForm.h" />
     <ClInclude Include="src\MainFrm.h" />
@@ -356,6 +357,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\graphView.cpp" />
+    <ClCompile Include="src\GRF_File.cpp" />
     <ClCompile Include="src\InterfaceScanner.cpp" />
     <ClCompile Include="src\LookupForm.cpp" />
     <ClCompile Include="src\MainFrm.cpp" />

@@ -1056,12 +1056,13 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Configure SBE ...",          ID_OPTIONS_CONFIGURESBE
         MENUITEM SEPARATOR
-        MENUITEM "Display As &File Name",       ID_OPTIONS_DISPLAYASFILENAME
-        MENUITEM "Exact Match &Lookup Mode",    ID_OPTIONS_EXACTMATCH
         MENUITEM "&Abort Render After 10 Seconds", ID_OPTIONS_ABORTRENDER
-        MENUITEM "Use &MediaInfo",              ID_OPTIONS_USEMEDIAINFO
-        MENUITEM "Show &GUID of Known Types",   ID_OPTIONS_SHOWGUIDOFKNOWNTYPES
         MENUITEM "Show Console &Window",        ID_OPTIONS_SHOWCONSOLEWINDOW
+        MENUITEM "Display As &File Name",       ID_OPTIONS_DISPLAYASFILENAME
+        MENUITEM "Use &Internal GRF file parser", ID_OPTIONS_USEINTERNALGRFFILEPARSER
+        MENUITEM "Show &GUID of Known Types",   ID_OPTIONS_SHOWGUIDOFKNOWNTYPES
+        MENUITEM "Exact Match &Lookup Mode",    ID_OPTIONS_EXACTMATCH
+        MENUITEM "Use &MediaInfo",              ID_OPTIONS_USEMEDIAINFO
         MENUITEM SEPARATOR
         MENUITEM "Preferred &Video Renderer",   ID_OPTIONS_PREFERREDVIDEORENDERER
     END
@@ -1374,6 +1375,8 @@ BEGIN
                             "Resolve pin references in XML files by pin ID. Sometimes broken by buggy filters."
     ID_OPTIONS_SHOWCONSOLEWINDOW 
                             "Show Console Window and redirect stdout output to the console."
+    ID_OPTIONS_USEINTERNALGRFFILEPARSER 
+                            "Load GRF files using internal parser. Only use if opening normally fails."
 END
 
 #endif    // English (United States) resources

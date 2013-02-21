@@ -338,6 +338,9 @@
     <ClInclude Include="src\VersionNo_SVN.tmpl.h">
       <Filter>Application</Filter>
     </ClInclude>
+    <ClInclude Include="src\GRF_File.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -555,6 +558,9 @@
     </ClCompile>
     <ClCompile Include="src\StatisticForm.cpp">
       <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GRF_File.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

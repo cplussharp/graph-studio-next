@@ -11,11 +11,13 @@
 #include <atlpath.h>
 
 #include "MediaTypeSelectForm.h"
+#include "GRF_File.h"
 
 #include <atlenc.h>
 #include <set>
 
 #pragma warning(disable: 4244)			// DWORD -> BYTE warning
+
 
 namespace GraphStudio
 {
@@ -1509,29 +1511,144 @@ namespace GraphStudio
 		return hr;
 	}
 
+	HRESULT DisplayGraph::ParseGRFFile(LPCWSTR filename)
+	{
+		HRESULT hr = S_OK;
+
+		GRF_File grf;
+		hr = grf.Load(filename);
+
+		// attempt to load partial graph
+
+		for (int i=0; i<grf.grf_filters.GetCount(); i++) {
+			GRF_File::GRF_Filter& filter = grf.grf_filters[i];
+			filter.ibasefilter.CoCreateInstance(filter.clsid, NULL, CLSCTX_INPROC_SERVER);
+
+			ASSERT(filter.ibasefilter);
+
+			if (filter.ibasefilter) {
+
+				AddFilter(filter.ibasefilter, filter.name);
+
+				if (!filter.ipersiststream_data.IsEmpty()) {
+					CComPtr<IStream> stream;
+					CreateStreamOnHGlobal(NULL, TRUE, &stream);
+					if (stream) {
+						stream->Write((const void*)(const char*)filter.ipersiststream_data, filter.ipersiststream_data.GetLength(), NULL);
+						LARGE_INTEGER zero;
+						zero.QuadPart = 0LL;
+						stream->Seek(zero, STREAM_SEEK_SET, NULL);
+						CComQIPtr<IPersistStream> ps(filter.ibasefilter);
+						if (ps) {
+							hr = ps->Load(stream);
+							ASSERT(SUCCEEDED(hr));
+						}
+					}
+				}
+
+				if (!filter.source_filename.IsEmpty()) {
+					CComQIPtr<IFileSourceFilter> source(filter.ibasefilter);
+					if (source) {
+						hr = source->Load(filter.source_filename, NULL);
+						ASSERT(SUCCEEDED(hr));
+
+						while (FAILED(hr)) {
+							CFileSrcForm form(_T("Missing source file"));
+							form.result_file = filter.source_filename;
+							hr = form.ChooseSourceFile(source);
+						}
+						ASSERT(SUCCEEDED(hr));
+					}
+				}
+
+				if (!filter.sink_filename.IsEmpty()) {
+					CComQIPtr<IFileSinkFilter> sink(filter.ibasefilter);
+					if (sink) {
+						hr = sink->SetFileName(filter.sink_filename, NULL);
+						ASSERT(SUCCEEDED(hr));
+
+						CFileSinkForm form(_T("Missing destination file"));
+						while (FAILED(hr)) {
+							form.result_file = filter.sink_filename;
+							hr = form.ChooseSinkFile(sink);
+						}
+					}
+				}
+			}
+		}
+		
+		for (int i=0; i<grf.grf_connections.GetCount(); i++) {
+			const GRF_File::GRF_Connection& connection = grf.grf_connections[i];
+
+			RefreshFilters();
+
+			Filter* out_filter = NULL;
+			if (connection.output_filter_index > 0 && connection.output_filter_index <= grf.grf_filters.GetCount())	// 1-based indices
+				out_filter = FindFilter(grf.grf_filters[connection.output_filter_index - 1].ibasefilter);
+
+			Filter* in_filter = NULL;
+			if (connection.input_filter_index > 0 && connection.input_filter_index <= grf.grf_filters.GetCount())	// 1-based indices
+				in_filter = FindFilter(grf.grf_filters[connection.input_filter_index - 1].ibasefilter);
+
+			ASSERT(out_filter);
+			ASSERT(in_filter);
+
+			Pin *out_pin = NULL;
+			Pin *in_pin = NULL;
+			if (out_filter && in_filter) {
+				out_pin = out_filter->FindPinByID(connection.output_pin_id);
+				in_pin = in_filter->FindPinByID(connection.input_pin_id);
+
+				ASSERT(out_pin);
+				ASSERT(in_pin);
+
+				if (out_pin && in_pin) {
+					hr = gb->ConnectDirect(out_pin->pin, in_pin->pin, &connection.media_type);
+					ASSERT(SUCCEEDED(hr));
+					if (FAILED(hr)) 
+						hr = gb->ConnectDirect(out_pin->pin, in_pin->pin, NULL);	// reattempt with no media type
+					ASSERT(SUCCEEDED(hr));
+				}
+			}
+		}
+		return hr;
+	}
+
 	HRESULT DisplayGraph::LoadGRF(CString fn)
 	{
-		IStorage * pStorage = NULL;
-		HRESULT hr = StgIsStorageFile(fn);
-		if (hr != S_OK)
-			return hr;
+		HRESULT hr = S_OK;
 
-		hr = StgOpenStorage(fn, 0, STGM_TRANSACTED | STGM_READ | STGM_SHARE_DENY_WRITE, 0, 0, &pStorage);
-		if (FAILED(hr)) 
-			return hr;
+		if (CgraphstudioApp::g_useInternalGrfParser)
+			return ParseGRFFile(fn);
 
-		IPersistStream *pPersistStream = NULL;
-		hr = gb->QueryInterface(IID_IPersistStream, (void**)&pPersistStream);
-		if (SUCCEEDED(hr)) {
-			IStream *pStream = NULL;
-			hr = pStorage->OpenStream(L"ActiveMovieGraph", 0, STGM_READ | STGM_SHARE_EXCLUSIVE, 0, &pStream);
-			if (SUCCEEDED(hr)) {
-				hr = pPersistStream->Load(pStream);
-				pStream->Release();
+		bool failed_grf_load = false;	// only flag this is as true if we open a stream but fail to load the contents
+
+		{
+			hr = StgIsStorageFile(fn);
+			if (hr != S_OK)
+				return hr;
+
+			CComPtr<IStorage> pStorage;
+			hr = StgOpenStorage(fn, 0, STGM_TRANSACTED | STGM_READ | STGM_SHARE_DENY_WRITE, 0, 0, &pStorage);
+			if (FAILED(hr)) 
+				return hr;
+
+			CComQIPtr<IPersistStream> pPersistStream(gb);
+			if (pPersistStream) {
+				CComPtr<IStream> pStream;
+				hr = pStorage->OpenStream(L"ActiveMovieGraph", 0, STGM_READ | STGM_SHARE_EXCLUSIVE, 0, &pStream);
+				if (SUCCEEDED(hr)) {
+					hr = pPersistStream->Load(pStream);
+					failed_grf_load = FAILED(hr);
+				}
 			}
-			pPersistStream->Release();
 		}
-		pStorage->Release();
+
+		if (failed_grf_load
+				&& IDYES == AfxMessageBox(_T("GRF file failed to load. Attempt loading with internal GRF file parser?"), MB_YESNOCANCEL)) {
+			hr = ParseGRFFile(fn);
+		}
+
 		RefreshFPS();
 		return hr;
 	}
@@ -3420,8 +3537,5 @@ namespace GraphStudio
 
 		return NOERROR;
 	}
-	
-
-
 };
 

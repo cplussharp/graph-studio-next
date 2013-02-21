@@ -262,6 +262,8 @@ public:
 	afx_msg void OnUpdateFileoptionsLoadpinsbyid(CCmdUI *pCmdUI);
 	afx_msg void OnOptionsShowconsolewindow();
 	afx_msg void OnUpdateOptionsShowconsolewindow(CCmdUI *pCmdUI);
+	afx_msg void OnOptionsUseinternalgrffileparser();
+	afx_msg void OnUpdateOptionsUseinternalgrffileparser(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in graphView.cpp
