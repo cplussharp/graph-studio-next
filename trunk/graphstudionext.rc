@@ -982,8 +982,10 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Render Media File...\tCtrl+R", ID_FILE_RENDERFILE
         MENUITEM "Render &URL...\tCtrl+U",      ID_FILE_RENDERURL
+        MENUITEM "Add Source &Filter...\tAlt+Drag", ID_FILE_ADDSOURCEFILTER
+        MENUITEM "Add File Source As&ync...\tShift +Drag", ID_FILE_ADDFILESOURCE
         MENUITEM "&Build DVD Graph...",         ID_FILE_RENDERDVD
-        MENUITEM "Build Capture &Graph...",     ID_FILE_RENDERCAPTURE
+        MENUITEM "Build Capture Grap&h...",     ID_FILE_RENDERCAPTURE
         MENUITEM SEPARATOR
         MENUITEM "&Connect to Remote Graph...\tCtrl+G", ID_FILE_CONNECTTOREMOTEGRAPH
         MENUITEM "&Disconnect from Remote Graph...\tCtrl+H", ID_FILE_DISCONNECTFROMREMOTEGRAPH

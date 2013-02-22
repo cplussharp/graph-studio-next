@@ -123,7 +123,7 @@ public:
 	void OnGraphStreamingStarted();
 	void OnGraphStreamingComplete();
 
-	void FileOpen(bool clear_before_opening, bool media_file);
+	CString PromptForFileToOpen(bool only_media_files);
 	void FileSaveAs(DocumentType input_type);
 	void UpdateTitleBar();
 
@@ -167,6 +167,8 @@ public:
 	void OnDropFiles(HDROP hDropInfo);
 	HRESULT TryOpenFile(CString fn, bool render_media_file = false);
 	int TryOpenXML(CString fn);
+	HRESULT AddFileSourceAsync(CString source_file);
+	HRESULT AddSourceFilter(CString source_file);
 
 	virtual LRESULT OnWmCommand(WPARAM wParam, LPARAM lParam);
 
@@ -264,6 +266,8 @@ public:
 	afx_msg void OnUpdateOptionsShowconsolewindow(CCmdUI *pCmdUI);
 	afx_msg void OnOptionsUseinternalgrffileparser();
 	afx_msg void OnUpdateOptionsUseinternalgrffileparser(CCmdUI *pCmdUI);
+	afx_msg void OnFileAddSourceFilter();
+	afx_msg void OnFileAddFileSourceAsync();
 };
 
 #ifndef _DEBUG  // debug version in graphView.cpp
