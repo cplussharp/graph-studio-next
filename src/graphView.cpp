@@ -198,6 +198,8 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_SHOWCONSOLEWINDOW, &CGraphView::OnUpdateOptionsShowconsolewindow)
 	ON_COMMAND(ID_OPTIONS_USEINTERNALGRFFILEPARSER, &CGraphView::OnOptionsUseinternalgrffileparser)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_USEINTERNALGRFFILEPARSER, &CGraphView::OnUpdateOptionsUseinternalgrffileparser)
+	ON_COMMAND(ID_FILE_ADDSOURCEFILTER, &CGraphView::OnFileAddSourceFilter)
+	ON_COMMAND(ID_FILE_ADDFILESOURCE, &CGraphView::OnFileAddFileSourceAsync)
 	END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -943,10 +945,13 @@ HRESULT CGraphView::TryOpenFile(CString fn, bool render_media_file)
 	graph.RefreshFilters();
 	graph.SmartPlacement();
 	Invalidate();
+
+    AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
+
 	return hr;
 }
 
-void CGraphView::FileOpen(bool clear_before_opening, bool media_file)
+CString CGraphView::PromptForFileToOpen(bool media_file)
 {
 	static int current_file_index = 1;
 	static int current_media_index = 2;
@@ -974,23 +979,24 @@ void CGraphView::FileOpen(bool clear_before_opening, bool media_file)
 	else
 		current_file_index = dlg.m_ofn.nFilterIndex;
 
-	const CString filename = dlg.GetPathName();
-	if (ret == IDOK) {
-		if (clear_before_opening)
-			OnNewClick();
-		ret = TryOpenFile(filename, media_file);
-	}
-    AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
+	return ret == IDOK ? dlg.GetPathName() : CString();
 }
 
 void CGraphView::OnFileOpenClick()
 {
-	FileOpen( /* clear_before_opening= */ true, /* media_file= */ false);
+	const CString filename = PromptForFileToOpen(false);
+	if (!filename.IsEmpty()) {
+		OnNewClick();
+		TryOpenFile(filename, false);
+	}
 }
 
 void CGraphView::OnFileAddmediafile()
 {
-	FileOpen( /* clear_before_opening= */ false, /* media_file= */ false);
+	const CString filename = PromptForFileToOpen(false);
+	if (!filename.IsEmpty()) {
+		TryOpenFile(filename, false);
+	}
 }
 
 void CGraphView::OnRenderUrlClick()
@@ -1006,7 +1012,11 @@ void CGraphView::OnRenderUrlClick()
 
 void CGraphView::OnRenderFileClick()
 {
-	FileOpen( /* clear_before_opening= */ true, /* media_file= */ true);
+	const CString filename = PromptForFileToOpen(true);
+	if (!filename.IsEmpty()) {
+		OnNewClick();
+		TryOpenFile(filename, true);
+	}
 }
 
 void CGraphView::OnGraphStreamingStarted()
@@ -1418,21 +1428,55 @@ void CGraphView::OnViewTextInformation()
 
 void CGraphView::OnDropFiles(HDROP hDropInfo)
 {
-	// accept dropped files
-	TCHAR	temp[4*1024];
-	int num_files = DragQueryFile(hDropInfo, (UINT)-1, temp, 4*1024);
-	for (int i=0; i<num_files; i++) {
-		int ret = DragQueryFile(hDropInfo, i, temp, 4*1024);
-		if (ret > 0) {
-			temp[ret] = 0;
+	CComQIPtr<IFileSourceFilter> source;
+	CComQIPtr<IFileSinkFilter> sink;
 
-			// only take one
-			CString fn(temp);
-			const HRESULT hr = TryOpenFile(fn);
-			if (SUCCEEDED(hr)) 
-				return;
+	// Determine if we've dropped files on a filter
+	GraphStudio::Filter* drop_filter = NULL;
+	CPoint drop_point;
+	if (DragQueryPoint(hDropInfo, &drop_point)) {
+		drop_point += GetScrollPosition();
+		drop_filter = graph.FindFilterByPos(drop_point);
+		if (drop_filter) {
+			source = drop_filter->filter;
+			sink = drop_filter->filter;
 		}
 	}
+
+	bool needs_refresh = false;
+
+	// accept dropped files
+	TCHAR	filename[MAX_PATH];
+	int num_files = DragQueryFile(hDropInfo, 0xFFFFFFFF, NULL, MAX_PATH);
+	for (int i=0; i<num_files; i++) {
+		const int name_length = DragQueryFile(hDropInfo, i, filename, MAX_PATH);
+		if (name_length > 0) {
+			filename[name_length] = _T('\0');
+
+			HRESULT hr = S_OK;
+			if (source) {
+				hr = source->Load(filename, NULL);
+				needs_refresh = true;
+			} else if (sink) {
+				hr = sink->SetFileName(filename, NULL);
+				needs_refresh = true;
+			} else if (GetKeyState(VK_SHIFT) & 0x80) {
+				hr = AddFileSourceAsync(filename);
+			} else if (GetKeyState(VK_MENU) & 0x80) {
+				hr = AddSourceFilter(filename);
+			} else {
+				hr = TryOpenFile(filename);
+			}
+		}
+	}
+	if (needs_refresh) {
+		// don't do smart placement if we've just changed files sources or sinks
+		// if we're opening files then that does its own refresh 
+		graph.RefreshFilters();
+		graph.Dirty();
+		Invalidate();
+	}
+	DragFinish(hDropInfo);
 }
 
 void CGraphView::OnGraphInsertFileSource()
@@ -2173,4 +2217,64 @@ void CGraphView::OnOptionsUseinternalgrffileparser()
 void CGraphView::OnUpdateOptionsUseinternalgrffileparser(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(CgraphstudioApp::g_useInternalGrfParser);
+}
+
+HRESULT CGraphView::AddSourceFilter(CString filename)
+{
+	CComPtr<IBaseFilter> ibasefilter;
+	const HRESULT hr = graph.gb->AddSourceFilter(filename, filename, &ibasefilter);
+
+	if (SUCCEEDED(hr)) {
+		mru.NotifyEntry(filename);
+		UpdateMRUMenu();
+	}
+	UpdateGraphState();
+	graph.SetClock(true, NULL);
+	graph.RefreshFilters();
+	graph.SmartPlacement();
+	Invalidate();
+	AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
+
+	return hr;
+}
+
+void CGraphView::OnFileAddSourceFilter()
+{
+	const CString filename = PromptForFileToOpen(true);
+	if (!filename.IsEmpty()) {
+		AddSourceFilter(filename);
+    }
+}
+
+HRESULT CGraphView::AddFileSourceAsync(CString filename)
+{
+	HRESULT hr = E_NOINTERFACE;
+
+	CComPtr<IBaseFilter> file_reader;
+	file_reader.CoCreateInstance(CLSID_AsyncReader, NULL, CLSCTX_INPROC_SERVER);
+	CComQIPtr<IFileSourceFilter> file_source(file_reader);
+	if (file_reader && file_source) {
+		hr = graph.AddFilter(file_reader, _T("File Source (Async.)"));
+		if (SUCCEEDED(hr))
+			hr = file_source->Load(filename, NULL);
+
+		UpdateGraphState();
+		graph.SetClock(true, NULL);
+		graph.RefreshFilters();
+		graph.SmartPlacement();
+		Invalidate();
+		AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
+	}
+	mru.NotifyEntry(filename);
+	UpdateMRUMenu();
+
+	return hr;
+}
+
+void CGraphView::OnFileAddFileSourceAsync()
+{
+	const CString filename = PromptForFileToOpen(true);
+	if (!filename.IsEmpty()) {
+		AddFileSourceAsync(filename);
+    }
 }
