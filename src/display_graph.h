@@ -226,6 +226,12 @@ namespace GraphStudio
 		};
 		int						filter_type;				
 
+		enum FilterPurpose {
+			FILTER_SOURCE,
+			FILTER_RENDERER,
+			FILTER_OTHER
+		} filter_purpose;
+
 	public:
 		Filter(DisplayGraph *parent);
 		virtual ~Filter();
@@ -444,6 +450,7 @@ namespace GraphStudio
 
 	private:
 		HRESULT ParseGRFFile(LPCWSTR filename);
+		void PositionRowOfUnconnectedFilters(const CArray<Filter*> &, int row_length);
 	};
 
 	// helpers

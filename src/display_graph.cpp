@@ -65,6 +65,78 @@ namespace GraphStudio
 					  OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 5, VARIABLE_PITCH, name);
 	}
 
+	// attempt to determine whether a filter is a source or renderer
+	// based on methods used in dshowutil.h
+	static Filter::FilterPurpose GetFilterPurpose(const Filter * filter)
+	{
+		if (!filter)
+			return Filter::FILTER_OTHER;
+
+		CComQIPtr<IAMFilterMiscFlags> flags(filter->filter);
+
+		if (flags) {
+			const ULONG filter_flags = flags->GetMiscFlags();
+
+			if (filter_flags & AM_FILTER_MISC_FLAGS_IS_RENDERER)
+				return Filter::FILTER_RENDERER;
+			else if (filter_flags & AM_FILTER_MISC_FLAGS_IS_SOURCE)
+				return Filter::FILTER_SOURCE;
+			else
+				return Filter::FILTER_OTHER;
+		}
+
+        // Look for the following conditions:
+
+        // 1) Zero output pins AND at least 1 unmapped input pin
+        // - or -
+        // 2) At least 1 rendered input pin.
+
+        // definitions:
+        // unmapped input pin = IPin::QueryInternalConnections returns E_NOTIMPL
+        // rendered input pin = IPin::QueryInternalConnections returns "0" slots
+
+        // These cases are somewhat obscure and probably don't apply to many filters
+        // that actually exist.
+
+		for (int i=0; i<filter->input_pins.GetCount(); i++) {
+			const Pin * const input_pin = filter->input_pins[i];
+
+			// It's an input pin. Is it mapped to an output pin?
+			ULONG nPin = 0;
+			CONST HRESULT hr = input_pin->pin->QueryInternalConnections(NULL, &nPin);
+			if (hr == S_OK) {
+				// The count (nPin) was zero, and the method returned S_OK, so
+				// this input pin is mapped to exactly zero ouput pins. 
+				// Therefore, it is a rendered input pin.
+				return Filter::FILTER_RENDERER;
+
+			// The heuristics below are unreliable, probably because it matches the default
+			// QueryInternalConnections implementation in the baseclasses 
+			//} else if (hr == E_NOTIMPL && filter->output_pins.GetCount() == 0) {
+			// This pin is not mapped to any particular output pin. 
+			//	// and there are no output pins
+			//	CComPtr<IUnknown> unk;
+			//	if (S_OK == filter->filter->QueryInterface(__uuidof(IBasicAudio), (void**)&unk)
+			//			|| filter->filter->QueryInterface(__uuidof(IBasicVideo), (void**)&unk))
+			//		return Filter::FILTER_RENDERER;
+			}
+		}
+
+		CComPtr<IUnknown> unk;
+
+		// Last resort - some heuristics on which interfaces the filter supports, could be improved
+
+		if (		S_OK == filter->filter->QueryInterface(__uuidof(IBasicAudio), (void**)&unk)
+				|| S_OK == filter->filter->QueryInterface(__uuidof(IBasicVideo), (void**)&unk)
+				|| S_OK == filter->filter->QueryInterface(__uuidof(IFileSinkFilter), (void**)&unk))
+			return Filter::FILTER_RENDERER;
+		else if (S_OK == filter->filter->QueryInterface(__uuidof(IFileSourceFilter), (void**)&unk))
+			return Filter::FILTER_SOURCE;
+		else
+			return Filter::FILTER_OTHER;
+	}
+
+
 	//-------------------------------------------------------------------------
 	//
 	//	DisplayGraph class
@@ -301,8 +373,8 @@ namespace GraphStudio
 			if (filter->posy + filter->height > maxy) maxy = filter->posy+filter->height;
 		}
 
-		maxx = NextGridPos(maxx) + DisplayGraph::GRID_SIZE;
-		maxy = NextGridPos(maxy) + DisplayGraph::GRID_SIZE;
+		maxx = NextGridPos(maxx) + GRID_SIZE;
+		maxy = NextGridPos(maxy) + GRID_SIZE;
 
 		return CSize(maxx, maxy);
 	}
@@ -2123,7 +2195,7 @@ namespace GraphStudio
 		for (int i=0; i<input_filters.GetCount(); i++) {
 			Filter	* const filter = input_filters[i];
 			if (filter->column < 0) {
-				filter->CalculatePlacementChain(0, DisplayGraph::GRID_SIZE, CalcDownstreamYPosition(filter));
+				filter->CalculatePlacementChain(0, GRID_SIZE, CalcDownstreamYPosition(filter));
 			}
 		}
 
@@ -2133,16 +2205,39 @@ namespace GraphStudio
 			if (filter->column < 0
 					&& filter->NumOfConnectedPins(PINDIR_INPUT) == 0
 					&& filter->NumOfConnectedPins(PINDIR_OUTPUT) > 0) {
-				filter->CalculatePlacementChain(0, DisplayGraph::GRID_SIZE, CalcDownstreamYPosition(filter));
+				filter->CalculatePlacementChain(0, GRID_SIZE, CalcDownstreamYPosition(filter));
 			}
 		}
 
-		// then align the not connected filters
+		const int NUM_GROUPS = 3;
+		typedef CArray<Filter*> FilterList;
+		FilterList groups[NUM_GROUPS];
+
+		// Divide unconnected filters into groups
 		for (int i=0; i<filters.GetCount(); i++) {
 			Filter	* const filter = filters[i];
-			if (filter->column < 0) {		// if not already placed
-				filter->CalculatePlacementChain(0, DisplayGraph::GRID_SIZE);
+			if (filter->column < 0) {
+				int group;
+				switch (filter->filter_purpose) {
+					case Filter::FILTER_SOURCE:		group = 0;	break;
+					case Filter::FILTER_RENDERER:	group = 2;	break;
+					default:
+						group = filter->input_pins.GetCount() == 0 ? 0 : 1;
+						break;
+				}
+				groups[group].Add(filter);
 			}
+		}
+
+		// number of columns to layout unconnected filters
+		const int MIN_ROW_LENGTH = 5;
+		int row_length = columns.GetCount() - 1;
+		if (row_length < MIN_ROW_LENGTH)
+			row_length = MIN_ROW_LENGTH;
+
+		// Position groups
+		for (int i=0; i<NUM_GROUPS; i++) {
+			PositionRowOfUnconnectedFilters(groups[i], row_length);
 		}
 
 		// then set final x values for every filter
@@ -2152,6 +2247,48 @@ namespace GraphStudio
 			filter->column = max(0, filter->column);		// sanity check on depth
 			CPoint	&pt     = columns[filter->column];
 			filter->posx = pt.x;
+		}
+	}
+
+	void DisplayGraph::PositionRowOfUnconnectedFilters(const CArray<Filter*> & unconnected, int max_row_length)
+	{
+		while (max_row_length >= columns.GetCount()) {
+			columns.Add(CPoint(GRID_SIZE, GRID_SIZE));	// add columns if needed
+		}
+
+		int filter_index = 0;
+		while (true) {
+
+			int num_columns = unconnected.GetCount() - filter_index;
+			if (num_columns <= 0)
+				break;
+			else if (num_columns > max_row_length)			// divide into more than one row
+				num_columns = max_row_length;
+
+			int y_pos = GRID_SIZE;
+			for (int col=0; col<num_columns; col++)		// find y position for row
+				y_pos = max(y_pos, columns[col].y);
+
+			for (int col=0; col<num_columns; col++) {
+				Filter* const filter = unconnected[filter_index];
+
+				filter->column = col;
+				filter->posx = columns[col].x;
+				filter->posy = y_pos;
+				columns[col].y = NextGridPos(y_pos + filter->height + g_filterYGap);	// update y position of bottom of column
+
+				if (col+1 < columns.GetCount()) {		// if current column too narrow reposition all following columns	
+					const int next_filter_x = NextGridPos(columns[col].x + filter->width + g_filterXGap);
+
+					if (next_filter_x > columns[col+1].x) {
+						const int dif = next_filter_x - columns[col+1].x;
+						for (int i=col+1; i<columns.GetCount(); i++) {
+							columns[i].x += dif;
+						}
+					}
+				}
+				filter_index++;
+			}
 		}
 	}
 
@@ -2460,8 +2597,6 @@ namespace GraphStudio
 			}
 
 #endif
-
-
 		}
 		epins->Release();
 
@@ -2481,6 +2616,8 @@ namespace GraphStudio
 				}
 			}
 		}
+
+		filter_purpose = GetFilterPurpose(this);
 
 		// this will be okay for now...
 		filter_type = Filter::FILTER_STANDARD;
