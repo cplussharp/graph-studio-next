@@ -2048,16 +2048,21 @@ void CGraphView::OnRemoveConnections()
 
 BOOL CGraphView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
-	if ((nFlags&MK_CONTROL) && !(nFlags&MK_SHIFT)) {
-		// Control wheel (without shift)- zoom
+	const int alt = GetKeyState(VK_MENU) & 0x80;
+	const int shift = nFlags & MK_SHIFT;
+	const int ctrl = nFlags & MK_CONTROL;
+
+	if (alt) {										// alt-wheel is synonym for horizontal wheel
+		OnMouseHWheel(nFlags, -zDelta, pt);
+		return 0;
+	} else if (ctrl && !shift) {					// Control wheel (without shift)- zoom
 		if (zDelta <= -WHEEL_DELTA) {
 			OnViewDecreasezoomlevel();
 		} else if (zDelta >= WHEEL_DELTA) {
 			OnViewIncreasezoomlevel();
 		}
 		return 0;
-	} else if (~(nFlags&MK_CONTROL) && (nFlags&MK_SHIFT)) {
-		// shift wheel
+	} else if (shift && !ctrl) {					// shift wheel- change x filter spacing
 		int delta = (abs(zDelta) / WHEEL_DELTA);	// Round towards zero
 		delta = (zDelta < 0 ? delta : -delta);
 		ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterYGap, delta);
@@ -2072,16 +2077,17 @@ BOOL CGraphView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 // TODO: Add your message handler code here and/or call default
 void CGraphView::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
 {
-	if (~(nFlags&MK_CONTROL) && (nFlags&MK_SHIFT)) {
-		// shift wheel
-		// shift wheel
+	const int shift = nFlags & MK_SHIFT;
+	const int ctrl = nFlags & MK_CONTROL;
+
+	if (shift && !ctrl) {							// shift wheel
 		int delta = (abs(zDelta) / WHEEL_DELTA);	// Round towards zero
 		delta = (zDelta < 0 ? -delta : delta);
 		ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterXGap, delta);
 	}
-	// we don't handle anything but scrolling
+	// we don't handle anything but scrolling (no modifier keys)
 	// if the parent is a splitter, it will handle the message
-	else if (nFlags & (MK_SHIFT | MK_CONTROL) || GetParentSplitter(this, TRUE) || !DoMouseHorzWheel(nFlags, zDelta, pt))
+	else if (shift || ctrl || GetParentSplitter(this, TRUE) || !DoMouseHorzWheel(nFlags, zDelta, pt))
 		__super::OnMouseHWheel(nFlags, zDelta, pt);
 }
 
