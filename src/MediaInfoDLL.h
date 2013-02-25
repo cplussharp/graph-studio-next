@@ -314,6 +314,8 @@ static size_t MediaInfoDLL_Load()
         MediaInfo_Module=g_module_open(MEDIAINFODLL_NAME, G_MODULE_BIND_LAZY);
     #elif defined (_WIN32) || defined (WIN32)
         MediaInfo_Module=LoadLibrary(_T(MEDIAINFODLL_NAME));
+		if (!MediaInfo_Module)
+			MediaInfo_Module=LoadLibrary(_T("MediaInfo_i386.dll"));		// try alternative name with x86/x64 MediaInfo
     #else
         MediaInfo_Module=dlopen(MEDIAINFODLL_NAME, RTLD_LAZY);
         if (!MediaInfo_Module)
