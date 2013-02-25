@@ -431,6 +431,8 @@ void CGraphView::OnInit()
 	default:	OnView100(); break;
 	}
 
+	render_params.use_media_info = AfxGetApp()->GetProfileInt(_T("Settings"), _T("UseMediaInfo"), 1) ? true : false;
+
 	// load default renderer
 	CString		def_vr = AfxGetApp()->GetProfileString(_T("Settings"), _T("Pref_Video_Renderer"), _T(""));
 	render_params.preferred_video_renderer = def_vr;
@@ -1949,6 +1951,7 @@ void CGraphView::OnUpdateOptionsUseMediaInfo(CCmdUI *pCmdUI)
 void CGraphView::OnOptionsUseMediaInfoClick()
 {
 	render_params.use_media_info = !render_params.use_media_info;
+	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("UseMediaInfo"), render_params.use_media_info);
 }
 
 void CGraphView::OnUpdateShowGuidOfKnownTypes(CCmdUI *pCmdUI)

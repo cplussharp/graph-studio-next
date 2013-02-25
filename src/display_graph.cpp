@@ -3488,7 +3488,7 @@ namespace GraphStudio
 		preferred_video_renderer = _T("");
 		video_renderers = NULL;
 
-        use_media_info = false;
+        use_media_info = true;
         is_remote = false;
 
 		// load bitmaps
