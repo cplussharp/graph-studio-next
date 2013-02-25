@@ -88,7 +88,6 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
-	//ON_COMMAND(ID_FILE_RENDERDVD, &CGraphView::OnFileRenderdvd)
 	ON_COMMAND(ID_BUTTON_PLAY, &CGraphView::OnPlayClick)
 	ON_COMMAND(ID_BUTTON_PAUSE, &CGraphView::OnPauseClick)
 	ON_COMMAND(ID_BUTTON_STOP, &CGraphView::OnStopClick)
@@ -471,10 +470,6 @@ void CGraphView::OnInit()
 	SetTimer(1001, 20, NULL);
 }
 
-void CGraphView::OnFileRenderdvd()
-{
-}
-
 LRESULT CGraphView::OnWmCommand(WPARAM wParam, LPARAM lParam)
 {
 	/*
@@ -601,7 +596,7 @@ void CGraphView::UpdateRenderersMenu()
     internal_filters.EnumerateInternalFilters();
 
 	CMenu	*mainmenu  = GetParentFrame()->GetMenu();
-	CMenu	*graphmenu = mainmenu->GetSubMenu(2);
+	CMenu	*graphmenu = mainmenu->GetSubMenu(3);
 	CMenu	audio_source_menu, video_source_menu, audio_render_menu, video_render_menu, internal_filter_menu;
 
     // fill in audio sources
@@ -1161,15 +1156,6 @@ void CGraphView::OnMpeg2DemuxCreatePsiPin()
 
 void CGraphView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
-	if (!(nFlags & (MK_SHIFT | MK_ALT | MK_CONTROL))) {
-		switch (nChar) {
-		case VK_DELETE:
-			{
-				OnDeleteSelection();
-			}
-			break;
-		}
-	}
 }
 
 void CGraphView::OnRefreshFilters()
@@ -1794,7 +1780,7 @@ void CGraphView::OnInternalFilterClick(UINT nID)
 void CGraphView::OnFavoriteFilterClick(UINT nID)
 {
 	CMenu	*mainmenu = GetParentFrame()->GetMenu();
-	CMenu	*filtersmenu = mainmenu->GetSubMenu(3);
+	CMenu	*filtersmenu = mainmenu->GetSubMenu(4);
 
 	MENUITEMINFO	info;
 	memset(&info, 0, sizeof(info));
@@ -1897,7 +1883,7 @@ void CGraphView::OnConnectModeIntelligentClick()
 
 void CGraphView::OnUpdateConnectModeIntelligent(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetRadio(render_params.connect_mode == 0);
+	pCmdUI->SetCheck(render_params.connect_mode == 0);
 }
 
 void CGraphView::OnConnectModeDirectClick()
@@ -1908,7 +1894,7 @@ void CGraphView::OnConnectModeDirectClick()
 
 void CGraphView::OnUpdateConnectModeDirect(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetRadio(render_params.connect_mode == 1);
+	pCmdUI->SetCheck(render_params.connect_mode == 1);
 }
 
 void CGraphView::OnConnectModeDirectWmtClick()
@@ -1919,7 +1905,7 @@ void CGraphView::OnConnectModeDirectWmtClick()
 
 void CGraphView::OnUpdateConnectModeDirectWmt(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetRadio(render_params.connect_mode == 2);
+	pCmdUI->SetCheck(render_params.connect_mode == 2);
 }
 
 

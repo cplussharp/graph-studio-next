@@ -98,7 +98,6 @@ public:
 
 	// Events
 	void OnInit();
-	void OnFileRenderdvd();
 	void OnFileOpenClick();
 	void OnFileSaveClick();
 	void OnFileSaveAsClick();
