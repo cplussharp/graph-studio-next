@@ -162,7 +162,7 @@ void CFavoritesForm::UpdateFavoriteMenu()
 {
 	// first erase all added items
 	CMenu	*main_menu		= view->GetParentFrame()->GetMenu();
-	CMenu	*filters_menu	= main_menu->GetSubMenu(3);
+	CMenu	*filters_menu	= main_menu->GetSubMenu(4);
 
 	// remove all
 	while (filters_menu->GetMenuItemCount() > 4) {

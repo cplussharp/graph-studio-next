@@ -979,13 +979,12 @@ BEGIN
             MENUITEM "Load Pins by Inde&x",         ID_FILEOPTIONS_LOADPINSBYINDEX
             MENUITEM "Load Pins by &ID",            ID_FILEOPTIONS_LOADPINSBYID
         END
+        MENUITEM "Save Graph Scr&eenshot\tCtrl+F12", ID_GRAPH_MAKEGRAPHSCREENSHOT
         MENUITEM SEPARATOR
         MENUITEM "&Render Media File...\tCtrl+R", ID_FILE_RENDERFILE
         MENUITEM "Render &URL...\tCtrl+U",      ID_FILE_RENDERURL
-        MENUITEM "Add Source &Filter...\tAlt+Drag", ID_FILE_ADDSOURCEFILTER
-        MENUITEM "Add File Source As&ync...\tShift +Drag", ID_FILE_ADDFILESOURCE
-        MENUITEM "&Build DVD Graph...",         ID_FILE_RENDERDVD
-        MENUITEM "Build Capture Grap&h...",     ID_FILE_RENDERCAPTURE
+        MENUITEM "Add Source &Filter...\tAlt+Drop File", ID_FILE_ADDSOURCEFILTER
+        MENUITEM "Add File Source As&ync...\tShift +Drop File", ID_FILE_ADDFILESOURCE
         MENUITEM SEPARATOR
         MENUITEM "&Connect to Remote Graph...\tCtrl+G", ID_FILE_CONNECTTOREMOTEGRAPH
         MENUITEM "&Disconnect from Remote Graph...\tCtrl+H", ID_FILE_DISCONNECTFROMREMOTEGRAPH
@@ -999,16 +998,15 @@ BEGIN
     POPUP "&View"
     BEGIN
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
-        MENUITEM "Seeking &Bar",                ID_VIEW_SEEKINGBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
         MENUITEM SEPARATOR
-        MENUITEM "Progress &View...\tCtrl+F5",  ID_VIEW_PROGRESSVIEW
+        MENUITEM "&Refresh Graph\tF5",          ID_BUTTON_REFRESH
         MENUITEM SEPARATOR
-        MENUITEM "Graph &Construction Report",  ID_VIEW_GRAPHCONSTRUCTIONREPORT
+        MENUITEM "Graph &Construction Report\tCtrl+U", ID_VIEW_GRAPHCONSTRUCTIONREPORT
         MENUITEM "Graph &Events\tCtrl+E",       ID_VIEW_GRAPHEVENTS
-        MENUITEM "Graph Stat&istics\tCtrl+I",   ID_VIEW_GRAPHSTATISTICS
+        MENUITEM "Graph Stat&istics\tCtrl+W",   ID_VIEW_GRAPHSTATISTICS
         MENUITEM "Te&xt Information\tCtrl+T",   ID_VIEW_TEXTINFORMATION
-        MENUITEM "&Performance Test...",        ID_VIEW_DECODERPERFORMANCE
+        MENUITEM "&Performance Test...\tCtrl+M", ID_VIEW_DECODERPERFORMANCE
         MENUITEM SEPARATOR
         MENUITEM "&50%\tCtrl+2",                ID_VIEW_50
         MENUITEM "&75%\tCtrl+3",                ID_VIEW_75
@@ -1018,37 +1016,50 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Decrease Zoom Level\t-",     ID_VIEW_DECREASEZOOMLEVEL
         MENUITEM "Increase &Zoom Level\t+",     ID_VIEW_INCREASEZOOMLEVEL
-        MENUITEM "Decrease Horizontal Spacing\tCtrl -", ID_VIEW_DECREASEHORIZONTALSPACING
-        MENUITEM "Increase Horizontal Spacing\tCtrl +", ID_VIEW_INCREASEHORIZONTALSPACING
-        MENUITEM "Decrease Vertical Spacing\tAlt -", ID_VIEW_DECREASEVERTICALSPACING
-        MENUITEM "Increase Vertical Spacing\tAlt +", ID_VIEW_INCREASEVERTICALSPACING
+        MENUITEM SEPARATOR
+        MENUITEM "Decrease &Horizontal Spacing\tAlt -", ID_VIEW_DECREASEHORIZONTALSPACING
+        MENUITEM "Increase H&orizontal Spacing\tAlt +", ID_VIEW_INCREASEHORIZONTALSPACING
+        MENUITEM "Decrease &Vertical Spacing\tCtrl -", ID_VIEW_DECREASEVERTICALSPACING
+        MENUITEM "Increase Vertic&al Spacing\tCtrl +", ID_VIEW_INCREASEVERTICALSPACING
+    END
+    POPUP "&Play"
+    BEGIN
+        MENUITEM "&Toggle Play/Pause\tSpace",   ID_BUTTON_PLAYPAUSE
+        MENUITEM "&Play",                       ID_BUTTON_PLAY
+        MENUITEM "P&ause",                      ID_BUTTON_PAUSE
+        MENUITEM "&Stop\tEsc",                  ID_BUTTON_STOP
+        MENUITEM "&Frame Step\tShift+Space",    ID_BUTTON_STEP
+        MENUITEM SEPARATOR
+        MENUITEM "Progress &View...\tCtrl+F5",  ID_VIEW_PROGRESSVIEW
+        MENUITEM "S&eek...\tCtrl+K",            ID_BUTTON_SEEK
+        MENUITEM "Use &Clock",                  ID_GRAPH_USECLOCK
     END
     POPUP "&Graph"
     BEGIN
         MENUITEM "Insert &Filter...\tCtrl+F",   ID_GRAPH_INSERTFILTER
         MENUITEM "Insert Filter from Fi&le...", ID_GRAPH_INSERTFILTERFROMFILE
+        MENUITEM "&Duplicate Selected Filters\tCtrl+D", ID_FILTERS_DOUBLESELECTEDFILTERS
+        MENUITEM "Delete Selectio&n\tDel",      ID_DELETE_FILTER
+        MENUITEM "Disconnect &all Filters",     ID_BUTTON_REMOVE_CONNECTIONS
         MENUITEM SEPARATOR
-        MENUITEM "Insert Internal Filter",      ID_GRAPH_INSERTINTERNALFILTER
+        MENUITEM "Insert &Internal Filter",     ID_GRAPH_INSERTINTERNALFILTER
         MENUITEM SEPARATOR
-        MENUITEM "Insert File &Source (Async.)", ID_GRAPH_INSERTFILESOURCE
+        MENUITEM "Insert File Source (As&ync.)", ID_GRAPH_INSERTFILESOURCE
         MENUITEM "Insert &Tee Filter",          ID_GRAPH_INSERTTEEFILTER
         MENUITEM "Insert File &Writer",         ID_GRAPH_INSERTFILEWRITER
         MENUITEM SEPARATOR
-        MENUITEM "Insert Audio Source",         ID_GRAPH_INSERTAUDIOSOURCE
-        MENUITEM "Insert Video Source",         ID_GRAPH_INSERTVIDEOSOURCE
+        MENUITEM "Insert Audio &Source",        ID_GRAPH_INSERTAUDIOSOURCE
+        MENUITEM "Insert Video S&ource",        ID_GRAPH_INSERTVIDEOSOURCE
         MENUITEM SEPARATOR
-        MENUITEM "Insert Audio Renderer",       ID_GRAPH_INSERTAUDIORENDERER
-        MENUITEM "Insert Video Renderer",       ID_GRAPH_INSERTVIDEORENDERER
+        MENUITEM "Insert Audio &Renderer",      ID_GRAPH_INSERTAUDIORENDERER
+        MENUITEM "Insert Video R&enderer",      ID_GRAPH_INSERTVIDEORENDERER
         MENUITEM SEPARATOR
-        MENUITEM "&Refresh Graph\tF5",          ID_BUTTON_REFRESH
-        MENUITEM "Make &Graph Screenshot\tCtrl+F12", ID_GRAPH_MAKEGRAPHSCREENSHOT
-        MENUITEM SEPARATOR
-        MENUITEM "Use &Clock",                  ID_GRAPH_USECLOCK
+        MENUITEM "Intelli&gent Connect",        ID_BUTTON_INTELLIGENT
+        MENUITEM "Direct &Connect",             ID_BUTTON_DIRECT
+        MENUITEM "Direct Connect with &Media Type", ID_BUTTON_DIRECT_WITHMT
     END
-    POPUP "Fil&ters"
+    POPUP "Favori&tes"
     BEGIN
-        MENUITEM "&Duplicate Selected Filters\tCtrl+D", ID_FILTERS_DOUBLESELECTEDFILTERS
-        MENUITEM SEPARATOR
         MENUITEM "Manage &Favorites ...",       ID_FILTERS_MANAGEFAVORITES
         MENUITEM "Manage &Blacklist ...",       ID_FILTERS_MANAGEBLACKLIST
     END
@@ -1065,15 +1076,13 @@ BEGIN
         MENUITEM "Show &GUID of Known Types",   ID_OPTIONS_SHOWGUIDOFKNOWNTYPES
         MENUITEM "Exact Match &Lookup Mode",    ID_OPTIONS_EXACTMATCH
         MENUITEM "Use &MediaInfo",              ID_OPTIONS_USEMEDIAINFO
-        MENUITEM SEPARATOR
-        MENUITEM "Preferred &Video Renderer",   ID_OPTIONS_PREFERREDVIDEORENDERER
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&GUID Lookup...",             ID_HELP_GUIDLOOKUP
-        MENUITEM "&HRESULT Lookup...",          ID_HELP_HRESULTLOOKUP
+        MENUITEM "&GUID Lookup...\tCtrl+L",     ID_HELP_GUIDLOOKUP
+        MENUITEM "&HRESULT Lookup...\tCtrl+Q",  ID_HELP_HRESULTLOOKUP
         MENUITEM SEPARATOR
-        MENUITEM "Command Line Options...",     ID_HELP_COMMANDLINEOPTIONS
+        MENUITEM "&Command Line Options...",    ID_HELP_COMMANDLINEOPTIONS
         MENUITEM SEPARATOR
         MENUITEM "&About GraphStudioNext...",   ID_APP_ABOUT
     END
@@ -1098,48 +1107,55 @@ END
 
 IDR_MAINFRAME ACCELERATORS
 BEGIN
-    VK_SPACE,       ID_BUTTON_PLAYPAUSE,    VIRTKEY, NOINVERT
-    VK_F5,          ID_BUTTON_REFRESH,      VIRTKEY, NOINVERT
-    VK_RIGHT,       ID_BUTTON_STEP,         VIRTKEY, NOINVERT
-    VK_ESCAPE,      ID_BUTTON_STOP,         VIRTKEY, NOINVERT
-    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
-    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
-    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
-    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
-    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
-    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
-    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
-    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    "+",            ID_VIEW_INCREASEZOOMLEVEL, ASCII, NOINVERT
+    "-",            ID_VIEW_DECREASEZOOMLEVEL, ASCII, NOINVERT
+    "2",            ID_VIEW_50,             VIRTKEY, CONTROL, NOINVERT
+    "3",            ID_VIEW_75,             VIRTKEY, CONTROL, NOINVERT
+    "4",            ID_VIEW_100,            VIRTKEY, CONTROL, NOINVERT
+    "5",            ID_VIEW_150,            VIRTKEY, CONTROL, NOINVERT
+    "6",            ID_VIEW_200,            VIRTKEY, CONTROL, NOINVERT
+    "=",            ID_VIEW_INCREASEZOOMLEVEL, ASCII, NOINVERT
     "A",            ID_FILE_ADDMEDIAFILE,   VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "D",            ID_FILTERS_DOUBLESELECTEDFILTERS, VIRTKEY, CONTROL, NOINVERT
+    "E",            ID_VIEW_GRAPHEVENTS,    VIRTKEY, CONTROL, NOINVERT
+    "F",            ID_GRAPH_INSERTFILTER,  VIRTKEY, CONTROL, NOINVERT
     "G",            ID_FILE_CONNECTTOREMOTEGRAPH, VIRTKEY, CONTROL, NOINVERT
     "H",            ID_FILE_DISCONNECTFROMREMOTEGRAPH, VIRTKEY, CONTROL, NOINVERT
+    "W",            ID_VIEW_GRAPHSTATISTICS, VIRTKEY, CONTROL, NOINVERT
+    "K",            ID_BUTTON_SEEK,         VIRTKEY, CONTROL, NOINVERT
+    "L",            ID_HELP_GUIDLOOKUP,     VIRTKEY, CONTROL, NOINVERT
+    "M",            ID_VIEW_DECODERPERFORMANCE, VIRTKEY, CONTROL, NOINVERT
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "Q",            ID_HELP_GUIDLOOKUP,     VIRTKEY, CONTROL, NOINVERT
     "R",            ID_FILE_RENDERFILE,     VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE_AS,        VIRTKEY, SHIFT, CONTROL, NOINVERT
     "S",            ID_FILE_SAVEASXML,      VIRTKEY, SHIFT, ALT, NOINVERT
-    "D",            ID_FILTERS_DOUBLESELECTEDFILTERS, VIRTKEY, CONTROL, NOINVERT
-    "F",            ID_GRAPH_INSERTFILTER,  VIRTKEY, CONTROL, NOINVERT
+    "T",            ID_VIEW_TEXTINFORMATION, VIRTKEY, CONTROL, NOINVERT
+    "U",            ID_VIEW_GRAPHCONSTRUCTIONREPORT, VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    VK_DELETE,      ID_DELETE_FILTER,       VIRTKEY, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    VK_ESCAPE,      ID_BUTTON_STOP,         VIRTKEY, NOINVERT
     VK_F12,         ID_GRAPH_MAKEGRAPHSCREENSHOT, VIRTKEY, CONTROL, NOINVERT
+    VK_F5,          ID_BUTTON_REFRESH,      VIRTKEY, NOINVERT
+    VK_F5,          ID_VIEW_PROGRESSVIEW,   VIRTKEY, CONTROL, NOINVERT
     VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
-    "4",            ID_VIEW_100,            VIRTKEY, CONTROL, NOINVERT
-    "5",            ID_VIEW_150,            VIRTKEY, CONTROL, NOINVERT
-    "6",            ID_VIEW_200,            VIRTKEY, CONTROL, NOINVERT
-    "2",            ID_VIEW_50,             VIRTKEY, CONTROL, NOINVERT
-    "3",            ID_VIEW_75,             VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
     VK_OEM_MINUS,   ID_VIEW_DECREASEHORIZONTALSPACING, VIRTKEY, CONTROL, NOINVERT
     VK_OEM_MINUS,   ID_VIEW_DECREASEVERTICALSPACING, VIRTKEY, ALT, NOINVERT
-    "-",            ID_VIEW_DECREASEZOOMLEVEL, ASCII, NOINVERT
-    "E",            ID_VIEW_GRAPHEVENTS,    VIRTKEY, CONTROL, NOINVERT
-    VK_OEM_PLUS,    ID_VIEW_INCREASEHORIZONTALSPACING, VIRTKEY, CONTROL, NOINVERT
-    VK_OEM_PLUS,    ID_VIEW_INCREASEVERTICALSPACING, VIRTKEY, ALT, NOINVERT
-    "+",            ID_VIEW_INCREASEZOOMLEVEL, ASCII, NOINVERT
-    "=",            ID_VIEW_INCREASEZOOMLEVEL, ASCII, NOINVERT
-    VK_F5,          ID_VIEW_PROGRESSVIEW,   VIRTKEY, NOINVERT
-    "T",            ID_VIEW_TEXTINFORMATION, VIRTKEY, CONTROL, NOINVERT
+    VK_OEM_PLUS,    ID_VIEW_INCREASEVERTICALSPACING, VIRTKEY, CONTROL, NOINVERT
+    VK_OEM_PLUS,    ID_VIEW_INCREASEHORIZONTALSPACING, VIRTKEY, ALT, NOINVERT
+    VK_SPACE,       ID_BUTTON_PLAYPAUSE,    VIRTKEY, NOINVERT
+    VK_SPACE,       ID_BUTTON_STEP,         VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -1335,7 +1351,6 @@ END
 
 STRINGTABLE
 BEGIN
-    ID_BUTTON32850          "Seek to specified position"
     ID_BUTTON_SEEK          "Seek to specified position"
     ID_VIEW_GRAPHCONSTRUCTIONREPORT "Show Graph Construction Report"
 END
@@ -1370,11 +1385,11 @@ BEGIN
     ID_VIEW_DECREASEVERTICALSPACING 
                             "Change vertical spacing (also Shift-Wheel)"
     ID_FILEOPTIONS_LOADPINSBYNAME 
-                            "Resolve pin references in XML files by pin name (most robust)"
+                            "When loading XML file, resolve pin references by pin name. Can fail if pins have duplicate names."
     ID_FILEOPTIONS_LOADPINSBYINDEX 
-                            "Resolve pin references in XML files by pin index"
+                            "When loading XML file, resolve pin references by pin index. Sometimes the only method that works."
     ID_FILEOPTIONS_LOADPINSBYID 
-                            "Resolve pin references in XML files by pin ID. Sometimes broken by buggy filters."
+                            "When loading XML file, resolve pin references by pin ID. Sometimes broken by buggy filters."
     ID_OPTIONS_SHOWCONSOLEWINDOW 
                             "Show Console Window and redirect stdout output to the console."
     ID_OPTIONS_USEINTERNALGRFFILEPARSER 

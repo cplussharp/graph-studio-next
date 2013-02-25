@@ -5,7 +5,6 @@
 #define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             100
 #define IDD_PROPPAGE_DMOQUALCTRL        102
-#define IDD_DIALOGBAR                   103
 #define IDD_BAR_SEEKING                 103
 #define IDD_DIALOG_FILTERDETAILS        105
 #define IDD_PROPPAGE_WMRESIZER          106
@@ -14,14 +13,12 @@
 #define IDR_MAINFRAME                   128
 #define IDR_graphstudioTYPE             129
 #define IDB_BITMAP_LOGO                 130
-#define IDR_TOOLBAR1                    131
 #define IDD_DIALOG_FILTERS              134
 #define IDD_DIALOG_EVENTS               135
 #define IDD_DIALOG_TEXTVIEW             136
 #define IDD_DIALOG_ASYNCOPEN            137
 #define IDD_DIALOG_PROPERTYPAGE         138
 #define IDD_DIALOG_ROT                  141
-#define IDD_DIALOG_ASYNCOPEN1           142
 #define IDD_DIALOG_FILESINK             142
 #define IDD_DIALOG_FAVORITES            143
 #define IDB_BITMAP_TREE                 144
@@ -66,7 +63,6 @@
 #define IDC_CHECK_FAVORITE              1006
 #define IDC_BUTTON_PROPERTYPAGE         1007
 #define IDC_BUTTON_COPYTEXT             1007
-#define IDC_BUTTON3                     1008
 #define IDC_BUTTON_UNREGISTER           1008
 #define IDC_BUTTON_SAVE                 1008
 #define IDC_BUTTON_INSERT               1009
@@ -77,20 +73,17 @@
 #define IDC_STATIC_SEPARATOR            1012
 #define IDC_BUTTON_CLEAR                1013
 #define IDC_LIST_EVENTS                 1014
-#define IDC_BUTTON2                     1015
 #define IDC_BUTTON_COPY                 1015
 #define IDC_BUTTON_REFRESH              1015
 #define IDC_BUTTON_ABOUT                1015
 #define IDC_BUTTON_LOCK                 1015
 #define IDC_BUILDGRAPH                  1015
-#define IDC_SLIDER1                     1016
 #define IDC_SLIDER_SEEK                 1016
 #define IDC_SLIDER_VOLUME               1016
 #define IDC_SLIDER_IRATE                1016
 #define IDC_STATIC_TIME                 1017
 #define IDC_SLIDER_BALANCE              1017
 #define IDC_SLIDER_PRATE                1017
-#define IDC_BUTTON1                     1018
 #define IDC_BUTTON_BROWSE               1018
 #define IDC_BUTTON_APPLY                1018
 #define IDC_BUTTON_CLOSE                1018
@@ -108,7 +101,6 @@
 #define IDC_BUTTON_DEF_QUALITY          1023
 #define IDC_COMBO_URL                   1024
 #define IDC_SLIDER_WINDOW               1024
-#define IDC_TAB1                        1025
 #define IDC_TAB_PAGES                   1025
 #define IDC_BUTTON_DEF_WINDOW           1025
 #define IDC_TITLEBAR                    1027
@@ -117,7 +109,6 @@
 #define IDC_BUTTON_CONNECT              1030
 #define IDC_BUTTON_SEARCH               1030
 #define IDC_TREE_FAVORITES              1030
-#define IDC_EDIT1                       1031
 #define IDC_EDIT_NAME                   1031
 #define IDC_EDIT_TIME                   1031
 #define IDC_EDIT_PASSES                 1031
@@ -130,7 +121,6 @@
 #define IDC_EDIT_OPTIONS                1031
 #define IDC_EDIT_PREVIEWBYTECOUNT       1031
 #define IDC_EDIT_DST_TOP                1032
-#define IDC_TREE1                       1033
 #define IDC_TREE                        1033
 #define IDC_PROGRESS_POSITION           1034
 #define IDC_CHECK_AUTOSWITCH            1035
@@ -150,7 +140,6 @@
 #define IDC_STATIC_DESC                 1051
 #define IDC_BUTTON_EXPORT               1051
 #define IDC_STATIC_VERSION              1052
-#define IDC_BUTTON_REMOVE3              1052
 #define IDC_BUTTON_IMPORT               1052
 #define IDC_STATIC_IRATE                1053
 #define IDC_STATIC_PRATE                1054
@@ -167,7 +156,6 @@
 #define IDC_STATIC_CHANNELS             1065
 #define IDC_STATIC_SAMPLERATE           1066
 #define IDC_STATIC_BITRATE              1067
-#define IDC_COMBO4                      1068
 #define IDC_COMBO_FORMAT                1068
 #define IDC_COMBO_PRESETS               1068
 #define IDC_COMBO_RENDERER              1071
@@ -177,10 +165,8 @@
 #define IDC_BUTTON_START                1075
 #define IDC_BUTTON_STOP                 1076
 #define IDC_STATIC_FILTER               1077
-#define IDC_COMBO_RENDERER2             1077
 #define IDC_COMBO_TYPE                  1077
 #define IDC_COMBO_NEW                   1078
-#define IDC_LIST3                       1081
 #define IDC_LIST_CAPS                   1081
 #define IDC_STATIC_ALIGN                1082
 #define IDC_STATIC_BUFFER               1083
@@ -191,8 +177,6 @@
 #define IDC_STATIC_URL                  1089
 #define IDC_CHECK_HIRES                 1090
 #define IDC_EXPLORER1                   1091
-#define IDC_EXPLORER2                   1092
-#define IDC_SYSLINK1                    1093
 #define IDC_MFCLINK_SEARCH_ONLINE       1096
 #define IDC_CHECK_UNREGALL              1097
 #define IDC_COMBO_CLSID                 1098
@@ -204,7 +188,6 @@
 #define IDC_EDIT_DST_HEIGHT             1105
 #define IDC_CHECK_INTERLACED            1106
 #define IDC_RADIO_QUAL_HIGH             1107
-#define IDC_RADIO2                      1108
 #define IDC_RADIO_QUAL_FAST             1108
 #define IDC_CHECK_QUALCTRL              1109
 #define IDC_LIST_LOOKUP                 1111
@@ -217,7 +200,6 @@
 #define IDC_LIST_BLACKLIST              1118
 #define IDC_CHECK_ENABLED               1119
 #define IDC_LIST_DATA                   1123
-#define IDC_SPIN1                       1124
 #define IDC_SPIN_PREVIEWBYTECOUNT       1124
 #define IDC_STATIC_VERINFO              1125
 #define ID_LIST_MRU_CLEAR               4999
@@ -231,10 +213,7 @@
 #define ID_FAVORITE_FILTER              7500
 #define ID_PREFERRED_VIDEO_RENDERER     8000
 #define ID_COMPATIBLE_FILTER            9000
-#define ID_Menu                         32771
 #define ID_FILE_RENDERURL               32772
-#define ID_FILE_RENDERDVD               32773
-#define ID_FILE_RENDERCAPTURE           32774
 #define ID_FILE_CONNECTTOREMOTEGRAPH    32775
 #define ID_FILE_DISCONNECTFROMREMOTEGRAPH 32776
 #define ID_BUTTON_PLAY                  32777
@@ -271,18 +250,9 @@
 #define ID_MENU_CREATEGROUP             32819
 #define ID_MENU_REMOVEGROUP             32820
 #define ID_MENU_REMOVEFILTER            32821
-#define ID_OPTIONS_AUTOMATICRESTART     32822
-#define ID_AUTOMATICRESTART_DISABLED    32823
-#define ID_AUTOMATICRESTART_EVERYHOUR   32824
-#define ID_AUTOMATICRESTART_EVERYTWOHOURS 32825
-#define ID_AUTOMATICRESTART_EVERY4HOURS 32826
-#define ID_AUTOMATICRESTART_AT04        32827
-#define ID_AUTORESTART                  32828
-#define ID_AUTORESTART_DISABLED         32829
 #define ID_FILE_SAVEASXML               32831
 #define ID_OPTIONS_DISPLAYFILTERNAME    32832
 #define ID_OPTIONS_DISPLAYASFILENAME    32833
-#define ID_BUTTON32834                  32834
 #define ID_BUTTON_DIRECT                32834
 #define ID_OPTIONS_DIRECTCONNECTMODE    32835
 #define IDC_OPTIONS_DIRECT              32836
@@ -290,12 +260,10 @@
 #define ID_BUTTON_STEP                  32838
 #define ID_BUTTON_PLAYPAUSE             32841
 #define ID_BUTTON_REFRESH               32843
-#define ID_GRAPH_REFRESHGRAPH           32844
 #define ID_VIEW_PROGRESSVIEW            32845
 #define ID_PIN_NULL_STREAM              32847
 #define ID_PIN_DUMP_STREAM              32848
 #define ID_GRAPH_USECLOCK               32849
-#define ID_BUTTON32850                  32850
 #define ID_BUTTON_SEEK                  32851
 #define ID_AUTOMATICRESTART_SCHEDULE    32852
 #define ID_OPTIONS_PREFERREDVIDEORENDERER 32853
@@ -319,7 +287,6 @@
 #define ID_OPTIONS_CONFIGURESBE         32871
 #define ID_OPTIONS_SHOWGUIDOFKNOWNTYPES 32872
 #define ID_COMBO_RATE                   32873
-#define ID_FILTERS_MA                   32874
 #define ID_FILTERS_MANAGEBLACKLIST      32875
 #define ID_BUTTON_INTELLIGENT           32876
 #define ID_BUTTON_DIRECT_WITHMT         32877
@@ -341,13 +308,24 @@
 #define ID_OPTIONS_USEINTERNALGRFFILEPARSER 32893
 #define ID_FILE_ADDSOURCEFILTER         32894
 #define ID_FILE_ADDFILESOURCE           32895
+#define ID_PLAY_PLAY                    32897
+#define ID_PLAY_STOP                    32898
+#define ID_PLAY_PAUSE                   32899
+#define ID_PLAY_FRAMESTEP               32900
+#define ID_GRAPH_DIRECTCONNECT          32901
+#define ID_GRAPH_INTELLIGENT            32902
+#define ID_GRAPH_CONNECTWITHMEDIATYPE   32903
+#define ID_PLAY_SEEK                    32904
+#define ID_GRAPH_DISCONNECTALLFILTERS   32905
+#define ID_PLAY_TOGGLEPLAY              32906
+#define ID_GRAPH_DELETESELECTION        32907
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        179
-#define _APS_NEXT_COMMAND_VALUE         32896
+#define _APS_NEXT_COMMAND_VALUE         32908
 #define _APS_NEXT_CONTROL_VALUE         1126
 #define _APS_NEXT_SYMED_VALUE           103
 #endif
