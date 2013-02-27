@@ -158,15 +158,23 @@ void CFiltersForm::OnInitialize()
 		if (filters.filters.GetCount() > 0) {
 			CString	n;
 			n.Format(_T("%s (%d filters)"), cat.name, filters.filters.GetCount());
-			int item = combo_categories.AddString(n);
-			combo_categories.SetItemDataPtr(item, (void*)&cat);
+			int item_index = combo_categories.AddString(n);
+			combo_categories.SetItemDataPtr(item_index, (void*)&cat);
 
 			if (cat.clsid == GUID_NULL && !cat.is_dmo) {	// Set ALL filters as the default entry
-				combo_categories.SetCurSel(item);
+				combo_categories.SetCurSel(item_index);
 				RefreshFilterList(filters);
 			}
 		}
 	}
+
+	combo_categories.InsertString(0, _T("-- Favorite Filters"));
+	combo_categories.SetItemDataPtr(0, (void*)CATEGORY_FAVORITES);
+
+	combo_categories.InsertString(1, _T("-- Blacklisted Filters"));
+	combo_categories.SetItemDataPtr(1, (void*)CATEGORY_BLACKLIST);
+
+	combo_categories.SetMinVisibleItems(combo_categories.GetCount());
 
     btn_register.SetShield(TRUE);
     btn_unregister.SetShield(TRUE);
@@ -185,14 +193,25 @@ void CFiltersForm::OnInitialize()
 
 void CFiltersForm::OnComboCategoriesChange()
 {
-	int item = combo_categories.GetCurSel();
-	DSUtil::FilterCategory	*cat = (DSUtil::FilterCategory*)combo_categories.GetItemDataPtr(item);
-	if (!cat)
-		return ;
-
+	const int item = combo_categories.GetCurSel();
+	DSUtil::FilterCategory* const item_data = (DSUtil::FilterCategory*)combo_categories.GetItemDataPtr(item);
 	DSUtil::FilterTemplates	filters;
-	filters.Enumerate(*cat);
 
+	if (item_data == (DSUtil::FilterCategory*)CATEGORY_FAVORITES) {
+		const GraphStudio::Favorites * const favorites = GraphStudio::Favorites::GetInstance();
+
+		for (int i=0; i<favorites->filters.GetCount(); i++) {
+			GraphStudio::FavoriteFilter* const fav = favorites->filters[i];
+			DSUtil::FilterTemplate filter_template;
+			filter_template.LoadFromMoniker(fav->moniker_name);
+			filters.filters.Add(filter_template);
+		}
+
+	} else if (item_data == (DSUtil::FilterCategory*)CATEGORY_BLACKLIST) {
+
+	} else if (item_data) {
+		filters.Enumerate(*item_data);
+	}
 	RefreshFilterList(filters);
 }
 
@@ -383,6 +402,8 @@ BOOL CFiltersForm::PreTranslateMessage(MSG *pmsg)
 		if (pmsg->wParam == VK_RETURN) {
 			OnBnClickedButtonInsert();
 			return TRUE;
+		} else if (pmsg->wParam == VK_F5) {
+			OnComboCategoriesChange();			// Refresh filter list on F5
 		}
 	}
 

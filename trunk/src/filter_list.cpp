@@ -235,9 +235,9 @@ namespace GraphStudio
 			if (callback)
 				callback->OnUpdateSearchString(search_str);
 			UpdateList();
-		}
-		else
+		} else {
 			return CListCtrl::OnKeyDown(nChar, nRepCnt, nFlags);        
+		}
 	}
 
 	void FilterListCtrl::SetSearchString(const CString& search_string)
