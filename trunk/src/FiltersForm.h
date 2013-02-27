@@ -7,7 +7,6 @@
 //-----------------------------------------------------------------------------
 #pragma once
 
-
 //-----------------------------------------------------------------------------
 //
 //	CFiltersForm class
@@ -17,7 +16,7 @@ class CFiltersForm :
 	public CDialog,
 	public GraphStudio::FilterListCallback
 {
-protected:
+private:
 	DECLARE_MESSAGE_MAP()
 	DECLARE_DYNAMIC(CFiltersForm)
 
@@ -26,9 +25,9 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
     HICON m_hIcon;
 
-public:
 	CComboBox					combo_categories;
 	CComboBox					combo_merit;
+	CEdit						edit_search;
 	CButton						btn_register;
 	CButton						btn_insert;
 	CButton						btn_propertypage;
@@ -71,34 +70,40 @@ public:
 	CFiltersForm(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CFiltersForm();
 
+	BOOL DoCreateDialog();
+
+private:
 	// Dialog Data
 	enum { IDD = IDD_DIALOG_FILTERS };
 
-	BOOL DoCreateDialog();
+	// overrides
 	void OnInitialize();
-	void OnComboCategoriesChange();
 	void OnSize(UINT nType, int cx, int cy);
 	void OnMeasureItem(int nIDCtl, LPMEASUREITEMSTRUCT item);
-	void OnBnClickedButtonInsert();
 	BOOL PreTranslateMessage(MSG *pmsg);
-
 	virtual  BOOL OnInitDialog( );
 
 	// filtering
 	DSUtil::FilterTemplate *GetSelected();
 	bool CanBeDisplayed(const DSUtil::FilterTemplate &filter);
-	void OnComboMeritChange();
-	void OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult);
-	void OnBnClickedButtonPropertypage();
 
 	// filterlist callback
 	virtual void OnItemDblClk(int item);
+	virtual void OnUpdateSearchString(const CString& search_string);
 
-	void OnBnClickedCheckFavorite();
-	void OnLocateClick();
-	void OnUnregisterClick();
-    void OnRegisterClick();
+	// command handlers
+	afx_msg void OnComboCategoriesChange();
+	afx_msg void OnBnClickedButtonInsert();
+	afx_msg void OnComboMeritChange();
+	afx_msg void OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnBnClickedButtonPropertypage();
+	afx_msg void OnBnClickedCheckFavorite();
+	afx_msg void OnLocateClick();
+	afx_msg void OnUnregisterClick();
+	afx_msg void OnRegisterClick();
 	afx_msg void OnMeritClick();
+	afx_msg void OnEnUpdateSearchString();
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 };
 
 int ConfigureInsertedFilter(IBaseFilter *filter, const CString& strFilterName);

@@ -709,13 +709,11 @@ namespace DSUtil
 
 	FilterCategories::FilterCategories()
 	{
-		categories.RemoveAll();
 		Enumerate();
 	}
 
 	FilterCategories::~FilterCategories()
 	{
-		categories.RemoveAll();
 	}
 
 	int FilterCategories::Enumerate()

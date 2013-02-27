@@ -13,7 +13,6 @@ namespace GraphStudio
 	IMPLEMENT_DYNCREATE(FilterListCtrl, CListCtrl)
 	BEGIN_MESSAGE_MAP(FilterListCtrl, CListCtrl)
 		ON_WM_LBUTTONDBLCLK()
-		ON_WM_PAINT()
 		ON_WM_CHAR()
 		ON_WM_KEYDOWN()
 	END_MESSAGE_MAP()
@@ -44,7 +43,6 @@ namespace GraphStudio
 
 		callback = NULL;
 		filters.RemoveAll();
-		search_str = TEXT("");
 	}
 
 	FilterListCtrl::~FilterListCtrl()
@@ -234,17 +232,25 @@ namespace GraphStudio
 		if (nChar == VK_DELETE && search_str.GetLength())
 		{
 			search_str.Delete(0, search_str.GetLength());
+			if (callback)
+				callback->OnUpdateSearchString(search_str);
 			UpdateList();
-			Invalidate(FALSE);
 		}
 		else
 			return CListCtrl::OnKeyDown(nChar, nRepCnt, nFlags);        
 	}
 
+	void FilterListCtrl::SetSearchString(const CString& search_string)
+	{
+		search_str = search_string;
+		search_str.MakeUpper();
+		// Don't callback here
+		UpdateList();
+	}
+
 	void FilterListCtrl::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
-
-		if (nChar == VK_BACK && search_str.GetLength())
+		if (nChar == VK_BACK && search_str.GetLength()) 
 		{
 			search_str.Delete(search_str.GetLength()-1);
 		}
@@ -257,15 +263,18 @@ namespace GraphStudio
 		{
 			search_str.Insert(search_str.GetLength(), nChar);
 			search_str.MakeUpper();
-		}else
+		} else {
 			return CListCtrl::OnChar(nChar, nRepCnt, nFlags);
+		}
+
+		if (callback)
+			callback->OnUpdateSearchString(search_str);
 
 		UpdateList();
 	}
 
 	void FilterListCtrl::Initialize()
 	{
-		search_str.Delete(0, search_str.GetLength());
 		filters.RemoveAll();
 		DeleteAllItems();
 	}

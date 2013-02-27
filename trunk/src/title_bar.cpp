@@ -116,7 +116,9 @@ namespace GraphStudio
 
 	BOOL TitleBar::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult)
 	{
-		if (message == WM_COMMAND) {
+		switch (message) {
+		case WM_COMMAND:
+		case WM_CTLCOLOREDIT:		// for setting text color search string edit in filters form
 			*pResult = GetParent()->SendMessage(message, wParam, lParam);
 			return TRUE;
 		}

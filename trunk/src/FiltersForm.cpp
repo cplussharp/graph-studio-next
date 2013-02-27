@@ -27,12 +27,14 @@ BEGIN_MESSAGE_MAP(CFiltersForm, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_INSERT, &CFiltersForm::OnBnClickedButtonInsert)
 	ON_CBN_SELCHANGE(IDC_COMBO_MERIT, &CFiltersForm::OnComboMeritChange)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_FILTERS, &CFiltersForm::OnFilterItemClick)
+	ON_EN_UPDATE(IDC_SEARCH_STRING, &CFiltersForm::OnEnUpdateSearchString)
 	ON_BN_CLICKED(IDC_BUTTON_PROPERTYPAGE, &CFiltersForm::OnBnClickedButtonPropertypage)
 	ON_BN_CLICKED(IDC_CHECK_FAVORITE, &CFiltersForm::OnBnClickedCheckFavorite)
 	ON_BN_CLICKED(IDC_BUTTON_LOCATE, &CFiltersForm::OnLocateClick)
 	ON_BN_CLICKED(IDC_BUTTON_UNREGISTER, &CFiltersForm::OnUnregisterClick)
     ON_BN_CLICKED(IDC_BUTTON_REGISTER, &CFiltersForm::OnRegisterClick)
 	ON_BN_CLICKED(IDC_BUTTON_MERIT, &CFiltersForm::OnMeritClick)
+	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -86,12 +88,18 @@ BOOL CFiltersForm::DoCreateDialog()
 	btn_register.Create(_T("&Register"), WS_TABSTOP | WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_REGISTER);
 	tree_details.Create(_T("Filter &Details"), WS_TABSTOP | WS_CHILD | WS_VISIBLE, rc, this, IDC_TREE);
 
+	CRect edit_rect(0,0,16,16);		// recommended edit control height is 14 but add a bit as 14 looks cramped
+	::MapDialogRect(title.m_hWnd, &edit_rect);
+	edit_search.Create(WS_BORDER | WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_LOWERCASE, edit_rect, &title, IDC_SEARCH_STRING);
+
 	// change z order put tree_details directly after filter list in tab order
 	tree_details.SetWindowPos(&list_filters, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
-	combo_categories.SetFont(GetFont());
-	combo_merit.SetFont(GetFont());
-	btn_register.SetFont(GetFont());
+	CFont * const current_font = GetFont();
+	combo_categories.SetFont(current_font);
+	combo_merit.SetFont(current_font);
+	btn_register.SetFont(current_font);
+	edit_search.SetFont(current_font);
 
 	tree_details.Initialize();
 
@@ -109,7 +117,6 @@ void CFiltersForm::OnInitialize()
     SetIcon(m_hIcon, TRUE);
 
 	// Fill the categories combo
-	int i;
 	DragAcceptFiles(TRUE);
 
 	list_filters.callback = this;
@@ -143,7 +150,7 @@ void CFiltersForm::OnInitialize()
 
 	DSUtil::FilterTemplates filters;
 
-	for (i=0; i<categories.categories.GetCount(); i++) {
+	for (int i=0; i<categories.categories.GetCount(); i++) {
 		DSUtil::FilterCategory	&cat = categories.categories[i];
 
 		// ignore empty categories
@@ -180,7 +187,8 @@ void CFiltersForm::OnComboCategoriesChange()
 {
 	int item = combo_categories.GetCurSel();
 	DSUtil::FilterCategory	*cat = (DSUtil::FilterCategory*)combo_categories.GetItemDataPtr(item);
-	if (!cat) return ;
+	if (!cat)
+		return ;
 
 	DSUtil::FilterTemplates	filters;
 	filters.Enumerate(*cat);
@@ -202,6 +210,13 @@ void CFiltersForm::RefreshFilterList(const DSUtil::FilterTemplates &filters)
 		}
 	}
 	list_filters.UpdateList();
+}
+
+void CFiltersForm::OnEnUpdateSearchString()
+{
+	CString search_string;
+	edit_search.GetWindowText(search_string);
+	list_filters.SetSearchString(search_string);
 }
 
 bool CFiltersForm::CanBeDisplayed(const DSUtil::FilterTemplate &filter)
@@ -244,19 +259,21 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 	GetClientRect(&rc);
 
 	// compute anchor lines
-	int	right_x = rc.Width() / 2;
-    int right_width = right_x;
+	int	right_x		= rc.Width() / 2;
+    int	right_width = right_x;
     if(right_x < MIN_WIDTH_RIGHT)
     {
         right_x = rc.Width() - MIN_WIDTH_RIGHT;
         right_width = MIN_WIDTH_RIGHT;
     }
-	int merit_combo_width = 130;
+	const int merit_combo_width = 130;
+	const int gap = 8;
 
 	title.GetClientRect(&rc2);
 	title.SetWindowPos(NULL, 0, 0, cx, rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
-	
-	int details_top = rc2.Height();
+	const int title_height = rc2.Height();
+
+	const int details_top = rc2.Height();
 	list_filters.SetWindowPos(NULL, 0, rc2.Height(), right_x, rc.Height() - rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 	list_filters.GetClientRect(&rc2);
 	list_filters.SetColumnWidth(0, rc2.Width()-10);
@@ -265,29 +282,39 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 	tree_details.SetWindowPos(NULL, right_x, details_top, rc.Width()-right_x, rc.Height() - 100-details_top, SWP_SHOWWINDOW | SWP_NOZORDER);
 
 	check_favorite.GetWindowRect(&rc2);
-    check_favorite.SetWindowPos(NULL, right_x+8, rc.Height()-100+8, rc2.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+    check_favorite.SetWindowPos(NULL, right_x+gap, rc.Height()-100+gap, rc2.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
 	// combo boxes
 	combo_categories.GetWindowRect(&rc2);
-	combo_categories.SetWindowPos(NULL, 4, 6, right_x - 8 - merit_combo_width, rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+	combo_categories.SetWindowPos(NULL, 4, 6, right_x - gap - merit_combo_width, rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 	combo_merit.GetWindowRect(&rc2);
 	combo_merit.SetWindowPos(NULL, right_x - merit_combo_width, 6, merit_combo_width, rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
+	// sizing
+	btn_register.GetWindowRect(&rc2);
+	const int	btn_height = rc2.Height();
+	const int btn_register_width = rc2.Width();
+	int current_x = right_x + (gap*2);
+
+	// edit control
+	const int edit_search_width = rc.Width() - (2*gap) - current_x - btn_register_width;
+	edit_search.GetWindowRect(&rc2);
+	edit_search.SetWindowPos(NULL, current_x, (title_height-rc2.Height()) / 2, edit_search_width, rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+
 	// buttons
 	btn_register.GetWindowRect(&rc2);
-	int	btn_height = rc2.Height();
-
 	btn_register.SetWindowPos(NULL, rc.Width() - 4 - rc2.Width(), 5, rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
-	btn_insert.GetWindowRect(&rc2);
-	btn_insert.SetWindowPos(NULL, right_x+8, rc.Height() - 2*(8+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
-	btn_propertypage.SetWindowPos(NULL, right_x+8, rc.Height() - 1*(8+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
 
-	btn_merit.SetWindowPos(NULL, rc.Width() - 8 - rc2.Width(), rc.Height() - 3*(8+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
-	btn_locate.SetWindowPos(NULL, rc.Width() - 8 - rc2.Width(), rc.Height() - 2*(8+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
-	btn_unregister.SetWindowPos(NULL, rc.Width() - 8 - rc2.Width(), rc.Height() - 1*(8+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_insert.GetWindowRect(&rc2);
+	btn_insert.SetWindowPos(NULL, right_x+gap, rc.Height() - 2*(gap+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_propertypage.SetWindowPos(NULL, right_x+gap, rc.Height() - 1*(gap+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
+
+	btn_merit.SetWindowPos(NULL, rc.Width() - gap - rc2.Width(), rc.Height() - 3*(gap+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_locate.SetWindowPos(NULL, rc.Width() - gap - rc2.Width(), rc.Height() - 2*(gap+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_unregister.SetWindowPos(NULL, rc.Width() - gap - rc2.Width(), rc.Height() - 1*(gap+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
 
     m_search_online.GetWindowRect(&rc2);
-    m_search_online.SetWindowPos(NULL, right_x + right_width / 2 - rc2.Width() / 2, rc.Height()-100+8, rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
+    m_search_online.SetWindowPos(NULL, right_x + right_width / 2 - rc2.Width() / 2, rc.Height()-100+gap, rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
 
 	// invalidate all controls
 	title.Invalidate();
@@ -325,6 +352,11 @@ void CFiltersForm::OnMeasureItem(int nIDCtl, LPMEASUREITEMSTRUCT item)
 void CFiltersForm::OnItemDblClk(int item)
 {
 	OnBnClickedButtonInsert();
+}
+
+void CFiltersForm::OnUpdateSearchString(const CString& search_string)
+{
+	edit_search.SetWindowText(search_string);
 }
 
 void CFiltersForm::OnBnClickedButtonInsert()
@@ -870,4 +902,14 @@ BOOL CFiltersForm::OnInitDialog()
 	BOOL res = CDialog::OnInitDialog();
 	list_filters.Initialize();
 	return res;
+}
+
+HBRUSH CFiltersForm::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	const HBRUSH hbr = __super::OnCtlColor(pDC, pWnd, nCtlColor);
+	const int id = pWnd ? pWnd->GetDlgCtrlID() : 0;
+	if (IDC_SEARCH_STRING == id) {
+		pDC->SetTextColor(list_filters.GetSelectionColor());
+	}
+   return hbr;
 }

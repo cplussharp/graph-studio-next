@@ -202,6 +202,7 @@
 #define IDC_LIST_DATA                   1123
 #define IDC_SPIN_PREVIEWBYTECOUNT       1124
 #define IDC_STATIC_VERINFO              1125
+#define IDC_SEARCH_STRING				1126
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
