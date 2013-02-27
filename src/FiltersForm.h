@@ -48,6 +48,13 @@ private:
 	// view to work with
 	CGraphView					*view;
 
+	// Fake filter values
+	enum Category
+	{
+		CATEGORY_FAVORITES = 1,
+		CATEGORY_BLACKLIST = 3
+	};
+
 	enum {
 		MERIT_MODE_ALL = 0,
 		MERIT_MODE_DONOTUSE = 1,
@@ -86,6 +93,7 @@ private:
 	// filtering
 	DSUtil::FilterTemplate *GetSelected();
 	bool CanBeDisplayed(const DSUtil::FilterTemplate &filter);
+
 
 	// filterlist callback
 	virtual void OnItemDblClk(int item);
