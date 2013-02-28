@@ -34,10 +34,16 @@ END_MESSAGE_MAP()
 //
 //-----------------------------------------------------------------------------
 
+GraphStudio::BookmarkedFilters	g_favorites(_T("Favorites"));
+
+GraphStudio::BookmarkedFilters* CFavoritesForm::GetFavoriteFilters()
+{
+	return &g_favorites;
+}
+
 CFavoritesForm::CFavoritesForm(CWnd* pParent) : 
 	CDialog(CFavoritesForm::IDD, pParent)
 {
-
 }
 
 CFavoritesForm::~CFavoritesForm()
@@ -125,8 +131,8 @@ void CFavoritesForm::OnSize(UINT nType, int cx, int cy)
 static int CALLBACK FavoriteCompare(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 {
 	CTreeCtrl	*tree				= (CTreeCtrl*)lParamSort;
-	GraphStudio::FavoriteItem *i1	= (GraphStudio::FavoriteItem *)lParam1;
-	GraphStudio::FavoriteItem *i2	= (GraphStudio::FavoriteItem *)lParam2;
+	GraphStudio::BookmarkedItem *i1	= (GraphStudio::BookmarkedItem *)lParam1;
+	GraphStudio::BookmarkedItem *i2	= (GraphStudio::BookmarkedItem *)lParam2;
 
 	if (i1->type != i2->type) {
 		if (i2->type > i1->type) return 1; else return -1;
@@ -135,8 +141,8 @@ static int CALLBACK FavoriteCompare(LPARAM lParam1, LPARAM lParam2, LPARAM lPara
 	// both of the same type
 	if (i1->type == 0) {
 
-		GraphStudio::FavoriteFilter	*f1 = (GraphStudio::FavoriteFilter *)i1;
-		GraphStudio::FavoriteFilter	*f2 = (GraphStudio::FavoriteFilter *)i2;
+		GraphStudio::BookmarkedFilter	*f1 = (GraphStudio::BookmarkedFilter *)i1;
+		GraphStudio::BookmarkedFilter	*f2 = (GraphStudio::BookmarkedFilter *)i2;
 
 		CString	t1 = f1->name;	t1.MakeLower();
 		CString	t2 = f2->name;	t2.MakeLower();
@@ -146,8 +152,8 @@ static int CALLBACK FavoriteCompare(LPARAM lParam1, LPARAM lParam2, LPARAM lPara
 	} else
 	if (i1->type == 1) {
 
-		GraphStudio::FavoriteGroup	*g1 = (GraphStudio::FavoriteGroup *)i1;
-		GraphStudio::FavoriteGroup	*g2 = (GraphStudio::FavoriteGroup *)i2;
+		GraphStudio::BookmarkedGroup	*g1 = (GraphStudio::BookmarkedGroup *)i1;
+		GraphStudio::BookmarkedGroup	*g2 = (GraphStudio::BookmarkedGroup *)i2;
 
 		CString	t1 = g1->name;	t1.MakeLower();
 		CString	t2 = g2->name;	t2.MakeLower();
@@ -169,7 +175,7 @@ void CFavoritesForm::UpdateFavoriteMenu()
 		filters_menu->DeleteMenu(filters_menu->GetMenuItemCount() - 3, MF_BYPOSITION);
 	}
 
-	GraphStudio::Favorites	*favorites = GraphStudio::Favorites::GetInstance();
+	GraphStudio::BookmarkedFilters	*favorites = CFavoritesForm::GetFavoriteFilters();
 	favorites->Sort();
 
 	int	cnt = favorites->filters.GetCount() + favorites->groups.GetCount();
@@ -183,7 +189,7 @@ void CFavoritesForm::UpdateFavoriteMenu()
 	}
 }
 
-int CFavoritesForm::FillMenu(CMenu* filters_menu, GraphStudio::Favorites* favorites, int offset)
+int CFavoritesForm::FillMenu(CMenu* filters_menu, GraphStudio::BookmarkedFilters* favorites, int offset)
 {
 	int		i, id;
 	int		c=0;
@@ -191,7 +197,7 @@ int CFavoritesForm::FillMenu(CMenu* filters_menu, GraphStudio::Favorites* favori
 	// add groups
 	id = 1;
 	for (i=0; i<favorites->groups.GetCount(); i++) {
-		GraphStudio::FavoriteGroup	*group = favorites->groups[i];
+		GraphStudio::BookmarkedGroup	*group = favorites->groups[i];
 
 		filters_menu->InsertMenu(offset + c, MF_BYPOSITION | MF_STRING, 0, _T("&") + group->name);
 
@@ -201,7 +207,7 @@ int CFavoritesForm::FillMenu(CMenu* filters_menu, GraphStudio::Favorites* favori
 			CMenu	group_menu;
 			group_menu.CreatePopupMenu();
 			for (int j=0; j<group->filters.GetCount(); j++) {
-				GraphStudio::FavoriteFilter	*filter = group->filters[j];
+				GraphStudio::BookmarkedFilter	*filter = group->filters[j];
 				group_menu.InsertMenu(j, MF_STRING, ID_FAVORITE_FILTER + id, _T("&") + filter->name);
 
 				// associate the menu item with the gavorite filter
@@ -247,12 +253,12 @@ int CFavoritesForm::FillMenu(CMenu* filters_menu, GraphStudio::Favorites* favori
 
 void CFavoritesForm::UpdateTree()
 {
-	GraphStudio::Favorites	*favorites = GraphStudio::Favorites::GetInstance();
+	GraphStudio::BookmarkedFilters	*favorites = CFavoritesForm::GetFavoriteFilters();
 	if (!favorites) return ;
 
 	int i, j;
 	for (i=0; i<favorites->groups.GetCount(); i++) {
-		GraphStudio::FavoriteGroup	*group = favorites->groups[i];
+		GraphStudio::BookmarkedGroup	*group = favorites->groups[i];
 		if (group->item == NULL) {
 			group->item = tree.InsertItem(group->name, 1, 1, TVI_ROOT);
 			tree.SetItemData(group->item, (DWORD_PTR)group);
@@ -260,7 +266,7 @@ void CFavoritesForm::UpdateTree()
 	
 		// scan through filters
 		for (j=0; j<group->filters.GetCount(); j++) {
-			GraphStudio::FavoriteFilter *filter = group->filters[j];
+			GraphStudio::BookmarkedFilter *filter = group->filters[j];
 			if (filter->item == NULL) {
 				filter->item = tree.InsertItem(filter->name, 0, 0, group->item);
 				tree.SetItemData(filter->item, (DWORD_PTR)filter);
@@ -270,7 +276,7 @@ void CFavoritesForm::UpdateTree()
 
 	// scan through filters
 	for (j=0; j<favorites->filters.GetCount(); j++) {
-		GraphStudio::FavoriteFilter *filter = favorites->filters[j];
+		GraphStudio::BookmarkedFilter *filter = favorites->filters[j];
 		if (filter->item == NULL) {
 			filter->item = tree.InsertItem(filter->name, 0, 0, TVI_ROOT);
 			tree.SetItemData(filter->item, (DWORD_PTR)filter);
@@ -296,16 +302,16 @@ void CFavoritesForm::OnMenuRemovegroup()
 	if (!menu_fired_item) return ;
 
 	// remove whole group
-	GraphStudio::Favorites		*favorites = GraphStudio::Favorites::GetInstance();
-	GraphStudio::FavoriteItem	*it = (GraphStudio::FavoriteItem*)tree.GetItemData(menu_fired_item);
+	GraphStudio::BookmarkedFilters		*favorites = CFavoritesForm::GetFavoriteFilters();
+	GraphStudio::BookmarkedItem	*it = (GraphStudio::BookmarkedItem*)tree.GetItemData(menu_fired_item);
 	if (it->type != 1) {
 		ASSERT(FALSE);
 	}
 
 	int i;
-	GraphStudio::FavoriteGroup	*group = (GraphStudio::FavoriteGroup*)it;
+	GraphStudio::BookmarkedGroup	*group = (GraphStudio::BookmarkedGroup*)it;
 	for (i=0; i<group->filters.GetCount(); i++) {
-		GraphStudio::FavoriteFilter	*filter = group->filters[i];
+		GraphStudio::BookmarkedFilter	*filter = group->filters[i];
 		if (filter->item) {
 			tree.DeleteItem(filter->item);
 			filter->item = NULL;
@@ -329,13 +335,13 @@ void CFavoritesForm::OnMenuRemovefilter()
 {
 	if (!menu_fired_item) return ;
 
-	GraphStudio::Favorites		*favorites = GraphStudio::Favorites::GetInstance();
-	GraphStudio::FavoriteItem	*it = (GraphStudio::FavoriteItem*)tree.GetItemData(menu_fired_item);
+	GraphStudio::BookmarkedFilters		*favorites = CFavoritesForm::GetFavoriteFilters();
+	GraphStudio::BookmarkedItem	*it = (GraphStudio::BookmarkedItem*)tree.GetItemData(menu_fired_item);
 	if (it->type != 0) {
 		ASSERT(FALSE);
 	}
 
-	GraphStudio::FavoriteFilter	*filter = (GraphStudio::FavoriteFilter*)it;
+	GraphStudio::BookmarkedFilter	*filter = (GraphStudio::BookmarkedFilter*)it;
 
 	// if it has no parent it's a top group filter
 	if (filter->parent == NULL) {
@@ -376,7 +382,7 @@ void CFavoritesForm::OnNMRclickTreeFavorites(NMHDR *pNMHDR, LRESULT *pResult)
 
 	// check if it is a group or not
 	if (item) {
-		GraphStudio::FavoriteItem	*it = (GraphStudio::FavoriteItem*)tree.GetItemData(item);
+		GraphStudio::BookmarkedItem	*it = (GraphStudio::BookmarkedItem*)tree.GetItemData(item);
 		if (!it) return ;
 
 		if (it->type == 0) {
@@ -404,8 +410,8 @@ void CFavoritesForm::OnMenuCreategroup()
 		CString	new_name = newgroupdlg.text;
 
 		// try to add the group
-		GraphStudio::Favorites		*favorites = GraphStudio::Favorites::GetInstance();
-		GraphStudio::FavoriteGroup	*group = favorites->AddGroup(new_name);
+		GraphStudio::BookmarkedFilters		*favorites = CFavoritesForm::GetFavoriteFilters();
+		GraphStudio::BookmarkedGroup	*group = favorites->AddGroup(new_name);
 		if (!group) {
 			// error, this name already exists
 			MessageBeep(MB_ICONERROR);
@@ -448,11 +454,11 @@ void CFavoritesForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		if (item != NULL) {
 
 			// delete this item
-			GraphStudio::Favorites		*favorites = GraphStudio::Favorites::GetInstance();
-			GraphStudio::FavoriteItem	*it = (GraphStudio::FavoriteItem*)tree.GetItemData(item);
+			GraphStudio::BookmarkedFilters		*favorites = CFavoritesForm::GetFavoriteFilters();
+			GraphStudio::BookmarkedItem	*it = (GraphStudio::BookmarkedItem*)tree.GetItemData(item);
 			if (it->type == 0) {
 				// it's a filter
-				GraphStudio::FavoriteFilter	*filter = (GraphStudio::FavoriteFilter*)it;
+				GraphStudio::BookmarkedFilter	*filter = (GraphStudio::BookmarkedFilter*)it;
 
 				// if it has no parent it's a top group filter
 				if (filter->parent == NULL) {					
@@ -473,9 +479,9 @@ void CFavoritesForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			if (it->type == 1) {
 				// it's a group
 				int i;
-				GraphStudio::FavoriteGroup	*group = (GraphStudio::FavoriteGroup*)it;
+				GraphStudio::BookmarkedGroup	*group = (GraphStudio::BookmarkedGroup*)it;
 				for (i=0; i<group->filters.GetCount(); i++) {
-					GraphStudio::FavoriteFilter	*filter = group->filters[i];
+					GraphStudio::BookmarkedFilter	*filter = group->filters[i];
 					if (filter->item) {
 						tree.DeleteItem(filter->item);
 						filter->item = NULL;
@@ -503,25 +509,25 @@ void CFavoritesForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 namespace GraphStudio
 {
 
-	int _FavoriteCompare(FavoriteItem *f1, FavoriteItem *f2)
+	int _FavoriteCompare(BookmarkedItem *f1, BookmarkedItem *f2)
 	{
 		CString s1 = f1->name; s1.MakeUpper();
 		CString s2 = f2->name; s2.MakeUpper();
 		return s1.Compare(s2);
 	}
 
-	void _FavoriteSwapItems(CArray<FavoriteItem*> *ar, int i, int j)
+	void _FavoriteSwapItems(CArray<BookmarkedItem*> *ar, int i, int j)
 	{	
 		if (i == j) return ;
-		FavoriteItem	*temp = ar->GetAt(i);
+		BookmarkedItem	*temp = ar->GetAt(i);
 		ar->SetAt(i, ar->GetAt(j));
 		ar->SetAt(j, temp);
 	}
 
-	void _FavoriteSort(CArray<FavoriteItem*> *ar, int lo, int hi)
+	void _FavoriteSort(CArray<BookmarkedItem*> *ar, int lo, int hi)
 	{
 		int i = lo, j = hi;
-		FavoriteItem *m;
+		BookmarkedItem *m;
 
 		// pivot
 		m = ar->GetAt( (lo+hi)>>1 );
@@ -541,7 +547,7 @@ namespace GraphStudio
 		if (i < hi) _FavoriteSort(ar, i, hi);
 	}
 
-	void SortFavoriteItems(CArray<FavoriteItem*> *ar)
+	void SortBookmarkedItems(CArray<BookmarkedItem*> *ar)
 	{
 		if (ar->GetCount() == 0) return ;
 		_FavoriteSort(ar, 0, ar->GetCount()-1);
@@ -549,24 +555,23 @@ namespace GraphStudio
 
 	//-------------------------------------------------------------------------
 	//
-	//	FavoriteFilter class
+	//	BookmarkedFilter class
 	//
 	//-------------------------------------------------------------------------
 
-	FavoriteFilter::FavoriteFilter() :
-		moniker_name(_T("")),
+	BookmarkedFilter::BookmarkedFilter() :
 		item(NULL),
 		parent(NULL)
 	{
 		type = 0;
 	}
 
-	FavoriteFilter::~FavoriteFilter()
+	BookmarkedFilter::~BookmarkedFilter()
 	{
 		// nic
 	}
 
-	void FavoriteFilter::FromTemplate(DSUtil::FilterTemplate &ft)
+	void BookmarkedFilter::FromTemplate(DSUtil::FilterTemplate &ft)
 	{
 		name = ft.name;
 		moniker_name = ft.moniker_name;
@@ -574,35 +579,35 @@ namespace GraphStudio
 
 	//-------------------------------------------------------------------------
 	//
-	//	FavoriteGroup class
+	//	BookmarkedGroup class
 	//
 	//-------------------------------------------------------------------------
 
-	FavoriteGroup::FavoriteGroup() :
+	BookmarkedGroup::BookmarkedGroup() :
 		item(NULL)
 	{
 		type = 1;
 	}
 
-	FavoriteGroup::~FavoriteGroup()
+	BookmarkedGroup::~BookmarkedGroup()
 	{
 		for (int i=0; i<filters.GetCount(); i++) {
-			FavoriteFilter	*filter = filters[i];
+			BookmarkedFilter	*filter = filters[i];
 			delete filter;
 		}
 		filters.RemoveAll();
 	}
 
-	bool FavoriteGroup::IsFavorite(DSUtil::FilterTemplate &ft)
+	bool BookmarkedGroup::IsBookmarked(DSUtil::FilterTemplate &ft)
 	{
 		for (int i=0; i<filters.GetCount(); i++) {
-			FavoriteFilter *f = filters[i];
+			BookmarkedFilter *f = filters[i];
 			if (f->moniker_name == ft.moniker_name) return true;
 		}
 		return false;
 	}
 
-	void FavoriteGroup::RemoveFilter(FavoriteFilter *filter)
+	void BookmarkedGroup::RemoveFilter(BookmarkedFilter *filter)
 	{
 		for (int i=0; i<filters.GetCount(); i++) {
 			if (filters[i] == filter) {
@@ -612,7 +617,7 @@ namespace GraphStudio
 		}
 	}
 
-	HTREEITEM FavoriteGroup::RemoveFavorite(DSUtil::FilterTemplate &ft)
+	HTREEITEM BookmarkedGroup::RemoveBookmark(DSUtil::FilterTemplate &ft)
 	{
 		HTREEITEM ret = NULL;
 		for (int i=0; i<filters.GetCount(); i++) {
@@ -628,27 +633,21 @@ namespace GraphStudio
 
 	//-------------------------------------------------------------------------
 	//
-	//	Favorites
+	//	BookmarkedFilters
 	//
 	//-------------------------------------------------------------------------
 
-	Favorites		g_favorites;
-
-	Favorites::Favorites()
+	BookmarkedFilters::BookmarkedFilters(const CString& reg_name)
+		: registry_name(reg_name)
 	{
 	}
 
-	Favorites::~Favorites()
+	BookmarkedFilters::~BookmarkedFilters()
 	{
 		Clear();
 	}
 
-	Favorites *Favorites::GetInstance()
-	{
-		return &g_favorites;
-	}
-
-	void Favorites::Clear()
+	void BookmarkedFilters::Clear()
 	{
 		int i;
 		for (i=0; i<groups.GetCount(); i++) delete groups[i];
@@ -657,11 +656,13 @@ namespace GraphStudio
 		filters.RemoveAll();
 	}
 
-	int Favorites::Load()
+	#define REGISTRY_BASE_KEY "Software\\MONOGRAM\\MONOGRAM GraphStudio"
+
+	int BookmarkedFilters::Load()
 	{
 		Clear();
 
-		CString		keyname = _T("Software\\MONOGRAM\\MONOGRAM GraphStudio\\Favorites");
+		CString		keyname = CString(_T(REGISTRY_BASE_KEY)) + _T('\\') + registry_name;
 		CRegKey		key;
 		LONG		ok;
 
@@ -710,7 +711,7 @@ namespace GraphStudio
 										  &cbSecurityDescriptor, &ftLastWriteTime); 
 
 				// add new group instance
-				FavoriteGroup	*group = new FavoriteGroup();
+				BookmarkedGroup	*group = new BookmarkedGroup();
 				group->name = CString(achValue);
 				groups.Add(group);
 
@@ -729,7 +730,7 @@ namespace GraphStudio
 						retCode = key_group.QueryStringValue(value_name, val, &len);
 						if (retCode == ERROR_SUCCESS) {
 
-							FavoriteFilter	*filter = new FavoriteFilter();
+							BookmarkedFilter	*filter = new BookmarkedFilter();
 							filter->name = CString(val);
 							filter->moniker_name = CString(value_name);
 							filter->item = NULL;		// will be added later by the form
@@ -766,7 +767,7 @@ namespace GraphStudio
 				retCode = key.QueryStringValue(value_name, val, &len);
 				if (retCode == ERROR_SUCCESS) {
 
-					FavoriteFilter	*filter = new FavoriteFilter();
+					BookmarkedFilter	*filter = new BookmarkedFilter();
 					filter->name = CString(val);
 					filter->moniker_name = CString(value_name);
 					filter->item = NULL;		// will be added later by the form
@@ -779,9 +780,9 @@ namespace GraphStudio
 		return 0;
 	}
 
-	int Favorites::Save()
+	int BookmarkedFilters::Save()
 	{
-		CString		keyname = _T("Software\\MONOGRAM\\MONOGRAM GraphStudio");
+		CString		keyname = _T(REGISTRY_BASE_KEY);
 		CRegKey		key;
 		LONG		ok;
 		int			i;
@@ -790,10 +791,10 @@ namespace GraphStudio
 		ok = key.Create(HKEY_CURRENT_USER, keyname);
 		if (ok != ERROR_SUCCESS) return -1;
 
-		key.RecurseDeleteKey(_T("Favorites"));
+		key.RecurseDeleteKey(registry_name);
 		key.Close();
 
-		keyname += _T("\\Favorites");
+		keyname += CString(_T('\\')) + registry_name;
 		ok = key.Create(HKEY_CURRENT_USER, keyname);
 		if (ok != ERROR_SUCCESS) return -1;
 
@@ -801,8 +802,8 @@ namespace GraphStudio
 
 		// iterate through groups
 		for (i=0; i<groups.GetCount(); i++) {
-			FavoriteGroup	*group = groups[i];
-			CString	groupname = keyname + _T("\\Favorites") + group->name;
+			BookmarkedGroup	*group = groups[i];
+			CString	groupname = keyname + _T("\\") + registry_name + group->name;
 
 			CRegKey	groupkey;
 			ok = groupkey.Create(key, group->name);
@@ -810,7 +811,7 @@ namespace GraphStudio
 
 				// now write filters
 				for (int j=0; j<group->filters.GetCount(); j++) {
-					FavoriteFilter	*filter = group->filters[j];
+					BookmarkedFilter	*filter = group->filters[j];
 					groupkey.SetStringValue(filter->moniker_name, filter->name);
 				}
 
@@ -820,7 +821,7 @@ namespace GraphStudio
 
 		// iterate through filters
 		for (int j=0; j<filters.GetCount(); j++) {
-			FavoriteFilter	*filter = filters[j];
+			BookmarkedFilter	*filter = filters[j];
 			key.SetStringValue(filter->moniker_name, filter->name);
 		}
 
@@ -829,13 +830,14 @@ namespace GraphStudio
 	}
 
 	// I/O on favorite filters
-	int Favorites::AddFavorite(DSUtil::FilterTemplate &ft)
+	int BookmarkedFilters::AddBookmark(DSUtil::FilterTemplate &ft)
 	{
 		// we already have this one
-		if (IsFavorite(ft)) return 0;
+		if (IsBookmarked(ft)) 
+			return 0;
 
 		// add a new filter
-		FavoriteFilter	*filt = new FavoriteFilter();
+		BookmarkedFilter	*filt = new BookmarkedFilter();
 		filt->FromTemplate(ft);
 		filt->parent = NULL;
 		filters.Add(filt);
@@ -843,7 +845,7 @@ namespace GraphStudio
 		return 0;
 	}
 
-	void Favorites::RemoveFilter(FavoriteFilter *filter)
+	void BookmarkedFilters::RemoveFilter(BookmarkedFilter *filter)
 	{
 		for (int i=0; i<filters.GetCount(); i++) {
 			if (filters[i] == filter) {
@@ -853,19 +855,19 @@ namespace GraphStudio
 		}
 	}
 
-	HTREEITEM Favorites::RemoveFavorite(DSUtil::FilterTemplate &ft)
+	HTREEITEM BookmarkedFilters::RemoveBookmark(DSUtil::FilterTemplate &ft)
 	{
 		int i;
 
 		// search in groups
 		for (i=0; i<groups.GetCount(); i++) {
-			HTREEITEM ret = groups[i]->RemoveFavorite(ft);
+			HTREEITEM ret = groups[i]->RemoveBookmark(ft);
 			if (ret != NULL) return ret;
 		}
 
 		for (i=0; i<filters.GetCount(); i++) {
 			if (filters[i]->moniker_name == ft.moniker_name) {
-				FavoriteFilter	*filter = filters[i];
+				BookmarkedFilter	*filter = filters[i];
 				filters.RemoveAt(i);
 				HTREEITEM ret = filter->item;
 				delete filter;
@@ -877,11 +879,11 @@ namespace GraphStudio
 		return NULL;
 	}
 
-	bool Favorites::IsFavorite(DSUtil::FilterTemplate &ft)
+	bool BookmarkedFilters::IsBookmarked(DSUtil::FilterTemplate &ft)
 	{
 		int i;
 		for (i=0; i<groups.GetCount(); i++) {
-			bool ok = groups[i]->IsFavorite(ft);
+			bool ok = groups[i]->IsBookmarked(ft);
 			if (ok) return true;
 		}
 
@@ -891,29 +893,29 @@ namespace GraphStudio
 		return false;
 	}
 
-	FavoriteGroup *Favorites::AddGroup(CString name)
+	BookmarkedGroup *BookmarkedFilters::AddGroup(CString name)
 	{
 		int i;
 		for (i=0; i<groups.GetCount(); i++) {
-			FavoriteGroup *g = groups[i];
+			BookmarkedGroup *g = groups[i];
 			if (g->name == name) return NULL;
 		}
 
-		FavoriteGroup *g = new FavoriteGroup();
+		BookmarkedGroup *g = new BookmarkedGroup();
 		g->name = name;
 		g->item = NULL;
 		groups.Add(g);
 		return g;
 	}
 
-	void Favorites::Sort()
+	void BookmarkedFilters::Sort()
 	{
 		// have the items sorted...
-		SortFavoriteItems((CArray<FavoriteItem*>*)&filters);
-		SortFavoriteItems((CArray<FavoriteItem*>*)&groups);
+		SortBookmarkedItems((CArray<BookmarkedItem*>*)&filters);
+		SortBookmarkedItems((CArray<BookmarkedItem*>*)&groups);
 
 		for (int i=0; i<groups.GetCount(); i++) {
-			SortFavoriteItems((CArray<FavoriteItem*>*)&groups[i]->filters);
+			SortBookmarkedItems((CArray<BookmarkedItem*>*)&groups[i]->filters);
 		}
 	}
 
@@ -944,7 +946,7 @@ namespace GraphStudio
 		NM_TREEVIEW* pTreeView = (NM_TREEVIEW*)pNMHDR;
 		*pResult = 0;
 	    
-		FavoriteItem	*item = (FavoriteItem*)GetItemData(pTreeView->itemNew.hItem);
+		BookmarkedItem	*item = (BookmarkedItem*)GetItemData(pTreeView->itemNew.hItem);
 		if (!item) return ;
 		if (item->type == 1) return ;			// we don't allow dragging of groups
 
@@ -1007,8 +1009,8 @@ namespace GraphStudio
 			if (m_hitemDrag == m_hitemDrop) return;
 
 			// find the group where the filter was dropped
-			Favorites		*favorites = Favorites::GetInstance();
-			FavoriteFilter	*filter = (FavoriteFilter*)GetItemData(m_hitemDrag);
+			BookmarkedFilters		*favorites = CFavoritesForm::GetFavoriteFilters();
+			BookmarkedFilter	*filter = (BookmarkedFilter*)GetItemData(m_hitemDrag);
 			ASSERT(filter && filter->type == 0);
 
 
@@ -1040,11 +1042,11 @@ namespace GraphStudio
 				favorites->filters.Add(filter);
 
 			} else {
-				FavoriteItem	*drop_item = (FavoriteItem*)GetItemData(m_hitemDrop);
+				BookmarkedItem	*drop_item = (BookmarkedItem*)GetItemData(m_hitemDrop);
 				if (drop_item->type == 1) {
 
 					// dropped into a group
-					FavoriteGroup *group = (FavoriteGroup *)drop_item;
+					BookmarkedGroup *group = (BookmarkedGroup *)drop_item;
 					filter->parent = group;
 					group->filters.Add(filter);
 
@@ -1060,7 +1062,7 @@ namespace GraphStudio
 					} else {
 
 						// custom group
-						FavoriteGroup	*group = (FavoriteGroup*)GetItemData(parent);
+						BookmarkedGroup	*group = (BookmarkedGroup*)GetItemData(parent);
 						filter->parent = group;
 						group->filters.Add(filter);
 

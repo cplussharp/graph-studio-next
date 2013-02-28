@@ -458,7 +458,7 @@ void CGraphView::OnInit()
 	UpdateMRUMenu();
 
 	// load favorites
-	GraphStudio::Favorites	*favorites = GraphStudio::Favorites::GetInstance();
+	GraphStudio::BookmarkedFilters	*favorites = CFavoritesForm::GetFavoriteFilters();
 
 	form_favorites = new CFavoritesForm();
 	form_favorites->view = this;
@@ -1789,11 +1789,11 @@ void CGraphView::OnFavoriteFilterClick(UINT nID)
 	filtersmenu->GetMenuItemInfo(nID, &info);
 
 	// let's insert the filter
-	GraphStudio::FavoriteFilter	*filter = (GraphStudio::FavoriteFilter *)info.dwItemData;
+	GraphStudio::BookmarkedFilter	*filter = (GraphStudio::BookmarkedFilter *)info.dwItemData;
 	InsertFilterFromFavorite(filter);
 }
 
-int CGraphView::InsertFilterFromFavorite(GraphStudio::FavoriteFilter *filter)
+int CGraphView::InsertFilterFromFavorite(GraphStudio::BookmarkedFilter *filter)
 {
 	CComPtr<IMoniker>		moniker;
 	CComPtr<IBaseFilter>	instance;

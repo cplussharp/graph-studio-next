@@ -1322,7 +1322,7 @@ namespace GraphStudio
     {
 		CMenu		submenu;
 		submenu.CreatePopupMenu();
-        GraphStudio::Favorites	*favorites = GraphStudio::Favorites::GetInstance();
+        GraphStudio::BookmarkedFilters	*favorites = CFavoritesForm::GetFavoriteFilters();
         
         CFavoritesForm::FillMenu(&submenu, favorites);
 
