@@ -139,7 +139,7 @@ public:
 	void OnFavoriteFilterClick(UINT nID);
 	void OnPreferredVideoRendererClick(UINT nID);
 	HRESULT InsertFilterFromTemplate(DSUtil::FilterTemplate &filter);
-	int InsertFilterFromFavorite(GraphStudio::FavoriteFilter *filter);
+	int InsertFilterFromFavorite(GraphStudio::BookmarkedFilter *filter);
 
 	// keyboard events
 	void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);

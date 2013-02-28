@@ -198,10 +198,10 @@ void CFiltersForm::OnComboCategoriesChange()
 	DSUtil::FilterTemplates	filters;
 
 	if (item_data == (DSUtil::FilterCategory*)CATEGORY_FAVORITES) {
-		const GraphStudio::Favorites * const favorites = GraphStudio::Favorites::GetInstance();
+		const GraphStudio::BookmarkedFilters * const favorites = CFavoritesForm::GetFavoriteFilters();
 
 		for (int i=0; i<favorites->filters.GetCount(); i++) {
-			GraphStudio::FavoriteFilter* const fav = favorites->filters[i];
+			GraphStudio::BookmarkedFilter* const fav = favorites->filters[i];
 			DSUtil::FilterTemplate filter_template;
 			filter_template.LoadFromMoniker(fav->moniker_name);
 			filters.filters.Add(filter_template);
@@ -452,8 +452,8 @@ void CFiltersForm::OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult)
 			tree_details.BuildPropertyTree(&info);
 
 			// favorite filter ?
-			GraphStudio::Favorites	*favorites = GraphStudio::Favorites::GetInstance();
-			if (favorites->IsFavorite(*filter)) {
+			GraphStudio::BookmarkedFilters	*favorites = CFavoritesForm::GetFavoriteFilters();
+			if (favorites->IsBookmarked(*filter)) {
 				check_favorite.SetCheck(TRUE);
 			} else {
 				check_favorite.SetCheck(FALSE);
@@ -491,7 +491,6 @@ void CFiltersForm::OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult)
 		}
 		*/
 	}
-
 }
 
 void CFiltersForm::OnBnClickedCheckFavorite()
@@ -500,15 +499,15 @@ void CFiltersForm::OnBnClickedCheckFavorite()
 	if (filter) {
 
 		BOOL					check		= check_favorite.GetCheck();
-		GraphStudio::Favorites	*favorites	= GraphStudio::Favorites::GetInstance();
+		GraphStudio::BookmarkedFilters	*favorites	= CFavoritesForm::GetFavoriteFilters();
 
 		if (check) {
-			favorites->AddFavorite(*filter);
+			favorites->AddBookmark(*filter);
 			if (view && view->form_favorites) {
 				view->form_favorites->UpdateTree();
 			}
 		} else {
-			HTREEITEM item = favorites->RemoveFavorite(*filter);
+			HTREEITEM item = favorites->RemoveBookmark(*filter);
 			if (item != NULL) {
 				// remove this item
 				if (view && view->form_favorites) {

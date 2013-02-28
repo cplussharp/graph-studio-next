@@ -10,34 +10,34 @@
 namespace GraphStudio
 {
 
-	class FavoriteItem
+	class BookmarkedItem
 	{
 	public:
 		int			type;
-		CString			name;				// filter name
+		CString		name;				// filter name
 	public:
-		FavoriteItem() : type(0), name(_T("")) { }
-		virtual ~FavoriteItem() { }
+		BookmarkedItem() : type(0), name(_T("")) { }
+		virtual ~BookmarkedItem() { }
 	};
 
-	void SortFavoriteItems(CArray<FavoriteItem*> *ar);
+	void SortBookmarkedItems(CArray<BookmarkedItem*> *ar);
 
-	class FavoriteGroup;
+	class BookmarkedGroup;
 
 	//-------------------------------------------------------------------------
 	//
-	//	FavoriteFilter class
+	//	BookmarkedFilter class
 	//
 	//-------------------------------------------------------------------------
-	class FavoriteFilter : public FavoriteItem
+	class BookmarkedFilter : public BookmarkedItem
 	{
 	public:
 		CString			moniker_name;
 		HTREEITEM		item;				// helper
-		FavoriteGroup	*parent;			// parent group
+		BookmarkedGroup	*parent;			// parent group
 	public:
-		FavoriteFilter();
-		virtual ~FavoriteFilter();
+		BookmarkedFilter();
+		virtual ~BookmarkedFilter();
 
 		// helpers
 		void FromTemplate(DSUtil::FilterTemplate &ft);
@@ -45,51 +45,52 @@ namespace GraphStudio
 
 	//-------------------------------------------------------------------------
 	//
-	//	FavoriteGroup class
+	//	BookmarkedGroup class
 	//
 	//-------------------------------------------------------------------------
-	class FavoriteGroup : public FavoriteItem
+	class BookmarkedGroup : public BookmarkedItem
 	{
 	public:
-		CArray<FavoriteFilter*>	filters;
+		CArray<BookmarkedFilter*>	filters;
 		HTREEITEM				item;
 	public:
-		FavoriteGroup();
-		virtual ~FavoriteGroup();
+		BookmarkedGroup();
+		virtual ~BookmarkedGroup();
 
-		// removing favorite filte
-		HTREEITEM RemoveFavorite(DSUtil::FilterTemplate &ft);
-		bool IsFavorite(DSUtil::FilterTemplate &ft);
-		void RemoveFilter(FavoriteFilter *filter);
+		// removing bookmarked items
+		HTREEITEM RemoveBookmark(DSUtil::FilterTemplate &ft);
+		bool IsBookmarked(DSUtil::FilterTemplate &ft);
+		void RemoveFilter(BookmarkedFilter *filter);
 	};
 
 	//-------------------------------------------------------------------------
 	//
-	//	Favorites
+	//	BookmarkedFilters
 	//
 	//-------------------------------------------------------------------------
-	class Favorites
+	class BookmarkedFilters
 	{
 	public:
-		CArray<FavoriteGroup*>	groups;			// our groups
-		CArray<FavoriteFilter*>	filters;		// our filters
+		CArray<BookmarkedGroup*>	groups;			// our groups
+		CArray<BookmarkedFilter*>	filters;		// our filters
+		CString						registry_name;
+
 	public:
-		Favorites();
-		virtual ~Favorites();
-		static Favorites *GetInstance();
+		BookmarkedFilters(const CString& reg_name);
+		virtual ~BookmarkedFilters();
 
 		// load/save from registry
 		int Load();
 		int Save();
 		void Clear();
 
-		// I/O on favorite filters
-		int AddFavorite(DSUtil::FilterTemplate &ft);
-		HTREEITEM RemoveFavorite(DSUtil::FilterTemplate &ft);
-		bool IsFavorite(DSUtil::FilterTemplate &ft);
-		void RemoveFilter(FavoriteFilter *filter);
+		// I/O on bookmarked filters
+		int AddBookmark(DSUtil::FilterTemplate &ft);
+		HTREEITEM RemoveBookmark(DSUtil::FilterTemplate &ft);
+		bool IsBookmarked(DSUtil::FilterTemplate &ft);
+		void RemoveFilter(BookmarkedFilter *filter);
 
-		FavoriteGroup *AddGroup(CString name);
+		BookmarkedGroup *AddGroup(CString name);
 		void Sort();
 	};
 
@@ -146,6 +147,9 @@ public:
 	CFavoritesForm(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CFavoritesForm();
 
+	// Access to favorite filters singleton
+	static GraphStudio::BookmarkedFilters * GetFavoriteFilters();
+
 	// Dialog Data
 	enum { IDD = IDD_DIALOG_FAVORITES };
 
@@ -158,7 +162,7 @@ public:
 	void UpdateFavoriteMenu();
 	void RemoveFilter(HTREEITEM item);
 
-    static int FillMenu(CMenu* filters_menu, GraphStudio::Favorites* favorites, int offset = 0);
+    static int FillMenu(CMenu* filters_menu, GraphStudio::BookmarkedFilters* favorites, int offset = 0);
 
 	void OnNMRclickTreeFavorites(NMHDR *pNMHDR, LRESULT *pResult);
 	void OnMenuCreategroup();
