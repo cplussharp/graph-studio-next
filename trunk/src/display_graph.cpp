@@ -2943,6 +2943,15 @@ namespace GraphStudio
 			// calculate position of next column that leaves enough space for this filter
 			const int next_column_x = DisplayGraph::NextGridPos(current_column.x + width + DisplayGraph::g_filterXGap);
 
+			if (column+1 < graph->columns.GetCount()
+					&& next_column_x > graph->columns[column+1].x) {		// right of this filter is further right than next column x position
+				const int dif = next_column_x - graph->columns[column+1].x;
+				// move this and all following columns right to line up with this filter
+				for (int i=column+1; i<graph->columns.GetCount(); i++) {
+					graph->columns[i].x += dif;
+				}
+			}
+
 			// position downstream filters recursively
 			for (int i=0; i<output_pins.GetCount(); i++) {
 				Pin *pin = output_pins[i];
