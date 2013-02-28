@@ -26,7 +26,9 @@ namespace GraphStudio
 		enum {
 			ACTION_NONE			= 0,
 			ACTION_SELECT		= 1,
-			ACTION_CREATE		= 2
+			ACTION_CREATE		= 2,
+			ACTION_REJECT		= 3,
+			ACTION_TIMEOUT		= 4
 		};
 
 		int			type;

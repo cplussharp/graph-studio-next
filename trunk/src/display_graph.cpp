@@ -3570,6 +3570,15 @@ namespace GraphStudio
 		/**********************************************************************
 			Check for never-ending render operation.
 		***********************************************************************/
+
+		// we've already stop accepting filters - graph builder will run out of options
+		// and the operation will stop
+		if (!graph->params->render_can_proceed) {
+			return VFW_E_TIMEOUT;
+		}
+
+		bool timeout = false;
+		
 		if (graph->params->abort_timeout && graph->params->in_render) {
 
 			DWORD		timenow = GetTickCount();
@@ -3580,26 +3589,32 @@ namespace GraphStudio
 	
 				// TODO: perhaps display some error message
 				graph->params->render_can_proceed = false;
-			}
+				timeout = true;
 
-			// we stop accepting filters - graph builder will run out of options
-			// and the operation will stop
-			if (!graph->params->render_can_proceed) {
-				return E_FAIL;
 			}
 		}
 
 		/**********************************************************************
 			List of filters used in a render operation
 		***********************************************************************/
+		
+		bool filter_blacklisted = false;
 		RenderAction	ra;
 
 		// moniker name
 		LPOLESTR	moniker_name;
 		hr = pMon->GetDisplayName(NULL, NULL, &moniker_name);
 		if (SUCCEEDED(hr)) {
-			ra.type	= RenderAction::ACTION_SELECT;
 			ra.displ_name = CString(moniker_name);
+
+			filter_blacklisted = CFavoritesForm::GetBlacklistedFilters()->ContainsMoniker(ra.displ_name);
+
+			if (filter_blacklisted)
+				ra.type	= RenderAction::ACTION_REJECT;
+			else if (timeout)
+				ra.type	= RenderAction::ACTION_TIMEOUT;
+			else
+				ra.type	= RenderAction::ACTION_SELECT;
 
 			IMalloc *alloc = NULL;
 			hr = CoGetMalloc(1, &alloc);
@@ -3649,7 +3664,12 @@ namespace GraphStudio
 		}
 	#endif
 
-		return NOERROR;
+		if (timeout)
+			return VFW_E_TIMEOUT;
+		else if (filter_blacklisted)
+			return E_FAIL;
+		else
+			return S_OK;
 	}
 
 	STDMETHODIMP GraphCallbackImpl::CreatedFilter(IBaseFilter *pFilter)

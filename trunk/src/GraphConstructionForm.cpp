@@ -139,53 +139,66 @@ void CGraphConstructionForm::GenerateHTML(CString &text, GraphStudio::RenderPara
 		RenderAction		&action = params->render_actions[i];
 		CString				item, t;
 
-		if (action.type == RenderAction::ACTION_SELECT) {
+		switch (action.type) {
+			case RenderAction::ACTION_SELECT:
+			case RenderAction::ACTION_REJECT:
+			case RenderAction::ACTION_TIMEOUT:
+			{
+				CString color, action_name;
 
-			DSUtil::FilterTemplate		templ;
-			templ.LoadFromMoniker(action.displ_name);
-			item = _T("<tr bgcolor=\"#8D8DF0\">");
+				switch (action.type) {
+					case RenderAction::ACTION_SELECT:	color=_T("8D8DF0");		action_name=_T("Selected");		break;
+					case RenderAction::ACTION_REJECT:	color=_T("FF0000");		action_name=_T("Rejected");		break;
+					case RenderAction::ACTION_TIMEOUT:	color=_T("00F000");		action_name=_T("Timeout");		break;
+				}
 
-				t.Format(_T("%5.3f sec"), action.time_ms / 1000.0);
-				item += _T("<td width=100>") + t + _T("</td>");
-				item += _T("<td width=90% colspan=2>Selected : ") + templ.name + _T("</td>");
+				DSUtil::FilterTemplate		templ;
+				templ.LoadFromMoniker(action.displ_name);
+				item = _T("<tr bgcolor=\"#") + color + _T("\">");
 
-			item += _T("</tr>\n");
-			text += item;
+					t.Format(_T("%5.3f sec"), action.time_ms / 1000.0);
+					item += _T("<td width=100>") + t + _T("</td>");
+					item += _T("<td width=90% colspan=2>") + action_name + _T(" : ") + templ.name + _T("</td>");
 
-		} else
-		if (action.type == RenderAction::ACTION_CREATE) {
-
-			PropItem			info(_T("info"));
-			GetFilterDetails(action.clsid, &info);
-
-			// find for the name
-			CString				name = _T("Unknown Filter");
-			int					i;
-			for (i=0; i<info.GetCount(); i++) {				
-				PropItem		*item = info.GetItem(i);
-				if (item->name == _T("Object Name")) name = item->value;
+				item += _T("</tr>\n");
+				text += item;
 			}
+			break;
 
-			item = _T("<tr bgcolor=\"#D0D0D0\">");
+			case RenderAction::ACTION_CREATE:
+			{
+				PropItem			info(_T("info"));
+				GetFilterDetails(action.clsid, &info);
 
-				t.Format(_T("%5.3f sec"), action.time_ms / 1000.0);
-				item += _T("<td width=100>") + t + _T("</td>");
-				item += _T("<td width=90% colspan=2>Created : ") + name + _T("</td>");
+				// find for the name
+				CString				name = _T("Unknown Filter");
+				int					i;
+				for (i=0; i<info.GetCount(); i++) {				
+					PropItem		*item = info.GetItem(i);
+					if (item->name == _T("Object Name")) name = item->value;
+				}
 
-			item += _T("</tr>\n");
-			text += item;
+				item = _T("<tr bgcolor=\"#D0D0D0\">");
 
-			// find out what value to set for rowspan
-			int rowspan = get_html_count(&info);
+					t.Format(_T("%5.3f sec"), action.time_ms / 1000.0);
+					item += _T("<td width=100>") + t + _T("</td>");
+					item += _T("<td width=90% colspan=2>Created : ") + name + _T("</td>");
 
-			CString		html_list, it;
-			it.Format(_T("<tr><td rowspan=%d></td>"), rowspan);
-			render_html_list(&info, html_list);
-			it += html_list;
+				item += _T("</tr>\n");
+				text += item;
 
-			text += it;
+				// find out what value to set for rowspan
+				int rowspan = get_html_count(&info);
+
+				CString		html_list, it;
+				it.Format(_T("<tr><td rowspan=%d></td>"), rowspan);
+				render_html_list(&info, html_list);
+				it += html_list;
+
+				text += it;
+			}
+			break;
 		}
-
 	}
 
 	text += _T("</table></html>\n");
