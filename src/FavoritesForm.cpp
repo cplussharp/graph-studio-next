@@ -35,6 +35,12 @@ END_MESSAGE_MAP()
 //-----------------------------------------------------------------------------
 
 GraphStudio::BookmarkedFilters	g_favorites(_T("Favorites"));
+GraphStudio::BookmarkedFilters	g_blacklisted(_T("Blacklisted"));
+
+GraphStudio::BookmarkedFilters* CFavoritesForm::GetBlacklistedFilters()
+{
+	return &g_blacklisted;
+}
 
 GraphStudio::BookmarkedFilters* CFavoritesForm::GetFavoriteFilters()
 {
