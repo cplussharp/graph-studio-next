@@ -613,6 +613,15 @@ namespace GraphStudio
 		return false;
 	}
 
+	bool BookmarkedGroup::ContainsMoniker(const CString& moniker_name)
+	{
+		for (int i=0; i<filters.GetCount(); i++) {
+			if (filters[i]->moniker_name == moniker_name) 
+				return true;
+		}
+		return false;
+	}
+
 	void BookmarkedGroup::RemoveFilter(BookmarkedFilter *filter)
 	{
 		for (int i=0; i<filters.GetCount(); i++) {
@@ -895,6 +904,21 @@ namespace GraphStudio
 
 		for (i=0; i<filters.GetCount(); i++) {
 			if (filters[i]->moniker_name == ft.moniker_name) return true;
+		}
+		return false;
+	}
+
+	bool BookmarkedFilters::ContainsMoniker(const CString & moniker_name)
+	{
+		int i;
+		for (i=0; i<groups.GetCount(); i++) {
+			if (groups[i]->ContainsMoniker(moniker_name))
+				return true;
+		}
+
+		for (i=0; i<filters.GetCount(); i++) {
+			if (filters[i]->moniker_name == moniker_name) 
+				return true;
 		}
 		return false;
 	}

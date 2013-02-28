@@ -60,6 +60,7 @@ namespace GraphStudio
 		// removing bookmarked items
 		HTREEITEM RemoveBookmark(DSUtil::FilterTemplate &ft);
 		bool IsBookmarked(DSUtil::FilterTemplate &ft);
+		bool ContainsMoniker(const CString& moniker_name);
 		void RemoveFilter(BookmarkedFilter *filter);
 	};
 
@@ -79,6 +80,7 @@ namespace GraphStudio
 		BookmarkedFilters(const CString& reg_name);
 		virtual ~BookmarkedFilters();
 
+
 		// load/save from registry
 		int Load();
 		int Save();
@@ -88,6 +90,7 @@ namespace GraphStudio
 		int AddBookmark(DSUtil::FilterTemplate &ft);
 		HTREEITEM RemoveBookmark(DSUtil::FilterTemplate &ft);
 		bool IsBookmarked(DSUtil::FilterTemplate &ft);
+		bool ContainsMoniker(const CString& moniker_display_name);
 		void RemoveFilter(BookmarkedFilter *filter);
 
 		BookmarkedGroup *AddGroup(CString name);
