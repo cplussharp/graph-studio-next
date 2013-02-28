@@ -35,6 +35,7 @@ BEGIN_MESSAGE_MAP(CFiltersForm, CDialog)
     ON_BN_CLICKED(IDC_BUTTON_REGISTER, &CFiltersForm::OnRegisterClick)
 	ON_BN_CLICKED(IDC_BUTTON_MERIT, &CFiltersForm::OnMeritClick)
 	ON_WM_CTLCOLOR()
+	ON_BN_CLICKED(IDC_CHECK_BLACKLIST, &CFiltersForm::OnBnClickedCheckBlacklist)
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -67,6 +68,7 @@ void CFiltersForm::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_BUTTON_PROPERTYPAGE, btn_propertypage);
     DDX_Control(pDX, IDC_BUTTON_UNREGISTER, btn_unregister);
     DDX_Control(pDX, IDC_CHECK_FAVORITE, check_favorite);
+    DDX_Control(pDX, IDC_CHECK_BLACKLIST, check_blacklist);
     DDX_Control(pDX, IDC_MFCLINK_SEARCH_ONLINE, m_search_online);
 }
 
@@ -191,6 +193,16 @@ void CFiltersForm::OnInitialize()
     m_pToolTip->Activate(TRUE);
 }
 
+static void EnumerateBookmarks(const CArray<GraphStudio::BookmarkedFilter*>& bookmarks, DSUtil::FilterTemplates& filters)
+{
+	for (int i=0; i<bookmarks.GetCount(); i++) {
+		GraphStudio::BookmarkedFilter* const bm = bookmarks[i];
+		DSUtil::FilterTemplate filter_template;
+		filter_template.LoadFromMoniker(bm->moniker_name);
+		filters.filters.Add(filter_template);
+	}
+}
+
 void CFiltersForm::OnComboCategoriesChange()
 {
 	const int item = combo_categories.GetCurSel();
@@ -198,17 +210,9 @@ void CFiltersForm::OnComboCategoriesChange()
 	DSUtil::FilterTemplates	filters;
 
 	if (item_data == (DSUtil::FilterCategory*)CATEGORY_FAVORITES) {
-		const GraphStudio::BookmarkedFilters * const favorites = CFavoritesForm::GetFavoriteFilters();
-
-		for (int i=0; i<favorites->filters.GetCount(); i++) {
-			GraphStudio::BookmarkedFilter* const fav = favorites->filters[i];
-			DSUtil::FilterTemplate filter_template;
-			filter_template.LoadFromMoniker(fav->moniker_name);
-			filters.filters.Add(filter_template);
-		}
-
+		EnumerateBookmarks(CFavoritesForm::GetFavoriteFilters()->filters, filters); 
 	} else if (item_data == (DSUtil::FilterCategory*)CATEGORY_BLACKLIST) {
-
+		EnumerateBookmarks(CFavoritesForm::GetBlacklistedFilters()->filters, filters); 
 	} else if (item_data) {
 		filters.Enumerate(*item_data);
 	}
@@ -332,8 +336,11 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 	btn_locate.SetWindowPos(NULL, rc.Width() - gap - rc2.Width(), rc.Height() - 2*(gap+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
 	btn_unregister.SetWindowPos(NULL, rc.Width() - gap - rc2.Width(), rc.Height() - 1*(gap+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
 
+    check_blacklist.GetWindowRect(&rc2);
+    check_blacklist.SetWindowPos(NULL, right_x + right_width / 2 - rc2.Width() / 2, rc.Height()- 100 +gap, rc2.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+
     m_search_online.GetWindowRect(&rc2);
-    m_search_online.SetWindowPos(NULL, right_x + right_width / 2 - rc2.Width() / 2, rc.Height()-100+gap, rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
+    m_search_online.SetWindowPos(NULL, right_x + right_width / 2 - rc2.Width() / 2, rc.Height()- 70 +gap, rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
 
 	// invalidate all controls
 	title.Invalidate();
@@ -452,12 +459,12 @@ void CFiltersForm::OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult)
 			tree_details.BuildPropertyTree(&info);
 
 			// favorite filter ?
-			GraphStudio::BookmarkedFilters	*favorites = CFavoritesForm::GetFavoriteFilters();
-			if (favorites->IsBookmarked(*filter)) {
-				check_favorite.SetCheck(TRUE);
-			} else {
-				check_favorite.SetCheck(FALSE);
-			}
+			GraphStudio::BookmarkedFilters * const favorites = CFavoritesForm::GetFavoriteFilters();
+			check_favorite.SetCheck(favorites->IsBookmarked(*filter));
+
+			// blacklisted filter
+			GraphStudio::BookmarkedFilters * const blacklisted = CFavoritesForm::GetBlacklistedFilters();
+			check_blacklist.SetCheck(blacklisted->IsBookmarked(*filter));
 
             // create search url
             LPOLESTR str;
@@ -490,6 +497,22 @@ void CFiltersForm::OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult)
 
 		}
 		*/
+	}
+}
+
+void CFiltersForm::OnBnClickedCheckBlacklist()
+{
+	DSUtil::FilterTemplate *filter = GetSelected();
+	if (filter) {
+		const BOOL	check = check_blacklist.GetCheck();
+		GraphStudio::BookmarkedFilters	* const blacklist	= CFavoritesForm::GetBlacklistedFilters();
+
+		if (check) {
+			blacklist->AddBookmark(*filter);
+		} else {
+			HTREEITEM item = blacklist->RemoveBookmark(*filter);
+		}
+		blacklist->Save();
 	}
 }
 

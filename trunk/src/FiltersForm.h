@@ -35,6 +35,7 @@ private:
 	CButton						btn_locate;
 	CButton						btn_merit;
 	CButton						check_favorite;
+	CButton						check_blacklist;
 	GraphStudio::FilterListCtrl	list_filters;
 	GraphStudio::TitleBar		title;
 	GraphStudio::PropertyTree	tree_details;
@@ -112,6 +113,8 @@ private:
 	afx_msg void OnMeritClick();
 	afx_msg void OnEnUpdateSearchString();
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	afx_msg void OnBnClickedCheckBlacklist();
+
 };
 
 int ConfigureInsertedFilter(IBaseFilter *filter, const CString& strFilterName);

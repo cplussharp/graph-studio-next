@@ -458,13 +458,15 @@ void CGraphView::OnInit()
 	UpdateMRUMenu();
 
 	// load favorites
-	GraphStudio::BookmarkedFilters	*favorites = CFavoritesForm::GetFavoriteFilters();
+	GraphStudio::BookmarkedFilters * const favorites = CFavoritesForm::GetFavoriteFilters();
 
 	form_favorites = new CFavoritesForm();
 	form_favorites->view = this;
 	favorites->Load();
 	form_favorites->DoCreateDialog();
 
+	GraphStudio::BookmarkedFilters * const blacklisted = CFavoritesForm::GetBlacklistedFilters();
+	blacklisted->Load();
 
 	// trick to refresh menu in a while...
 	SetTimer(1001, 20, NULL);

@@ -150,6 +150,9 @@ public:
 	// Access to favorite filters singleton
 	static GraphStudio::BookmarkedFilters * GetFavoriteFilters();
 
+	// Access to blacklisted filters singleton TODO move somewhere better
+	static GraphStudio::BookmarkedFilters * GetBlacklistedFilters();
+
 	// Dialog Data
 	enum { IDD = IDD_DIALOG_FAVORITES };
 

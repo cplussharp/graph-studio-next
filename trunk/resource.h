@@ -71,6 +71,7 @@
 #define IDC_STATIC_TITLE                1011
 #define IDC_BUTTON_MERIT                1011
 #define IDC_STATIC_SEPARATOR            1012
+#define IDC_CHECK_BLACKLIST             1012
 #define IDC_BUTTON_CLEAR                1013
 #define IDC_LIST_EVENTS                 1014
 #define IDC_BUTTON_COPY                 1015
@@ -202,7 +203,7 @@
 #define IDC_LIST_DATA                   1123
 #define IDC_SPIN_PREVIEWBYTECOUNT       1124
 #define IDC_STATIC_VERINFO              1125
-#define IDC_SEARCH_STRING				1126
+#define IDC_SEARCH_STRING               1126
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
