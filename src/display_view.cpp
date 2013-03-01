@@ -1361,12 +1361,13 @@ namespace GraphStudio
 	{
 		if (bookmarks && filter) {
 			DSUtil::FilterTemplate filter_template;
-			if (CFiltersForm::FilterTemplateFromCLSID(filter.clsid, filter_template)) {
-				if (bookmarks.ContainsMoniker(filter_template.moniker_name)) {
-					bookmarks.RemoveBookmark(filter_template);
+			if (CFiltersForm::FilterTemplateFromCLSID(filter->clsid, filter_template)) {
+				if (bookmarks->ContainsMoniker(filter_template.moniker_name)) {
+					bookmarks->RemoveBookmark(filter_template);
 				} else {
-					bookmarks.AddBookmark(filter_template);
+					bookmarks->AddBookmark(filter_template);
 				}
+				bookmarks->Save();
 			}
 		}
 	}
