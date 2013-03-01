@@ -43,6 +43,8 @@ namespace GraphStudio
         ON_COMMAND(ID_MPEG2DEMUX_CREATE_PSI_PIN, &DisplayView::OnMpeg2DemuxCreatePsiPin)
         ON_COMMAND(ID_CHOOSE_SOURCE_FILE, &DisplayView::OnChooseSourceFile)
         ON_COMMAND(ID_CHOOSE_DESTINATION_FILE, &DisplayView::OnChooseDestinationFile)
+        ON_COMMAND(ID_FILTER_FAVORITE, &DisplayView::OnFilterFavorite)
+        ON_COMMAND(ID_FILTER_BLACKLIST, &DisplayView::OnFilterBlacklist)
 
 		ON_COMMAND_RANGE(ID_STREAM_SELECT, ID_STREAM_SELECT+100, &DisplayView::OnSelectStream)
 		ON_COMMAND_RANGE(ID_COMPATIBLE_FILTER, ID_COMPATIBLE_FILTER+999, &DisplayView::OnCompatibleFilterClick)
@@ -190,6 +192,18 @@ namespace GraphStudio
 			p = menu.GetMenuItemCount();
 
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_DELETE_FILTER, _T("D&elete Selected"));
+
+			bool favorite = false;
+			bool blacklisted = false;
+
+			DSUtil::FilterTemplate filter_template;
+			if (CFiltersForm::FilterTemplateFromCLSID(current_filter->clsid, filter_template)) {
+				favorite = CFavoritesForm::GetFavoriteFilters()->ContainsMoniker(filter_template.moniker_name);
+				blacklisted = CFavoritesForm::GetBlacklistedFilters()->ContainsMoniker(filter_template.moniker_name);
+			}
+
+			menu.InsertMenu(p++, (favorite ? MF_CHECKED : MF_UNCHECKED) | MF_DISABLED | MF_BYPOSITION | MF_STRING, ID_FILTER_FAVORITE, _T("&Favorite"));
+			menu.InsertMenu(p++, (blacklisted ? MF_CHECKED : MF_UNCHECKED) | MF_DISABLED | MF_BYPOSITION | MF_STRING, ID_FILTER_BLACKLIST, _T("&Blacklist"));
 		}
 
 		/////////////////////// Inserting new filters
@@ -945,6 +959,8 @@ namespace GraphStudio
 			graph.SmartPlacement();
 			graph.Dirty();
 			Invalidate();
+		} else {
+            DSUtil::ShowError(hr,_T("Can't render pin"));
 		}
 		current_pin = NULL;
 	}
@@ -966,6 +982,8 @@ namespace GraphStudio
 			    graph.SmartPlacement();
 			    graph.Dirty();
 			    Invalidate();
+			} else {
+				DSUtil::ShowError(hr,_T("Can't remove pin"));
 		    }
         }
 		current_pin = NULL;
@@ -1337,4 +1355,30 @@ namespace GraphStudio
     {
         return 0;
     }
+
+	// Toggle the bookmark status of this Filter class
+	static void ToggleFilterClassBookmark(BookmarkedFilters* bookmarks, const Filter* filter)
+	{
+		if (bookmarks && filter) {
+			DSUtil::FilterTemplate filter_template;
+			if (CFiltersForm::FilterTemplateFromCLSID(filter.clsid, filter_template)) {
+				if (bookmarks.ContainsMoniker(filter_template.moniker_name)) {
+					bookmarks.RemoveBookmark(filter_template);
+				} else {
+					bookmarks.AddBookmark(filter_template);
+				}
+			}
+		}
+	}
+
+	void DisplayView::OnFilterFavorite()
+	{
+		ToggleFilterClassBookmark(CFavoritesForm::GetFavoriteFilters(), current_filter);
+	}
+
+	void DisplayView::OnFilterBlacklist()
+	{
+		ToggleFilterClassBookmark(CFavoritesForm::GetBlacklistedFilters(), current_filter);
+	}
 };
+

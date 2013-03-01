@@ -46,6 +46,8 @@ private:
 	// enumerated stuff
 	DSUtil::FilterCategories	categories;
 
+	static DSUtil::FilterTemplates		cached_templates;	// cache for searching
+
 	// view to work with
 	CGraphView					*view;
 
@@ -79,6 +81,8 @@ public:
 	virtual ~CFiltersForm();
 
 	BOOL DoCreateDialog();
+
+	static bool FilterTemplateFromCLSID(const GUID& clsid, DSUtil::FilterTemplate& filter_template);
 
 private:
 	// Dialog Data

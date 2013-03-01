@@ -860,7 +860,7 @@ namespace DSUtil
 		}
 	}
 
-	int FilterTemplates::Find(CString name, FilterTemplate *filter)
+	int FilterTemplates::FindTemplateByName(CString name, FilterTemplate *filter)
 	{
 		if (!filter) return -1;
 		for (int i=0; i<filters.GetCount(); i++) {
@@ -874,7 +874,7 @@ namespace DSUtil
 		return -1;
 	}
 
-	int FilterTemplates::Find(GUID clsid, FilterTemplate *filter)
+	int FilterTemplates::FindTemplateByCLSID(GUID clsid, FilterTemplate *filter)
 	{
 		if (!filter) return -1;
 		for (int i=0; i<filters.GetCount(); i++) {
@@ -892,7 +892,7 @@ namespace DSUtil
 	HRESULT FilterTemplates::CreateInstance(CString name, IBaseFilter **filter)
 	{
 		FilterTemplate	ft;
-		if (Find(name, &ft) >= 0) {
+		if (FindTemplateByName(name, &ft) >= 0) {
 			return ft.CreateInstance(filter);
 		}
 		return E_FAIL;
@@ -901,7 +901,7 @@ namespace DSUtil
 	HRESULT FilterTemplates::CreateInstance(GUID clsid, IBaseFilter **filter)
 	{
 		FilterTemplate	ft;
-		if (Find(clsid, &ft) >= 0) {
+		if (FindTemplateByCLSID(clsid, &ft) >= 0) {
 			return ft.CreateInstance(filter);
 		}
 		return E_FAIL;

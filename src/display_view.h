@@ -89,6 +89,8 @@ namespace GraphStudio
 		void OnDeleteFilter();
 		void OnChooseSourceFile();
 		void OnChooseDestinationFile();
+		void OnFilterFavorite();
+		void OnFilterBlacklist();
 
 		void MakeScreenshot(const CString& base_filename);
 
