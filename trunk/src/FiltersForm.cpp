@@ -38,6 +38,8 @@ BEGIN_MESSAGE_MAP(CFiltersForm, CDialog)
 	ON_BN_CLICKED(IDC_CHECK_BLACKLIST, &CFiltersForm::OnBnClickedCheckBlacklist)
 END_MESSAGE_MAP()
 
+DSUtil::FilterTemplates	CFiltersForm::cached_templates;
+
 //-----------------------------------------------------------------------------
 //
 //	CFiltersForm class
@@ -410,7 +412,8 @@ BOOL CFiltersForm::PreTranslateMessage(MSG *pmsg)
 			OnBnClickedButtonInsert();
 			return TRUE;
 		} else if (pmsg->wParam == VK_F5) {
-			OnComboCategoriesChange();			// Refresh filter list on F5
+			OnComboCategoriesChange();				// Refresh filter list on F5
+			cached_templates.filters.RemoveAll();	// Refresh cache for lookup of CLSID
 		}
 	}
 
@@ -955,4 +958,19 @@ HBRUSH CFiltersForm::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		pDC->SetTextColor(list_filters.GetSelectionColor());
 	}
    return hbr;
+}
+
+static inline void EnumerateAllFilters(DSUtil::FilterTemplates& templates)
+{
+	if (templates.filters.GetCount() == 0) {
+		templates.EnumerateDMO(GUID_NULL);
+		templates.EnumerateAllRegisteredFilters();
+	}
+}
+
+bool CFiltersForm::FilterTemplateFromCLSID(const GUID& clsid, DSUtil::FilterTemplate& filter_template)
+{
+	bool found =false;
+	EnumerateAllFilters(cached_templates);
+	return 0 == cached_templates.FindTemplateByCLSID(clsid, &filter_template);
 }

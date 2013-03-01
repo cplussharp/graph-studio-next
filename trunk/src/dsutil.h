@@ -207,8 +207,8 @@ namespace DSUtil
         int EnumerateDemuxer();
 
 		// vyhladavanie
-		int Find(CString name, FilterTemplate *filter);
-		int Find(GUID clsid, FilterTemplate *filter); 
+		int FindTemplateByName(CString name, FilterTemplate *filter);
+		int FindTemplateByCLSID(GUID clsid, FilterTemplate *filter); 
 		int AddFilters(IEnumMoniker *emoniker, int enumtype=0, GUID category=GUID_NULL);
 
 		// testing
