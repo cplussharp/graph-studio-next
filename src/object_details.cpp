@@ -112,7 +112,7 @@ namespace GraphStudio
 		return 0;
 	}
 
-	int CLSIDToString(CLSID clsid, CString &str)
+	void CLSIDToString(const CLSID& clsid, CString &str)
 	{
 		LPOLESTR	ostr = NULL;
 		StringFromCLSID(clsid, &ostr);
@@ -120,7 +120,6 @@ namespace GraphStudio
 			str = CString(ostr);
 			CoTaskMemFree(ostr);
 		}
-		return 0;
 	}
 
 	int GetObjectFile(GUID clsid, CString &filename)
