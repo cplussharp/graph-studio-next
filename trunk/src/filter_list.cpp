@@ -219,14 +219,18 @@ namespace GraphStudio
 		for (int i=0; i<filters.GetCount(); i++) {
 			DSUtil::FilterTemplate	&filter = filters[i];
 
-			if (CString(filter.name).MakeUpper().Find(search_str)<0)
-				continue;
-
-			int item = InsertItem(LVIF_PARAM | LVIF_TEXT, 0, filter.name, 0, 0, 0, (LPARAM)&filter);
+			if (CString(filter.name).MakeUpper().Find(search_str) < 0) {
+				CString clsid_str;
+				CLSIDToString(filter.clsid, clsid_str);
+				if (clsid_str.Find(search_str) < 0) {
+					continue;
+				}
+			}
+			const int item = InsertItem(LVIF_PARAM | LVIF_TEXT, 0, filter.name, 0, 0, 0, (LPARAM)&filter);
 			SetItemData(item, (DWORD_PTR)&filter);
 		}
-
 	}
+
 	void FilterListCtrl::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
 		if (nChar == VK_DELETE && search_str.GetLength())

@@ -20,7 +20,7 @@ namespace GraphStudio
 	int GetFileDetails(CString filename, PropItem *filedetails);
 	int GetFilterDetails(CLSID clsid, PropItem *info);
 
-	int CLSIDToString(CLSID clsid, CString &str);
+	void CLSIDToString(const CLSID& clsid, CString &str);
 
 	int GetObjectName(GUID clsid, CString &name);
 	int GetObjectFile(GUID clsid, CString &filename);
