@@ -1446,18 +1446,29 @@ void CGraphView::OnDropFiles(HDROP hDropInfo)
 			filename[name_length] = _T('\0');
 
 			HRESULT hr = S_OK;
-			if (source) {
-				hr = source->Load(filename, NULL);
-				needs_refresh = true;
-			} else if (sink) {
-				hr = sink->SetFileName(filename, NULL);
-				needs_refresh = true;
-			} else if (GetKeyState(VK_SHIFT) & 0x80) {
-				hr = AddFileSourceAsync(filename);
-			} else if (GetKeyState(VK_MENU) & 0x80) {
-				hr = AddSourceFilter(filename);
+			if (drop_filter) {
+				if (source) {
+					hr = source->Load(filename, NULL);
+					needs_refresh = true;
+				} else if (sink) {
+					hr = sink->SetFileName(filename, NULL);
+					needs_refresh = true;
+				} else {
+					// Let user know if they've dropped on an unsupported filter
+					DSUtil::ShowError(_T("Filter under cursor does not support IFileSourceFilter or ISinkFilter"));
+				}
 			} else {
-				hr = TryOpenFile(filename);
+				if (!(GetKeyState(VK_CONTROL) & 0x80)) {
+					OnNewClick();			// Clear graph before loading unless user has held down control when file is dropped
+				}
+
+				if (GetKeyState(VK_SHIFT) & 0x80) {
+					hr = AddFileSourceAsync(filename);
+				} else if (GetKeyState(VK_MENU) & 0x80) {
+					hr = AddSourceFilter(filename);
+				} else {
+					hr = TryOpenFile(filename);
+				}
 			}
 		}
 	}
@@ -1595,13 +1606,15 @@ void CGraphView::OnClearMRUClick()
 
 void CGraphView::OnMRUClick(UINT nID)
 {
-	int idx = nID - ID_LIST_MRU_FILE0;
+	const int idx = nID - ID_LIST_MRU_FILE0;
 
 	// let's try to open this one
-	if (idx < 0 || idx >= mru.list.GetCount()) return ;
+	if (idx < 0 || idx >= mru.list.GetCount()) 
+		return ;
 
-	CString	fn = mru.list[idx];
-	HRESULT hr = TryOpenFile(fn);
+	const CString	fn = mru.list[idx];
+	OnNewClick();
+	const HRESULT hr = TryOpenFile(fn);
 }
 
 void CGraphView::OnGraphScreenshot()
