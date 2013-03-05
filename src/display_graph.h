@@ -363,6 +363,8 @@ namespace GraphStudio
 		double							fps;
         DWORD                           rotRegister;
 
+		const GUID *					m_filter_graph_clsid;
+
 	public:
 		DisplayGraph();
 		virtual ~DisplayGraph();

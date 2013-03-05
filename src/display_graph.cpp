@@ -144,23 +144,20 @@ namespace GraphStudio
 	//-------------------------------------------------------------------------
 
 	DisplayGraph::DisplayGraph()
+		: callback(NULL)
+        , params(NULL)
+		, dc(NULL)
+		, is_remote(false)
+		, is_frame_stepping(false)
+		, uses_clock(true)
+        , rotRegister(0)
+		, dirty(true)
+		, m_filter_graph_clsid(&CLSID_FilterGraph)
 	{
-		callback = NULL;
-        params = NULL;
-
-		dc = NULL;
-		is_remote = false;
-		is_frame_stepping = false;
-		uses_clock = true;
-        rotRegister = 0;
-
 		HRESULT			hr = NOERROR;
 		graph_callback = new GraphCallbackImpl(NULL, &hr, this);
 		graph_callback->NonDelegatingAddRef();
-
 		MakeNew();
-
-		dirty = true;
 	}
 
 	DisplayGraph::~DisplayGraph()
@@ -266,8 +263,9 @@ namespace GraphStudio
 		// create new instance of filter graph
 		HRESULT hr;
 		do {
-			hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, (void**)&gb);
-			if (FAILED(hr)) break;
+			hr = gb.CoCreateInstance(*m_filter_graph_clsid, NULL, CLSCTX_INPROC_SERVER);
+			if (FAILED(hr)) 
+				break;
 
             AddToRot();
 
@@ -1593,7 +1591,7 @@ namespace GraphStudio
 		// attempt to load partial graph
 
 		for (int i=0; i<grf.grf_filters.GetCount(); i++) {
-			GRF_File::GRF_Filter& filter = grf.grf_filters[i];
+			GRF_Filter& filter = grf.grf_filters[i];
 			filter.ibasefilter.CoCreateInstance(filter.clsid, NULL, CLSCTX_INPROC_SERVER);
 
 			ASSERT(filter.ibasefilter);
@@ -1650,7 +1648,7 @@ namespace GraphStudio
 		}
 		
 		for (int i=0; i<grf.grf_connections.GetCount(); i++) {
-			const GRF_File::GRF_Connection& connection = grf.grf_connections[i];
+			const GRF_Connection& connection = grf.grf_connections[i];
 
 			RefreshFilters();
 

@@ -35,6 +35,38 @@
 	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+struct GRF_Filter 
+{
+	GRF_Filter()
+		: index(0)
+		, clsid(GUID_NULL)
+	{}
+
+	int						index;
+	CString					name;
+	GUID					clsid;
+	CString					source_filename;
+	CString					sink_filename;
+	CStringA				ipersiststream_data;	// can contain NULL characters
+
+	CComPtr<IBaseFilter>	ibasefilter;
+};
+
+struct GRF_Connection
+{
+	GRF_Connection()
+		: output_filter_index(0)
+		, input_filter_index(0)
+		, flags(0) {}
+
+	int						output_filter_index;	// 1-based filter index
+	CString					output_pin_id;
+	int						input_filter_index;		// 1-based filter index
+	CString					input_pin_id;
+	int						flags;
+	CMediaType				media_type;
+};
+
 class GRF_File
 {
 public:
@@ -44,38 +76,6 @@ public:
 	HRESULT Load(LPCWSTR fileName);
 
 public:
-
-	struct GRF_Filter 
-	{
-		GRF_Filter()
-			: index(0)
-			, clsid(GUID_NULL)
-		{}
-
-		int						index;
-		CString					name;
-		GUID					clsid;
-		CString					source_filename;
-		CString					sink_filename;
-		CStringA				ipersiststream_data;	// can contain NULL characters
-
-		CComPtr<IBaseFilter>	ibasefilter;
-	};
-
-	struct GRF_Connection
-	{
-		GRF_Connection()
-			: output_filter_index(0)
-			, input_filter_index(0)
-			, flags(0) {}
-
-		int						output_filter_index;	// 1-based filter index
-		CString					output_pin_id;
-		int						input_filter_index;		// 1-based filter index
-		CString					input_pin_id;
-		int						flags;
-		CMediaType				media_type;
-	};
 
 	CArray<GRF_Filter>			grf_filters;
 	CArray<GRF_Connection>		grf_connections;
