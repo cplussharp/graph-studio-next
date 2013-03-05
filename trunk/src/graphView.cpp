@@ -199,6 +199,12 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_USEINTERNALGRFFILEPARSER, &CGraphView::OnUpdateOptionsUseinternalgrffileparser)
 	ON_COMMAND(ID_FILE_ADDSOURCEFILTER, &CGraphView::OnFileAddSourceFilter)
 	ON_COMMAND(ID_FILE_ADDFILESOURCE, &CGraphView::OnFileAddFileSourceAsync)
+	ON_COMMAND(ID_CLSID_FILTERGRAPH, &CGraphView::OnClsidFiltergraph)
+	ON_COMMAND(ID_CLSID_FILTERGRAPH_NO_THREAD, &CGraphView::OnClsidFiltergraphNoThread)
+	ON_COMMAND(ID_CLSID_FILTERGRAPH_PRIVATE_THREAD, &CGraphView::OnClsidFiltergraphPrivateThread)
+	ON_UPDATE_COMMAND_UI(ID_CLSID_FILTERGRAPH, &CGraphView::OnUpdateClsidFiltergraph)
+	ON_UPDATE_COMMAND_UI(ID_CLSID_FILTERGRAPH_NO_THREAD, &CGraphView::OnUpdateClsidFiltergraphNoThread)
+	ON_UPDATE_COMMAND_UI(ID_CLSID_FILTERGRAPH_PRIVATE_THREAD, &CGraphView::OnUpdateClsidFiltergraphPrivateThread)
 	END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -208,29 +214,25 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 //-----------------------------------------------------------------------------
 
 CGraphView::CGraphView()
+	: form_construction(NULL)
+	, form_filters(NULL)
+	, form_events(NULL)
+	, form_textinfo(NULL)
+	, form_schedule(NULL)
+	, form_favorites(NULL)
+    , form_blacklist(NULL)
+	, form_progress(NULL)
+	, form_volume(NULL)
+	, form_seek(NULL)
+    , form_statistic(NULL)
+	, form_dec_performance(NULL)
+    , form_guidlookup(NULL)
+    , form_hresultlookup(NULL)
+	, document_type(NONE)
+	, last_start_time_ns(0LL)
+	, last_stop_time_ns(0LL)
+    , m_bExitOnStop(false)
 {
-	// TODO: add construction code here
-	form_construction = NULL;
-	form_filters = NULL;
-	form_events = NULL;
-	form_textinfo = NULL;
-	form_schedule = NULL;
-	form_favorites = NULL;
-    form_blacklist = NULL;
-	form_progress = NULL;
-	form_volume = NULL;
-	form_seek = NULL;
-    form_statistic = NULL;
-	form_dec_performance = NULL;
-    form_guidlookup = NULL;
-    form_hresultlookup = NULL;
-
-	document_type = NONE;
-
-	last_start_time_ns = 0LL;
-	last_stop_time_ns = 0LL;
-
-    m_bExitOnStop = false;
 }
 
 CGraphView::~CGraphView()
@@ -2274,4 +2276,39 @@ void CGraphView::OnFileAddFileSourceAsync()
 	if (!filename.IsEmpty()) {
 		AddFileSourceAsync(filename);
     }
+}
+
+
+void CGraphView::OnClsidFiltergraph()
+{
+	graph.m_filter_graph_clsid = &CLSID_FilterGraph;
+	OnNewClick();
+}
+
+void CGraphView::OnClsidFiltergraphNoThread()
+{
+	graph.m_filter_graph_clsid = &CLSID_FilterGraphNoThread;
+	OnNewClick();
+}
+
+void CGraphView::OnClsidFiltergraphPrivateThread()
+{
+	graph.m_filter_graph_clsid = &CLSID_FilterGraphPrivateThread;
+	OnNewClick();
+}
+
+void CGraphView::OnUpdateClsidFiltergraph(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(graph.m_filter_graph_clsid == &CLSID_FilterGraph);
+}
+
+void CGraphView::OnUpdateClsidFiltergraphNoThread(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(graph.m_filter_graph_clsid == &CLSID_FilterGraphNoThread);
+}
+
+
+void CGraphView::OnUpdateClsidFiltergraphPrivateThread(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(graph.m_filter_graph_clsid == &CLSID_FilterGraphPrivateThread);
 }

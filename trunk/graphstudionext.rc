@@ -1077,6 +1077,12 @@ BEGIN
         MENUITEM "Show &GUID of Known Types",   ID_OPTIONS_SHOWGUIDOFKNOWNTYPES
         MENUITEM "Exact Match &Lookup Mode",    ID_OPTIONS_EXACTMATCH
         MENUITEM "Use &MediaInfo",              ID_OPTIONS_USEMEDIAINFO
+        POPUP "Filter Graph CLSI&D"
+        BEGIN
+            MENUITEM "CLSID_&FilterGraph",          ID_CLSID_FILTERGRAPH
+            MENUITEM "CLSID_FilterGraph&NoThread",  ID_CLSID_FILTERGRAPH_NO_THREAD
+            MENUITEM "CLSID_FilterGraph&PrivateThread", ID_CLSID_FILTERGRAPH_PRIVATE_THREAD
+        END
     END
     POPUP "&Help"
     BEGIN
@@ -1395,6 +1401,19 @@ BEGIN
                             "Show Console Window and redirect stdout output to the console."
     ID_OPTIONS_USEINTERNALGRFFILEPARSER 
                             "Load GRF files using internal parser. Only use if opening normally fails."
+END
+
+STRINGTABLE
+BEGIN
+    ID_CLSID_FILTERGRAPH    "Use normal FilterGraph with worker thread (clears graph)"
+    ID_CLSID_FILTERGRAPH_NO_THREAD 
+                            "Use FilterGraph without worker thread (clears graph)"
+END
+
+STRINGTABLE
+BEGIN
+    ID_CLSID_FILTERGRAPH_PRIVATE_THREAD 
+                            "Use FilterGraph with private worker thread (clears graph). Not documented by Microsoft"
 END
 
 #endif    // English (United States) resources
