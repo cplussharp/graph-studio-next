@@ -441,8 +441,8 @@ namespace GraphStudio
 		}
 
 		if (mc) {		
-			Seek(0);
 			mc->Stop();
+			Seek(0);
 			return NOERROR;
 		}
 
