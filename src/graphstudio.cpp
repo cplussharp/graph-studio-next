@@ -8,6 +8,8 @@
 #include "stdafx.h"
 #include "graphstudio.h"
 
+#include "VersionNo.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

@@ -562,6 +562,9 @@
     <ClCompile Include="src\GRF_File.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\stdafx.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="src\filters\analyzer\analyzer.idl">
