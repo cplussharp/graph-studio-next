@@ -40,6 +40,8 @@
 // turns off MFC's hiding of some common and often safely ignored warning messages
 #define _AFX_ALL_WARNINGS
 
+#pragma warning( disable : 4995 4996 )		// TODO fix deprecated function references
+
 // Find memmory leaks
 //#define _CRTDBG_MAP_ALLOC
 
@@ -98,8 +100,6 @@ using namespace std;
 #pragma comment(lib, "xmllite.lib")
 #pragma comment(lib, "Version.lib")
 #include "xml_parser.h"
-
-#include "VersionNo.h"
 
 #include "dsutil.h"
 

@@ -342,7 +342,6 @@ HRESULT GRF_File::Load(LPCWSTR fileName)
 		TRACE(trace(TEXT(">>> END\n")));
 	}
 
-exit:
 	TRACE(trace(TEXT("*** hr = ") TRACEHR_STR TEXT("\n"),TRACEHR_REF(hr)));
 	TRACE(trace_close());
 	return hr;
