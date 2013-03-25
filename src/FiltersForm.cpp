@@ -129,7 +129,7 @@ void CFiltersForm::OnInitialize()
 	CRect	rc;
 	list_filters.GetClientRect(&rc);
 
-	DWORD	style = list_filters.GetExtendedStyle() | LVS_EX_DOUBLEBUFFER;
+	DWORD	style = list_filters.GetExtendedStyle() | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP;
 	list_filters.SetExtendedStyle(style);
 	list_filters.InsertColumn(0, _T("Filter Name"), 0, rc.Width() - 20);
 

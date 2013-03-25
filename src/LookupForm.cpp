@@ -117,7 +117,7 @@ void CLookupForm::OnInitialize()
 
     m_listCtrl.SortItems(CompareFunction, (DWORD_PTR)&sortData);
 
-    m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT );
+    m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP );
 }
 
 

@@ -76,7 +76,7 @@ void CBlacklistForm::OnInitialize()
     //int i = 0;
     //while(GraphStudio::InsertHresultLookup(i, &m_listCtrl)) i++;
 
-    m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT );
+    m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP );
 }
 
 

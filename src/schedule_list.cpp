@@ -57,7 +57,7 @@ namespace GraphStudio
 	void ScheduleList::Initialize()
 	{
 		DWORD ex_style = GetExtendedStyle();
-		ex_style = ex_style | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER;
+		ex_style = ex_style | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP;
 		SetExtendedStyle(ex_style);
 
 		// create header columns

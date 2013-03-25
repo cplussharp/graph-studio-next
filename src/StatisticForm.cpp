@@ -74,8 +74,7 @@ BOOL CStatisticForm::DoCreateDialog()
     m_listCtrl.InsertColumn(5, _T("Min"), LVCFMT_RIGHT, 60);
     m_listCtrl.InsertColumn(6, _T("Max"), LVCFMT_RIGHT, 60);
 
-    m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT );
-    m_listCtrl.SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, LVS_EX_DOUBLEBUFFER, LVS_EX_DOUBLEBUFFER);
+    m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP );
 
     SetTimer(0, 1000, NULL);
 

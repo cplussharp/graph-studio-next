@@ -42,7 +42,7 @@ BOOL CMediaTypeSelectForm::OnInitDialog()
 	media_types_list.GetClientRect(&clientRect);
 	const int columnWidth = (clientRect.Width() - GetSystemMetrics(SM_CXVSCROLL)) / 4;
 	media_types_list.SetView(LV_VIEW_DETAILS);
-    media_types_list.SetExtendedStyle( media_types_list.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT );
+    media_types_list.SetExtendedStyle( media_types_list.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP );
     media_types_list.InsertColumn(SUB_TYPE,		_T("Sub Type"),		LVCFMT_LEFT, columnWidth, SUB_TYPE); 
 	media_types_list.InsertColumn(FORMAT_TYPE,	_T("Format Type"),	LVCFMT_LEFT, columnWidth, FORMAT_TYPE); 
     media_types_list.InsertColumn(FORMAT_DETAILS,	_T("Format Details"),	LVCFMT_LEFT, columnWidth, FORMAT_DETAILS); 
