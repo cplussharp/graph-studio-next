@@ -1846,40 +1846,49 @@ namespace DSUtil
 			return E_POINTER;
 
 		HRESULT hr = S_FALSE;			// S_FALSE if user cancels media type selection and connection
-		bool cancelled = false;
 
 		PIN_DIRECTION direction = PINDIR_OUTPUT;
 		hr = pin1->QueryDirection(&direction);
 		if (FAILED(hr))
 			return hr;
 
+		IPin *out_pin = pin1, *in_pin = pin2;
+		if (PINDIR_INPUT == direction) {
+			out_pin = pin2;
+			in_pin = pin1;
+		}
+
 		if (!direct) {
-			if (PINDIR_INPUT == direction)	// swap pins if they're in the wrong order
-				std::swap(pin1, pin2);
-			hr = gb->Connect(pin1, pin2);
+			hr = gb->Connect(out_pin, in_pin);
 		} else {
 			DSUtil::MediaTypes outputMediaTypes;
-            if (chooseMediaType) {
-				hr = DSUtil::EnumMediaTypes(pin1, outputMediaTypes);
+
+            if (!chooseMediaType) {
+				hr = gb->ConnectDirect(out_pin, in_pin, NULL);
+			} else {
+				hr = DSUtil::EnumMediaTypes(pin1, outputMediaTypes);	// enum media types from first pin whether output or input
 
 				if (SUCCEEDED(hr)) {
 					CMediaTypeSelectForm dlg;
 					dlg.SetMediaTypes(outputMediaTypes);
-					if (IDOK != dlg.DoModal()) {
-						cancelled = true;
-						hr = S_FALSE;
-					} else {
+					while (true) {
+						if (IDOK != dlg.DoModal()) {
+							hr = S_FALSE;
+							break;
+						}
 						const int selectedIndex = dlg.SelectedMediaTypeIndex();
 						if (selectedIndex >= 0 && selectedIndex < outputMediaTypes.GetSize()) {
 							mediaType = &(outputMediaTypes[selectedIndex]);
+						} else {
+							mediaType = NULL;
 						}
+						hr = gb->ConnectDirect(out_pin, in_pin, mediaType);
+						if (FAILED(hr)) 
+							DSUtil::ShowError(hr, _T("Connecting Pins"));
+						else
+							break;	// success
 					}
 				}
-			}
-			if (!cancelled && SUCCEEDED(hr)) {
-				if (PINDIR_INPUT == direction)	// swap pins if they're in the wrong order
-					std::swap(pin1, pin2);
-				hr = gb->ConnectDirect(pin1, pin2, mediaType);
 			}
 		}
 		return hr;
