@@ -341,6 +341,12 @@
     <ClInclude Include="src\GRF_File.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="lib\sqlite\sqlite3.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\sqlite\sqlite3_forcelib.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -564,6 +570,9 @@
     </ClCompile>
     <ClCompile Include="src\stdafx.cpp">
       <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\sqlite\sqlite3.c">
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

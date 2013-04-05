@@ -151,7 +151,7 @@ interface IAnalyzerFilter : IUnknown
 [
 	uuid("CA6B3460-28B3-4A6E-A7FC-A83CF1DEEC48"), 
     helpstring("Analyzer Filter Type Library"),
-	lcid(0x0409), // EN-US
+	//lcid(0x0409), // EN-US
     version(1.0)
 ] 
 library AnalyzerFilterLib

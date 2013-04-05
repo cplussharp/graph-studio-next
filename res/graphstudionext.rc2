@@ -11,30 +11,7 @@
 // Add manually edited resources here...
 
 /////////////////////////////////////////////////////////////////////////////
-#define SVN_REVISION    1234
-#define SVN_TIME_NOW "2013-01-18 06:28"
-
-#define STRINGIZE2(s) #s
-#define STRINGIZE(s) STRINGIZE2(s)
-
-#define VERSION_MAJOR               0
-#define VERSION_MINOR               5
-#define VERSION_REVISION            1
-#define VERSION_BUILD               SVN_REVISION
- 
-#if SVN_LOCAL_MODIFICATIONS
-  #define VERSION_MODIFIER "M"
-#else
-  #define VERSION_MODIFIER
-#endif
- 
-#define VER_FILE_DESCRIPTION_STR    "Built " STRINGIZE(SVN_TIME_NOW) " from r" STRINGIZE(SVN_REVISION)
-#define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD
-#define VER_FILE_VERSION_STR        STRINGIZE(VERSION_MAJOR)        \
-                                    "." STRINGIZE(VERSION_MINOR)    \
-                                    "." STRINGIZE(VERSION_REVISION) \
-                                    "." STRINGIZE(VERSION_BUILD)    \
-                                    VERSION_MODIFIER
+#include "../src/VersionNo.h"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION VER_FILE_VERSION
