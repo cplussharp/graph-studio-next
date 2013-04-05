@@ -10,6 +10,12 @@
 #define VERSION_MINOR               5
 #define VERSION_REVISION            1
 #define VERSION_BUILD               SVN_REVISION
+
+#if SVN_LOCAL_MODIFICATIONS
+  #define VERSION_MODIFIER "M"
+#else
+  #define VERSION_MODIFIER
+#endif
  
 #define VER_FILE_DESCRIPTION_STR    "Built " STRINGIZE(SVN_TIME_NOW) " UTC from r" STRINGIZE(SVN_REVISION)
 #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD
@@ -17,3 +23,10 @@
                                     "." STRINGIZE(VERSION_MINOR)    \
                                     "." STRINGIZE(VERSION_REVISION) \
                                     "." STRINGIZE(VERSION_BUILD)
+
+#define VER_FILE_VERSION_STR2       STRINGIZE(VERSION_MAJOR)        \
+                                    "." STRINGIZE(VERSION_MINOR)    \
+                                    "." STRINGIZE(VERSION_REVISION) \
+                                    "." STRINGIZE(VERSION_BUILD)    \
+                                    VERSION_MODIFIER
+

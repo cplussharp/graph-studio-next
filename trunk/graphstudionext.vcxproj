@@ -135,6 +135,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -254,6 +255,8 @@
     <ResourceCompile Include="graphstudionext.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="lib\sqlite\sqlite3.h" />
+    <ClInclude Include="lib\sqlite\sqlite3_forcelib.h" />
     <ClInclude Include="src\AnalyzerPage.h" />
     <ClInclude Include="src\BlacklistForm.h" />
     <ClInclude Include="src\CliOptionsForm.h" />
@@ -335,6 +338,12 @@
     <ClInclude Include="src\filters\dump\filter_dump.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="lib\sqlite\sqlite3.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src\AnalyzerPage.cpp" />
     <ClCompile Include="src\BlacklistForm.cpp" />
     <ClCompile Include="src\CliOptionsForm.cpp" />

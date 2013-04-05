@@ -29,6 +29,9 @@ public:
 	DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
 
+    // Possible Input
+    virtual HRESULT CheckInputType(const CMediaType* mtIn);
+
 	// keep track of samples
 	virtual HRESULT AnalyzeSample(IMediaSample *pSample);
 

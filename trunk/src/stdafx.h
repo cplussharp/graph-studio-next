@@ -101,6 +101,7 @@ using namespace std;
 #pragma comment(lib, "Version.lib")
 #include "xml_parser.h"
 
+#include "..\lib\sqlite\sqlite3.h"
 #include "dsutil.h"
 
 #include "bits.h"

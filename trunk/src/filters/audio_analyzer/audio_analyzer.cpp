@@ -37,6 +37,11 @@ STDMETHODIMP CAudioAnalyzer::NonDelegatingQueryInterface(REFIID riid, void ** pp
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
+HRESULT CAudioAnalyzer::CheckInputType(const CMediaType* mtIn)
+{
+	return S_OK;
+}
+
 HRESULT CAudioAnalyzer::AnalyzeSample(IMediaSample *pSample)
 {
     if (!m_enabled) return S_OK;

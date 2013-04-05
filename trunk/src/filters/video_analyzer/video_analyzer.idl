@@ -23,7 +23,7 @@ interface IVideoAnalyzerFilter : IUnknown
 [
 	uuid("2E2FDE14-5247-4507-81ED-82157C379AE5"), 
     helpstring("Video Analyzer Filter Type Library"),
-	lcid(0x0409), // EN-US
+	//lcid(0x0409), // EN-US
     version(1.0)
 ] 
 library VideoAnalyzerFilterLib

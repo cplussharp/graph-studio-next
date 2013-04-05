@@ -23,7 +23,7 @@ interface IAudioAnalyzerFilter : IUnknown
 [
 	uuid("C088C321-CC00-44AC-82F2-BDC6601E6753"), 
     helpstring("Audio Analyzer Filter Type Library"),
-	lcid(0x0409), // EN-US
+	//lcid(0x0409), // EN-US
     version(1.0)
 ] 
 library AudioAnalyzerFilterLib

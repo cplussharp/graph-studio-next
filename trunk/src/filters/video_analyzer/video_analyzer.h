@@ -29,6 +29,9 @@ public:
 	DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
 
+    // Possible Input
+    virtual HRESULT CheckInputType(const CMediaType* mtIn);
+
 	// keep track of samples
 	virtual HRESULT AnalyzeSample(IMediaSample *pSample);
 
@@ -36,4 +39,11 @@ public:
 	STDMETHODIMP get_Enabled(VARIANT_BOOL *pVal);
     STDMETHODIMP put_Enabled(VARIANT_BOOL val);
     STDMETHODIMP SetCallback(IVideoAnalyzerFilterCallback* pCallback);
+
+private:
+    sqlite3* m_db;
+
+    // prepared statements
+    sqlite3_stmt* m_sqlHistogram;
+    sqlite3_stmt* m_sqlEntropy;
 };

@@ -8,3 +8,4 @@
 #define SVN_TIME_NOW            $WCNOWUTC=%Y-%m-%d %H:%M:%S$       // Current system date &amp; time
  
 #endif
+

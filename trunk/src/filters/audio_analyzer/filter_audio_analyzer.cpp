@@ -60,8 +60,7 @@ STDMETHODIMP CAudioAnalyzerFilter::NonDelegatingQueryInterface(REFIID riid, void
 
 HRESULT CAudioAnalyzerFilter::CheckInputType(const CMediaType* mtIn)
 {
-	//if (mtIn->majortype != MEDIATYPE_Video && mtIn->majortype != MEDIATYPE_Audio) return E_FAIL;
-	return NOERROR;
+    return m_analyzer->CheckInputType(mtIn);
 }
 
 HRESULT CAudioAnalyzerFilter::Transform(IMediaSample *pSample)
