@@ -341,11 +341,17 @@
     <ClInclude Include="src\GRF_File.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\time_utils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
     <ClInclude Include="lib\sqlite\sqlite3.h">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="lib\sqlite\sqlite3_forcelib.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filters\analyzer\analyzer_pospassthru.h">
+      <Filter>Filters\filter_analyzer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -570,6 +576,9 @@
     </ClCompile>
     <ClCompile Include="src\stdafx.cpp">
       <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\time_utils.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="lib\sqlite\sqlite3.c">
       <Filter>Utils</Filter>

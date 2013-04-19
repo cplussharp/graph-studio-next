@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "seeking_bar.h"
 
+#include "time_utils.h"
 
 
 BEGIN_MESSAGE_MAP(CTransparentStatic, CStatic)
@@ -236,56 +237,32 @@ void CSeekingBar::SetGraphView(CGraphView *graph_view)
 	}
 }
 
-void MakeNiceTime(int time_ms, CString &v)
-{
-	int		ms = time_ms%1000;	
-	time_ms -= ms;
-	time_ms /= 1000;
-
-	int		h, m, s;
-	h = time_ms / 3600;		time_ms -= h*3600;
-	m = time_ms / 60;		time_ms -= m*60;
-	s = time_ms;
-
-	v.Format(_T("%.2d:%.2d:%.2d.%.2d"), h, m, s, ms / 10);
-}
-
 void CSeekingBar::UpdateGraphPosition()
 {
-	double	pos_ms, dur_ms;
-
-	pos_ms = 0;
-	dur_ms = 0;
+	double	pos_ms = 0.0, dur_ms = 0.0;
 
 	if (view) {
-		int ret = view->graph.GetPositions(pos_ms, dur_ms);
+		int ret = view->graph.GetPositionAndDuration(pos_ms, dur_ms);
 		if (ret < 0) {
-			pos_ms = 0;
-			dur_ms = 0;
+			pos_ms = 0.0;
+			dur_ms = 0.0;
 		}
 	}
 
 	CString	cur, dur;
-	MakeNiceTime((int)pos_ms, cur);
-	MakeNiceTime((int)dur_ms, dur);
+	MakeNiceTimeMS((int)pos_ms, cur);
+	MakeNiceTimeMS((int)dur_ms, dur);
 	cur = cur + _T(" / ") + dur;
 	label_time.SetText(cur);
 
-	// forward the time
+	// display how far through the playback
+	const double proportion = dur_ms != 0.0 ? pos_ms / dur_ms : 0.0;
+
 	if (view) {
 		view->OnUpdateTimeLabel(cur);
-		if ((int)dur_ms != 0) {
-			view->OnUpdateSeekbar(pos_ms / dur_ms);
-		} else {
-			view->OnUpdateSeekbar(0);
-		}
+		view->OnUpdateSeekbar(proportion);
 	}
-
-	if ((int)dur_ms != 0) {
-		seekbar.SetChannelPos(pos_ms / dur_ms);
-	} else {
-		seekbar.SetChannelPos(0);
-	}
+	seekbar.SetChannelPos(proportion);
 }
 
 void CSeekingBar::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar)
@@ -308,7 +285,7 @@ void CSeekingBar::PerformSeek()
 		cshi = seekbar.GetPos();
 
 		double	cur, dur;
-		view->graph.GetPositions(cur, dur);
+		view->graph.GetPositionAndDuration(cur, dur);
 		cur = dur * cshi / hi;
 		view->graph.Seek(cur);
 	}
@@ -337,7 +314,7 @@ void CSeekingBar::OnSize(UINT nType, int cx, int cy)
 {
     CDialogBar::OnSize(nType, cx, cy);
 
-    int lblSize = 140;
+    int lblSize = 150;
     if(seekbar.GetSafeHwnd() != NULL)
         seekbar.SetWindowPos(NULL, 0, 2, cx - lblSize - 5, 20, SWP_SHOWWINDOW | SWP_NOZORDER);
     if(label_time.GetSafeHwnd() != NULL)

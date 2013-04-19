@@ -68,8 +68,9 @@ HRESULT CAnalyzer::AddSample(IMediaSample *pSample)
     if (FAILED(hr))
         entry.StreamTimeStart = entry.StreamTimeStop = hr;
 
+	entry.MediaTimeStart = entry.MediaTimeStop = -1;
     hr = pSample->GetMediaTime(&entry.MediaTimeStart, &entry.MediaTimeStop);
-    if (FAILED(hr))
+	if (FAILED(hr) && hr != VFW_E_MEDIA_TIME_NOT_SET)
         entry.MediaTimeStart = entry.MediaTimeStop = hr;
 
     AM_MEDIA_TYPE* pMediaType;
@@ -226,13 +227,14 @@ HRESULT CAnalyzer::AddIStreamSeek(DWORD dwOrigin, const LARGE_INTEGER &liDistanc
     return S_OK;
 }
 
-HRESULT CAnalyzer::AddMSSetPositions(__inout_opt LONGLONG * pCurrent, DWORD CurrentFlags, __inout_opt LONGLONG * pStop, DWORD StopFlags)
+HRESULT CAnalyzer::AddMSSetPositions(HRESULT hr, __inout_opt LONGLONG * pCurrent, DWORD CurrentFlags, __inout_opt LONGLONG * pStop, DWORD StopFlags)
 {
     if (!m_enabled) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
 	entry.EntryKind = SRK_MS_SetPositions;
+	entry.StreamId = hr;
 
 	if (pCurrent && (CurrentFlags & AM_SEEKING_PositioningBitsMask)) {
 		entry.MediaTimeStart = *pCurrent;
@@ -295,13 +297,14 @@ HRESULT CAnalyzer::AddQCNotify(Quality q, HRESULT hr)
     return S_OK;
 }
 
-HRESULT CAnalyzer::AddDouble(StatisticRecordKind kind, double data)
+HRESULT CAnalyzer::AddDouble(StatisticRecordKind kind, HRESULT hr, double data)
 {
     if (!m_enabled) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
 	entry.EntryKind = kind;
+	entry.StreamId = hr;
 
 	entry.MediaTimeStart = UNITS * data;		// convert from floating point seconds to ref time
 
@@ -350,13 +353,14 @@ HRESULT CAnalyzer::AddRefTime(StatisticRecordKind kind, LONGLONG refTime, HRESUL
 	return S_OK;
 }
 
-HRESULT CAnalyzer::AddMSSetTimeFormat(const GUID * pFormat)
+HRESULT CAnalyzer::AddMSSetTimeFormat(HRESULT hr, const GUID * pFormat)
 {
     if (!m_enabled) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
 	entry.EntryKind = SRK_MS_SetTimeFormat;
+	entry.StreamId = hr;
 
 	if (pFormat) {
 		delete[] entry.aData;

@@ -434,7 +434,7 @@ namespace GraphStudio
 		int GetState(FILTER_STATE &state, DWORD timeout=INFINITE);
 
 		// seeking helpers
-		int GetPositions(double &current_ms, double &duration_ms);
+		int GetPositionAndDuration(double &current_ms, double &duration_ms);
 		int GetFPS(double &fps);
 		int RefreshFPS();
 		int Seek(double time_ms, BOOL keyframe = FALSE);

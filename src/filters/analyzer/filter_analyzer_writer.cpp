@@ -7,6 +7,9 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
+#include "analyzer_pospassthru.h"
+
+
 const CFactoryTemplate CAnalyzerWriterFilter::g_Template = {
 		L"Analyzer Writer Filter",
         &__uuidof(AnalyzerWriterFilter),
@@ -31,7 +34,9 @@ CUnknown* CAnalyzerWriterFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 * CAnalyzerWriterInput class
 *********************************************************************************************/
 CAnalyzerWriterInput::CAnalyzerWriterInput(CBaseFilter* pFilter, CCritSec* pLock, HRESULT* phr, LPCWSTR pName, HANDLE file, CAnalyzer* pAnalyzer)
-    : CRenderedInputPin(NAME("Input"), pFilter, pLock, phr, pName), m_file(file), m_analyzer(pAnalyzer)
+    : CRenderedInputPin(NAME("Input"), pFilter, pLock, phr, pName), 
+	m_file(file), 
+	m_analyzer(pAnalyzer)
 {
     ResetData();
 }
@@ -272,7 +277,10 @@ STDMETHODIMP CAnalyzerWriterInput::Stat(STATSTG* pStatstg, DWORD grfStatFlag)
 
 CAnalyzerWriterFilter::CAnalyzerWriterFilter(LPUNKNOWN pUnk, HRESULT *phr)
     : CBaseFilter(NAME("Analyzer Writer"), pUnk, &m_csFilter, __uuidof(AnalyzerWriterFilter), phr),
-    m_dwFlags(AM_FILE_OVERWRITE), m_file(INVALID_HANDLE_VALUE), m_pPin(NULL)
+    m_dwFlags(AM_FILE_OVERWRITE), 
+	m_file(INVALID_HANDLE_VALUE), 
+	m_pPin(NULL),
+	m_PassThru(NULL)
 {	
     ZeroMemory(m_szFileName, sizeof(WCHAR) * MAX_PATH);
 
@@ -286,8 +294,8 @@ CAnalyzerWriterFilter::CAnalyzerWriterFilter(LPUNKNOWN pUnk, HRESULT *phr)
 
 CAnalyzerWriterFilter::~CAnalyzerWriterFilter(void)
 {
-    if (m_pPin)
-		delete m_pPin;
+	delete m_PassThru;
+	delete m_pPin;
 
     if (m_analyzer)
         m_analyzer->Release();
@@ -300,14 +308,24 @@ STDMETHODIMP CAnalyzerWriterFilter::NonDelegatingQueryInterface(REFIID riid, voi
     CheckPointer(ppv,E_POINTER);
     CAutoLock lock(&m_csFilter);
 
-    // Do we have this interface
-    if (IID_IFileSinkFilter == riid)
+	if (__uuidof(IMediaSeeking)==riid || __uuidof(IMediaPosition)==riid) {
+		if (!m_PassThru) {
+			HRESULT hr = S_OK;
+			// we should have an input pin by now
+			IPin* const inputPin = GetPin(0);
+			ASSERT(inputPin);
+			m_PassThru = new CAnalyzerPosPassThru(_T("Analzyer seeking pass thur"), GetOwner(), &hr, inputPin, m_analyzer);
+
+			if (FAILED(hr)) {
+                return hr;
+            }
+        }
+		return m_PassThru->NonDelegatingQueryInterface(riid, ppv);
+	} else if (IID_IFileSinkFilter == riid)
         return GetInterface((IFileSinkFilter*) this, ppv);
     else if (IID_IFileSinkFilter2 == riid)
         return GetInterface((IFileSinkFilter2*) this, ppv);
-    else if (IID_IMediaSeeking == riid)
-        return GetInterface((IMediaSeeking*) this, ppv);
-    else if (IID_IAMFilterMiscFlags == riid)
+	else if (IID_IAMFilterMiscFlags == riid)
         return GetInterface((IAMFilterMiscFlags*) this, ppv);
     else if (__uuidof(IAnalyzerFilter) == riid)
 		return m_analyzer->NonDelegatingQueryInterface(riid, ppv);
@@ -435,206 +453,6 @@ STDMETHODIMP CAnalyzerWriterFilter::GetMode(DWORD *dwFlags)
 {
     CheckPointer(dwFlags, E_POINTER);
     *dwFlags = m_dwFlags;
-    return S_OK;
-}
-
-#pragma endregion
-
-#pragma region IMediaSeeking
-
-/*********************************************************************************************
-* IMediaSeeking implementation
-*********************************************************************************************/
-STDMETHODIMP CAnalyzerWriterFilter::GetCurrentPosition(LONGLONG *pCurrent)
-{
-    *pCurrent = 0;
-    return S_OK;
-}
-
-CComQIPtr<IMediaSeeking> CAnalyzerWriterFilter::GetInputSeeking()
-{
-    CComQIPtr<IMediaSeeking> ptr;
-
-	if (m_pPin != NULL)
-		ptr = m_pPin->GetConnected();
-
-	return ptr;
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::GetCapabilities(DWORD * pCapabilities )
-{
-    // OR together all the pins' capabilities, together with our own
-    DWORD caps = AM_SEEKING_CanGetCurrentPos;
-
-	CComQIPtr<IMediaSeeking> pSeek = GetInputSeeking();
-    if (pSeek)
-    {
-		DWORD inputCaps;
-        HRESULT hr = pSeek->GetCapabilities(&inputCaps);
-        if (SUCCEEDED(hr))
-        {
-            caps |= inputCaps;
-        }
-    }
-    *pCapabilities = caps;
-    return S_OK;
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::CheckCapabilities(DWORD * pCapabilities )
-{
-    DWORD dwActual;
-    GetCapabilities(&dwActual);
-    if (*pCapabilities & (~dwActual)) {
-        return S_FALSE;
-    }
-    return S_OK;
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::IsFormatSupported(const GUID * pFormat)
-{
-    if (*pFormat == TIME_FORMAT_MEDIA_TIME)
-        return S_OK;
-    return S_FALSE;
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::QueryPreferredFormat(GUID * pFormat)
-{
-    *pFormat = TIME_FORMAT_MEDIA_TIME;
-    return S_OK;
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::GetTimeFormat(GUID *pFormat)
-{
-    *pFormat = TIME_FORMAT_MEDIA_TIME;
-    return S_OK;
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::IsUsingTimeFormat(const GUID * pFormat)
-{
-    if (*pFormat == TIME_FORMAT_MEDIA_TIME)
-        return S_OK;
-    return S_FALSE;
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::SetTimeFormat(const GUID * pFormat)
-{
-	if (m_analyzer)
-		m_analyzer->AddMSSetTimeFormat(pFormat);
-
-    if ((*pFormat == TIME_FORMAT_MEDIA_TIME) ||
-        (*pFormat == TIME_FORMAT_NONE))
-        return S_OK;
-	return VFW_E_NO_TIME_FORMAT;
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::GetDuration(LONGLONG *pDuration)
-{
-    // length of input duration
-	REFERENCE_TIME t = 0;
-	CComQIPtr<IMediaSeeking> pSeek = GetInputSeeking();
-	if (pSeek)
-        pSeek->GetDuration(&t);
-
-    *pDuration = t;
-    return S_OK;
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::GetStopPosition(LONGLONG *pStop)
-{
-	CComQIPtr<IMediaSeeking> pSeek = GetInputSeeking();
-    if (!pSeek)
-        return E_NOINTERFACE;
-    return pSeek->GetStopPosition(pStop);
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::ConvertTimeFormat(LONGLONG * pTarget, const GUID * pTargetFormat, LONGLONG Source, const GUID * pSourceFormat )
-{
-    if (((pTargetFormat == 0) || (*pTargetFormat == TIME_FORMAT_MEDIA_TIME)) &&
-        ((pSourceFormat == 0) || (*pSourceFormat == TIME_FORMAT_MEDIA_TIME)))
-    {
-        *pTarget = Source;
-        return S_OK;
-    }
-    return VFW_E_NO_TIME_FORMAT;
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::SetPositions(LONGLONG * pCurrent, DWORD dwCurrentFlags, LONGLONG * pStop, DWORD dwStopFlags )
-{
-    // must be passed to input
-	HRESULT hr = S_OK;
-
-	if (m_analyzer)
-		m_analyzer->AddMSSetPositions(pCurrent, dwCurrentFlags, pStop, dwStopFlags);
-
-	CComQIPtr<IMediaSeeking> pSeek = GetInputSeeking();
-	if (pSeek)
-	{
-		hr = pSeek->SetTimeFormat(&TIME_FORMAT_MEDIA_TIME);
-		if (SUCCEEDED(hr))
-		{
-			hr = pSeek->SetPositions(pCurrent, dwCurrentFlags, pStop, dwStopFlags);
-			pSeek->SetTimeFormat(&TIME_FORMAT_NONE); // undo
-		}
-	}
-    return hr;
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::GetPositions(LONGLONG * pCurrent, LONGLONG * pStop )
-{
-    // return first valid input
-	CComQIPtr<IMediaSeeking> pSeek = GetInputSeeking();
-    if (!pSeek)
-        return E_NOINTERFACE;
-    return pSeek->GetPositions(pCurrent, pStop);
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::GetAvailable(LONGLONG * pEarliest, LONGLONG * pLatest)
-{
-    // the available section is the area for which any
-    // data is available -- and here it is not very important whether
-    // it is actually available
-    *pEarliest = 0;
-    return GetDuration(pLatest);
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::SetRate(double dRate)
-{
-    // must be passed to input
-	HRESULT hr = S_OK;
-
-	if (m_analyzer)
-		m_analyzer->AddDouble(SRK_MS_SetRate, dRate);
-
-	CComQIPtr<IMediaSeeking> pSeek = GetInputSeeking();
-	if (pSeek)
-	{
-		hr = pSeek->SetTimeFormat(&TIME_FORMAT_MEDIA_TIME);
-		if (SUCCEEDED(hr))
-		{
-			hr = pSeek->SetRate(dRate);
-			pSeek->SetTimeFormat(&TIME_FORMAT_NONE); // undo
-		}
-	}
-    return hr;
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::GetRate(double * pdRate)
-{
-    // return first valid input
-	CComQIPtr<IMediaSeeking> pSeek = GetInputSeeking();
-    if (!pSeek)
-        return E_NOINTERFACE;
-    return pSeek->GetRate(pdRate);
-}
-
-STDMETHODIMP CAnalyzerWriterFilter::GetPreroll(LONGLONG * pllPreroll)
-{
-    // preroll time needed from input
-    REFERENCE_TIME t = 0;
-	CComQIPtr<IMediaSeeking> pSeek = GetInputSeeking();
-    if (pSeek)
-        pSeek->GetPreroll(&t);
-    *pllPreroll = t;
     return S_OK;
 }
 

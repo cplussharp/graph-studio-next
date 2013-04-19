@@ -107,7 +107,7 @@ BOOL CAnalyzerPage::OnInitDialog()
     m_listCtrl.InsertColumn(DataLength,			_T("DataLength"),			LVCFMT_RIGHT,	75);
     m_listCtrl.InsertColumn(Data,				_T("Data"),					LVCFMT_LEFT,	350);
 
-    m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT );
+    m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP );
 
     m_spinPreviewByteCount.SetRange32(0,64);
 

@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "SeekForm.h"
 
+#include "time_utils.h"
 
 //-----------------------------------------------------------------------------
 //
@@ -150,6 +151,9 @@ void CSeekForm::OnTimer(UINT_PTR id)
 	switch (id) {
 	case 0:
 		{
+			if (!IsWindowVisible())		// no point doing this updating if seek form not shown
+				return;
+
 			UpdateGraphPosition();
 
 			// refresh caps
@@ -222,20 +226,6 @@ void CSeekForm::OnOK()
 	// Don't do default OK processing as this closes the modeless dialog
 }
 
-void MakeNiceTimeMS(int time_ms, CString &v)
-{
-	int		ms = time_ms%1000;	
-	time_ms -= ms;
-	time_ms /= 1000;
-
-	int		h, m, s;
-	h = time_ms / 3600;		time_ms -= h*3600;
-	m = time_ms / 60;		time_ms -= m*60;
-	s = time_ms;
-
-	v.Format(_T("%.2d:%.2d:%.2d.%.3d"), h, m, s, ms);
-}
-
 void CSeekForm::GetCurrentCaps(__int64 &c)
 {
 	c = 0;
@@ -272,7 +262,7 @@ void CSeekForm::UpdateGraphPosition()
 	fps    = -1;
 
 	if (view) {
-		ret = view->graph.GetPositions(pos_ms, dur_ms);
+		ret = view->graph.GetPositionAndDuration(pos_ms, dur_ms);
 		if (ret < 0) {
 			pos_ms = 0;
 			dur_ms = 0;

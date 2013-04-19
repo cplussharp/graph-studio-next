@@ -135,6 +135,7 @@
 #define IDC_STATIC_DURATION             1044
 #define IDC_STATIC_POSITION             1045
 #define IDC_STATIC_FPS                  1046
+#define IDC_STATIC_STOP_POSITION        1047
 #define IDC_LIST_SCHEDULE               1048
 #define IDC_BUTTON_ADD                  1049
 #define IDC_BUTTON_REMOVE               1050
