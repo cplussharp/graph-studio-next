@@ -8,6 +8,8 @@
 #include "stdafx.h"
 #include "DecPerformanceForm.h"
 
+#include "time_utils.h"
+
 namespace
 {
 	const int	PASSES_MAX		= 1000;
@@ -102,7 +104,7 @@ void CDecPerformanceForm::OnInitialize()
 
 	// create the columns
 	DWORD ex_style = list_results.GetExtendedStyle();
-	ex_style = ex_style | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER;
+	ex_style = ex_style | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP;
 	list_results.SetExtendedStyle(ex_style);
 
 	list_results.InsertColumn(0, _T("#"), LVCFMT_RIGHT, 36);
@@ -274,19 +276,6 @@ void CDecPerformanceForm::StopTiming()
 	// enable controls again
 }
 
-static void MakeNiceTime(__int64 timens, CString &ret)
-{
-	// convert to milliseconds
-	timens /= 1000000;
-
-	int			h = timens / (3600 * 1000);		timens -= h*(3600*1000);
-	int			m = timens / (  60 * 1000);		timens -= m*(  60*1000);
-	int			s = timens / (   1 * 1000);		timens -= s*(   1*1000);
-	int			ms= timens;
-
-	ret.Format(_T("%.02d:%.02d:%.02d.%.03d"), h, m, s, ms);
-}
-
 void CDecPerformanceForm::OnPhaseComplete()
 {
 	if (!running) 
@@ -342,10 +331,10 @@ void CDecPerformanceForm::OnPhaseComplete()
 void CDecPerformanceForm::InsertListItem(const Timings& timings, int index, const CString& label)
 {
 	CString	runtime_str;
-	MakeNiceTime(timings.runtime_ns, runtime_str);
+	MakeNiceTimeMS(timings.runtime_ns/(1000*1000), runtime_str);
 
 	CString	realtime_str;
-	MakeNiceTime(timings.realtime_ns, realtime_str);
+	MakeNiceTimeMS(timings.realtime_ns/(1000*1000), realtime_str);
 
 	const double fps = (timings.frames * 1000000000.0) / (double)timings.runtime_ns;
 	CString	fps_str;

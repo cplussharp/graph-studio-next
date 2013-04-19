@@ -468,9 +468,10 @@ namespace GraphStudio
 
 	int DisplayGraph::Seek(double time_ms, BOOL keyframe)
 	{
-		if (!ms) return -1;
+		if (!ms) 
+			return E_POINTER;
 
-		REFERENCE_TIME	rtpos = time_ms * 10000;
+		REFERENCE_TIME	rtpos = time_ms * (UNITS/1000);
 		DWORD			flags = AM_SEEKING_AbsolutePositioning;
 
 		if (keyframe) {
@@ -559,7 +560,6 @@ namespace GraphStudio
 		HRESULT	hr = NOERROR;
 		do {
 			REFERENCE_TIME		rtDur, rtFrames;
-			//GUID				time_format;
 
 			rtDur = 0;
 			rtFrames = 0;
@@ -569,13 +569,11 @@ namespace GraphStudio
 				break;
 			}
 			hr = ms->SetTimeFormat(&TIME_FORMAT_FRAME);
-			if (FAILED(hr)) break;
-			hr = ms->GetDuration(&rtFrames);
-			if (FAILED(hr)) break;
+			if (SUCCEEDED(hr))
+				hr = ms->GetDuration(&rtFrames);
 			hr = ms->SetTimeFormat(&TIME_FORMAT_MEDIA_TIME);
-			if (FAILED(hr)) break;
-			hr = ms->GetDuration(&rtDur);
-			if (FAILED(hr)) break;
+			if (SUCCEEDED(hr))
+				hr = ms->GetDuration(&rtDur);
 
 			// special case
 			if (rtFrames == 0 || rtDur == 0) {
@@ -584,7 +582,7 @@ namespace GraphStudio
 			}
 
 			// calculate the FPS
-			fps = (double)rtFrames * 10000000.0 / (double)rtDur;
+			fps = (double)rtFrames * (double)UNITS / (double)rtDur;
 			hr = NOERROR;
 
 		} while (0);
@@ -597,7 +595,7 @@ namespace GraphStudio
 		return 0;
 	}
 
-	int DisplayGraph::GetPositions(double &current_ms, double &duration_ms)
+	int DisplayGraph::GetPositionAndDuration(double &current_ms, double &duration_ms)
 	{
 		if (!ms) {
 			current_ms = 0;
@@ -629,8 +627,8 @@ namespace GraphStudio
 					rtDur = temp;
 				}
 
-				// in seconds
-				duration_ms = (double)rtDur / 10000.0;
+				// in milliseconds
+				duration_ms = (double)rtDur / (double)(UNITS/1000);
 			}
 
 			/*
@@ -664,7 +662,7 @@ namespace GraphStudio
 				}
 
 				// in seconds
-				current_ms = (double)rtCur / 10000.0;
+				current_ms = (double)rtCur / (double)(UNITS/1000);
 			}
 
 			hr = NOERROR;
@@ -693,7 +691,6 @@ namespace GraphStudio
 			}
 		}
 		RefreshFilters();
-		RefreshFPS();
 	}
 
 	HRESULT DisplayGraph::AddFilter(IBaseFilter *filter, CString proposed_name)
@@ -725,7 +722,6 @@ namespace GraphStudio
 
 		// refresh our filters
 		RefreshFilters();
-		RefreshFPS();
 		return NOERROR;
 	}
 
@@ -1620,7 +1616,6 @@ namespace GraphStudio
 					CComQIPtr<IFileSourceFilter> source(filter.ibasefilter);
 					if (source) {
 						hr = source->Load(filter.source_filename, NULL);
-						ASSERT(SUCCEEDED(hr));
 
 						while (FAILED(hr)) {
 							CFileSrcForm form(_T("Missing source file"));
@@ -1635,7 +1630,6 @@ namespace GraphStudio
 					CComQIPtr<IFileSinkFilter> sink(filter.ibasefilter);
 					if (sink) {
 						hr = sink->SetFileName(filter.sink_filename, NULL);
-						ASSERT(SUCCEEDED(hr));
 
 						CFileSinkForm form(_T("Missing destination file"));
 						while (FAILED(hr)) {
@@ -1718,8 +1712,6 @@ namespace GraphStudio
 				&& IDYES == AfxMessageBox(_T("GRF file failed to load. Attempt loading with internal GRF file parser?"), MB_YESNOCANCEL)) {
 			hr = ParseGRFFile(fn);
 		}
-
-		RefreshFPS();
 		return hr;
 	}
 
@@ -1769,7 +1761,6 @@ namespace GraphStudio
 
 		} while (0);
 
-		RefreshFPS();
 		return hr;
 	}
 
@@ -1925,6 +1916,7 @@ namespace GraphStudio
 
 		LoadPeers();
 		RefreshClock();
+		RefreshFPS();
 		Dirty();
 	}
 

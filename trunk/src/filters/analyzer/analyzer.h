@@ -75,8 +75,8 @@ public:
     virtual HRESULT AddIStreamSeek(DWORD dwOrigin, const LARGE_INTEGER &liDistanceToMove, const LARGE_INTEGER newPos);
 
 	// IMediaSeeking logging
-	virtual HRESULT AddMSSetPositions(__inout_opt LONGLONG * pCurrent, DWORD CurrentFlags, __inout_opt LONGLONG * pStop, DWORD StopFlags);
-    virtual HRESULT AddMSSetTimeFormat(const GUID * pFormat);
+	virtual HRESULT AddMSSetPositions(HRESULT hr, __inout_opt LONGLONG * pCurrent, DWORD CurrentFlags, __inout_opt LONGLONG * pStop, DWORD StopFlags);
+    virtual HRESULT AddMSSetTimeFormat(HRESULT hr, const GUID * pFormat);
 
 	// IPin logging
 	virtual HRESULT AddIPNewSegment(LONGLONG start, LONGLONG stop, double rate, HRESULT hr);
@@ -85,7 +85,7 @@ public:
 	virtual HRESULT AddQCNotify(Quality q, HRESULT hr);
 
 	// Generic logging
-	virtual HRESULT AddDouble(StatisticRecordKind kind, double data);
+	virtual HRESULT AddDouble(StatisticRecordKind kind, HRESULT hr, double data);
 	virtual HRESULT AddHRESULT(StatisticRecordKind kind, HRESULT hr);
 	virtual HRESULT AddRefTime(StatisticRecordKind kind, REFERENCE_TIME tStart, HRESULT hr);
 

@@ -7,6 +7,7 @@
 //-----------------------------------------------------------------------------
 #pragma once
 
+class CAnalyzerPosPassThru;
 
 //-----------------------------------------------------------------------------
 //
@@ -62,7 +63,7 @@ protected:
 //
 //-----------------------------------------------------------------------------
 
-class CAnalyzerWriterFilter : public CBaseFilter, public IFileSinkFilter2, public IAMFilterMiscFlags, public IMediaSeeking
+class CAnalyzerWriterFilter : public CBaseFilter, public IFileSinkFilter2, public IAMFilterMiscFlags
 {
 private:
     CAnalyzer*  m_analyzer;
@@ -95,29 +96,6 @@ public:
     // Implements the IAMFilterMiscFlags interface
     STDMETHODIMP_(ULONG) GetMiscFlags(void) { return AM_FILTER_MISC_FLAGS_IS_RENDERER; }
 
-    // we implement IMediaSeeking to allow EC_COMPLETE to stop the graph
-    // and to report progress via the current position.
-    // Calls (apart from current position) are
-    // passed upstream to any pins that support seeking
-    // IMediaSeeking
-    STDMETHODIMP GetCapabilities(DWORD * pCapabilities );
-    STDMETHODIMP CheckCapabilities(DWORD * pCapabilities );
-    STDMETHODIMP IsFormatSupported(const GUID * pFormat);
-    STDMETHODIMP QueryPreferredFormat(GUID * pFormat);
-    STDMETHODIMP GetTimeFormat(GUID *pFormat);
-    STDMETHODIMP IsUsingTimeFormat(const GUID * pFormat);
-    STDMETHODIMP SetTimeFormat(const GUID * pFormat);
-    STDMETHODIMP GetDuration(LONGLONG *pDuration);
-    STDMETHODIMP GetStopPosition(LONGLONG *pStop);
-    STDMETHODIMP GetCurrentPosition(LONGLONG *pCurrent);
-    STDMETHODIMP ConvertTimeFormat(LONGLONG * pTarget, const GUID * pTargetFormat, LONGLONG    Source, const GUID * pSourceFormat );
-    STDMETHODIMP SetPositions(LONGLONG * pCurrent, DWORD dwCurrentFlags, LONGLONG* pStop, DWORD dwStopFlags );
-    STDMETHODIMP GetPositions(LONGLONG * pCurrent, LONGLONG * pStop );
-    STDMETHODIMP GetAvailable(LONGLONG * pEarliest, LONGLONG * pLatest );
-    STDMETHODIMP SetRate(double dRate);
-    STDMETHODIMP GetRate(double * pdRate);
-    STDMETHODIMP GetPreroll(LONGLONG * pllPreroll);
-
 protected:
 
     // filter-wide lock
@@ -135,7 +113,9 @@ protected:
     // File
     HANDLE m_file;
 
-	CComQIPtr<IMediaSeeking> GetInputSeeking();
+	// IMediaSeeking and IMediaPosition logging
+	CAnalyzerPosPassThru*	m_PassThru;
+
 	void CloseFile();
 };
 

@@ -267,6 +267,7 @@
     <ClInclude Include="src\DMOQualCtrlPage.h" />
     <ClInclude Include="src\FilterFromFile.h" />
     <ClInclude Include="src\filters\analyzer\analyzer.h" />
+    <ClInclude Include="src\filters\analyzer\analyzer_pospassthru.h" />
     <ClInclude Include="src\filters\analyzer\filter_analyzer.h" />
     <ClInclude Include="src\filters\analyzer\filter_analyzer_writer.h" />
     <ClInclude Include="src\filters\audio_analyzer\audio_analyzer.h" />
@@ -308,6 +309,7 @@
     <ClInclude Include="src\ScheduleForm.h" />
     <ClInclude Include="src\SeekForm.h" />
     <ClInclude Include="src\TextInfoForm.h" />
+    <ClInclude Include="src\time_utils.h" />
     <ClInclude Include="src\VersionNo.h" />
     <ClInclude Include="src\VersionNo_SVN.tmpl.h" />
     <ClInclude Include="src\VolumeBarForm.h" />
@@ -396,6 +398,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\TextInfoForm.cpp" />
+    <ClCompile Include="src\time_utils.cpp" />
     <ClCompile Include="src\VolumeBarForm.cpp" />
     <ClCompile Include="src\BufferNegotiationPage.cpp" />
     <ClCompile Include="src\CustomPage.cpp" />

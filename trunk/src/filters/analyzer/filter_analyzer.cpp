@@ -7,76 +7,7 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
-
-//-----------------------------------------------------------------------------
-//
-//	CAnalyzerPosPassThru class
-//
-//-----------------------------------------------------------------------------
-
-class CAnalyzerPosPassThru : public CPosPassThru
-{
-public:
-	CAnalyzerPosPassThru(const TCHAR *pName, LPUNKNOWN pUnk, HRESULT *phr, IPin *pPin, CAnalyzer* analyzer)
-		: CPosPassThru(pName, pUnk, phr, pPin)
-		, m_Analyzer(analyzer)
-	{
-	}
-
-    STDMETHODIMP SetPositions( __inout_opt LONGLONG * pCurrent, DWORD CurrentFlags
-                             , __inout_opt LONGLONG * pStop, DWORD StopFlags )
-	{
-		if (m_Analyzer)
-			m_Analyzer->AddMSSetPositions(pCurrent, CurrentFlags, pStop, StopFlags);
-		return __super::SetPositions(pCurrent, CurrentFlags, pStop, StopFlags);
-	}
-
-	STDMETHODIMP SetRate(double dRate)
-	{
-		if (m_Analyzer)
-			m_Analyzer->AddDouble(SRK_MS_SetRate, dRate);
-		return __super::SetRate(dRate);
-	}
-
-	STDMETHODIMP SetTimeFormat(const GUID * pFormat)
-	{
-		if (m_Analyzer)
-			m_Analyzer->AddMSSetTimeFormat(pFormat);
-		return __super::SetTimeFormat(pFormat);
-	}
-
-    STDMETHODIMP put_CurrentPosition(REFTIME llTime)
-	{
-		if (m_Analyzer)
-			m_Analyzer->AddDouble(SRK_MP_SetCurrentPosition, llTime);
-		return __super::put_CurrentPosition(llTime);
-	}
-
-    STDMETHODIMP put_StopTime(REFTIME llTime)
-	{
-		if (m_Analyzer)
-			m_Analyzer->AddDouble(SRK_MP_SetStopTime, llTime);
-		return __super::put_StopTime(llTime);
-	}
-
-    STDMETHODIMP put_PrerollTime(REFTIME llTime)
-	{
-		if (m_Analyzer)
-			m_Analyzer->AddDouble(SRK_MP_SetPrerollTime, llTime);
-		return __super::put_PrerollTime(llTime);
-	}
-
-    STDMETHODIMP put_Rate(double dRate)
-	{
-		if (m_Analyzer)
-			m_Analyzer->AddDouble(SRK_MP_SetRate, dRate);
-		return __super::put_Rate(dRate);
-	}
-
-private:
-	CAnalyzer*		m_Analyzer;
-};
-
+#include "analyzer_pospassthru.h"
 
 //-----------------------------------------------------------------------------
 //
