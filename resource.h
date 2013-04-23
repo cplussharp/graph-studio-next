@@ -205,6 +205,10 @@
 #define IDC_SPIN_PREVIEWBYTECOUNT       1124
 #define IDC_STATIC_VERINFO              1125
 #define IDC_SEARCH_STRING               1126
+#define IDC_USE_MAJOR_TYPE              1127
+#define IDC_USE_SUB_TYPE                1128
+#define IDC_USE_SAMPLE_SIZE             1129
+#define IDC_USE_FORMAT_BLOCK            1130
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -334,7 +338,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        179
 #define _APS_NEXT_COMMAND_VALUE         32913
-#define _APS_NEXT_CONTROL_VALUE         1126
+#define _APS_NEXT_CONTROL_VALUE         1131
 #define _APS_NEXT_SYMED_VALUE           103
 #endif
 #endif
