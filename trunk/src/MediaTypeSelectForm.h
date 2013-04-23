@@ -40,4 +40,10 @@ public:
 	CButton ok_button;
 	CButton cancel_button;
 	afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
+
+	// static vars for check box state persisted for the application lifetime
+	static BOOL s_use_major_type;
+	static BOOL s_use_sub_type;
+	static BOOL s_use_sample_size;
+	static BOOL s_use_format_block;
 };

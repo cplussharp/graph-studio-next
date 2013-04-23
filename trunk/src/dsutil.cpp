@@ -1861,34 +1861,51 @@ namespace DSUtil
 		if (!direct) {
 			hr = gb->Connect(out_pin, in_pin);
 		} else {
-			DSUtil::MediaTypes outputMediaTypes;
 
             if (!chooseMediaType) {
 				hr = gb->ConnectDirect(out_pin, in_pin, NULL);
 			} else {
-				hr = DSUtil::EnumMediaTypes(pin1, outputMediaTypes);	// enum media types from first pin whether output or input
 
-				if (SUCCEEDED(hr)) {
+				do {														// attempt connection until we succeed or user cancels dialog
+					DSUtil::MediaTypes outputMediaTypes;					// enumerate media types every time in case modified below or by filter
+
+					hr = DSUtil::EnumMediaTypes(pin1, outputMediaTypes);	// enum media types from first pin whether output or input
+					if (FAILED(hr)) {
+						DSUtil::ShowError(hr, _T("Error enumerating media types"));
+						hr = S_OK;
+					}
+
 					CMediaTypeSelectForm dlg;
 					dlg.SetMediaTypes(outputMediaTypes);
-					while (true) {
-						if (IDOK != dlg.DoModal()) {
-							hr = S_FALSE;
-							break;
-						}
-						const int selectedIndex = dlg.SelectedMediaTypeIndex();
-						if (selectedIndex >= 0 && selectedIndex < outputMediaTypes.GetSize()) {
-							mediaType = &(outputMediaTypes[selectedIndex]);
-						} else {
-							mediaType = NULL;
-						}
-						hr = gb->ConnectDirect(out_pin, in_pin, mediaType);
-						if (FAILED(hr)) 
-							DSUtil::ShowError(hr, _T("Connecting Pins"));
-						else
-							break;	// success
+
+					if (IDOK != dlg.DoModal()) {		
+						hr = S_FALSE;
+						break;								// break out of loop if user cancels dialog
 					}
-				}
+					const int selectedIndex = dlg.SelectedMediaTypeIndex();
+					if (selectedIndex >= 0 && selectedIndex < outputMediaTypes.GetSize()) {
+
+						CMediaType &mt = outputMediaTypes[selectedIndex];
+						if (!dlg.s_use_major_type)
+							mt.majortype = GUID_NULL;
+						if (!dlg.s_use_sub_type)
+							mt.subtype = GUID_NULL;
+						if (!dlg.s_use_sample_size)
+							mt.lSampleSize = 0;
+						if (!dlg.s_use_format_block) {
+							mt.formattype = GUID_NULL;
+							mt.ResetFormatBuffer();
+						}
+
+						mediaType = &mt;
+					} else {
+						mediaType = NULL;
+					}
+					hr = gb->ConnectDirect(out_pin, in_pin, mediaType);
+					if (FAILED(hr)) 
+						DSUtil::ShowError(hr, _T("Connecting Pins"));
+
+				} while (FAILED(hr));
 			}
 		}
 		return hr;
