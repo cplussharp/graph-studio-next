@@ -975,8 +975,8 @@ BEGIN
         MENUITEM "&Open Graph/Media file...\tCtrl+O", ID_FILE_OPEN
         MENUITEM "Add Graph/&Media File...\tCtrl+A", ID_FILE_ADDMEDIAFILE
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
-        MENUITEM "Save As Graph (.&GRF)...\tCtrl+Shift+S", ID_FILE_SAVE_AS
-        MENUITEM "Save &As XML....\tAlt+Shift+S", ID_FILE_SAVEASXML
+        MENUITEM "Save &As Graph (.GRF)...\tCtrl+Shift+S", ID_FILE_SAVE_AS
+        MENUITEM "Save As XML&....\tAlt+Shift+S", ID_FILE_SAVEASXML
         POPUP "XML Opt&ions"
         BEGIN
             MENUITEM "Load Pins by &Name",          ID_FILEOPTIONS_LOADPINSBYNAME
