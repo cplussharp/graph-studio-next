@@ -1227,9 +1227,7 @@ namespace GraphStudio
 				alloc.cBuffers	= 20;
 
 				hr = buf_neg->SuggestAllocatorProperties(&alloc);
-				if (FAILED(hr)) {
-                    DSUtil::ShowError(_T("IAMBufferNegotiation::SuggestAllocatorProperties failed"));
-				}
+				DSUtil::ShowError(hr, _T("IAMBufferNegotiation::SuggestAllocatorProperties failed"));
 			}
 		} else {
 			// we'll see
@@ -1255,18 +1253,14 @@ namespace GraphStudio
 			// enable sync
 			if (sync >= 0) {
 				hr = gs->SyncUsingStreamOffset((sync == 1 ? TRUE : FALSE));
-				if (FAILED(hr)) {
-					DSUtil::ShowError(_T("Failed to set IAMGraphStreams::SyncUsingStreamOffset"));
-				}
+				DSUtil::ShowError(_T("Failed to set IAMGraphStreams::SyncUsingStreamOffset"));
 			}
 
 			// max latency
 			if (sync == 1 && latency >= 0) {
 				const REFERENCE_TIME rtMaxLatency = latency;
 				hr = gs->SetMaxGraphLatency(rtMaxLatency);
-				if (FAILED(hr)) {
-					DSUtil::ShowError(_T("Failed to set IAMGraphStreams::SetMaxGraphLatency"));
-				}
+				DSUtil::ShowError(_T("Failed to set IAMGraphStreams::SetMaxGraphLatency"));
 			}
 			return S_OK;
 		}
@@ -1584,54 +1578,91 @@ namespace GraphStudio
 		GRF_File grf;
 		hr = grf.Load(filename);
 
+		if (FAILED(hr))
+			return hr;
+
 		// attempt to load partial graph
 
 		for (int i=0; i<grf.grf_filters.GetCount(); i++) {
 			GRF_Filter& filter = grf.grf_filters[i];
-			filter.ibasefilter.CoCreateInstance(filter.clsid, NULL, CLSCTX_INPROC_SERVER);
+
+			CString guidStr;
+			NameGuid(filter.clsid, guidStr, true);
+			_tprintf(_T("Creating filter %d %s, CLSID %s\n"), filter.index, (LPCTSTR)filter.name, (LPCTSTR)guidStr); 
+
+			hr = filter.ibasefilter.CoCreateInstance(filter.clsid, NULL, CLSCTX_INPROC_SERVER);
 
 			ASSERT(filter.ibasefilter);
 
-			if (filter.ibasefilter) {
+			if (!filter.ibasefilter) {
+				CString errorStr;
+				errorStr.Format(_T("Cannot create filter %d %s, CLSID %s"), filter.index, (LPCTSTR)filter.name, (LPCTSTR)guidStr);
+				DSUtil::ShowError(hr, errorStr);
+
+			} else {
 
 				AddFilter(filter.ibasefilter, filter.name);
 
 				if (!filter.ipersiststream_data.IsEmpty()) {
+					_tprintf(_T("  Loading state\n")); 
+
+					bool success = false;
+
 					CComPtr<IStream> stream;
-					CreateStreamOnHGlobal(NULL, TRUE, &stream);
+					hr = CreateStreamOnHGlobal(NULL, TRUE, &stream);
 					if (stream) {
-						stream->Write((const void*)(const char*)filter.ipersiststream_data, filter.ipersiststream_data.GetLength(), NULL);
+						hr = stream->Write((const void*)(const char*)filter.ipersiststream_data, filter.ipersiststream_data.GetLength(), NULL);
 						LARGE_INTEGER zero;
 						zero.QuadPart = 0LL;
-						stream->Seek(zero, STREAM_SEEK_SET, NULL);
+						hr = stream->Seek(zero, STREAM_SEEK_SET, NULL);
 						CComQIPtr<IPersistStream> ps(filter.ibasefilter);
 						if (ps) {
 							hr = ps->Load(stream);
-							ASSERT(SUCCEEDED(hr));
+							success = SUCCEEDED(hr); 
 						}
+					}
+					if (!success) {
+						CString errorStr;
+						errorStr.Format(_T("Cannot load state for filter %d %s, CLSID %s"), filter.index, (LPCTSTR)filter.name, (LPCTSTR)guidStr);
+						DSUtil::ShowError(hr, errorStr);
 					}
 				}
 
 				if (!filter.source_filename.IsEmpty()) {
 					CComQIPtr<IFileSourceFilter> source(filter.ibasefilter);
 					if (source) {
-						hr = source->Load(filter.source_filename, NULL);
+						_tprintf(_T("  Loading source file %s\n"), (LPCTSTR)filter.source_filename);
+
+						const DWORD file_attributes = GetFileAttributes(filter.source_filename);
+
+						// Give the user a chance to fix up an invalid filename but only check file name for the first time
+						if (INVALID_FILE_ATTRIBUTES == file_attributes)
+							hr = E_INVALIDARG;
+						else 
+							hr = source->Load(filter.source_filename, NULL);
 
 						while (FAILED(hr)) {
-							CFileSrcForm form(_T("Missing source file"));
+							CFileSrcForm form(filter.name);
 							form.result_file = filter.source_filename;
 							hr = form.ChooseSourceFile(source);
 						}
-						ASSERT(SUCCEEDED(hr));
 					}
 				}
 
 				if (!filter.sink_filename.IsEmpty()) {
 					CComQIPtr<IFileSinkFilter> sink(filter.ibasefilter);
 					if (sink) {
-						hr = sink->SetFileName(filter.sink_filename, NULL);
+						_tprintf(_T("  Setting sink file %s\n"), (LPCTSTR)filter.sink_filename); 
 
-						CFileSinkForm form(_T("Missing destination file"));
+						const DWORD file_attributes = GetFileAttributes(filter.sink_filename);
+
+						// Give the user a chance to fix up an invalid filename but only check file name for the first time
+						if (INVALID_FILE_ATTRIBUTES == file_attributes)
+							hr = E_INVALIDARG;
+						else 
+							hr = sink->SetFileName(filter.sink_filename, NULL);
+
+						CFileSinkForm form(filter.name);
 						while (FAILED(hr)) {
 							form.result_file = filter.sink_filename;
 							hr = form.ChooseSinkFile(sink);
@@ -1645,6 +1676,10 @@ namespace GraphStudio
 			const GRF_Connection& connection = grf.grf_connections[i];
 
 			RefreshFilters();
+
+			_tprintf(_T("Connecting filter %d pin %s to filter %d pin %s\n"), 
+					connection.output_filter_index, (LPCTSTR)connection.output_pin_id, 
+					connection.input_filter_index, (LPCTSTR)connection.input_pin_id); 
 
 			Filter* out_filter = NULL;
 			if (connection.output_filter_index > 0 && connection.output_filter_index <= grf.grf_filters.GetCount())	// 1-based indices
@@ -1663,19 +1698,45 @@ namespace GraphStudio
 				out_pin = out_filter->FindPinByID(connection.output_pin_id);
 				in_pin = in_filter->FindPinByID(connection.input_pin_id);
 
-				ASSERT(out_pin);
-				ASSERT(in_pin);
+				if (!out_pin) {
+					CString errorStr;
+					errorStr.Format(_T("Can't find output pin ID %s for filter %d %s"), 
+							(LPCTSTR)connection.output_pin_id,
+							connection.output_filter_index,
+							(LPCTSTR)out_filter->display_name);
+					DSUtil::ShowError(errorStr);
+				}
+
+				if (!in_pin) {
+					CString errorStr;
+					errorStr.Format(_T("Can't find input pin ID %s for filter %d %s"), 
+							(LPCTSTR)connection.input_pin_id,
+							connection.input_filter_index,
+							(LPCTSTR)in_filter->display_name);
+					DSUtil::ShowError(errorStr);
+				}
 
 				if (out_pin && in_pin) {
 					hr = gb->ConnectDirect(out_pin->pin, in_pin->pin, &connection.media_type);
-					ASSERT(SUCCEEDED(hr));
-					if (FAILED(hr)) 
+
+					if (FAILED(hr)) {
+						CString errorStr;
+						errorStr.Format(_T("Connecting %s/%s to %s/%s"), 
+								(LPCTSTR)out_filter->display_name,
+								(LPCTSTR)connection.output_pin_id,
+								(LPCTSTR)in_filter->display_name,
+								(LPCTSTR)connection.input_pin_id);
+						DSUtil::ShowError(hr, errorStr);
+
 						hr = gb->ConnectDirect(out_pin->pin, in_pin->pin, NULL);	// reattempt with no media type
-					ASSERT(SUCCEEDED(hr));
+
+						CString title(_T("No media type: "));
+						DSUtil::ShowError(hr, title + errorStr);
+					}
 				}
 			}
 		}
-		return hr;
+		return S_OK;	// we report any loading errors above and load a partial graph
 	}
 
 	HRESULT DisplayGraph::LoadGRF(CString fn)
@@ -1684,8 +1745,6 @@ namespace GraphStudio
 
 		if (CgraphstudioApp::g_useInternalGrfParser)
 			return ParseGRFFile(fn);
-
-		bool failed_grf_load = false;	// only flag this is as true if we open a stream but fail to load the contents
 
 		{
 			hr = StgIsStorageFile(fn);
@@ -1698,21 +1757,21 @@ namespace GraphStudio
 				return hr;
 
 			CComQIPtr<IPersistStream> pPersistStream(gb);
-			if (pPersistStream) {
+			if (!pPersistStream) {
+				hr = E_NOINTERFACE;
+			} else {
 				CComPtr<IStream> pStream;
 				hr = pStorage->OpenStream(L"ActiveMovieGraph", 0, STGM_READ | STGM_SHARE_EXCLUSIVE, 0, &pStream);
 				if (SUCCEEDED(hr)) {
 					hr = pPersistStream->Load(pStream);
-					failed_grf_load = FAILED(hr);
 				}
 			}
 		}
 
-		if (failed_grf_load
-				&& IDYES == AfxMessageBox(_T("GRF file failed to load. Attempt loading with internal GRF file parser?"), MB_YESNOCANCEL)) {
-			hr = ParseGRFFile(fn);
+		if (DSUtil::ShowError(hr, _T("Load failed. Try internal GRF file parser?"))) {
+			return ParseGRFFile(fn);
 		}
-		return hr;
+		return S_FALSE;
 	}
 
 	int DisplayGraph::SaveGRF(CString fn)
@@ -1831,8 +1890,7 @@ namespace GraphStudio
 		    SmartPlacement();
         }
 
-		if (FAILED(hr)) 
-			DSUtil::ShowError(hr, _T("Connecting Pins"));
+		DSUtil::ShowError(hr, _T("Connecting Pins"));
 
 		return hr;
 	}

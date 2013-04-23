@@ -1902,8 +1902,7 @@ namespace DSUtil
 						mediaType = NULL;
 					}
 					hr = gb->ConnectDirect(out_pin, in_pin, mediaType);
-					if (FAILED(hr)) 
-						DSUtil::ShowError(hr, _T("Connecting Pins"));
+					DSUtil::ShowError(hr, _T("Connecting Pins"));
 
 				} while (FAILED(hr));
 			}
@@ -2083,8 +2082,10 @@ namespace DSUtil
 		return NOERROR;
 	}
 
-    void ShowError(HRESULT hr, LPCTSTR title)
+    bool ShowError(HRESULT hr, LPCTSTR title)
     {
+		bool ok_pressed = true;
+
         if (FAILED(hr))
         {
             if (m_bExitOnError)
@@ -2111,10 +2112,10 @@ namespace DSUtil
                 
             if (CTaskDialog::IsSupported())
             {
-                CTaskDialog taskDialog(strError, strHR, title != NULL ? title : _T("Error"), TDCBF_OK_BUTTON);
+                CTaskDialog taskDialog(strError, strHR, title != NULL ? title : _T("Error"), TDCBF_OK_BUTTON | TDCBF_CANCEL_BUTTON);
                 taskDialog.SetMainIcon(TD_ERROR_ICON);
-                //taskDialog.SetCommonButtons(TDCBF_OK_BUTTON);
                 taskDialog.LoadCommandControls(IDS_SEARCH_FOR_ERROR, IDS_SHOW_GRAPH_CONSTRUCTION_REPORT);
+				taskDialog.SetDefaultCommandControl(TDCBF_OK_BUTTON);
                 INT_PTR result = taskDialog.DoModal();
 
                 if(result == IDS_SEARCH_FOR_ERROR)
@@ -2126,19 +2127,24 @@ namespace DSUtil
                 else if(result == IDS_SHOW_GRAPH_CONSTRUCTION_REPORT)
                 {
                     AfxGetMainWnd()->SendMessage(WM_COMMAND, ID_VIEW_GRAPHCONSTRUCTIONREPORT);
-                }
+				} else if (result == IDCANCEL) {
+					ok_pressed = false;
+				}
             }
             else
             {
                 CString strMsg;
                 strMsg.Format(_T("%s\n%s"), strHR, szErr);
-                ShowError(strMsg,title);
+                ok_pressed = ShowError(strMsg,title);
             }
         }
+		return ok_pressed;
     }
 
-    void ShowError(LPCTSTR text, LPCTSTR title)
+    bool ShowError(LPCTSTR text, LPCTSTR title)
     {
+		bool ok_pressed = true;
+
         if (m_bExitOnError)
         {
             ASSERT(AfxGetMainWnd() != NULL);
@@ -2148,36 +2154,38 @@ namespace DSUtil
 
         if(CTaskDialog::IsSupported())
         {
-            CTaskDialog taskDialog(text, NULL, title != NULL ? title : _T("Error"), TDCBF_OK_BUTTON);
+            CTaskDialog taskDialog(text, NULL, title != NULL ? title : _T("Error"), TDCBF_OK_BUTTON | TDCBF_CANCEL_BUTTON);
             taskDialog.SetMainIcon(TD_ERROR_ICON);
-            taskDialog.DoModal();
+            ok_pressed = IDCANCEL != taskDialog.DoModal();
         }
         else
-            MessageBox(0, text, title != NULL ? title : _T("Error"), MB_OK | MB_ICONERROR);
+			ok_pressed = IDCANCEL != MessageBox(0, text, title != NULL ? title : _T("Error"), MB_OK | MB_ICONERROR);
+
+		return ok_pressed;
     }
 
-    void ShowInfo(LPCTSTR text, LPCTSTR title)
+    bool ShowInfo(LPCTSTR text, LPCTSTR title)
     {
         if(CTaskDialog::IsSupported())
         {
             CTaskDialog taskDialog(text, NULL, title != NULL ? title : _T("Info"), TDCBF_OK_BUTTON);
             taskDialog.SetMainIcon(TD_INFORMATION_ICON);
-            taskDialog.DoModal();
+            return IDCANCEL != taskDialog.DoModal();
         }
         else
-            MessageBox(0, text, title != NULL ? title : _T("Info"), MB_OK | MB_ICONERROR);
+            return IDCANCEL != MessageBox(0, text, title != NULL ? title : _T("Info"), MB_OK | MB_ICONERROR);
     }
 
-    void ShowWarning(LPCTSTR text, LPCTSTR title)
+    bool ShowWarning(LPCTSTR text, LPCTSTR title)
     {
         if(CTaskDialog::IsSupported())
         {
             CTaskDialog taskDialog(text, NULL, title != NULL ? title : _T("Warning"), TDCBF_OK_BUTTON);
             taskDialog.SetMainIcon(TD_WARNING_ICON);
-            taskDialog.DoModal();
+            return IDCANCEL != taskDialog.DoModal();
         }
         else
-            MessageBox(0, text, title != NULL ? title : _T("Warning"), MB_OK | MB_ICONWARNING);
+            return IDCANCEL != MessageBox(0, text, title != NULL ? title : _T("Warning"), MB_OK | MB_ICONWARNING);
     }
 
     bool InitSbeObject(CComQIPtr<IStreamBufferInitialize> pInit)
