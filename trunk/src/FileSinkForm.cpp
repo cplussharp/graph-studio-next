@@ -172,9 +172,7 @@ HRESULT CFileSinkForm::ChooseSinkFile(IFileSinkFilter* fsink)
 
 	if (DoModal() == IDOK) {
 		hr = fsink->SetFileName((LPCOLESTR)result_file, NULL);
-		if (FAILED(hr)) {
-			DSUtil::ShowError(_T("Can't write specified file"));
-		}
+		DSUtil::ShowError(hr, _T("Can't write specified file"));
 	}
 	return hr;
 }

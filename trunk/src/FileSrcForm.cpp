@@ -84,6 +84,7 @@ BOOL CFileSrcForm::OnInitDialog()
 	for (i=0; i<url_list.GetCount(); i++) combo_url.AddString(url_list[i]);
 
 	OnBnClickedRadioFile();
+	GotoDlgCtrl(&combo_file);
 	return TRUE;
 }
 
@@ -174,9 +175,7 @@ HRESULT CFileSrcForm::ChooseSourceFile(IFileSourceFilter* fs)
 
 	if (DoModal() == IDOK) {
 		hr = fs->Load((LPCOLESTR)result_file, NULL);
-		if (FAILED(hr)) {
-			DSUtil::ShowError(_T("Can't load specified file"));
-		}
+		DSUtil::ShowError(hr, _T("Can't load specified file"));
 	}
 	return hr;
 }

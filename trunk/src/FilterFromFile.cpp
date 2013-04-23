@@ -89,7 +89,7 @@ void CFilterFromFile::OnOK()
                     {
                         CString msg;
                         msg.Format(_T("Error loading library (hr = 0x%08x)"), hr);
-                        DSUtil::ShowError(msg);
+                        DSUtil::ShowError(hr, msg);
                         return;
                     }
 
@@ -98,7 +98,7 @@ void CFilterFromFile::OnOK()
                     {
                         CString msg;
                         msg.Format(_T("Error getting IClassFactory for filter (hr = 0x%08x)"), hr);
-                        DSUtil::ShowError(msg);
+                        DSUtil::ShowError(hr, msg);
                         return;
                     }
 
@@ -111,7 +111,7 @@ void CFilterFromFile::OnOK()
                 }
                 else
                 {
-                    DSUtil::ShowError(_T("CLSID - Parsing Error"));
+                    DSUtil::ShowError(hr, _T("CLSID - Parsing Error"));
                     result_clsid = CLSID_NULL;
                     return;
                 }

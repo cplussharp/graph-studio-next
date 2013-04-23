@@ -711,7 +711,7 @@ void CFiltersForm::OnUnregisterClick()
 			    } else {
 				    CString		msg;
 				    msg.Format(_T("Unregister failed: 0x%08x"), hr);
-				    DSUtil::ShowError(msg);
+				    DSUtil::ShowError(hr, msg);
 			    }
 
 		    } else
@@ -766,7 +766,7 @@ void CFiltersForm::OnUnregisterClick()
 					    } else {
 						    CString		msg;
                             msg.Format(_T("Unregister '%s' failed: 0x%08x"), PathFindFileName(fn), hr);
-						    DSUtil::ShowError(msg);
+						    DSUtil::ShowError(hr, msg);
 					    }
 				    }
 				    FreeLibrary(library);
@@ -786,7 +786,7 @@ void CFiltersForm::OnUnregisterClick()
 				    } else {
 					    CString		msg;
 					    msg.Format(_T("Unregister '%s' failed: 0x%08x"), filter->name, hr);
-					    DSUtil::ShowError(msg);
+					    DSUtil::ShowError(hr, msg);
 				    }
 			    }
 		    }
@@ -909,7 +909,7 @@ void CFiltersForm::OnRegisterClick()
 				} else {
 					CString	msg;
 					msg.Format(_T("Register '%s' failed: 0x%08x"), PathFindFileName(filename), hr);
-					DSUtil::ShowError(msg);
+					DSUtil::ShowError(hr, msg);
 				}
 			}
 			FreeLibrary(library);
