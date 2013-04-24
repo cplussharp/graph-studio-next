@@ -1,0 +1,9 @@
+
+// Additional definitions used for class wizard
+
+// For class wizard don't use a namespace for these declarations since class wizard doesn't recognize classes inside namespaces
+// cf stdafx.h
+// cf https://connect.microsoft.com/VisualStudio/feedback/details/543019/class-wizard-and-class-view-does-not-detect-namespaces-changes-in-configurations
+
+#define GRAPHSTUDIO_NAMESPACE_START		
+#define GRAPHSTUDIO_NAMESPACE_END		

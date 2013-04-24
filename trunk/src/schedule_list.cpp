@@ -7,8 +7,7 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	//-------------------------------------------------------------------------
 	//
@@ -608,7 +607,5 @@ namespace GraphStudio
 		return true;
 	}
 
-
-
-};
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
 

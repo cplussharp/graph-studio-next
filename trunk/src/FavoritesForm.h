@@ -7,8 +7,7 @@
 //-----------------------------------------------------------------------------
 #pragma once
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	class BookmarkedItem
 	{
@@ -122,7 +121,7 @@ namespace GraphStudio
 		void OnLButtonUp(UINT nFlags, CPoint point);
 	};
 
-};
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
 
 
 //-----------------------------------------------------------------------------
@@ -178,5 +177,6 @@ public:
 	void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	void OnTvnKeydownTreeFavorites(NMHDR *pNMHDR, LRESULT *pResult);
 	void OnAddFilters();
+
 };
 

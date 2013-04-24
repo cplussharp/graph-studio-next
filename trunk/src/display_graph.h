@@ -7,8 +7,9 @@
 //-----------------------------------------------------------------------------
 #pragma once
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
+
+
 	class DisplayView;
 	class DisplayGraph;
 	class Filter;
@@ -470,4 +471,5 @@ namespace GraphStudio
 
 	void MakeFont(CFont &f, CString name, int size, bool bold, bool italic);
     bool HasFont(CString fontName);
-};
+
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

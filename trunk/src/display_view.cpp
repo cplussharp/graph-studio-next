@@ -7,8 +7,7 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	//-------------------------------------------------------------------------
 	//
@@ -1381,5 +1380,6 @@ namespace GraphStudio
 	{
 		ToggleFilterClassBookmark(CFavoritesForm::GetBlacklistedFilters(), current_filter);
 	}
-};
 
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
+//}

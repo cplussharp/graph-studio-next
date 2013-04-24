@@ -7,8 +7,7 @@
 //-----------------------------------------------------------------------------
 #pragma once
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	//-------------------------------------------------------------------------
 	//
@@ -70,4 +69,4 @@ namespace GraphStudio
     static const GUID KSDATAFORMAT_SPECIFIER_61883_4 =
 	{ 0x97e218b1L, 0x1e5a, 0x498e, { 0xa9, 0x54, 0xf9, 0x62, 0xcf, 0xd9, 0x8c, 0xde } };
 
-};
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

@@ -7,8 +7,7 @@
 //-----------------------------------------------------------------------------
 #pragma once
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	//-------------------------------------------------------------------------
 	//
@@ -49,6 +48,4 @@ namespace GraphStudio
     int GetExtradata_H264(CMediaType *pmt, PropItem *mtinfo);
     int GetExtradata_MPEGVideo(CMediaType *pmt, PropItem *mtinfo);
 
-};
-
-
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

@@ -9,10 +9,10 @@
 
 class ScheduleEvent;
 
-namespace GraphStudio
-{
-	class ScheduleList;
 
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
+
+	class ScheduleList;
 
 	//-------------------------------------------------------------------------
 	//
@@ -121,8 +121,4 @@ namespace GraphStudio
 
 	bool VerifyTextPattern(CString newval);
 
-};
-
-
-
-
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

@@ -512,8 +512,7 @@ void CFavoritesForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 }
 
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	int _FavoriteCompare(BookmarkedItem *f1, BookmarkedItem *f2)
 	{
@@ -1108,5 +1107,5 @@ namespace GraphStudio
 		}
 
 	}
-};
 
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

@@ -331,13 +331,15 @@
 #define ID_CLSID_FILTERGRAPH            32910
 #define ID_CLSID_FILTERGRAPH_NO_THREAD  32911
 #define ID_CLSID_FILTERGRAPH_PRIVATE_THREAD 32912
+#define ID_FILE_OPENLOGFILE             32913
+#define ID_FILE_SETLOGFILE              32914
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        179
-#define _APS_NEXT_COMMAND_VALUE         32913
+#define _APS_NEXT_COMMAND_VALUE         32915
 #define _APS_NEXT_CONTROL_VALUE         1131
 #define _APS_NEXT_SYMED_VALUE           103
 #endif

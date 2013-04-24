@@ -7,8 +7,7 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	IMPLEMENT_DYNCREATE(FilterListCtrl, CListCtrl)
 	BEGIN_MESSAGE_MAP(FilterListCtrl, CListCtrl)
@@ -283,7 +282,4 @@ namespace GraphStudio
 		DeleteAllItems();
 	}
 
-};
-
-
-
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
