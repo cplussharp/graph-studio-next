@@ -7,8 +7,7 @@
 //-----------------------------------------------------------------------------
 #pragma once
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	//-------------------------------------------------------------------------
 	//
@@ -35,6 +34,4 @@ namespace GraphStudio
 		void GenerateMenu(CMenu *menu);
 	};
 
-
-};
-
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

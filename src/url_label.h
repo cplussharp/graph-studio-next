@@ -7,8 +7,7 @@
 //-----------------------------------------------------------------------------
 #pragma once
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	//-------------------------------------------------------------------------
 	//
@@ -47,7 +46,4 @@ namespace GraphStudio
 		virtual BOOL OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult);
 	};
 
-
-
-};
-
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

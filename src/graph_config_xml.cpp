@@ -13,12 +13,12 @@
 
 #pragma warning(disable: 4244)			// DWORD -> BYTE warning
 
-namespace GraphStudio
-{
-
 #define PRESET_START()		if (0) { 
 #define PRESET(x)			} else if (conf->name == _T(x)) {
 #define PRESET_END()		}
+
+
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	BOOL GetLocalAddresses(CArray<CString> &adrlist)
 	{
@@ -486,12 +486,4 @@ namespace GraphStudio
 		return hr;
 	}
 
-
-
-
-
-
-
-
-};
-
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

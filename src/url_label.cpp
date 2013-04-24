@@ -8,8 +8,8 @@
 #include "stdafx.h"
 #include <math.h>
 
-namespace GraphStudio
-{
+
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	IMPLEMENT_DYNCREATE(URLLabel, CStatic)
 
@@ -133,5 +133,5 @@ namespace GraphStudio
 		return __super::OnWndMsg(message, wParam, lParam, pResult);
 	}
 
-};
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
 

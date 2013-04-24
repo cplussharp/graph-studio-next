@@ -18,8 +18,7 @@
 #define DXVA2_E_NOT_AVAILABLE       ((HRESULT)0x80041003L)
 #endif
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 #define	KNOWN(x)			{ x, _T( # x ) }
 	struct GuidPair {
@@ -1285,6 +1284,6 @@ namespace GraphStudio
         return true;
     }
 
-};
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
 
 

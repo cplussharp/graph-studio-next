@@ -7,8 +7,7 @@
 //-----------------------------------------------------------------------------
 #pragma once
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	class FilterListCallback
 	{
@@ -62,5 +61,5 @@ namespace GraphStudio
 		afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 		afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	};
-};
 
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

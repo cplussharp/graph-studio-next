@@ -8,8 +8,7 @@
 #include "stdafx.h"
 #include <math.h>
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	IMPLEMENT_DYNCREATE(TitleBar, CStatic)
 
@@ -201,5 +200,5 @@ namespace GraphStudio
 		}
 	}
 
-};
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
 

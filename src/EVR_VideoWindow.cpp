@@ -9,8 +9,7 @@
 
 #pragma warning(disable: 4244)			// DWORD -> BYTE warning
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	//-------------------------------------------------------------------------
 	//
@@ -196,5 +195,4 @@ namespace GraphStudio
 		}
 	}
 
-};
-
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

@@ -7,8 +7,7 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	//-------------------------------------------------------------------------
 	//
@@ -115,6 +114,5 @@ namespace GraphStudio
 		menu->InsertMenu(cn, MF_BYPOSITION | MF_SEPARATOR);
 	}
 
-
-};
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
 

@@ -235,6 +235,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="res\addFilter.ico" />
     <None Include="res\bitmap_clock_active_hi.bmp" />
     <None Include="res\bitmap_clock_active_lo.bmp" />

@@ -42,6 +42,14 @@
 
 #pragma warning( disable : 4995 4996 )		// TODO fix deprecated function references
 
+// Define this here so that we can add a counter definition in cpp.hint
+// to allow Class Wizard to work with classes in GraphStudio namespace
+// cf https://connect.microsoft.com/VisualStudio/feedback/details/543019/class-wizard-and-class-view-does-not-detect-namespaces-changes-in-configurations
+
+#define GRAPHSTUDIO_NAMESPACE_START		namespace GraphStudio { 
+#define GRAPHSTUDIO_NAMESPACE_END		}
+
+
 // Find memmory leaks
 //#define _CRTDBG_MAP_ALLOC
 

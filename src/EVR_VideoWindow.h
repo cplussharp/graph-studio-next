@@ -7,8 +7,7 @@
 //-----------------------------------------------------------------------------
 #pragma once
 
-namespace GraphStudio
-{
+GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	class Filter;
 
@@ -52,7 +51,4 @@ namespace GraphStudio
 		void OnClose();
 	};
 
-
-
-};
-
+GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
