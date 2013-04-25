@@ -1814,7 +1814,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 		}
 
-		if (DSUtil::ShowError(hr, _T("Load failed. Try internal GRF file parser?"))) {
+		if (FAILED(hr) && DSUtil::ShowError(hr, _T("Load failed. Try internal GRF file parser?"))) {
 			return ParseGRFFile(fn);
 		}
 		return S_FALSE;
