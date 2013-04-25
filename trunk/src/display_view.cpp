@@ -49,6 +49,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		ON_COMMAND_RANGE(ID_COMPATIBLE_FILTER, ID_COMPATIBLE_FILTER+999, &DisplayView::OnCompatibleFilterClick)
         //ON_COMMAND_RANGE(ID_FAVORITE_FILTER, ID_FAVORITE_FILTER+500, &DisplayView::OnFavoriteFilterClick)
 
+		ON_COMMAND(ID_FILE_SETLOGFILE, &DisplayView::OnFileSetlogfile)
+		ON_UPDATE_COMMAND_UI(ID_FILE_SETLOGFILE, &DisplayView::OnUpdateFileSetlogfile)
 	END_MESSAGE_MAP()
 
 	DisplayView::DisplayView()
@@ -1381,5 +1383,26 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		ToggleFilterClassBookmark(CFavoritesForm::GetBlacklistedFilters(), current_filter);
 	}
 
+	void DisplayView::OnFileSetlogfile()
+	{
+		HRESULT hr = S_OK;
+		if (graph.IsLogFileOpen()) {
+			hr = graph.CloseLogFile();
+		} else {
+			CFileDialog dlg(FALSE, _T("txt"), _T("GraphStudioNextLog.txt"), OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_PATHMUSTEXIST,
+					_T("Text Files (*.txt)|*.txt|All Files (*.*)|*.*|"), this);
+
+			if (IDOK == dlg.DoModal()) {
+				hr = graph.OpenLogFile(dlg.GetPathName());
+			}
+		}
+		DSUtil::ShowError(hr, _T("Set Log File"));
+	}
+
+	void DisplayView::OnUpdateFileSetlogfile(CCmdUI *pCmdUI)
+	{
+		pCmdUI->Enable(!graph.is_remote);
+		pCmdUI->SetCheck(!graph.is_remote && graph.IsLogFileOpen());
+	}
+
 GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
-//}
