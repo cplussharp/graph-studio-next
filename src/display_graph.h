@@ -453,9 +453,15 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		inline void Dirty() { dirty = true; }
 
+		bool IsLogFileOpen() const					{ return m_log_file != INVALID_HANDLE_VALUE; }
+		HRESULT OpenLogFile(LPCTSTR file_name);
+		HRESULT CloseLogFile();
+
 	private:
 		HRESULT ParseGRFFile(LPCWSTR filename);
 		void PositionRowOfUnconnectedFilters(const CArray<Filter*> &, int row_length);
+
+		HANDLE	m_log_file;
 	};
 
 	// helpers

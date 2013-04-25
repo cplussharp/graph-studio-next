@@ -153,6 +153,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         , rotRegister(0)
 		, dirty(true)
 		, m_filter_graph_clsid(&CLSID_FilterGraph)
+		, m_log_file(INVALID_HANDLE_VALUE)
 	{
 		HRESULT			hr = NOERROR;
 		graph_callback = new GraphCallbackImpl(NULL, &hr, this);
@@ -162,6 +163,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	DisplayGraph::~DisplayGraph()
 	{
+		CloseLogFile();
 		if (graph_callback) {
 			graph_callback->NonDelegatingRelease();
 			graph_callback = NULL;
@@ -185,6 +187,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			me->SetNotifyWindow(NULL, 0, NULL);
 			me = NULL;
 		}
+		if (!is_remote && gb)
+			gb->SetLogFile(NULL);
 		gb = NULL;
 		cgb = NULL;
 		is_remote = false;
@@ -244,6 +248,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			RemoveSelectionFromGraph();
 			DeleteAllFilters();
 			columns.RemoveAll();
+			if (gb)
+				gb->SetLogFile(NULL);
 			gb = NULL;
 			cgb = NULL;
 		} else {
@@ -266,6 +272,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			hr = gb.CoCreateInstance(*m_filter_graph_clsid, NULL, CLSCTX_INPROC_SERVER);
 			if (FAILED(hr)) 
 				break;
+
+			// If log file already open use it with the new graph showing any errors
+			if (m_log_file != INVALID_HANDLE_VALUE)
+				DSUtil::ShowError(gb->SetLogFile((DWORD_PTR)m_log_file), _T("Set Log File"));
 
             AddToRot();
 
@@ -308,6 +318,42 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		return 0;
+	}
+
+	HRESULT DisplayGraph::OpenLogFile(LPCTSTR file_name)
+	{
+		if (!gb)
+			return E_POINTER;
+
+		if (is_remote)
+			return E_FAIL;
+
+		if (IsLogFileOpen())
+			return E_HANDLE;
+
+		gb->SetLogFile(NULL);
+
+		m_log_file = CreateFile(file_name, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		const DWORD error = GetLastError();
+		if(error != 0 && error != ERROR_ALREADY_EXISTS)
+			return HRESULT_FROM_WIN32(error);
+
+		return gb->SetLogFile((DWORD_PTR)m_log_file);
+	}
+
+	HRESULT DisplayGraph::CloseLogFile()
+	{
+		HRESULT hr = S_FALSE;
+
+		if (gb && !is_remote)
+			hr = gb->SetLogFile(NULL);
+
+		if (m_log_file != INVALID_HANDLE_VALUE) {
+			CloseHandle(m_log_file);
+			m_log_file = INVALID_HANDLE_VALUE;
+		}
+
+		return hr;
 	}
 
     void DisplayGraph::AddToRot()

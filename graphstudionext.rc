@@ -993,6 +993,8 @@ BEGIN
         MENUITEM "&Connect to Remote Graph...\tCtrl+G", ID_FILE_CONNECTTOREMOTEGRAPH
         MENUITEM "&Disconnect from Remote Graph...\tCtrl+H", ID_FILE_DISCONNECTFROMREMOTEGRAPH
         MENUITEM SEPARATOR
+        MENUITEM "Set Lo&g file...",            ID_FILE_SETLOGFILE
+        MENUITEM SEPARATOR
         MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
         MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
         MENUITEM "Print Se&tup...",             ID_FILE_PRINT_SETUP
@@ -1417,6 +1419,7 @@ STRINGTABLE
 BEGIN
     ID_CLSID_FILTERGRAPH_PRIVATE_THREAD 
                             "Use FilterGraph with private worker thread (clears graph). Not documented by Microsoft"
+    ID_FILE_SETLOGFILE      "Open or Close the Unicode log file for graph building operations. Can't be used for remote graphs"
 END
 
 #endif    // English (United States) resources
