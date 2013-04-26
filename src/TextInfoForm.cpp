@@ -332,8 +332,10 @@ void CTextInfoForm::DoWaveFormatEx(AM_MEDIA_TYPE *pmt, int level, int offset)
 {
 	CString			t, f, ofs;
 	for (int i=0; i<offset; i++) ofs += _T(" ");
-	WAVEFORMATEX	*wfx = (WAVEFORMATEX*)pmt->pbFormat;
-	if (!wfx) return ;
+
+	if (!pmt->pbFormat || pmt->cbFormat < sizeof(WAVEFORMATEX))
+		return;
+	const WAVEFORMATEX	* const wfx = (WAVEFORMATEX*)pmt->pbFormat;
 
 	Echo(ofs+_T("WAVEFORMATEX:"));
 	t.Format(_T("    wFormatTag:           0x%04x (%d)"), wfx->wFormatTag, wfx->wFormatTag);	Echo(ofs+t);
@@ -356,8 +358,12 @@ void CTextInfoForm::DoMPEG2VideoInfo(AM_MEDIA_TYPE *pmt, int level, int offset)
 {
 	CString				t, f, ofs;
 	for (int i=0; i<offset; i++) ofs += _T(" ");
-	MPEG2VIDEOINFO		*mv = (MPEG2VIDEOINFO*)pmt->pbFormat;
+
 	DoVideoInfo2(pmt, level, offset);
+
+	if (!pmt->pbFormat || pmt->cbFormat < sizeof(MPEG2VIDEOINFO))
+		return;
+	const MPEG2VIDEOINFO * const mv = (MPEG2VIDEOINFO*)pmt->pbFormat;
 
 	Echo(ofs+_T("MPEG2VIDEOINFO:"));
 	t.Format(_T("    dwStartTimeCode:      %d"), mv->dwStartTimeCode);			Echo(ofs+t);
@@ -395,7 +401,10 @@ void CTextInfoForm::DoVideoInfo2(AM_MEDIA_TYPE *pmt, int level, int offset)
 {
 	CString				t, f, ofs;
 	for (int i=0; i<offset; i++) ofs += _T(" ");
-	VIDEOINFOHEADER2	*vih = (VIDEOINFOHEADER2*)pmt->pbFormat;
+
+	if (!pmt->pbFormat || pmt->cbFormat < sizeof(VIDEOINFOHEADER2))
+		return;
+	const VIDEOINFOHEADER2 * const vih = (VIDEOINFOHEADER2*)pmt->pbFormat;
 
 	Echo(ofs+_T("VIDEOINFOHEADER2:"));
 	t.Format(_T("    rcSource:             (%d,%d,%d,%d)"), vih->rcSource.left,vih->rcSource.top, vih->rcSource.right, vih->rcSource.bottom);
@@ -429,7 +438,10 @@ void CTextInfoForm::DoVideoInfo(AM_MEDIA_TYPE *pmt, int level, int offset)
 {
 	CString				t, f, ofs;
 	for (int i=0; i<offset; i++) ofs += _T(" ");
-	VIDEOINFOHEADER	*vih = (VIDEOINFOHEADER*)pmt->pbFormat;
+
+	if (!pmt->pbFormat || pmt->cbFormat < sizeof(VIDEOINFOHEADER))
+		return;
+	const VIDEOINFOHEADER * const vih = (VIDEOINFOHEADER*)pmt->pbFormat;
 
 	Echo(ofs+_T("VIDEOINFOHEADER:"));
 	t.Format(_T("    rcSource:             (%d,%d,%d,%d)"), vih->rcSource.left,vih->rcSource.top, vih->rcSource.right, vih->rcSource.bottom);
@@ -451,7 +463,7 @@ void CTextInfoForm::DoVideoInfo(AM_MEDIA_TYPE *pmt, int level, int offset)
 	*/
 }
 
-void CTextInfoForm::DoBitmapInfoHeader(BITMAPINFOHEADER *bmi, int offset)
+void CTextInfoForm::DoBitmapInfoHeader(const BITMAPINFOHEADER *bmi, int offset)
 {
 	CString				t, f, ofs;
 	for (int i=0; i<offset; i++) ofs += _T(" ");

@@ -60,7 +60,7 @@ public:
 	void DoVideoInfo(AM_MEDIA_TYPE *pmt, int level, int offset);
 	void DoVideoInfo2(AM_MEDIA_TYPE *pmt, int level, int offset);
 	void DoMPEG2VideoInfo(AM_MEDIA_TYPE *pmt, int level, int offset);
-	void DoBitmapInfoHeader(BITMAPINFOHEADER *bmi, int offset);
+	void DoBitmapInfoHeader(const BITMAPINFOHEADER *bmi, int offset);
 
 
 	void DoDumpRawBuffer(void *buf, int len, int offset);

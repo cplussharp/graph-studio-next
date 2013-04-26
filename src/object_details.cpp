@@ -252,7 +252,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 0;
 	}
 
-	int GetPinTemplateDetails(DSUtil::PinTemplate *pin, PropItem *info)
+	int GetPinTemplateDetails(const DSUtil::PinTemplate *pin, PropItem *info)
 	{
 		if (pin->dir == PINDIR_INPUT) {
 			info->AddItem(new PropItem(_T("Direction"), CString(_T("PINDIR_INPUT"))));
@@ -461,7 +461,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 0;
 	}
 
-	int GetAllocatorDetails(ALLOCATOR_PROPERTIES *prop, PropItem *apinfo)
+	int GetAllocatorDetails(const ALLOCATOR_PROPERTIES *prop, PropItem *apinfo)
 	{
 		apinfo->AddItem(new PropItem(_T("cBuffers"), prop->cBuffers));
 		apinfo->AddItem(new PropItem(_T("cbBuffer"), prop->cbBuffer));
@@ -470,7 +470,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 0;
 	}
 
-	int GetMediaTypeDetails(CMediaType *pmt, PropItem *mtinfo)
+	int GetMediaTypeDetails(const CMediaType *pmt, PropItem *mtinfo)
 	{
 		CString		id_name;
 
@@ -483,8 +483,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		mtinfo->AddItem(new PropItem(_T("lSampleSize"), (int)pmt->lSampleSize));
 		mtinfo->AddItem(new PropItem(_T("cbFormat"), (int)pmt->cbFormat));
 
-		if (pmt->formattype == FORMAT_WaveFormatEx) {
-			WAVEFORMATEX	*wfx = (WAVEFORMATEX*)pmt->pbFormat;
+		if (pmt->formattype == FORMAT_WaveFormatEx && pmt->cbFormat >= sizeof(WAVEFORMATEX)) {
+			const WAVEFORMATEX	* const wfx = (WAVEFORMATEX*)pmt->pbFormat;
 			uint8			*extra = NULL;
 			int				len = 0;
 
@@ -544,8 +544,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		}
 		else 
-		if (pmt->formattype == FORMAT_WaveFormatExFFMPEG) {
-			WAVEFORMATEXFFMPEG	*wfxFfmpeg = (WAVEFORMATEXFFMPEG*)pmt->pbFormat;
+		if (pmt->formattype == FORMAT_WaveFormatExFFMPEG && pmt->cbFormat >= sizeof(WAVEFORMATEXFFMPEG)) {
+			const WAVEFORMATEXFFMPEG * const wfxFfmpeg = (WAVEFORMATEXFFMPEG*)pmt->pbFormat;
 			uint8			*extra = NULL;
 			int				len = 0;
 			
@@ -585,9 +585,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 		}
 		else 
-		if (pmt->formattype == FORMAT_VideoInfo) {
-			VIDEOINFOHEADER	*vih = (VIDEOINFOHEADER*)pmt->pbFormat;
-			PropItem	*vihinfo = mtinfo->AddItem(new PropItem(_T("VIDEOINFOHEADER")));
+		if (pmt->formattype == FORMAT_VideoInfo && pmt->cbFormat >= sizeof(VIDEOINFOHEADER)) {
+			const VIDEOINFOHEADER * const vih = (VIDEOINFOHEADER*)pmt->pbFormat;
+			PropItem * const vihinfo = mtinfo->AddItem(new PropItem(_T("VIDEOINFOHEADER")));
 			GetVideoInfoDetails(vih, vihinfo);
 
 			uint8			*extra = NULL;
@@ -615,9 +615,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 
 		} else
-		if (pmt->formattype == FORMAT_VideoInfo2) {
-			VIDEOINFOHEADER2	*vih = (VIDEOINFOHEADER2*)pmt->pbFormat;
-			PropItem	*vihinfo = mtinfo->AddItem(new PropItem(_T("VIDEOINFOHEADER2")));
+		if (pmt->formattype == FORMAT_VideoInfo2 && pmt->cbFormat >= sizeof(VIDEOINFOHEADER2)) {
+			const VIDEOINFOHEADER2 * const vih = (VIDEOINFOHEADER2*)pmt->pbFormat;
+			PropItem	* const vihinfo = mtinfo->AddItem(new PropItem(_T("VIDEOINFOHEADER2")));
 			GetVideoInfo2Details(vih, vihinfo);
 
 			uint8			*extra = NULL;
@@ -644,14 +644,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				info->AddItem(new PropItem(_T("Extradata"), extrabuf));
 			}
 		} else
-		if (pmt->formattype == FORMAT_MPEGVideo) {
-			MPEG1VIDEOINFO		*mvi = (MPEG1VIDEOINFO*)pmt->pbFormat;
-			PropItem	*mviinfo = mtinfo->AddItem(new PropItem(_T("MPEG1VIDEOINFO")));
+		if (pmt->formattype == FORMAT_MPEGVideo && pmt->cbFormat >= sizeof(MPEG1VIDEOINFO)) {
+			const MPEG1VIDEOINFO	* const mvi = (MPEG1VIDEOINFO*)pmt->pbFormat;
+			PropItem	* const mviinfo = mtinfo->AddItem(new PropItem(_T("MPEG1VIDEOINFO")));
 			GetMpeg1VideoInfoDetails(mvi, mviinfo);
 		} else
-		if (pmt->formattype == FORMAT_MPEG2Video) {
-			MPEG2VIDEOINFO		*mvi = (MPEG2VIDEOINFO*)pmt->pbFormat;
-			PropItem	*mviinfo = mtinfo->AddItem(new PropItem(_T("MPEG2VIDEOINFO")));
+		if (pmt->formattype == FORMAT_MPEG2Video && pmt->cbFormat >= sizeof(MPEG2VIDEOINFO)) {
+			const MPEG2VIDEOINFO * const mvi = (MPEG2VIDEOINFO*)pmt->pbFormat;
+			PropItem * const mviinfo = mtinfo->AddItem(new PropItem(_T("MPEG2VIDEOINFO")));
 			GetMpeg2VideoInfoDetails(mvi, mviinfo);
 
             // we can also parse out decoder specific info in some cases
@@ -698,7 +698,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	};
 	const int WfxCount = sizeof(WfExNames)/sizeof(WfExNames[0]);
 
-	int GetWaveFormatExtensibleDetails(WAVEFORMATEXTENSIBLE *wfx, PropItem *wfxinfo)
+	int GetWaveFormatExtensibleDetails(const WAVEFORMATEXTENSIBLE *wfx, PropItem *wfxinfo)
 	{
         if (wfx == NULL) return 0;
 		// read waveformatex info
@@ -727,7 +727,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 0;
 	}
 
-	int GetWaveFormatExDetails(WAVEFORMATEX *wfx, PropItem *wfxinfo)
+	int GetWaveFormatExDetails(const WAVEFORMATEX *wfx, PropItem *wfxinfo)
 	{
         if (wfx == NULL) return 0;
 		CString		fmttag;
@@ -752,7 +752,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 0;
 	}
 
-	int GetVideoInfoDetails(VIDEOINFOHEADER *vih, PropItem *vihinfo)
+	int GetVideoInfoDetails(const VIDEOINFOHEADER *vih, PropItem *vihinfo)
 	{
         if(!vih) return 0;
 		vihinfo->AddItem(new PropItem(_T("rcSource"), vih->rcSource));
@@ -766,7 +766,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 0;
 	}
 
-	int GetVideoInfo2Details(VIDEOINFOHEADER2 *vih, PropItem *vihinfo)
+	int GetVideoInfo2Details(const VIDEOINFOHEADER2 *vih, PropItem *vihinfo)
 	{
         if(!vih) return 0;
 		vihinfo->AddItem(new PropItem(_T("rcSource"), vih->rcSource));
@@ -787,7 +787,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 0;
 	}
 
-	int GetMpeg1VideoInfoDetails(MPEG1VIDEOINFO *mvi, PropItem *mviinfo)
+	int GetMpeg1VideoInfoDetails(const MPEG1VIDEOINFO *mvi, PropItem *mviinfo)
 	{
         if(!mvi) return 0;
 		mviinfo->AddItem(new PropItem(_T("dwStartTimeCode"), (int)mvi->dwStartTimeCode));
@@ -812,7 +812,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 0;
 	}
 
-	int GetMpeg2VideoInfoDetails(MPEG2VIDEOINFO *mvi, PropItem *mviinfo)
+	int GetMpeg2VideoInfoDetails(const MPEG2VIDEOINFO *mvi, PropItem *mviinfo)
 	{
         if(!mvi) return 0;
 		mviinfo->AddItem(new PropItem(_T("dwStartTimeCode"), (int)mvi->dwStartTimeCode));
@@ -840,7 +840,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 0;
 	}
 
-	int GetMpegLayer3InfoDetails(MPEGLAYER3WAVEFORMAT *mp3, PropItem *mp3info)
+	int GetMpegLayer3InfoDetails(const MPEGLAYER3WAVEFORMAT *mp3, PropItem *mp3info)
 	{
         if(!mp3) return 0;
 		mp3info->AddItem(new PropItem(_T("wID"), (int)mp3->wID));
@@ -860,7 +860,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 0;
 	}
 
-	int GetMpeg1WaveFormatDetails(MPEG1WAVEFORMAT *wfx, PropItem *mpinfo)
+	int GetMpeg1WaveFormatDetails(const MPEG1WAVEFORMAT *wfx, PropItem *mpinfo)
 	{
         if(!wfx) return 0;
 		CString		f;
@@ -911,7 +911,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 0;
 	}
 
-	int GetBitmapInfoDetails(BITMAPINFOHEADER *bih, PropItem *bihinfo)
+	int GetBitmapInfoDetails(const BITMAPINFOHEADER *bih, PropItem *bihinfo)
 	{
         if(!bih) return 0;
 		CString		v, c;
@@ -1042,12 +1042,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 0;
 	}
 
-	int GetExtradata_AAC(CMediaType *pmt, PropItem *mtinfo)
+	int GetExtradata_AAC(const CMediaType *pmt, PropItem *mtinfo)
 	{
-        if (pmt->pbFormat == NULL) return 0;
-		if (pmt->formattype != FORMAT_WaveFormatEx) return 0;
+        if (pmt->pbFormat == NULL
+				|| pmt->formattype != FORMAT_WaveFormatEx
+				|| pmt->cbFormat < sizeof(WAVEFORMATEX)) 
+			return 0;
 
-		WAVEFORMATEX	*wfx = (WAVEFORMATEX*)pmt->pbFormat;
+		const WAVEFORMATEX * const wfx = (WAVEFORMATEX*)pmt->pbFormat;
 		int			extralen = wfx->cbSize;
 		uint8		  *extra = (uint8*)(wfx) + sizeof(WAVEFORMATEX);
 
@@ -1224,12 +1226,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         return 0;
     }
 
-    int GetExtradata_H264(CMediaType *pmt, PropItem *mtinfo)
+    int GetExtradata_H264(const CMediaType *pmt, PropItem *mtinfo)
 	{
-        if (pmt->pbFormat == NULL) return 0;
-		if (pmt->formattype != FORMAT_MPEG2Video) return 0;
+        if (pmt->pbFormat == NULL
+				|| pmt->formattype != FORMAT_MPEG2Video
+				|| pmt->cbFormat < sizeof(MPEG2VIDEOINFO)) 
+			return 0;
 
-		MPEG2VIDEOINFO	*m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
+		const MPEG2VIDEOINFO * const m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
 		int			extralen = m2vi->cbSequenceHeader;
         uint8*      extra = (uint8*)m2vi->dwSequenceHeader;
 
@@ -1273,13 +1277,15 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 0;
 	}
 
-    int GetExtradata_MPEGVideo(CMediaType *pmt, PropItem *mtinfo)
+    int GetExtradata_MPEGVideo(const CMediaType *pmt, PropItem *mtinfo)
 	{
-        if (pmt->pbFormat == NULL) return 0;
-		if (pmt->formattype != FORMAT_MPEG2Video) return 0;
+        if (pmt->pbFormat == NULL
+				|| pmt->formattype != FORMAT_MPEG2Video
+				|| pmt->cbFormat < sizeof(MPEG2VIDEOINFO)) 
+			return 0;
         bool isMpeg1 = false;
 
-		MPEG2VIDEOINFO	*m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
+		const MPEG2VIDEOINFO	* const m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
 		int			extralen = m2vi->cbSequenceHeader;
         uint8*      extra = (uint8*)m2vi->dwSequenceHeader;
 

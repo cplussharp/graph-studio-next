@@ -1258,12 +1258,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		const CMediaType mt = mtlist[0];
 		if (mt.majortype == MEDIATYPE_Audio && 
 			mt.subtype == MEDIASUBTYPE_PCM &&
-			mt.formattype == FORMAT_WaveFormatEx
-			) {
+			mt.formattype == FORMAT_WaveFormatEx && 
+			mt.cbFormat >= sizeof(WAVEFORMATEX)) {
 			int		latency_ms = conf->GetValue(_T("latency"), -1);
 			if (latency_ms > 0) {
 			
-				WAVEFORMATEX * const wfx = (WAVEFORMATEX*)mt.pbFormat;
+				const WAVEFORMATEX * const wfx = (WAVEFORMATEX*)mt.pbFormat;
 
 				// just like MSDN said: -1 = we don't care
 				ALLOCATOR_PROPERTIES		alloc;
