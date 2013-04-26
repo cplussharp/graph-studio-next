@@ -77,13 +77,14 @@ BOOL CMediaTypeSelectForm::OnInitDialog()
 		GraphStudio::NameGuid(mediaType.formattype, formatType, CgraphstudioApp::g_showGuidsOfKnownTypes);
 
         // get formatDetails (like '640x480' or '2 channels 44khz')
-        if (mediaType.pbFormat != NULL)
+        if (mediaType.pbFormat)
         {
-            BITMAPINFOHEADER* bmi = NULL;
-            if(mediaType.formattype == FORMAT_VideoInfo)
-                bmi = &((VIDEOINFOHEADER*)mediaType.pbFormat)->bmiHeader;
-            else if(mediaType.formattype == FORMAT_VideoInfo2 || mediaType.formattype == FORMAT_MPEG2_VIDEO)
-                bmi = &((VIDEOINFOHEADER2*)mediaType.pbFormat)->bmiHeader;
+            const BITMAPINFOHEADER* bmi = NULL;
+			if(mediaType.formattype == FORMAT_VideoInfo && mediaType.cbFormat >= sizeof(VIDEOINFOHEADER))
+                bmi = &((const VIDEOINFOHEADER*)mediaType.pbFormat)->bmiHeader;
+            else if( (mediaType.formattype == FORMAT_VideoInfo2 || mediaType.formattype == FORMAT_MPEG2_VIDEO)
+					&& mediaType.cbFormat >= sizeof(VIDEOINFOHEADER) )
+                bmi = &((const VIDEOINFOHEADER2*)mediaType.pbFormat)->bmiHeader;
 
             if(bmi != NULL) 
 			{
@@ -92,9 +93,9 @@ BOOL CMediaTypeSelectForm::OnInitDialog()
 				formatDetails.Format(_T("%4d x %4d, %3d bpp, %6.3f av"), 
 							bmi->biWidth, bmi->biHeight, bmi->biBitCount, averageBPP);
 			} 
-			else if(mediaType.formattype == FORMAT_WaveFormatEx)
+			else if(mediaType.formattype == FORMAT_WaveFormatEx && mediaType.cbFormat >= sizeof(WAVEFORMATEX))
             {
-                WAVEFORMATEX* wfx = (WAVEFORMATEX*)mediaType.pbFormat;
+                const WAVEFORMATEX* const wfx = (WAVEFORMATEX*)mediaType.pbFormat;
                 formatDetails.Format(_T("%dx %dHz with %dBits"), wfx->nChannels, wfx->nSamplesPerSec, wfx->wBitsPerSample);
             }
         }

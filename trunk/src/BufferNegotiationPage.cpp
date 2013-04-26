@@ -83,10 +83,11 @@ void CBufferNegotiationPage::OnSetClick()
 		CMediaType		mt = mtlist[0];
 		if (mt.majortype == MEDIATYPE_Audio && 
 			mt.subtype == MEDIASUBTYPE_PCM &&
-			mt.formattype == FORMAT_WaveFormatEx
+			mt.formattype == FORMAT_WaveFormatEx &&
+			mt.cbFormat >= sizeof(WAVEFORMATEX)
 			) {
 
-			WAVEFORMATEX	*wfx = (WAVEFORMATEX*)mt.pbFormat;
+			const WAVEFORMATEX * const wfx = (WAVEFORMATEX*)mt.pbFormat;
 
 			// just like MSDN said: -1 = we don't care
 			ALLOCATOR_PROPERTIES		alloc;
@@ -146,10 +147,11 @@ int CBufferNegotiationPage::RefreshInfo()
 		CMediaType		mt = mtlist[0];
 		if (mt.majortype == MEDIATYPE_Audio && 
 			mt.subtype == MEDIASUBTYPE_PCM &&
-			mt.formattype == FORMAT_WaveFormatEx
+			mt.formattype == FORMAT_WaveFormatEx &&
+			mt.cbFormat >= sizeof(WAVEFORMATEX)
 			) {
 
-			WAVEFORMATEX	*wfx = (WAVEFORMATEX*)mt.pbFormat;
+			const WAVEFORMATEX * const wfx = (WAVEFORMATEX*)mt.pbFormat;
 			CString			t;
 
 			t.Format(_T("%d"), wfx->nSamplesPerSec);	label_samplerate.SetWindowText(t);

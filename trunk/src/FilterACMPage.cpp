@@ -192,8 +192,8 @@ void CAudioCompressionPage::ReloadCurrent()
 		return ;
 	}
 
-	if (mt->formattype == FORMAT_WaveFormatEx) {
-		WAVEFORMATEX	*wfx		= (WAVEFORMATEX*)mt->pbFormat;
+	if (mt->formattype == FORMAT_WaveFormatEx && mt->cbFormat >= sizeof(WAVEFORMATEX)) {
+		const WAVEFORMATEX	* const wfx	= (WAVEFORMATEX*)mt->pbFormat;
 
 		// get parameters
 		int		format = wfx->wFormatTag;
@@ -587,9 +587,9 @@ int AudioCapsList::Refresh(IAMStreamConfig *config)
 		if (SUCCEEDED(hr)) {
 
 			// for now we only accept WAVEFORMATEX
-			if (mt->formattype == FORMAT_WaveFormatEx) {
+			if (mt->formattype == FORMAT_WaveFormatEx && mt->cbFormat >= sizeof(WAVEFORMATEX)) {
 
-				WAVEFORMATEX	*wfx		= (WAVEFORMATEX*)mt->pbFormat;
+				WAVEFORMATEX * const wfx = (WAVEFORMATEX*)mt->pbFormat;
 				int				added_count = 0;
 
 				// check the audiocaps

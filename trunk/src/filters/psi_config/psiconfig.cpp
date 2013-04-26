@@ -880,7 +880,7 @@ HRESULT CPayloadParserInputPin::Receive(IMediaSample * pSample)
 
                 ZeroMemory(m_parsedMediaType.pbFormat, m_parsedMediaType.cbFormat);
 
-                MPEG2VIDEOINFO* pInfo = (MPEG2VIDEOINFO*)m_parsedMediaType.pbFormat;
+                MPEG2VIDEOINFO* const pInfo = (MPEG2VIDEOINFO*)m_parsedMediaType.pbFormat;
 
                 pInfo->cbSequenceHeader = cbSequenceHeader;
                 BYTE* dst = (BYTE*)pInfo->dwSequenceHeader;
@@ -939,7 +939,7 @@ HRESULT CPayloadParserInputPin::Receive(IMediaSample * pSample)
             m_parsedMediaType.pbFormat = (BYTE*)CoTaskMemAlloc(m_parsedMediaType.cbFormat);
             ZeroMemory(m_parsedMediaType.pbFormat, m_parsedMediaType.cbFormat);
 
-            MPEG1WAVEFORMAT* pInfo = (MPEG1WAVEFORMAT*)m_parsedMediaType.pbFormat;
+            MPEG1WAVEFORMAT* const pInfo = (MPEG1WAVEFORMAT*)m_parsedMediaType.pbFormat;
             pInfo->wfx.wFormatTag = WAVE_FORMAT_MPEG;
             pInfo->wfx.cbSize = sizeof(MPEG1WAVEFORMAT) - sizeof(WAVEFORMATEX);
 
