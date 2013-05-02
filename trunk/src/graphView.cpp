@@ -808,7 +808,7 @@ void CGraphView::OnFileSaveClick()
 		hr = graph.SaveXML(document_filename);
 		break;
 	case NONE:
-		FileSaveAs(XML);
+		FileSaveAs(GRF);
 		return;
 	}
 
