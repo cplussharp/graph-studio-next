@@ -543,7 +543,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void DisplayGraph::RefreshClock()
 	{
-		// set the new clock for all filters
+		// update clock status for all filters
 		for (int i=0; i<filters.GetCount(); i++) {
 			Filter	*filter = filters[i];
 			filter->UpdateClock();
@@ -565,28 +565,21 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		if (default_clock) {
-
-			if (gb) {
+			if (gb)
 				gb->SetDefaultSyncSource();
-			}
 
 			uses_clock = true;
 
-			RefreshClock();
-
 		} else {
-
+			// Don't call SetSyncSource directly on filters, call IMediaFilter::SetSyncSource on filter graph manager instead
+			// MSDN docs warn about this. Calling filters directly causes unreliable clock setting behaviour
 			uses_clock = (new_clock == NULL ? false : true);
+			CComQIPtr<IMediaFilter> sync_interface(gb);
+			if (sync_interface)
+				sync_interface->SetSyncSource(new_clock);
 
-			// set the new clock for all filters
-			for (int i=0; i<filters.GetCount(); i++) {
-				Filter	*filter = filters[i];
-				if (filter->filter) {
-					filter->filter->SetSyncSource(new_clock);
-				}
-				filter->UpdateClock();
-			}
 		}
+		RefreshClock();
 	}
 
 	// seeking helpers
