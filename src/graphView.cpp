@@ -692,8 +692,11 @@ void CGraphView::OnFrameStepClick()
 
 void CGraphView::OnPlayClick()
 {
-	if (SUCCEEDED(graph.DoPlay())) {
-	}
+	// backup way of setting start time for graphs that don't generate EC_PAUSED events when started
+	last_stop_time_ns = last_start_time_ns = timer.GetTimeNS();
+
+	const HRESULT hr = graph.DoPlay();
+	DSUtil::ShowError(hr, _T("Error starting playback"));
 	UpdateGraphState();
 }
 

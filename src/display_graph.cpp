@@ -452,31 +452,30 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	HRESULT DisplayGraph::DoPlay()
 	{
+		HRESULT hr = S_OK;
+
 		// notify all EVR windows
 		if (!is_remote) {
 			for (int i=0; i<filters.GetCount(); i++) {
 				Filter	*filter = filters[i];
 				if (filter->videowindow) {
-					filter->videowindow->Start();
+					hr = filter->videowindow->Start();
 				}
 			}
 		}
 
 		if (is_frame_stepping) {
-			if (fs) fs->CancelStep();
-			if (mc) mc->Run();
+			if (fs) 
+				hr = fs->CancelStep();
+			if (mc) 
+				hr = mc->Run();
 
 			// reset the frame stepping flag
 			is_frame_stepping = false;
 		} else {
-			if (mc) {
-				return mc->Run();
-			} else {
-				return E_NOINTERFACE;
-			}
+			hr = mc ? mc->Run() : E_NOINTERFACE;
 		}
-
-		return NOERROR;
+		return hr;
 	}
 
 	HRESULT DisplayGraph::DoStop()
