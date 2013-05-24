@@ -1619,7 +1619,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (FAILED(hr))
 			return hr;
 
-		// attempt to load partial graph
+		// The order of the following operations should be the same as DirectShow loading of GRF files
+		// This seems to be the order of operations derived from stepping through filter code in GraphEdit
+		// 1 Create filter
+		// 2 Set source file
+		// 3 Set sink file
+		// 4 Load filter configuration
+		// 5 Connect pins
 
 		for (int i=0; i<grf.grf_filters.GetCount(); i++) {
 			GRF_Filter& filter = grf.grf_filters[i];
@@ -1639,8 +1645,54 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 			} else {
 
+				// 1: Create filter
 				AddFilter(filter.ibasefilter, filter.name);
 
+				// 2 Set source file
+				if (!filter.source_filename.IsEmpty()) {
+					CComQIPtr<IFileSourceFilter> source(filter.ibasefilter);
+					if (source) {
+						_tprintf(_T("  Loading source file %s\n"), (LPCTSTR)filter.source_filename);
+
+						const DWORD file_attributes = GetFileAttributes(filter.source_filename);
+
+						// Give the user a chance to fix up an invalid filename but only check file name for the first time
+						if (INVALID_FILE_ATTRIBUTES == file_attributes)
+							hr = E_INVALIDARG;
+						else 
+							hr = source->Load(filter.source_filename, NULL);
+
+						while (FAILED(hr)) {
+							CFileSrcForm form(filter.name);
+							form.result_file = filter.source_filename;
+							hr = form.ChooseSourceFile(source);
+						}
+					}
+				}
+
+				// 3 Set sink file
+				if (!filter.sink_filename.IsEmpty()) {
+					CComQIPtr<IFileSinkFilter> sink(filter.ibasefilter);
+					if (sink) {
+						_tprintf(_T("  Setting sink file %s\n"), (LPCTSTR)filter.sink_filename); 
+
+						const DWORD file_attributes = GetFileAttributes(filter.sink_filename);
+
+						// Give the user a chance to fix up an invalid filename but only check file name for the first time
+						if (INVALID_FILE_ATTRIBUTES == file_attributes)
+							hr = E_INVALIDARG;
+						else 
+							hr = sink->SetFileName(filter.sink_filename, NULL);
+
+						CFileSinkForm form(filter.name);
+						while (FAILED(hr)) {
+							form.result_file = filter.sink_filename;
+							hr = form.ChooseSinkFile(sink);
+						}
+					}
+				}
+
+				// 4 Load filter configuration
 				if (!filter.ipersiststream_data.IsEmpty()) {
 					_tprintf(_T("  Loading state\n")); 
 
@@ -1665,51 +1717,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 						DSUtil::ShowError(hr, errorStr);
 					}
 				}
-
-				if (!filter.source_filename.IsEmpty()) {
-					CComQIPtr<IFileSourceFilter> source(filter.ibasefilter);
-					if (source) {
-						_tprintf(_T("  Loading source file %s\n"), (LPCTSTR)filter.source_filename);
-
-						const DWORD file_attributes = GetFileAttributes(filter.source_filename);
-
-						// Give the user a chance to fix up an invalid filename but only check file name for the first time
-						if (INVALID_FILE_ATTRIBUTES == file_attributes)
-							hr = E_INVALIDARG;
-						else 
-							hr = source->Load(filter.source_filename, NULL);
-
-						while (FAILED(hr)) {
-							CFileSrcForm form(filter.name);
-							form.result_file = filter.source_filename;
-							hr = form.ChooseSourceFile(source);
-						}
-					}
-				}
-
-				if (!filter.sink_filename.IsEmpty()) {
-					CComQIPtr<IFileSinkFilter> sink(filter.ibasefilter);
-					if (sink) {
-						_tprintf(_T("  Setting sink file %s\n"), (LPCTSTR)filter.sink_filename); 
-
-						const DWORD file_attributes = GetFileAttributes(filter.sink_filename);
-
-						// Give the user a chance to fix up an invalid filename but only check file name for the first time
-						if (INVALID_FILE_ATTRIBUTES == file_attributes)
-							hr = E_INVALIDARG;
-						else 
-							hr = sink->SetFileName(filter.sink_filename, NULL);
-
-						CFileSinkForm form(filter.name);
-						while (FAILED(hr)) {
-							form.result_file = filter.sink_filename;
-							hr = form.ChooseSinkFile(sink);
-						}
-					}
-				}
 			}
 		}
 		
+		// 5 Connect pins
 		for (int i=0; i<grf.grf_connections.GetCount(); i++) {
 			const GRF_Connection& connection = grf.grf_connections[i];
 
