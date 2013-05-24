@@ -1383,8 +1383,8 @@ namespace DSUtil
 		ULONG			f;
 		HRESULT			hr;
 
-		// create the enum object
-		hr = DMOEnum(clsid, 0, 0, NULL, 0, NULL, &enum_dmo);
+		// create the enum object. Need to use DMO_ENUMF_INCLUDE_KEYED to include Audio Resampler DMO
+		hr = DMOEnum(clsid, DMO_ENUMF_INCLUDE_KEYED, 0, NULL, 0, NULL, &enum_dmo);
 		if (FAILED(hr) || !enum_dmo) return -1;
 
 		CLSID			dmo_clsid;
