@@ -1628,7 +1628,7 @@ void CGraphView::OnGraphScreenshot()
 void CGraphView::OnConnectRemote()
 {
 	CRemoteGraphForm	remote_form;
-	int ret = remote_form.DoModal();
+	const int ret = remote_form.DoModal();
 	if (ret == IDOK) {
 		if (remote_form.sel_graph) {
 
@@ -1647,10 +1647,11 @@ void CGraphView::OnConnectRemote()
 				hr = unk->QueryInterface(IID_IFilterGraph, (void**)&fg);
 				if (SUCCEEDED(hr)) {
 
-					ret = graph.ConnectToRemote(fg);
-					if (ret == 0) {
+					hr = graph.ConnectToRemote(fg);
+					if (SUCCEEDED(hr)) {
 						SetTimer(CGraphView::TIMER_REMOTE_GRAPH_STATE, 200, NULL);
 					} else {
+						DSUtil::ShowError(hr, _T("Failed to connect to remote graph. Note, this can be caused by failing to register proppage.dll from the Windows SDK."));
 						OnNewClick();
 					}
 

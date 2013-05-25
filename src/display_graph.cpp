@@ -172,10 +172,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	}
 
 	// caller must clean up graph if error returned
-	int DisplayGraph::ConnectToRemote(IFilterGraph *remote_graph)
+	HRESULT DisplayGraph::ConnectToRemote(IFilterGraph *remote_graph)
 	{
 		int ret = MakeNew();
-		if (ret < 0) return -1;
+		if (ret < 0) 
+			return E_FAIL;
 
 		// release graph objects
         RemoveFromRot();
@@ -196,19 +197,26 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		uses_clock = true;
 
 		// attach remote graph
-		HRESULT hr;
-		hr = remote_graph->QueryInterface(IID_IGraphBuilder, (void**)&gb);
-		if (FAILED(hr)) return -1;
+		HRESULT hr = remote_graph->QueryInterface(IID_IGraphBuilder, (void**)&gb);
+		if (FAILED(hr)) 
+			return hr;
 
 		// get hold of interfaces
-		gb->QueryInterface(IID_IMediaControl, (void**)&mc);
-		gb->QueryInterface(IID_IMediaSeeking, (void**)&ms);
-		gb->QueryInterface(IID_IVideoFrameStep, (void**)&fs);
+		hr = gb->QueryInterface(IID_IMediaControl, (void**)&mc);
+		if (FAILED(hr)) 
+			return hr;
+		hr = gb->QueryInterface(IID_IMediaSeeking, (void**)&ms);
+		if (FAILED(hr)) 
+			return hr;
+		hr = gb->QueryInterface(IID_IVideoFrameStep, (void**)&fs);
+		if (FAILED(hr)) 
+			return hr;
 
 		// now we're a remote graph
 		is_remote = true;
-        if(params) params->is_remote = true;
-		return 0;
+        if(params) 
+			params->is_remote = true;
+		return hr;
 	}
 
 	int DisplayGraph::AttachCaptureGraphBuilder()
