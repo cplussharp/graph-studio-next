@@ -379,7 +379,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		HRESULT RenderFile(CString fn);
 		HRESULT LoadGRF(CString fn);
 		int SaveGRF(CString fn);
-		int ConnectToRemote(IFilterGraph *remote_graph);
+		HRESULT ConnectToRemote(IFilterGraph *remote_graph);
 		int AttachCaptureGraphBuilder();
 
 		// XML-based graph construction
