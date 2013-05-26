@@ -444,7 +444,7 @@ void CGraphView::OnInit()
     else if(connectMode>2) connectMode = 2;
     render_params.connect_mode = connectMode;
 
-	CgraphstudioApp::g_showConsole = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowConsole"), 0) ? true : false;
+	CgraphstudioApp::g_showConsole = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowConsoleWindow"), 0) ? true : false;
 	if (CgraphstudioApp::g_showConsole)
 		ShowConsole(true);				// Don't do anything on startup unless show console setting is true
 
@@ -2216,7 +2216,7 @@ void CGraphView::OnOptionsShowconsolewindow()
 {
 	CgraphstudioApp::g_showConsole = ! CgraphstudioApp::g_showConsole;
 	ShowConsole(CgraphstudioApp::g_showConsole);
-	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ShowConsole"), CgraphstudioApp::g_showConsole);
+	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ShowConsoleWindow"), CgraphstudioApp::g_showConsole);
 }
 
 void CGraphView::OnUpdateOptionsShowconsolewindow(CCmdUI *pCmdUI)
