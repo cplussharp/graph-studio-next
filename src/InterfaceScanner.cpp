@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "Videoacc.h"
 
 CInterfaceInfo::CInterfaceInfo()
 {
@@ -159,6 +160,44 @@ void GetInterfaceInfo_IAMDecoderCaps(GraphStudio::PropItem* group, IUnknown* pUn
             group->AddItem(new GraphStudio::PropItem(_T("EVR_SUPPORT"), cap == DECODER_CAP_SUPPORTED));
     }
 }
+
+void GetInterfaceInfo_IAMVideoAccelerator(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IAMVideoAccelerator> pI = pUnk;
+    if(pI)
+    {
+        DWORD dwNumGuidsSupported = 0;
+        HRESULT hr = pI->GetVideoAcceleratorGUIDs(&dwNumGuidsSupported, NULL);
+        if(SUCCEEDED(hr) && dwNumGuidsSupported > 0)
+        {
+            GUID* guidsSupported = new GUID[dwNumGuidsSupported];
+            if (SUCCEEDED(pI->GetVideoAcceleratorGUIDs(&dwNumGuidsSupported, guidsSupported)))
+            {
+                for (int i=0; i<dwNumGuidsSupported; i++)
+                {
+                    if (guidsSupported[i] != GUID_NULL)
+                    {
+                        CString guidName;
+                        GraphStudio::NameGuid(guidsSupported[i], guidName, false);
+
+                        group->AddItem(new GraphStudio::PropItem(_T("VideoAccelerator"), guidName, false));
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (hr == E_NOTIMPL)
+                group->AddItem(new GraphStudio::PropItem(_T("VideoAccelerators"), _T("E_NOTIMPL"), false));
+            else if (hr == VFW_E_WRONG_STATE)
+                group->AddItem(new GraphStudio::PropItem(_T("VideoAccelerators"), _T("VFW_E_WRONG_STATE"), false));
+            else if (dwNumGuidsSupported == 0)
+                group->AddItem(new GraphStudio::PropItem(_T("VideoAccelerators"), _T("None"), false));
+        }
+    }
+}
+
+
 
 void GetInterfaceInfo_IAsyncReader(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
@@ -881,7 +920,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{211A8766-03AC-11d1-8D13-00AA00BD8339}"), TEXT("IAMTVTuner"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd375971.aspx")),
     CInterfaceInfo(TEXT("{D8D715A0-6E5E-11D0-B3F0-00AA003761C5}"), TEXT("IAMVfwCaptureDialogs"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd375983.aspx")),
     CInterfaceInfo(TEXT("{D8D715A3-6E5E-11D0-B3F0-00AA003761C5}"), TEXT("IAMVfwCompressDialogs"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd375987.aspx")),
-    CInterfaceInfo(TEXT("{256A6A22-FBAD-11d1-82BF-00A0C9696C8F}"), TEXT("IAMVideoAccelerator"), TEXT("Videoacc.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd375992.aspx")),
+    CInterfaceInfo(TEXT("{256A6A22-FBAD-11d1-82BF-00A0C9696C8F}"), TEXT("IAMVideoAccelerator"), TEXT("Videoacc.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd375992.aspx"), GetInterfaceInfo_IAMVideoAccelerator),
     CInterfaceInfo(TEXT("{C6E13343-30AC-11D0-A18C-00A0C9118956}"), TEXT("IAMVideoCompression"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376011.aspx")),
     CInterfaceInfo(TEXT("{6A2E0670-28E4-11D0-A18C-00A0C9118956}"), TEXT("IAMVideoControl"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376023.aspx")),
     CInterfaceInfo(TEXT("{60D32930-13DA-11D3-9EC6-C4FCAEF5C7BE}"), TEXT("IAMVideoDecimationProperties"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376030.aspx")),
@@ -890,7 +929,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{C056DE21-75C2-11D3-A184-00105AEF9F33}"), TEXT("IAMWstDecoder"), TEXT("uuids.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376041.aspx")),
     CInterfaceInfo(TEXT("{2A6E293B-2595-11D3-B64C-00C04F79498E}"), TEXT("IAnalogRadioTuningSpace"), TEXT("tuner.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd693098.aspx")),
     CInterfaceInfo(TEXT("{39DD45DA-2DA8-46BA-8A8A-87E2B73D983A}"), TEXT("IAnalogRadioTuningSpace2"), TEXT("tuner.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd693099.aspx")),
-    CInterfaceInfo(TEXT("{56A868AA-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IAsyncReader"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376085.aspx"),GetInterfaceInfo_IAsyncReader),
+    CInterfaceInfo(TEXT("{56A868AA-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IAsyncReader"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376085.aspx"), GetInterfaceInfo_IAsyncReader),
     CInterfaceInfo(TEXT("{FC189E4D-7BD4-4125-B3B3-3A76A332CC96}"), TEXT("IATSCComponentType"), TEXT("tuner.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd693121.aspx")),
     CInterfaceInfo(TEXT("{BF8D986F-8C2B-4131-94D7-4D3D9FCC21EF}"), TEXT("IATSCLocator"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{612AA885-66CF-4090-BA0A-566F5312E4CA}"), TEXT("IATSCLocator2"), TEXT("tuner.h"), TEXT("")),
