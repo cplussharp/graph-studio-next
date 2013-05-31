@@ -2108,6 +2108,8 @@ namespace DSUtil
             else
             {
                 strError = szErr;
+				strError += "\r\n";
+				strError += title;
             }
                 
             if (CTaskDialog::IsSupported())
