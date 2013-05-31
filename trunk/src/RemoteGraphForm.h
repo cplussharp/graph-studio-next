@@ -54,7 +54,6 @@ public:
 	CArray<RemoteGraph>		graphs;
 
 	CComPtr<IMoniker>		sel_graph;
-    bool                    isOwnGraph;
 
 public:
 	CRemoteGraphForm(CWnd* pParent = NULL);
@@ -70,4 +69,5 @@ public:
 	void OnConnectClick();
 
 	afx_msg void OnLbnSelchangeListGraphs();
+	afx_msg void OnDblclkListGraphs();
 };

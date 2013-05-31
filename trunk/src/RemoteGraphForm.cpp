@@ -18,19 +18,16 @@ BEGIN_MESSAGE_MAP(CRemoteGraphForm, CDialog)
 	ON_COMMAND(IDC_BUTTON_REFRESH, &CRemoteGraphForm::OnRefreshClick)
 	ON_COMMAND(IDC_BUTTON_CONNECT, &CRemoteGraphForm::OnConnectClick)
 	ON_LBN_SELCHANGE(IDC_LIST_GRAPHS, &CRemoteGraphForm::OnLbnSelchangeListGraphs)
+	ON_LBN_DBLCLK(IDC_LIST_GRAPHS, &CRemoteGraphForm::OnDblclkListGraphs)
 END_MESSAGE_MAP()
 
 CRemoteGraphForm::CRemoteGraphForm(CWnd* pParent /*=NULL*/) : 
 	CDialog(CRemoteGraphForm::IDD, pParent)
 {
-	sel_graph = NULL;
-    isOwnGraph = false;
 }
 
 CRemoteGraphForm::~CRemoteGraphForm()
 {
-	graphs.RemoveAll();
-	sel_graph = NULL;
 }
 
 void CRemoteGraphForm::DoDataExchange(CDataExchange* pDX)
@@ -105,10 +102,8 @@ void CRemoteGraphForm::OnRefreshClick()
 
 	hr = CreateBindCtx(0, &bindctx);
 	if (FAILED(hr)) {
-		rot = NULL;
 		return ;
 	}
-
 
 	rot->EnumRunning(&emon);
 	emon->Reset();
@@ -119,7 +114,7 @@ void CRemoteGraphForm::OnRefreshClick()
 		moniker->GetDisplayName(bindctx, NULL, &displayname);
 
 		CString		name(displayname);
-		if (name.Find(_T("!FilterGraph")) == 0) {
+		if (name.Find(_T("!FilterGraph")) == 0 && !GraphStudio::DisplayGraph::IsOwnRotGraph(name)) {
 			RemoteGraph	gr;
 			gr.name = name;
 			gr.moniker = moniker;
@@ -139,37 +134,28 @@ void CRemoteGraphForm::OnRefreshClick()
 			if (SUCCEEDED(CoGetMalloc(0, &alloc))) {
 				alloc->Free(displayname);
 			}
-			alloc = NULL;
 		}
 		moniker = NULL;
 	}
-	emon = NULL;
-	bindctx = NULL;
-
-	rot = NULL;
 }
 
 void CRemoteGraphForm::OnConnectClick()
 {
-    if(isOwnGraph)
-    {
-        DSUtil::ShowWarning(_T("Can't connect to own graph!"));
-    }
-    else
-	    OnOK();
+	OnOK();
 }
 
 void CRemoteGraphForm::OnLbnSelchangeListGraphs()
 {
-	// TODO: Add your control notification handler code here
 	int sel = list_graphs.GetCurSel();
 
 	sel_graph = NULL;
 	if (sel >= 0 && sel < graphs.GetCount()) {
 		sel_graph = graphs[sel].moniker;
-
-        CString strPid;
-        strPid.Format(_T("%08x"), GetCurrentProcessId());
-        isOwnGraph = graphs[sel].name.Find(strPid) != -1;
 	}
+}
+
+void CRemoteGraphForm::OnDblclkListGraphs()
+{
+	OnLbnSelchangeListGraphs();		// make sure selection updated
+	OnOK();							// close dialog
 }
