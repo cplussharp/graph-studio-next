@@ -375,10 +375,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         const size_t STRING_LENGTH = 256;
 
         WCHAR wsz[STRING_LENGTH];
- 
+
+		#ifdef _WIN64
+			const WCHAR * const format_string = L"FilterGraph %08I64x pid %08x GraphStudioNextx64";
+		#else
+			const WCHAR * const format_string = L"FilterGraph %08x pid %08x GraphStudioNext";
+		#endif
+
         StringCchPrintfW(
             wsz, STRING_LENGTH, 
-            L"FilterGraph GraphStudioNext pid %08x",  
+            format_string,
+			(__int64)(void*)(gb.p),
             GetCurrentProcessId()
             );
     
@@ -1299,14 +1306,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			// enable sync
 			if (sync >= 0) {
 				hr = gs->SyncUsingStreamOffset((sync == 1 ? TRUE : FALSE));
-				DSUtil::ShowError(_T("Failed to set IAMGraphStreams::SyncUsingStreamOffset"));
+				DSUtil::ShowError(hr, _T("Failed to set IAMGraphStreams::SyncUsingStreamOffset"));
 			}
 
 			// max latency
 			if (sync == 1 && latency >= 0) {
 				const REFERENCE_TIME rtMaxLatency = latency;
 				hr = gs->SetMaxGraphLatency(rtMaxLatency);
-				DSUtil::ShowError(_T("Failed to set IAMGraphStreams::SetMaxGraphLatency"));
+				DSUtil::ShowError(hr, _T("Failed to set IAMGraphStreams::SetMaxGraphLatency"));
 			}
 			return S_OK;
 		}
