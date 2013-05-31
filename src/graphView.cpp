@@ -1639,32 +1639,25 @@ void CGraphView::OnConnectRemote()
 			HRESULT							hr;
 
 			hr = GetRunningObjectTable(0, &rot);
-			ASSERT(SUCCEEDED(hr));
-
-			hr = rot->GetObject(remote_form.sel_graph, &unk);
 			if (SUCCEEDED(hr)) {
-
-				hr = unk->QueryInterface(IID_IFilterGraph, (void**)&fg);
+				hr = rot->GetObject(remote_form.sel_graph, &unk);
 				if (SUCCEEDED(hr)) {
-
-					hr = graph.ConnectToRemote(fg);
+					hr = unk->QueryInterface(IID_IFilterGraph, (void**)&fg);
 					if (SUCCEEDED(hr)) {
-						SetTimer(CGraphView::TIMER_REMOTE_GRAPH_STATE, 200, NULL);
-					} else {
-						DSUtil::ShowError(hr, _T("Failed to connect to remote graph. Note, this can be caused by failing to register proppage.dll from the Windows SDK."));
-						OnNewClick();
+						hr = graph.ConnectToRemote(fg);
 					}
-
-					// get all filters
-					graph.RefreshFilters();
-					graph.SmartPlacement();
-					Invalidate();
 				}
-				fg = NULL;
 			}
-			unk = NULL;
-
-			rot = NULL;
+			if (SUCCEEDED(hr)) {
+				SetTimer(CGraphView::TIMER_REMOTE_GRAPH_STATE, 200, NULL);
+			} else {
+				OnNewClick();
+				DSUtil::ShowError(hr, _T("Failed to connect to remote graph. Note the error E_NOINTERFACE or REGDB_E_CLASSNOTREG can be caused by failing to register proppage.dll from the Windows SDK."));
+			}
+			// get all filters
+			graph.RefreshFilters();
+			graph.SmartPlacement();
+			Invalidate();
 		}
 	}
 
