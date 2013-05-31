@@ -83,14 +83,15 @@ BOOL CFiltersForm::DoCreateDialog()
 	title.ModifyStyle(0, WS_CLIPCHILDREN);
 	title.ModifyStyleEx(0, WS_EX_CONTROLPARENT);
 
-	// create buttons
-	CRect	rc;
-	rc.SetRect(0, 0, 100, 23);
+	// Create combos
+	const CRect	combo_rect(0, 0, 100, 300);
+	combo_categories.Create(WS_TABSTOP | WS_CHILD | WS_VISIBLE | WS_VSCROLL | CBS_SORT | CBS_DROPDOWNLIST | CBS_AUTOHSCROLL, combo_rect, &title, IDC_COMBO_CATEGORIES);
+	combo_merit.Create(WS_TABSTOP | WS_CHILD | WS_VISIBLE | WS_VSCROLL | CBS_DROPDOWNLIST | CBS_AUTOHSCROLL, combo_rect, &title, IDC_COMBO_MERIT);
 
-	combo_categories.Create(WS_TABSTOP | WS_CHILD | WS_VISIBLE | CBS_SORT | CBS_DROPDOWNLIST, rc, &title, IDC_COMBO_CATEGORIES);
-	combo_merit.Create(WS_TABSTOP | WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, rc, &title, IDC_COMBO_MERIT);
-	btn_register.Create(_T("&Register"), WS_TABSTOP | WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_REGISTER);
-	tree_details.Create(_T("Filter &Details"), WS_TABSTOP | WS_CHILD | WS_VISIBLE, rc, this, IDC_TREE);
+	// create buttons
+	const CRect	button_rect(0, 0, 100, 23);
+	btn_register.Create(_T("&Register"), WS_TABSTOP | WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, button_rect, &title, IDC_BUTTON_REGISTER);
+	tree_details.Create(_T("Filter &Details"), WS_TABSTOP | WS_CHILD | WS_VISIBLE, button_rect, this, IDC_TREE);
 
 	CRect edit_rect(0,0,16,16);		// recommended edit control height is 14 but add a bit as 14 looks cramped
 	::MapDialogRect(title.m_hWnd, &edit_rect);
@@ -178,7 +179,8 @@ void CFiltersForm::OnInitialize()
 	combo_categories.InsertString(1, _T("-- Blacklisted Filters"));
 	combo_categories.SetItemDataPtr(1, (void*)CATEGORY_BLACKLIST);
 
-	combo_categories.SetMinVisibleItems(combo_categories.GetCount());
+	combo_categories.SetMinVisibleItems(40);
+	combo_merit.SetMinVisibleItems(40);
 
     btn_register.SetShield(TRUE);
     btn_unregister.SetShield(TRUE);
@@ -314,6 +316,8 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 	combo_categories.SetWindowPos(NULL, 4, 6, right_x - gap - merit_combo_width, rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 	combo_merit.GetWindowRect(&rc2);
 	combo_merit.SetWindowPos(NULL, right_x - merit_combo_width, 6, merit_combo_width, rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+	combo_categories.SetMinVisibleItems(40);
+	combo_merit.SetMinVisibleItems(40);
 
 	// sizing
 	btn_register.GetWindowRect(&rc2);
