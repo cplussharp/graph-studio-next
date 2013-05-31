@@ -153,7 +153,7 @@ void CGraphConstructionForm::GenerateHTML(CString &text, GraphStudio::RenderPara
 				}
 
 				DSUtil::FilterTemplate		templ;
-				templ.LoadFromMoniker(action.displ_name);
+				templ.LoadFromMonikerName(action.displ_name);
 				item = _T("<tr bgcolor=\"#") + color + _T("\">");
 
 					t.Format(_T("%5.3f sec"), action.time_ms / 1000.0);
