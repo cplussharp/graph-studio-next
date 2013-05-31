@@ -113,12 +113,15 @@ namespace DSUtil
 	public:
 		CString		name;
 		CString		moniker_name;
+		CString		description;
+		CString		device_path;
 		GUID		clsid;
 		GUID		category;
 		DWORD		version;
 		DWORD		merit;
 		IMoniker	*moniker;
 		CString		file;
+		int			wave_in_id;		// negative if not set
 		bool		file_exists;
 
 		CArray<PinTemplate>		input_pins;
@@ -143,10 +146,14 @@ namespace DSUtil
 		HRESULT CreateInstance(IBaseFilter **filter);
 		HRESULT FindFilename();
 
-		int LoadFromMoniker(CString displayname);
+		int LoadFromMonikerName(CString displayname);
 		int Load(char *buf, int size);
 		int WriteMerit();
 		int ParseMonikerName();
+
+		// Helpers used by FilterTemplates
+		HRESULT ReadFromMoniker(IMoniker* moniker);
+		static bool ParseCategoryFromMonikerName(const CString& display_name, GUID& category);
 	};
 
 	class FilterCategory

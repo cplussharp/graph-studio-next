@@ -299,10 +299,8 @@ namespace DSUtil
 	}
 
 	FilterTemplate::FilterTemplate() :
-		name(_T("")),
-		moniker_name(_T("")),
 		type(FilterTemplate::FT_FILTER),
-		file(_T("")),
+		wave_in_id(-1),
 		file_exists(false),
 		clsid(GUID_NULL),
 		category(GUID_NULL),
@@ -315,8 +313,11 @@ namespace DSUtil
 	FilterTemplate::FilterTemplate(const FilterTemplate &ft) :
 		name(ft.name),
 		moniker_name(ft.moniker_name),
+		description(ft.description),
+		device_path(ft.device_path),
 		type(ft.type),
 		file(ft.file),
+		wave_in_id(ft.wave_in_id),
 		file_exists(ft.file_exists),
 		clsid(ft.clsid),
 		category(ft.category),
@@ -356,7 +357,10 @@ namespace DSUtil
 
 		name = ft.name;
 		moniker_name = ft.moniker_name;
+		description = ft.description;
+		device_path = ft.device_path;
 		file = ft.file;
+		wave_in_id = ft.wave_in_id;
 		file_exists = ft.file_exists;
 		clsid = ft.clsid;
 		category = ft.category;
@@ -598,6 +602,78 @@ namespace DSUtil
 		return CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)filter);
 	}
 
+	HRESULT FilterTemplate::ReadFromMoniker(IMoniker* moniker)
+	{
+		CheckPointer(moniker, E_POINTER);
+
+		CComPtr<IPropertyBag> propbag;
+
+		HRESULT hr = moniker->BindToStorage(NULL, NULL, IID_IPropertyBag, (void**)&propbag);
+		if (SUCCEEDED(hr)) {
+			VARIANT				var;
+
+			VariantInit(&var);
+			HRESULT hr_prop = propbag->Read(L"FriendlyName", &var, 0);
+			if (SUCCEEDED(hr_prop) && var.vt == VT_BSTR) {
+				name = CString(var.bstrVal);
+			}
+			VariantClear(&var);
+
+			VariantInit(&var);
+			hr_prop = propbag->Read(L"DevicePath", &var, 0);
+			if (SUCCEEDED(hr_prop) && var.vt == VT_BSTR) {
+				device_path = CString(var.bstrVal);
+			}
+			VariantClear(&var);
+
+			VariantInit(&var);
+			hr_prop = propbag->Read(L"Description", &var, 0);
+			if (SUCCEEDED(hr_prop) && var.vt == VT_BSTR) {
+				description = CString(var.bstrVal);
+			}
+			VariantClear(&var);
+
+			VariantInit(&var);
+			hr_prop = propbag->Read(L"WaveInID", &var, 0);
+			if (SUCCEEDED(hr_prop) && var.vt == VT_I4) {
+				wave_in_id = var.intVal;
+			}
+			VariantClear(&var);
+
+			VariantInit(&var);
+			hr_prop = propbag->Read(L"FilterData", &var, 0);
+			if (SUCCEEDED(hr_prop)) {
+				SAFEARRAY	*ar = var.parray;
+				int	size = ar->rgsabound[0].cElements;
+
+				// load merit and version
+				Load((char*)ar->pvData, size);
+			}
+			VariantClear(&var);
+
+			VariantInit(&var);
+			hr = propbag->Read(L"CLSID", &var, 0);
+			if (SUCCEEDED(hr) && var.vt == VT_BSTR) {			// failure to read CLSID is a fatal error
+				hr = CLSIDFromString(var.bstrVal, &clsid);
+			}
+			VariantClear(&var);
+		}
+		return hr;
+	}
+
+	bool FilterTemplate::ParseCategoryFromMonikerName(const CString& display_name, GUID& category)
+	{
+		bool success = false;
+
+		const int guid_start_pos = display_name.Find(_T("{"));	// search for first opening and closing brace
+		const int guid_end_pos = display_name.Find(_T("}"), guid_start_pos);
+		if (guid_start_pos > 0 && guid_end_pos > guid_start_pos) {
+			const CString guid_str = display_name.Mid(guid_start_pos, guid_end_pos - guid_start_pos + 1);	// include closing brace
+			success = SUCCEEDED(CLSIDFromString(guid_str, &category));
+		}
+		return success;
+	}
+
 	int FilterTemplate::ParseMonikerName()
 	{
 		if (moniker_name == _T("")) {
@@ -612,10 +688,13 @@ namespace DSUtil
 		if (moniker_name.Find(_T(":pnp:")) >= 0)		type = FilterTemplate::FT_PNP; else
 			type = FilterTemplate::FT_KSPROXY;
 
+		if (category == GUID_NULL) {		// as a backup get the category from the display name
+			ParseCategoryFromMonikerName(moniker_name, category);
+		}
 		return 0;
 	}
 
-	int FilterTemplate::LoadFromMoniker(CString displayname)
+	int FilterTemplate::LoadFromMonikerName(CString displayname)
 	{
 		/*
 			First create the moniker and then extract all the information just like when
@@ -628,48 +707,20 @@ namespace DSUtil
 		CComPtr<IPropertyBag>	propbag;
 		ULONG					eaten = 0;
 
-		if (FAILED(CreateBindCtx(0, &bind))) return -1;
+		if (FAILED(CreateBindCtx(0, &bind))) 
+			return -1;
 		hr = MkParseDisplayName(bind, displayname, &eaten, &loc_moniker);
 		bind = NULL;
-		if (hr != NOERROR) { return -1; }
-
-		// get a property bagy object
-		hr = loc_moniker->BindToStorage(NULL, NULL, IID_IPropertyBag, (void**)&propbag);
-		if (SUCCEEDED(hr)) {
-			VARIANT				var;
-
-			VariantInit(&var);
-			hr = propbag->Read(L"FriendlyName", &var, 0);
-			if (SUCCEEDED(hr)) {
-				name = CString(var.bstrVal);
-			}
-			VariantClear(&var);
-
-			VariantInit(&var);
-			hr = propbag->Read(L"FilterData", &var, 0);
-			if (SUCCEEDED(hr)) {
-				SAFEARRAY	*ar = var.parray;
-				int	size = ar->rgsabound[0].cElements;
-
-				// load merit and version
-				Load((char*)ar->pvData, size);
-			}
-			VariantClear(&var);
-
-			VariantInit(&var);
-			hr = propbag->Read(L"CLSID", &var, 0);
-			if (SUCCEEDED(hr)) {
-				if (SUCCEEDED(CLSIDFromString(var.bstrVal, &clsid))) {
-					FindFilename();
-					moniker_name = displayname;
-					ParseMonikerName();
-				}
-			}
-			VariantClear(&var);
+		if (hr != NOERROR) { 
+			return -1; 
 		}
 
-		propbag = NULL;
-		loc_moniker = NULL;		
+		hr = ReadFromMoniker(loc_moniker);
+		if (SUCCEEDED(hr)) {
+			FindFilename();
+			moniker_name = displayname;
+			ParseMonikerName();
+		}
 		return 0;
 	}
 
@@ -728,8 +779,8 @@ namespace DSUtil
 		int					ret = -1;
 
 		// Add the special wildcard categories
-		categories.Add(FilterCategory(_T("(ALL) DirectShow Filters"), GUID_NULL, false));
-		categories.Add(FilterCategory(_T("(ALL) DMO"), GUID_NULL, true));
+		categories.Add(FilterCategory(_T(" (ALL) DirectShow Filters"), GUID_NULL, false));
+		categories.Add(FilterCategory(_T(" (ALL) DMO"), GUID_NULL, true));
 
 		do {
 			hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC_SERVER, IID_ICreateDevEnum, (void**)&sys_dev_enum);
@@ -1559,87 +1610,53 @@ namespace DSUtil
 	int FilterTemplates::AddFilters(IEnumMoniker *emoniker, int enumtype, GUID category)
 	{
 		IMoniker			*moniker = NULL;
-		IPropertyBag		*propbag = NULL;
 		ULONG				f;
 		HRESULT				hr;
 
 		emoniker->Reset();
 		while (emoniker->Next(1, &moniker, &f) == NOERROR) {
 
-			hr = moniker->BindToStorage(NULL, NULL, IID_IPropertyBag, (void**)&propbag);
+			FilterTemplate		filter;
+			hr = filter.ReadFromMoniker(moniker);
 			if (SUCCEEDED(hr)) {
-				VARIANT				var;
-				FilterTemplate		filter;
+				filter.FindFilename();
 
-				VariantInit(&var);
-				hr = propbag->Read(L"FriendlyName", &var, 0);
-				if (SUCCEEDED(hr)) {
-					filter.name = CString(var.bstrVal);
+				// mame novy filter
+				filter.moniker = moniker;
+				filter.moniker->AddRef();
+
+				int	can_go = 0;
+				switch (enumtype) {
+				case 0:		can_go = 0; break;
+				case 1:		can_go = IsVideoRenderer(filter); break;
 				}
-				VariantClear(&var);
 
-				VariantInit(&var);
-				hr = propbag->Read(L"FilterData", &var, 0);
-				if (SUCCEEDED(hr)) {
-					SAFEARRAY	*ar = var.parray;
-					int	size = ar->rgsabound[0].cElements;
+				if (can_go == 0) {
+					LPOLESTR	moniker_name;
+					hr = moniker->GetDisplayName(NULL, NULL, &moniker_name);
+					if (SUCCEEDED(hr)) {
+						filter.moniker_name = CString(moniker_name);
 
-					// load merit and version
-					filter.Load((char*)ar->pvData, size);
-				}
-				VariantClear(&var);
-
-				VariantInit(&var);
-				hr = propbag->Read(L"CLSID", &var, 0);
-				if (SUCCEEDED(hr)) {
-					if (SUCCEEDED(CLSIDFromString(var.bstrVal, &filter.clsid))) {
-						// mame novy filter
-						filter.moniker = moniker;
-						filter.moniker->AddRef();
-						filter.FindFilename();
-
-						int	can_go = 0;
-						switch (enumtype) {
-						case 0:		can_go = 0; break;
-						case 1:		can_go = IsVideoRenderer(filter); break;
+						IMalloc *alloc = NULL;
+						hr = CoGetMalloc(1, &alloc);
+						if (SUCCEEDED(hr)) {
+							alloc->Free(moniker_name);
+							alloc->Release();
 						}
-
-						if (can_go == 0) {
-
-							// moniker name
-							LPOLESTR	moniker_name;
-							hr = moniker->GetDisplayName(NULL, NULL, &moniker_name);
-							if (SUCCEEDED(hr)) {
-								filter.moniker_name = CString(moniker_name);
-
-								IMalloc *alloc = NULL;
-								hr = CoGetMalloc(1, &alloc);
-								if (SUCCEEDED(hr)) {
-									alloc->Free(moniker_name);
-									alloc->Release();
-								}
-							} else {
-								filter.moniker_name = _T("");
-							}
-							filter.ParseMonikerName();
-
-							filter.category = category;
-
-							filters.Add(filter);
-						}
+					} else {
+						filter.moniker_name = _T("");
 					}
+					filter.category = category;
+					filter.ParseMonikerName();
+					filters.Add(filter);
 				}
-				VariantClear(&var);
-
-				propbag->Release();
-				propbag = NULL;
 			}
 			moniker->Release();
 			moniker = NULL;
 		}
 
-		if (propbag) propbag->Release();
-		if (moniker) moniker->Release();
+		if (moniker) 
+			moniker->Release();
 		return 0;
 	}
 

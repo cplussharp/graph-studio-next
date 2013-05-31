@@ -202,7 +202,7 @@ static void EnumerateBookmarks(const CArray<GraphStudio::BookmarkedFilter*>& boo
 	for (int i=0; i<bookmarks.GetCount(); i++) {
 		GraphStudio::BookmarkedFilter* const bm = bookmarks[i];
 		DSUtil::FilterTemplate filter_template;
-		filter_template.LoadFromMoniker(bm->moniker_name);
+		filter_template.LoadFromMonikerName(bm->moniker_name);
 		filters.filters.Add(filter_template);
 	}
 }
@@ -427,8 +427,6 @@ BOOL CFiltersForm::PreTranslateMessage(MSG *pmsg)
 	return __super::PreTranslateMessage(pmsg);
 }
 
-
-
 void CFiltersForm::OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
@@ -445,15 +443,39 @@ void CFiltersForm::OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult)
 			GraphStudio::PropItem	*group;
 
 			group = info.AddItem(new GraphStudio::PropItem(_T("Filter Details")));
+			{
+				if (filter->category != GUID_NULL) {
+					CString category_name;
+					for (int i=0; i<categories.categories.GetCount(); i++) {
+						DSUtil::FilterCategory	&cat = categories.categories[i];
+						if (cat.clsid == filter->category) {
+							category_name = cat.name;
+						}
+					}
+					CString category_guid;
+					GraphStudio::NameGuid(filter->category, category_guid, false);
+					group->AddItem(new GraphStudio::PropItem(_T("Category"), 
+							category_name + _T(" ") + category_guid));
+				}
+
 				CString	type;
 				switch (filter->type) {
-				case DSUtil::FilterTemplate::FT_DMO:		type = _T("DMO"); break;
-				case DSUtil::FilterTemplate::FT_KSPROXY:	type = _T("WDM"); break;
-				case DSUtil::FilterTemplate::FT_FILTER:		type = _T("Standard"); break;
-				case DSUtil::FilterTemplate::FT_ACM_ICM:	type = _T("ACM/ICM"); break;
-				case DSUtil::FilterTemplate::FT_PNP:		type = _T("Plug && Play"); break;
+					case DSUtil::FilterTemplate::FT_DMO:		type = _T("DMO"); break;
+					case DSUtil::FilterTemplate::FT_KSPROXY:	type = _T("WDM"); break;
+					case DSUtil::FilterTemplate::FT_FILTER:		type = _T("Standard"); break;
+					case DSUtil::FilterTemplate::FT_ACM_ICM:	type = _T("ACM/ICM"); break;
+					case DSUtil::FilterTemplate::FT_PNP:		type = _T("Plug && Play"); break;
 				}	
-				group->AddItem(new GraphStudio::PropItem(_T("DisplayName"), filter->moniker_name));
+				group->AddItem(new GraphStudio::PropItem(_T("Display Name"), filter->moniker_name));
+
+				// The following properties are only present for some hardware devices
+				if (!filter->description.IsEmpty())
+					group->AddItem(new GraphStudio::PropItem(_T("Description"), filter->description));
+				if (!filter->device_path.IsEmpty())
+					group->AddItem(new GraphStudio::PropItem(_T("Device Path"), filter->device_path));
+				if (filter->wave_in_id >= 0)
+					group->AddItem(new GraphStudio::PropItem(_T("waveIn ID"), filter->wave_in_id));
+
 				group->AddItem(new GraphStudio::PropItem(_T("Type"), type));
 
 				if (filter->type == DSUtil::FilterTemplate::FT_DMO) {
@@ -462,7 +484,7 @@ void CFiltersForm::OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult)
 					group->AddItem(new GraphStudio::PropItem(_T("Merit"), val));
 				}
 				GraphStudio::GetFilterDetails(filter->clsid, group);
-
+			}
 			tree_details.BuildPropertyTree(&info);
 
 			// favorite filter ?
