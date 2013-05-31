@@ -373,6 +373,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         // ROT
         void AddToRot();
         void RemoveFromRot();
+		static bool IsOwnRotGraph(const CString& moniker_name);
 
 		// let's build something
 		int MakeNew();

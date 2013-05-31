@@ -364,8 +364,23 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return hr;
 	}
 
+	bool DisplayGraph::IsOwnRotGraph(const CString& moniker_name)
+	{
+		CString strPid;
+		// MAINTENANCE WARNING - this format string needs to be a substring of the format string in DisplayGraph::AddToRot
+		strPid.Format(_T("pid %08x"), GetCurrentProcessId());
+		return ( moniker_name.Find(strPid) != -1 );
+	}
+
     void DisplayGraph::AddToRot()
     {
+		// MAINTENANCE WARNING - this format string needs to include the format string in DisplayGraph::IsOwnGraph
+		#ifdef _WIN64
+			const WCHAR * const moniker_format_string = L"FilterGraph %08I64x pid %08x GraphStudioNextx64";
+		#else
+			const WCHAR * const moniker_format_string = L"FilterGraph %08x pid %08x GraphStudioNext";
+		#endif
+
         IMoniker * pMoniker = NULL;
         IRunningObjectTable *pROT = NULL;
 
@@ -376,16 +391,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
         WCHAR wsz[STRING_LENGTH];
 
-		#ifdef _WIN64
-			const WCHAR * const format_string = L"FilterGraph %08I64x pid %08x GraphStudioNextx64";
-		#else
-			const WCHAR * const format_string = L"FilterGraph %08x pid %08x GraphStudioNext";
-		#endif
-
         StringCchPrintfW(
             wsz, STRING_LENGTH, 
-            format_string,
-			(__int64)(void*)(gb.p),
+            moniker_format_string,
+			(void*)(gb.p),
             GetCurrentProcessId()
             );
     
