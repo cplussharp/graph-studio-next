@@ -344,11 +344,13 @@ STDMETHODIMP CAnalyzerOutputPin::NonDelegatingQueryInterface(REFIID riid, __dere
 		if (!m_PassThru) {
 			HRESULT hr = S_OK;
 			// we should have an input pin by now
-			IPin* const inputPin = m_pFilter->GetPin(0);
+			IPin* const inputPin = m_pFilter->GetPin(0);		// should always have an input pin
 			ASSERT(inputPin);
 			m_PassThru = new CAnalyzerPosPassThru(_T("Analzyer seeking pass thur"), GetOwner(), &hr, inputPin, m_Analyzer);
 
 			if (FAILED(hr)) {
+				delete m_PassThru;
+				m_PassThru = NULL;
                 return hr;
             }
         }
