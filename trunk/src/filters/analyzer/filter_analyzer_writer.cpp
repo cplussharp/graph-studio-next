@@ -313,10 +313,13 @@ STDMETHODIMP CAnalyzerWriterFilter::NonDelegatingQueryInterface(REFIID riid, voi
 			HRESULT hr = S_OK;
 			// we should have an input pin by now
 			IPin* const inputPin = GetPin(0);
-			ASSERT(inputPin);
-			m_PassThru = new CAnalyzerPosPassThru(_T("Analzyer seeking pass thur"), GetOwner(), &hr, inputPin, m_analyzer);
+			if (!inputPin)
+				return E_NOTIMPL;		// we don't have an input pin until the output file is opened
 
+			m_PassThru = new CAnalyzerPosPassThru(_T("Analzyer seeking pass thur"), GetOwner(), &hr, inputPin, m_analyzer);
 			if (FAILED(hr)) {
+				delete m_PassThru;
+				m_PassThru = NULL;
                 return hr;
             }
         }
@@ -364,9 +367,12 @@ STDMETHODIMP CAnalyzerWriterFilter::GetClassID(CLSID *pClsID)
 *********************************************************************************************/
 STDMETHODIMP CAnalyzerWriterFilter::SetFileName(LPCOLESTR pszFileName, const AM_MEDIA_TYPE *pmt)
 {
+    CAutoLock lock(&m_csFilter);
+
 	// close old file
-	if (m_pPin != NULL)
+	if (m_pPin != NULL) 
 	{
+		// warning - deleting m_pPin is not safe - m_PassThru could be using m_pPin and other objects may be referencing m_PassThru
 		delete m_pPin;
 		m_pPin = NULL;
 	}
