@@ -35,12 +35,16 @@
 #define _WIN32_IE 0x0600	// Change this to the appropriate value to target other versions of IE.
 #endif
 
+#include <atlbase.h>
+#include <atlstr.h>
+#include <atlfile.h>
+
 #include <streams.h>
 #include <dvdmedia.h>
 #include <mmreg.h>
 #include <bdaiface.h>
 #include <bdatypes.h>
 
-#include "psiconfig_h.h"
+#include "dump_h.h"
 
-#include "psiconfig.h"
+#include "filter_dump.h"

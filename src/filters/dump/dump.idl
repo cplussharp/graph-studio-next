@@ -1,0 +1,21 @@
+import "unknwn.idl";
+import "oaidl.idl";
+import "ocidl.idl";
+import "objidl.idl";
+import "strmif.idl";
+
+[
+	uuid("C6E6AFDF-338D-4bb6-8A16-ACA266701E75"), 
+    helpstring("Dump Filter Type Library"),
+	//lcid(0x0409), // EN-US
+    version(1.0)
+] 
+library DumpFilterLib
+{
+    [uuid("C6E6AFDF-338D-4bb6-8A16-ACA266701E76")]
+    coclass DumpFilter
+    {
+        [default] interface IBaseFilter;
+        interface IFileSinkFilter;
+    }
+};

@@ -9,10 +9,6 @@
 
 #include "psiobj.h"
 
-// {76755F03-C88D-41F6-8394-E0B6AD1F3ACD}
-static const GUID CLSID_PsiConfig = 
-{ 0x76755f03, 0xc88d, 0x41f6, { 0x83, 0x94, 0xe0, 0xb6, 0xad, 0x1f, 0x3a, 0xcd } };
-
 #define EC_PROGRAM_CHANGED EC_USER + 100
 #define EC_PIDS_PARSED EC_USER + 101
 #define EC_PINS_CONFIGURED EC_USER + 102
@@ -48,7 +44,7 @@ private:
 
 public:
     CPsiParserInputPin(CPsiConfigFilter *pTextOutFilter, LPUNKNOWN pUnk, CCritSec *pLock, CCritSec *pReceiveLock, HRESULT *phr);
-    ~CPsiParserInputPin() {}
+    ~CPsiParserInputPin();
 
     virtual HRESULT GetMediaType(int iPosition, CMediaType *pmt);
     HRESULT CheckMediaType(const CMediaType *pmt);

@@ -433,6 +433,9 @@
   <ItemGroup>
     <Midl Include="src\filters\analyzer\analyzer.idl" />
     <Midl Include="src\filters\audio_analyzer\audio_analyzer.idl" />
+    <Midl Include="src\filters\dump\dump.idl" />
+    <Midl Include="src\filters\psi_config\psiconfig.idl" />
+    <Midl Include="src\filters\time_measure\time_measure.idl" />
     <Midl Include="src\filters\video_analyzer\video_analyzer.idl" />
   </ItemGroup>
   <ItemGroup>

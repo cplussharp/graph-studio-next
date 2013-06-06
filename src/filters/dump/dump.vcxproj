@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{CCCB4C22-1685-4D5F-A152-3E130E7DD941}</ProjectGuid>
-    <RootNamespace>PSIConfig</RootNamespace>
+    <ProjectGuid>{CCCB4C22-1685-4D5F-A152-3E130E7DD911}</ProjectGuid>
+    <RootNamespace>Dump</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>PsiConfig</ProjectName>
+    <ProjectName>Dump</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -181,25 +181,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Filter.cpp" />
-    <ClCompile Include="psiconfig.cpp" />
+    <ClCompile Include="filter_dump.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Filter.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dbg.h" />
-    <ClInclude Include="mp2const.h" />
-    <ClInclude Include="parsemac.h" />
-    <ClInclude Include="psiobj.h" />
-    <ClInclude Include="psiconfig.h" />
+    <ClInclude Include="filter_dump.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="psiconfig.rc" />
+    <ResourceCompile Include="dump.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="psiconfig.idl" />
+    <Midl Include="dump.idl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

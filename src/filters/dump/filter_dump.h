@@ -7,12 +7,6 @@
 //-----------------------------------------------------------------------------
 #pragma once
 
-
-// {C6E6AFDF-338D-4bb6-8A16-ACA266701E76}
-static const GUID CLSID_MonoDump = 
-{ 0xc6e6afdf, 0x338d, 0x4bb6, { 0x8a, 0x16, 0xac, 0xa2, 0x66, 0x70, 0x1e, 0x76 } };
-
-
 //-----------------------------------------------------------------------------
 //
 //	CMonoDump class
@@ -24,7 +18,11 @@ class CMonoDump : public CBaseRenderer, public IFileSinkFilter
 public:
 
 	// write the file here
-	CFile       file;
+#ifndef __AFX_H__
+	CAtlFile       file;
+#else
+    CFile       file;
+#endif
 	CString		filename;
 
 	HRESULT DoOpenFile();

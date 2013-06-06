@@ -10,7 +10,7 @@
 // Setup data
 const AMOVIESETUP_FILTER sudPsiConfig =
 {
-    &CLSID_PsiConfig,               // Filter CLSID
+    &__uuidof(PsiConfigFilter),     // Filter CLSID
     L"PSI Config",                  // String name
     MERIT_DO_NOT_USE,               // Filter merit
     0,
@@ -20,7 +20,7 @@ const AMOVIESETUP_FILTER sudPsiConfig =
 // class ID and creator function for class factory
 const CFactoryTemplate CPsiConfigFilter::g_Template = {
     L"PSI Config",
-    &CLSID_PsiConfig,
+    &__uuidof(PsiConfigFilter),
     CPsiConfigFilter::CreateInstance,
     NULL,
     &sudPsiConfig
@@ -69,7 +69,7 @@ static ULONG g_MPEG2_PSI_CRC_32_Lookup [] = {
 //-----------------------------------------------------------------------------
 
 CPsiConfigFilter::CPsiConfigFilter(LPUNKNOWN pUnk, HRESULT *phr)
-    : CBaseFilter(NAME("PSIConfig"), pUnk, &m_Lock, CLSID_PsiConfig),
+    : CBaseFilter(NAME("CPSIConfig"), pUnk, &m_Lock, __uuidof(PsiConfigFilter)),
     m_pDemux(NULL), m_pMediaCtrl(NULL), m_countPayloadPins(0), m_payloadPins(NULL), m_bRenderPayloadParserOnNextStop(false)
 {
     // Create the single input pin
@@ -132,7 +132,7 @@ void CPsiConfigFilter::ConfigurePmtSectionsOnDemux(MPEG2_PMT_SECTION* pmtsec)
     if(pmtsec->number_of_elementary_streams == 0) return;
 
     bool hasEsToConfig = false;
-    for(int i = 0;i<pmtsec->number_of_elementary_streams; i++)
+    for(int i = 0;i<(int)pmtsec->number_of_elementary_streams; i++)
     {
         DWORD streamType = pmtsec->elementary_stream_info[i].stream_type;
         if(streamType == ST_MPEG1_VIDEO ||
@@ -191,7 +191,7 @@ void CPsiConfigFilter::ConfigurePmtSectionsOnDemux(MPEG2_PMT_SECTION* pmtsec)
                     pidMap->Release();
                 }
 
-                AddPayloadParserPin(pPin, mt.majortype == MEDIATYPE_Video);
+                AddPayloadParserPin(pPin, IsEqualGUID(mt.majortype, MEDIATYPE_Video) != FALSE);
             }
         }
     }
@@ -242,6 +242,15 @@ CPsiParserInputPin::CPsiParserInputPin( CPsiConfigFilter *pFilter, LPUNKNOWN pUn
 : CRenderedInputPin(NAME("CPSIParserInputPin"), (CBaseFilter *) pFilter, pLock, phr, L"Input"),
     m_pFilter(pFilter), m_pReceiveLock(pReceiveLock), m_pPatProcessor(NULL), m_pPmtProcessor(NULL), m_bCreated(false)
 {
+}
+
+CPsiParserInputPin::~CPsiParserInputPin()
+{
+	if(m_pPmtProcessor != NULL)
+		delete m_pPmtProcessor;
+
+	if(m_pPatProcessor != NULL)
+		delete m_pPatProcessor;
 }
 
 HRESULT CPsiParserInputPin::GetPatProcessor(CPATProcessor ** ppPatProcessor)
@@ -384,7 +393,8 @@ CPATProcessor::~CPATProcessor()
 {
     if(m_pDemuxPsiOutputPin)
     {
-        m_pDemuxPsiOutputPin->Release();
+		// problem with the Release: memory corruption
+        //m_pDemuxPsiOutputPin->Release();
         m_pDemuxPsiOutputPin = NULL;
     }
 }
@@ -880,7 +890,7 @@ HRESULT CPayloadParserInputPin::Receive(IMediaSample * pSample)
 
                 ZeroMemory(m_parsedMediaType.pbFormat, m_parsedMediaType.cbFormat);
 
-                MPEG2VIDEOINFO* const pInfo = (MPEG2VIDEOINFO*)m_parsedMediaType.pbFormat;
+                MPEG2VIDEOINFO* pInfo = (MPEG2VIDEOINFO*)m_parsedMediaType.pbFormat;
 
                 pInfo->cbSequenceHeader = cbSequenceHeader;
                 BYTE* dst = (BYTE*)pInfo->dwSequenceHeader;
@@ -939,7 +949,7 @@ HRESULT CPayloadParserInputPin::Receive(IMediaSample * pSample)
             m_parsedMediaType.pbFormat = (BYTE*)CoTaskMemAlloc(m_parsedMediaType.cbFormat);
             ZeroMemory(m_parsedMediaType.pbFormat, m_parsedMediaType.cbFormat);
 
-            MPEG1WAVEFORMAT* const pInfo = (MPEG1WAVEFORMAT*)m_parsedMediaType.pbFormat;
+            MPEG1WAVEFORMAT* pInfo = (MPEG1WAVEFORMAT*)m_parsedMediaType.pbFormat;
             pInfo->wfx.wFormatTag = WAVE_FORMAT_MPEG;
             pInfo->wfx.cbSize = sizeof(MPEG1WAVEFORMAT) - sizeof(WAVEFORMATEX);
 

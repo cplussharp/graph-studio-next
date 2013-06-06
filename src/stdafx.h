@@ -118,9 +118,16 @@ using namespace std;
 #include "MediaInfoDLL.h"
 
 #include "..\interfaces\monofilters.h"
+
+#include "..\dump_h.h"    // Interface
 #include "filters\dump\filter_dump.h"
+
+#include "..\time_measure_h.h"    // Interface
 #include "filters\time_measure\filter_time.h"
+
 #include "filters\fake_m2ts\filter_fake_m2ts_device.h"
+
+#include "..\psiconfig_h.h"    // CLSID
 #include "filters\psi_config\psiconfig.h"
 
 #include "..\analyzer_h.h"    // Interface

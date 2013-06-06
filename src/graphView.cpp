@@ -1133,7 +1133,7 @@ void CGraphView::OnMpeg2DemuxCreatePsiPin()
             {
                 // Create PSI Filter
                 DSUtil::FilterTemplate filter;
-                if (internal_filters.FindTemplateByCLSID(CLSID_PsiConfig, &filter) >= 0)
+                if (internal_filters.FindTemplateByCLSID(__uuidof(PsiConfigFilter), &filter) >= 0)
                 {
                     CComPtr<IBaseFilter> psiConfigFilter;
 	                hr = filter.CreateInstance(&psiConfigFilter);

@@ -1053,11 +1053,11 @@ namespace DSUtil
 
         FilterTemplate filter;
         filter.name = _T("Dump Filter");
-        filter.clsid = CLSID_MonoDump;
+        filter.clsid = __uuidof(DumpFilter);
         filters.Add(filter);
 
         filter.name = _T("Time Measure Filter");
-        filter.clsid = CLSID_MonoTimeMeasure;
+        filter.clsid = __uuidof(TimeMeasureFilter);
         filters.Add(filter);
 
         filter.name = _T("Fake M2TS Device Filter");
@@ -1065,7 +1065,7 @@ namespace DSUtil
         filters.Add(filter);
 
         filter.name = _T("Psi Config Filter");
-        filter.clsid = CLSID_PsiConfig;
+        filter.clsid = __uuidof(PsiConfigFilter);
         filters.Add(filter);
 
         filter.name = _T("Analyzer Filter");

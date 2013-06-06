@@ -9,7 +9,7 @@
 
 const CFactoryTemplate CMonoDump::g_Template = {
 		L"Dump Filter",
-        &CLSID_MonoDump,
+        &__uuidof(DumpFilter),
 		CMonoDump::CreateInstance,
 		NULL,
 		NULL
@@ -32,7 +32,7 @@ CUnknown* CMonoDump::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 //-----------------------------------------------------------------------------
 
 CMonoDump::CMonoDump(LPUNKNOWN pUnk, HRESULT *phr) :
-	CBaseRenderer(CLSID_MonoDump, _T("Dump"), pUnk, phr)
+	CBaseRenderer(__uuidof(DumpFilter), NAME("Dump"), pUnk, phr)
 {
 	filename = _T("");
 }
@@ -52,11 +52,22 @@ STDMETHODIMP CMonoDump::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 
 HRESULT CMonoDump::DoOpenFile()
 {
-	if (file.Open(filename, CFile::modeNoTruncate|CFile::modeWrite|CFile::osSequentialScan|CFile::shareDenyNone)) {
+#ifndef __AFX_H__
+    if (S_OK == file.Create(filename, GENERIC_WRITE, FILE_SHARE_READ, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN))
+    {
+        ULONGLONG fileSize;
+        if (S_OK == file.GetSize(fileSize) && fileSize > 0)
+            file.Seek(fileSize, FILE_BEGIN);
+    }
+    else
+        return E_FAIL;
+#else
+    if (file.Open(filename, CFile::modeNoTruncate|CFile::modeWrite|CFile::osSequentialScan|CFile::shareDenyNone)) {
 		file.SeekToEnd();
 	} else if (!file.Open(filename, CFile::modeCreate|CFile::osSequentialScan|CFile::shareDenyNone)) {
 		return E_FAIL;
 	}
+#endif
 
 	return NOERROR;
 }
