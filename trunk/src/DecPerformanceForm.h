@@ -49,7 +49,7 @@ private:
 	// is the test currently running ?
 	bool							running;
 	bool							perf_operation;			// internal flag
-	CComPtr<IMonoTimeMeasure>       time_filter;
+	CComPtr<ITimeMeasureFilter>     time_filter;
     CComPtr<IBaseFilter>	        cur_decoder;
 
 	int								phase_count;			// total number of runs

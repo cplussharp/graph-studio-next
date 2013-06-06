@@ -1,0 +1,21 @@
+import "unknwn.idl";
+import "oaidl.idl";
+import "ocidl.idl";
+import "objidl.idl";
+import "strmif.idl";
+
+[
+	uuid("76755F03-C88D-41F6-8394-E0B6AD1F3ACC"), 
+    helpstring("PsiConfig Filter Type Library"),
+	//lcid(0x0409), // EN-US
+    version(1.0)
+] 
+library PsiConfigFilterLib
+{
+    [uuid("76755F03-C88D-41F6-8394-E0B6AD1F3ACD")]
+    coclass PsiConfigFilter
+    {
+        [default] interface IBaseFilter;
+        interface IAMFilterMiscFlags;
+    }
+};

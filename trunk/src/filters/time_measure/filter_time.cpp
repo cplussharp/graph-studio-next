@@ -9,7 +9,7 @@
 
 const CFactoryTemplate CMonoTimeMeasure::g_Template = {
 		L"Time Measure Filter",
-        &CLSID_MonoTimeMeasure,
+        &__uuidof(TimeMeasureFilter),
 		CMonoTimeMeasure::CreateInstance,
 		NULL,
 		NULL
@@ -32,7 +32,7 @@ CUnknown* CMonoTimeMeasure::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 //-----------------------------------------------------------------------------
 
 CMonoTimeMeasure::CMonoTimeMeasure(LPUNKNOWN pUnk, HRESULT *phr) :
-	CTransInPlaceFilter(_T("Time Measure"), pUnk, CLSID_MonoTimeMeasure, phr, false)
+	CTransInPlaceFilter(_T("Time Measure"), pUnk, __uuidof(TimeMeasureFilter), phr, false)
 	, start_time(0)
 	, stop_time(0)
 	, frames_done(0)
@@ -47,8 +47,8 @@ CMonoTimeMeasure::~CMonoTimeMeasure()
 
 STDMETHODIMP CMonoTimeMeasure::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
-	if (riid == IID_IMonoTimeMeasure) {
-		return GetInterface((IMonoTimeMeasure*)this, ppv);
+	if (riid == __uuidof(ITimeMeasureFilter)) {
+		return GetInterface((ITimeMeasureFilter*)this, ppv);
 	}
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }

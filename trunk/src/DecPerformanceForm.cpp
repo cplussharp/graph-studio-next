@@ -49,7 +49,7 @@ CDecPerformanceForm::CDecPerformanceForm(CGraphView* parent_view, CWnd* pParent)
 	perf_operation = false;
     null_renderer.clsid = DSUtil::CLSID_NullRenderer;
     null_renderer.name = _T("Null Renderer");
-    time_filter_template.clsid = CLSID_MonoTimeMeasure;
+    time_filter_template.clsid = __uuidof(TimeMeasureFilter);
     time_filter_template.name = _T("Time Measure Filter");
 }
 
@@ -249,7 +249,7 @@ void CDecPerformanceForm::StartTiming()
 	// Find first time measure filter in graph and store a reference to it
 	for (int i=0; i<view->graph.filters.GetCount() && !time_filter; i++) {
 		if (view->graph.filters[i]->filter)
-			view->graph.filters[i]->filter->QueryInterface(IID_IMonoTimeMeasure, (void**)&time_filter);
+			view->graph.filters[i]->filter->QueryInterface(__uuidof(ITimeMeasureFilter), (void**)&time_filter);
 	}
 
 	// run the graph

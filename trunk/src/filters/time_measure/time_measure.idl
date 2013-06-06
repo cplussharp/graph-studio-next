@@ -1,0 +1,29 @@
+import "unknwn.idl";
+import "oaidl.idl";
+import "ocidl.idl";
+import "objidl.idl";
+import "strmif.idl";
+
+[object, uuid("B278651D-1678-4add-941A-0EFDAD41F930")]
+interface ITimeMeasureFilter : IUnknown
+{
+    [id(1), helpstring("Get the Time")] HRESULT GetStats([out] __int64* runtime_ns, [out]__int64* frames, [out]__int64* realtime_ns);
+};
+
+[
+	uuid("9D17EE0E-E2BC-4df0-8BFF-9E32774D5680"), 
+    helpstring("Time Measure Filter Type Library"),
+	//lcid(0x0409), // EN-US
+    version(1.0)
+] 
+library TimeMeasureFilterLib
+{
+    interface ITimeMeasureFilter;
+
+    [uuid("9D17EE0E-E2BC-4df0-8BFF-9E32774D5681")]
+    coclass TimeMeasureFilter
+    {
+        interface IBaseFilter;
+        [default] interface ITimeMeasureFilter;
+    }
+};

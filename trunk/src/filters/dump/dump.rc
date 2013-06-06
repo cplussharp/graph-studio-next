@@ -68,12 +68,12 @@ BEGIN
         BLOCK "040704b0"
         BEGIN
             VALUE "CompanyName", "GraphStudioNext"
-            VALUE "FileDescription", "PsiConfig DirectShow Filter"
+            VALUE "FileDescription", "Dump DirectShow Filter"
             VALUE "FileVersion", "1.0.0.0"
-            VALUE "InternalName", "PsiConfig"
-            VALUE "LegalCopyright", "Copyright © GraphStudioNext 2012-2013"
-            VALUE "OriginalFilename", "PsiConfig.dll"
-            VALUE "ProductName", "PsiConfig"
+            VALUE "InternalName", "Dump"
+            VALUE "LegalCopyright", "Copyright © GraphStudioNext 2013"
+            VALUE "OriginalFilename", "Dump.dll"
+            VALUE "ProductName", "Dump"
             VALUE "ProductVersion", "1.0.0.0"
         END
     END

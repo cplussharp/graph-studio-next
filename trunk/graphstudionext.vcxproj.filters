@@ -601,5 +601,14 @@
     <Midl Include="src\filters\audio_analyzer\audio_analyzer.idl">
       <Filter>Filters\filter_audio_analyzer</Filter>
     </Midl>
+    <Midl Include="src\filters\time_measure\time_measure.idl">
+      <Filter>Filters\filter_time</Filter>
+    </Midl>
+    <Midl Include="src\filters\psi_config\psiconfig.idl">
+      <Filter>Filters\filter_psiconfig</Filter>
+    </Midl>
+    <Midl Include="src\filters\dump\dump.idl">
+      <Filter>Filters\filter_dump</Filter>
+    </Midl>
   </ItemGroup>
 </Project>
