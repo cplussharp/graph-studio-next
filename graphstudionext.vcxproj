@@ -261,6 +261,7 @@
     <ClInclude Include="src\AnalyzerPage.h" />
     <ClInclude Include="src\BlacklistForm.h" />
     <ClInclude Include="src\CliOptionsForm.h" />
+    <ClInclude Include="src\Crc32.h" />
     <ClInclude Include="src\FilterBlacklist.h" />
     <ClInclude Include="interfaces\monofilters.h" />
     <ClInclude Include="src\display_graph.h" />
@@ -350,6 +351,7 @@
     <ClCompile Include="src\AnalyzerPage.cpp" />
     <ClCompile Include="src\BlacklistForm.cpp" />
     <ClCompile Include="src\CliOptionsForm.cpp" />
+    <ClCompile Include="src\Crc32.cpp" />
     <ClCompile Include="src\FilterBlacklist.cpp" />
     <ClCompile Include="src\display_graph.cpp" />
     <ClCompile Include="src\display_view.cpp" />

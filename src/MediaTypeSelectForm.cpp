@@ -44,18 +44,20 @@ BOOL CMediaTypeSelectForm::OnInitDialog()
 		FORMAT_TYPE,
 		FORMAT_DETAILS,
         MAJOR_TYPE,
+        CRC32
 	};
 
 	CRect clientRect;
 	media_types_list.GetClientRect(&clientRect);
-	const int columnWidth = (clientRect.Width() - GetSystemMetrics(SM_CXVSCROLL)) / 4;
+	const int columnWidth = (clientRect.Width() - GetSystemMetrics(SM_CXVSCROLL));
 	media_types_list.SetView(LV_VIEW_DETAILS);
     media_types_list.SetExtendedStyle( media_types_list.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP );
-    media_types_list.InsertColumn(SUB_TYPE,			_T("Index"),			LVCFMT_LEFT, columnWidth/4, INDEX); 
-    media_types_list.InsertColumn(SUB_TYPE,			_T("Sub Type"),			LVCFMT_LEFT, columnWidth, SUB_TYPE); 
-	media_types_list.InsertColumn(FORMAT_TYPE,		_T("Format Type"),		LVCFMT_LEFT, columnWidth, FORMAT_TYPE); 
-    media_types_list.InsertColumn(FORMAT_DETAILS,	_T("Format Details"),	LVCFMT_LEFT, columnWidth, FORMAT_DETAILS); 
-    media_types_list.InsertColumn(MAJOR_TYPE,		_T("Major Type"),		LVCFMT_LEFT, 3*columnWidth/4, MAJOR_TYPE); 
+    media_types_list.InsertColumn(SUB_TYPE,			_T("Index"),			LVCFMT_LEFT, columnWidth * 0.06, INDEX); 
+    media_types_list.InsertColumn(SUB_TYPE,			_T("Sub Type"),			LVCFMT_LEFT, columnWidth * 0.24, SUB_TYPE); 
+	media_types_list.InsertColumn(FORMAT_TYPE,		_T("Format Type"),		LVCFMT_LEFT, columnWidth * 0.19, FORMAT_TYPE); 
+    media_types_list.InsertColumn(FORMAT_DETAILS,	_T("Format Details"),	LVCFMT_LEFT, columnWidth * 0.24, FORMAT_DETAILS); 
+    media_types_list.InsertColumn(MAJOR_TYPE,		_T("Major Type"),		LVCFMT_LEFT, columnWidth * 0.19, MAJOR_TYPE); 
+    media_types_list.InsertColumn(CRC32,		    _T("CRC32"),		    LVCFMT_LEFT, columnWidth * 0.11, CRC32); 
 
 	// First entry is <Default> Media Type
 	const LPCTSTR any = _T("<Default>");
@@ -65,11 +67,12 @@ BOOL CMediaTypeSelectForm::OnInitDialog()
 	media_types_list.SetItemText(0, FORMAT_TYPE,	any);
     media_types_list.SetItemText(0, FORMAT_DETAILS, any);
 	media_types_list.SetItemText(0, MAJOR_TYPE,		any);
+    media_types_list.SetItemText(0, CRC32,		    _T(""));
 	media_types_list.SetItemData(0,					-1);
 
 	for (size_t index=0; index<media_types.GetCount(); index++) {
 		const CMediaType& mediaType = media_types[index];
-		CString indexStr, majorType, subType, formatType, formatDetails;
+		CString indexStr, majorType, subType, formatType, formatDetails, strCrc32;
 
 		indexStr.Format(_T("%u"), index);
 		GraphStudio::NameGuid(mediaType.majortype,	majorType,	CgraphstudioApp::g_showGuidsOfKnownTypes);
@@ -98,6 +101,9 @@ BOOL CMediaTypeSelectForm::OnInitDialog()
                 const WAVEFORMATEX* const wfx = (WAVEFORMATEX*)mediaType.pbFormat;
                 formatDetails.Format(_T("%dx %dHz with %dBits"), wfx->nChannels, wfx->nSamplesPerSec, wfx->wBitsPerSample);
             }
+
+            DWORD crc32 = m_crc32Calculator.GetCrc32FromData(mediaType.pbFormat, mediaType.cbFormat);
+            strCrc32.Format(_T("0x%08lX"), crc32);
         }
 
 		media_types_list.InsertItem(index+1, NULL);
@@ -107,6 +113,7 @@ BOOL CMediaTypeSelectForm::OnInitDialog()
 		media_types_list.SetItemText(index+1, FORMAT_TYPE,		formatType);
         media_types_list.SetItemText(index+1, FORMAT_DETAILS,	formatDetails);
 		media_types_list.SetItemText(index+1, MAJOR_TYPE,		majorType);
+        media_types_list.SetItemText(index+1, CRC32,		    strCrc32);
 		media_types_list.SetItemData(index+1,					index);
 	}
 
@@ -145,6 +152,11 @@ void CMediaTypeSelectForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST_MEDIATYPES, media_types_list);
 	DDX_Control(pDX, IDOK, ok_button);
 	DDX_Control(pDX, IDCANCEL, cancel_button);
+
+    DDX_Control(pDX, IDC_USE_MAJOR_TYPE,    checkUseMajorType);
+	DDX_Control(pDX, IDC_USE_SUB_TYPE,		checkUseSubType);
+	DDX_Control(pDX, IDC_USE_SAMPLE_SIZE,	checkUseSampleSize);
+	DDX_Control(pDX, IDC_USE_FORMAT_BLOCK,	checkUseFormatBlock);
 
 	//{{AFX_DATA_MAP(CMediaTypeSelectForm)
 	//}}AFX_DATA_MAP
@@ -200,6 +212,16 @@ void CMediaTypeSelectForm::OnSize(UINT nType, int cx, int cy)
 
 	buttonX -= buttonXSpacing + okRect.Width();
 	ok_button.SetWindowPos(NULL, buttonX, buttonY, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER);
+
+    int checkWidth = okRect.Width() * 1.3;
+    buttonX = buttonXSpacing;
+    checkUseMajorType.SetWindowPos(NULL, buttonX, buttonY, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER);
+    buttonX += buttonXSpacing + checkWidth;
+    checkUseSubType.SetWindowPos(NULL, buttonX, buttonY, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER);
+    buttonX += buttonXSpacing + checkWidth;
+    checkUseSampleSize.SetWindowPos(NULL, buttonX, buttonY, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER);
+    buttonX += buttonXSpacing + checkWidth;
+    checkUseFormatBlock.SetWindowPos(NULL, buttonX, buttonY, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER);
 
     m_title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 	m_title.Invalidate();

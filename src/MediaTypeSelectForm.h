@@ -14,6 +14,7 @@ private:
 
 	DSUtil::MediaTypes	media_types;
 	int					selected_media_type_index;		// selected index within in media_types or out of range if none selected
+    CCrc32              m_crc32Calculator;
 
 	virtual  BOOL OnInitDialog();
 	int GetSelectedMediaType();
@@ -39,6 +40,12 @@ public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	CButton ok_button;
 	CButton cancel_button;
+
+    CButton checkUseMajorType;
+    CButton checkUseSubType;
+    CButton checkUseSampleSize;
+    CButton checkUseFormatBlock;
+
 	afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
 
 	// static vars for check box state persisted for the application lifetime
