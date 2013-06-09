@@ -19,15 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{76755F03-C88D-41F6-8394-E0B6AD1F3ACC}</ProjectGuid>
-    <RootNamespace>PSIConfig</RootNamespace>
+    <ProjectGuid>{CA6B3460-28B3-4A6E-A7FC-A83CF1DEEC48}</ProjectGuid>
+    <RootNamespace>Analyzer</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>PsiConfig</ProjectName>
+    <ProjectName>Analyzer</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfAtl>Static</UseOfAtl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -79,7 +80,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_AFX_NOFORCE_LIBS;WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -91,7 +92,6 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>strmbasd.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <ModuleDefinitionFile>Filter.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -103,7 +103,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_AFX_NOFORCE_LIBS;WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -131,7 +131,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\..\BaseClasses\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_AFX_NOFORCE_LIBS;WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -157,7 +157,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalIncludeDirectories>..\..\..\BaseClasses\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_AFX_NOFORCE_LIBS;WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -177,31 +177,43 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\lib\sqlite\sqlite3.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="analyzer.cpp" />
+    <ClCompile Include="analyzer_proppage_config.cpp" />
     <ClCompile Include="Filter.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="psiconfig.cpp" />
+    <ClCompile Include="filter_analyzer.cpp" />
+    <ClCompile Include="filter_analyzer_writer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Filter.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dbg.h" />
-    <ClInclude Include="mp2const.h" />
-    <ClInclude Include="parsemac.h" />
-    <ClInclude Include="psiobj.h" />
-    <ClInclude Include="psiconfig.h" />
+    <ClInclude Include="..\..\..\lib\sqlite\sqlite3.h" />
+    <ClInclude Include="analyzer.h" />
+    <C1Include Include="analyzer_pospassthru.h" />
+    <ClInclude Include="analyzer_proppage_config.h" />
+    <ClInclude Include="analyzer_proppage_resource.h" />
+    <ClInclude Include="filter_analyzer.h" />
+    <ClInclude Include="filter_analyzer_writer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="psiconfig.rc" />
+    <ResourceCompile Include="analyzer_proppage.rc" />
+    <ResourceCompile Include="analyzer.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="psiconfig.idl" />
+    <Midl Include="analyzer.idl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

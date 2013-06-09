@@ -420,7 +420,7 @@ STDMETHODIMP CAnalyzer::put_PreviewSampleByteCount(unsigned short val)
 // TODO check memory management of it->aData as we've had memory corruption assertions freeing it
 STDMETHODIMP CAnalyzer::ResetStatistic(void)
 {
-    for (vector<StatisticRecordEntry>::iterator it = m_entries.begin(); it != m_entries.end(); ++it)
+    for (std::vector<StatisticRecordEntry>::iterator it = m_entries.begin(); it != m_entries.end(); ++it)
     {
         if (it->aData != NULL)
         {

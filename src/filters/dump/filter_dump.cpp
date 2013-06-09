@@ -32,7 +32,7 @@ CUnknown* CMonoDump::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 //-----------------------------------------------------------------------------
 
 CMonoDump::CMonoDump(LPUNKNOWN pUnk, HRESULT *phr) :
-	CBaseRenderer(__uuidof(DumpFilter), NAME("Dump"), pUnk, phr)
+	CBaseRenderer(__uuidof(DumpFilter), TEXT("Dump"), pUnk, phr)
 {
 	filename = _T("");
 }

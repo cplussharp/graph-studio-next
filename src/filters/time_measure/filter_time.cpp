@@ -32,7 +32,7 @@ CUnknown* CMonoTimeMeasure::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 //-----------------------------------------------------------------------------
 
 CMonoTimeMeasure::CMonoTimeMeasure(LPUNKNOWN pUnk, HRESULT *phr) :
-	CTransInPlaceFilter(_T("Time Measure"), pUnk, __uuidof(TimeMeasureFilter), phr, false)
+	CTransInPlaceFilter(TEXT("Time Measure"), pUnk, __uuidof(TimeMeasureFilter), phr, false)
 	, start_time(0)
 	, stop_time(0)
 	, frames_done(0)

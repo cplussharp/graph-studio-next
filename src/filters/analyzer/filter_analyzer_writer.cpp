@@ -51,8 +51,11 @@ STDMETHODIMP CAnalyzerWriterInput::NonDelegatingQueryInterface(REFIID iid, void*
 {
     if (IID_IStream == iid)
 		return GetInterface((IStream*) this, ppv);
-    if (__uuidof(IStreamBufferDataCounters) == iid)
+    else if (__uuidof(IStreamBufferDataCounters) == iid)
 		return GetInterface((IStreamBufferDataCounters*) this, ppv);
+    else if (iid == IID_ISpecifyPropertyPages)
+        return GetInterface((ISpecifyPropertyPages*) this, ppv);
+
 	return CBaseInputPin::NonDelegatingQueryInterface(iid, ppv);
 }
 
@@ -460,6 +463,28 @@ STDMETHODIMP CAnalyzerWriterFilter::GetMode(DWORD *dwFlags)
     CheckPointer(dwFlags, E_POINTER);
     *dwFlags = m_dwFlags;
     return S_OK;
+}
+
+#pragma endregion
+
+#pragma region ISpecifyPropertyPages
+
+/*********************************************************************************************
+* Implementation of ISpecifyPropertyPages
+*********************************************************************************************/
+STDMETHODIMP CAnalyzerWriterFilter::GetPages(CAUUID *pPages)
+{
+    CheckPointer(pPages,E_POINTER);
+
+    pPages->cElems = 2;
+    pPages->pElems = (GUID *) CoTaskMemAlloc(pPages->cElems * sizeof(GUID));
+    if (pPages->pElems == NULL) {
+        return E_OUTOFMEMORY;
+    }
+
+    pPages->pElems[0] = __uuidof(AnalyzerPropPageConfig);
+    pPages->pElems[1] = __uuidof(AnalyzerPropPageLog);
+    return NOERROR;
 }
 
 #pragma endregion
