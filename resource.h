@@ -111,7 +111,6 @@
 #define IDC_BUTTON_SEARCH               1030
 #define IDC_TREE_FAVORITES              1030
 #define IDC_EDIT_NAME                   1031
-#define IDC_EDIT_TIME                   1031
 #define IDC_EDIT_PASSES                 1031
 #define IDC_EDIT_ORIGINAL               1031
 #define IDC_EDIT_LATENCY                1031
@@ -121,6 +120,7 @@
 #define IDC_EDIT_BLACKLIST_ENTRY        1031
 #define IDC_EDIT_OPTIONS                1031
 #define IDC_EDIT_PREVIEWBYTECOUNT       1031
+#define IDC_EDIT_STOP_POSITION          1031
 #define IDC_EDIT_DST_TOP                1032
 #define IDC_TREE                        1033
 #define IDC_PROGRESS_POSITION           1034
@@ -131,18 +131,22 @@
 #define IDC_RADIO_TIME                  1040
 #define IDC_RADIO_FRAME                 1041
 #define IDC_CHECK_KEYFRAME              1042
-#define IDC_EDIT_FRAME                  1043
+#define IDC_EDIT_CURRENT_POSITION       1043
 #define IDC_STATIC_DURATION             1044
 #define IDC_STATIC_POSITION             1045
 #define IDC_STATIC_FPS                  1046
 #define IDC_STATIC_STOP_POSITION        1047
 #define IDC_LIST_SCHEDULE               1048
+#define IDC_CHECK_RELATIVE_TO_PREVIOUS  1048
 #define IDC_BUTTON_ADD                  1049
+#define IDC_CHECK_SET_CURRENT_POSITION    1049
 #define IDC_BUTTON_REMOVE               1050
+#define IDC_CHECK_SEGMENT               1050
 #define IDC_STATIC_DESC                 1051
 #define IDC_BUTTON_EXPORT               1051
 #define IDC_STATIC_VERSION              1052
 #define IDC_BUTTON_IMPORT               1052
+#define IDC_CHECK_NO_FLUSH              1052
 #define IDC_STATIC_IRATE                1053
 #define IDC_STATIC_PRATE                1054
 #define IDC_STATIC_QUALITY              1055
@@ -151,15 +155,24 @@
 #define IDC_STATIC_VAL_PRATE            1058
 #define IDC_STATIC_VAL_QUALITY          1059
 #define IDC_STATIC_VAL_WINDOW           1060
+#define IDC_CHECK_STOP_RELATIVE_TO_CURRENT 1060
 #define IDC_COMBO_SAMPLERATE            1061
+#define IDC_RADIO_SAMPLE                1061
 #define IDC_COMBO_CHANNELS              1062
+#define IDC_RADIO_FIELD                 1062
 #define IDC_COMBO_BITRATE               1063
+#define IDC_RADIO_BYTE                  1063
 #define IDC_STATIC_FORMAT               1064
 #define IDC_STATIC_CHANNELS             1065
+#define IDC_CHECK_STOP_KEYFRAME         1065
 #define IDC_STATIC_SAMPLERATE           1066
+#define IDC_CHECK_STOP_RELATIVE_TO_PREVIOUS 1066
 #define IDC_STATIC_BITRATE              1067
+#define IDC_CHECK_STOP_SET_POSITION     1067
 #define IDC_COMBO_FORMAT                1068
 #define IDC_COMBO_PRESETS               1068
+#define IDC_CHECK_STOP_SEGMENT          1068
+#define IDC_CHECK_STOP_NO_FLUSH         1069
 #define IDC_COMBO_RENDERER              1071
 #define IDC_LIST_RESULTS                1072
 #define IDC_COMBO_DECODER               1073
@@ -209,6 +222,7 @@
 #define IDC_USE_SUB_TYPE                1128
 #define IDC_USE_SAMPLE_SIZE             1129
 #define IDC_USE_FORMAT_BLOCK            1130
+#define IDC_CUSTOM_FORMAT               1132
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -333,14 +347,15 @@
 #define ID_CLSID_FILTERGRAPH_PRIVATE_THREAD 32912
 #define ID_FILE_OPENLOGFILE             32913
 #define ID_FILE_SETLOGFILE              32914
+#define ID_FILE_NEWWINDOW               32915
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        179
-#define _APS_NEXT_COMMAND_VALUE         32915
-#define _APS_NEXT_CONTROL_VALUE         1131
+#define _APS_NEXT_COMMAND_VALUE         32916
+#define _APS_NEXT_CONTROL_VALUE         1133
 #define _APS_NEXT_SYMED_VALUE           103
 #endif
 #endif

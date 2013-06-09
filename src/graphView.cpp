@@ -743,8 +743,7 @@ void CGraphView::OnViewDecoderPerformance()
 void CGraphView::OnSeekClick()
 {
 	if (!form_seek) {
-		form_seek = new CSeekForm();
-		form_seek->view = this;
+		form_seek = new CSeekForm(this);
 		form_seek->DoCreateDialog();
 	}
 	form_seek->ShowWindow(SW_SHOW);

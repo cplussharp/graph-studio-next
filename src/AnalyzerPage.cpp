@@ -7,38 +7,7 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 #include "AnalyzerPage.h"
-
-namespace
-{
-	// Code from http://stackoverflow.com/questions/1449805/how-to-format-a-number-from-1123456789-to-1-123-456-789-in-c
-	CString commaFormat(__int64 n) 
-	{
-		CString ret;
-
-		__int64 n2 = 0;
-		__int64 scale = 1;
-		if (n < 0) {
-			printf ("-");
-			n = -n;
-		}
-		while (n >= 1000) {
-			n2 = n2 + scale * (n % 1000);
-			n /= 1000;
-			scale *= 1000;
-		}
-		ret.Format(_T("%d"), (int)n);
-		CString strGroup;
-		while (scale != 1) {
-			scale /= 1000;
-			n = n2 / scale;
-			n2 = n2  % scale;
-			strGroup.Format(_T(",%03d"), (int)n);
-			ret += strGroup;
-		}
-		return ret;
-	}
-}
-
+#include "time_utils.h"
 
 //-----------------------------------------------------------------------------
 //
@@ -228,7 +197,7 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field, bool com
                         FreeEntryData(prevEntry);
                     }
 					if (commaFormattedTimestamps)
-						val = commaFormat(timeStamp);
+						val = CommaFormat(timeStamp);
 					else
 						val.Format(_T("%I64d"),timeStamp);
                 }
@@ -293,7 +262,7 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field, bool com
             case Start:
                 if (entry.StreamTimeStart >= 0) {
 					if (commaFormattedTimestamps)
-						val = commaFormat(entry.StreamTimeStart);
+						val = CommaFormat(entry.StreamTimeStart);
 					else
 						val.Format(_T("%I64d"),entry.StreamTimeStart);
 				}
@@ -302,7 +271,7 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field, bool com
             case Stop:
                 if (entry.StreamTimeStop >= 0) {
 					if (commaFormattedTimestamps)
-						val = commaFormat(entry.StreamTimeStop);
+						val = CommaFormat(entry.StreamTimeStop);
 					else
 						val.Format(_T("%I64d"),entry.StreamTimeStop);
 				}
@@ -314,7 +283,7 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field, bool com
                     val.Format(_T("%f"), ((double)entry.MediaTimeStart)/UNITS);
                 else if (entry.MediaTimeStart >= 0) {
 					if (commaFormattedTimestamps)
-						val = commaFormat(entry.MediaTimeStart);
+						val = CommaFormat(entry.MediaTimeStart);
 					else
 						val.Format(_T("%I64d"), entry.MediaTimeStart);
 				}
@@ -323,7 +292,7 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field, bool com
             case MediaStop:
                 if (entry.MediaTimeStop >= 0) {
 					if (commaFormattedTimestamps)
-						val = commaFormat(entry.MediaTimeStop);
+						val = CommaFormat(entry.MediaTimeStop);
 					else
 						val.Format(_T("%I64d"),entry.MediaTimeStop);
 				}
