@@ -547,6 +547,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			flags |= AM_SEEKING_SeekToKeyFrame;
 		}
 
+		ms->SetTimeFormat(&TIME_FORMAT_MEDIA_TIME);		// other format may be in use by CSeekForm
 		return ms->SetPositions(&rtpos, flags, NULL, AM_SEEKING_NoPositioning);
 	}
 

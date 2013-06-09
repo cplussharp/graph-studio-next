@@ -16,43 +16,56 @@ class CGraphView;
 //-----------------------------------------------------------------------------
 class CSeekForm : public CDialog
 {
+public:
+	CSeekForm(CGraphView* graph_view, CWnd* pParent = NULL);
+	virtual ~CSeekForm();
+
+	BOOL DoCreateDialog();
+	void UpdateGraphPosition();
+
 protected:
 	DECLARE_DYNAMIC(CSeekForm)
 	DECLARE_MESSAGE_MAP()
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-public:
 	GraphStudio::TitleBar	title;
 	CGraphView				*view;
-	CStatic					label_duration;
-	CStatic					label_position;
-	CStatic					label_fps;
-	CButton					radio_time;
-	CButton					radio_frame;
-	CButton					check_keyframe;
-	CEdit					edit_time;
-	CEdit					edit_frame;
 	CCheckListBox			list_caps;
 
-	__int64					caps;
+	GUID					time_format;
 
-public:
-	CSeekForm(CWnd* pParent = NULL);   // standard constructor
-	virtual ~CSeekForm();
+	// Cache these values to avoid excessive updating
+	__int64					cached_caps;
+	LONGLONG				cached_cur_pos;
+	LONGLONG				cached_stop;
+	LONGLONG				cached_duration;
+	double					cached_fps;
 
+protected:
 	enum { IDD = IDD_DIALOG_SEEK };
 
 	// initialization
-	BOOL DoCreateDialog();
 	void OnSize(UINT nType, int cx, int cy);
 
 	void OnTimer(UINT_PTR id);
-	void UpdateGraphPosition();
-
-	void OnTimeClick();
-	void OnFrameClick();
-	void GetCurrentCaps(__int64 &c);
-
 	virtual void OnOK();
+
+	CString FormatTimeString(LONGLONG time);
+	bool ParseTimeString(const CString& time_str, LONGLONG& time);
+	void SetTimeFormat(const GUID& new_time_format);
+	void ResetCachedValues();
+
+	int GetCurrentCaps();
+	void EnableControls();
+
+	afx_msg void OnFormatTimeClick();
+	afx_msg void OnFormatFrameClick();
+	afx_msg void OnFormatFieldClick();
+	afx_msg void OnFormatSampleClick();
+	afx_msg void OnFormatByteClick();
+	afx_msg void OnCheckSetCurrentPosition();
+	afx_msg void OnCheckSetStopPosition();
+	afx_msg void OnCheckStopRelativeToCurrent();
+	afx_msg void OnCheckStopRelativeToPrevious();
 };

@@ -20,8 +20,15 @@ IMPLEMENT_DYNAMIC(CSeekForm, CDialog)
 BEGIN_MESSAGE_MAP(CSeekForm, CDialog)
 	ON_WM_SIZE()
 	ON_WM_TIMER()
-	ON_COMMAND(IDC_RADIO_TIME, &CSeekForm::OnTimeClick)
-	ON_COMMAND(IDC_RADIO_FRAME, &CSeekForm::OnFrameClick)
+	ON_COMMAND(IDC_RADIO_TIME, &CSeekForm::OnFormatTimeClick)
+	ON_COMMAND(IDC_RADIO_FRAME, &CSeekForm::OnFormatFrameClick)
+	ON_BN_CLICKED(IDC_RADIO_FIELD, &CSeekForm::OnFormatFieldClick)
+	ON_BN_CLICKED(IDC_RADIO_SAMPLE, &CSeekForm::OnFormatSampleClick)
+	ON_BN_CLICKED(IDC_RADIO_BYTE, &CSeekForm::OnFormatByteClick)
+	ON_BN_CLICKED(IDC_CHECK_SET_CURRENT_POSITION, &CSeekForm::OnCheckSetCurrentPosition)
+	ON_BN_CLICKED(IDC_CHECK_STOP_SET_POSITION, &CSeekForm::OnCheckSetStopPosition)
+	ON_BN_CLICKED(IDC_CHECK_STOP_RELATIVE_TO_CURRENT, &CSeekForm::OnCheckStopRelativeToCurrent)
+	ON_BN_CLICKED(IDC_CHECK_STOP_RELATIVE_TO_PREVIOUS, &CSeekForm::OnCheckStopRelativeToPrevious)
 END_MESSAGE_MAP()
 
 struct VALNAME
@@ -33,11 +40,11 @@ struct VALNAME
 // our temp values
 enum
 {
-	FLAG_FORMAT_FRAME		= 0x200,
-	FLAG_FORMAT_SAMPLE		= 0x400,
-	FLAG_FORMAT_FIELD		= 0x800,
-	FLAG_FORMAT_BYTE		= 0x1000,
-	FLAG_FORMAT_MEDIA_TIME	= 0x2000,
+	FLAG_FORMAT_FRAME		= AM_SEEKING_Source << 8,	// use higher bits above last defined bit AM_SEEKING_Source
+	FLAG_FORMAT_SAMPLE		= AM_SEEKING_Source << 9,
+	FLAG_FORMAT_FIELD		= AM_SEEKING_Source << 10,
+	FLAG_FORMAT_BYTE		= AM_SEEKING_Source << 11,
+	FLAG_FORMAT_MEDIA_TIME	= AM_SEEKING_Source << 12,
 };
 
 const VALNAME		CapsFlags[] = 
@@ -67,10 +74,21 @@ const int			CapsFlagsCount = sizeof(CapsFlags) / sizeof(CapsFlags[0]);
 //
 //-----------------------------------------------------------------------------
 
-CSeekForm::CSeekForm(CWnd* pParent)	: 
-	CDialog(CSeekForm::IDD, pParent)
+CSeekForm::CSeekForm(CGraphView* graph_view, CWnd* pParent)	: 
+	CDialog(CSeekForm::IDD, pParent),
+	view(graph_view),
+	time_format(TIME_FORMAT_MEDIA_TIME),
+	cached_caps(INT_MIN)
 {
+	ResetCachedValues();
+}
 
+void CSeekForm::ResetCachedValues()
+{
+	cached_cur_pos	= _I64_MIN;
+	cached_stop		= _I64_MIN;
+	cached_duration = _I64_MIN;
+	cached_fps		= FLT_MIN;
 }
 
 CSeekForm::~CSeekForm()
@@ -81,14 +99,6 @@ void CSeekForm::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TITLEBAR, title);
-	DDX_Control(pDX, IDC_STATIC_DURATION, label_duration);
-	DDX_Control(pDX, IDC_STATIC_POSITION, label_position);
-	DDX_Control(pDX, IDC_STATIC_FPS, label_fps);
-	DDX_Control(pDX, IDC_RADIO_TIME, radio_time);
-	DDX_Control(pDX, IDC_RADIO_FRAME, radio_frame);
-	DDX_Control(pDX, IDC_EDIT_TIME, edit_time);
-	DDX_Control(pDX, IDC_EDIT_FRAME, edit_frame);
-	DDX_Control(pDX, IDC_CHECK_KEYFRAME, check_keyframe);
 	DDX_Control(pDX, IDC_LIST_CAPS, list_caps);
 }
 
@@ -103,8 +113,8 @@ BOOL CSeekForm::DoCreateDialog()
 
 	SetTimer(0, 200, NULL);
 
-	edit_time.SetWindowText(_T("00:00:00.000"));
-	edit_frame.SetWindowText(_T("0"));
+	CheckDlgButton(IDC_RADIO_TIME,	true);
+	SetTimeFormat(TIME_FORMAT_MEDIA_TIME);
 
 	list_caps.ResetContent();
 	for (int i=0; i<CapsFlagsCount; i++) {
@@ -112,14 +122,18 @@ BOOL CSeekForm::DoCreateDialog()
 		list_caps.Enable(i, FALSE);
 	}
 
-	OnTimeClick();
+	CheckDlgButton(IDC_CHECK_SET_CURRENT_POSITION,	true);
+	CheckDlgButton(IDC_CHECK_STOP_SET_POSITION,		false);
+	EnableControls();
+
+	GotoDlgCtrl(GetDlgItem(IDC_EDIT__CUR_POSITION));
+
 	return TRUE;
 }
 
-
 void CSeekForm::OnSize(UINT nType, int cx, int cy)
 {
-	// resize our controls along...
+	// resize our header control to fit dialog...
 	CRect		rc, rc2;
 	GetClientRect(&rc);
 
@@ -130,20 +144,52 @@ void CSeekForm::OnSize(UINT nType, int cx, int cy)
 	}
 }
 
-void CSeekForm::OnTimeClick()
+void CSeekForm::EnableControls()
 {
-	radio_time.SetCheck(TRUE);
-	radio_frame.SetCheck(FALSE);
-	edit_time.EnableWindow(TRUE);
-	edit_frame.EnableWindow(FALSE);
+	const bool set_cur = IsDlgButtonChecked(IDC_CHECK_SET_CURRENT_POSITION) != 0;
+	const bool set_stop = IsDlgButtonChecked(IDC_CHECK_STOP_SET_POSITION) != 0;
+
+	GetDlgItem(IDC_EDIT_CURRENT_POSITION)			->EnableWindow(set_cur);
+	GetDlgItem(IDC_CHECK_RELATIVE_TO_PREVIOUS)		->EnableWindow(set_cur);
+	GetDlgItem(IDC_CHECK_KEYFRAME)					->EnableWindow(set_cur);
+	GetDlgItem(IDC_CHECK_SEGMENT)					->EnableWindow(set_cur);
+	GetDlgItem(IDC_CHECK_NO_FLUSH)					->EnableWindow(set_cur);
+
+	// relative to previous and stop relative to current are mutually exclusive controls
+
+	GetDlgItem(IDC_EDIT_STOP_POSITION)				->EnableWindow(set_stop);
+	GetDlgItem(IDC_CHECK_STOP_RELATIVE_TO_PREVIOUS)	->EnableWindow(set_stop && !IsDlgButtonChecked(IDC_CHECK_STOP_RELATIVE_TO_CURRENT));
+	GetDlgItem(IDC_CHECK_STOP_RELATIVE_TO_CURRENT)	->EnableWindow(set_stop && !IsDlgButtonChecked(IDC_CHECK_STOP_RELATIVE_TO_PREVIOUS));
+	GetDlgItem(IDC_CHECK_STOP_KEYFRAME)				->EnableWindow(set_stop);
+	GetDlgItem(IDC_CHECK_STOP_SEGMENT)				->EnableWindow(set_stop);
+	GetDlgItem(IDC_CHECK_STOP_NO_FLUSH)				->EnableWindow(set_stop);
+
+	// Can't seek if we don't set one of current and stop position so disable button as a cue to the user
+	GetDlgItem(IDOK)								->EnableWindow(set_cur || set_stop);
 }
 
-void CSeekForm::OnFrameClick()
+void CSeekForm::SetTimeFormat(const GUID& new_time_format)
 {
-	radio_time.SetCheck(FALSE);
-	radio_frame.SetCheck(TRUE);
-	edit_time.EnableWindow(FALSE);
-	edit_frame.EnableWindow(TRUE);
+	HRESULT hr = view->graph.ms->SetTimeFormat(&new_time_format);
+	if (SUCCEEDED(hr)) {
+		time_format = new_time_format;
+	} else {
+		time_format = TIME_FORMAT_MEDIA_TIME;
+		CheckDlgButton(IDC_RADIO_TIME,	1);
+		CheckDlgButton(IDC_RADIO_FRAME, 0);
+		CheckDlgButton(IDC_RADIO_FIELD, 0);
+		CheckDlgButton(IDC_RADIO_SAMPLE,0);
+		CheckDlgButton(IDC_RADIO_BYTE,	0);
+		DSUtil::ShowError(hr, _T("Can't set time format"));
+	}
+
+	// invalidate our cached display values to force reformatting for new units
+	ResetCachedValues();
+
+	// set edit controls to hint format required to user
+	const TCHAR * const time_str = TIME_FORMAT_MEDIA_TIME == time_format ? _T("00:00:00.000") : _T("0");
+	SetDlgItemText(IDC_EDIT_CURRENT_POSITION,  time_str);
+	SetDlgItemText(IDC_EDIT_STOP_POSITION, time_str);
 }
 
 void CSeekForm::OnTimer(UINT_PTR id)
@@ -157,15 +203,20 @@ void CSeekForm::OnTimer(UINT_PTR id)
 			UpdateGraphPosition();
 
 			// refresh caps
-			__int64		c;
-			GetCurrentCaps(c);
+			const int c = GetCurrentCaps();
 
-			if (c != caps) {
-				caps = c;
+			if (c != cached_caps) {
+				cached_caps = c;
 				for (int i=0; i<CapsFlagsCount; i++) {
-					bool active = (caps & CapsFlags[i].flag ? true : false);
+					bool active = (cached_caps & CapsFlags[i].flag ? true : false);
 					list_caps.SetCheck(i, (active ? 1 : 0));
 				}
+				
+				GetDlgItem(IDC_RADIO_FRAME)	->EnableWindow(	(cached_caps & FLAG_FORMAT_FRAME		) != 0);
+				GetDlgItem(IDC_RADIO_SAMPLE)->EnableWindow( (cached_caps & FLAG_FORMAT_SAMPLE		) != 0);
+				GetDlgItem(IDC_RADIO_FIELD)	->EnableWindow(	(cached_caps & FLAG_FORMAT_FIELD		) != 0);
+				GetDlgItem(IDC_RADIO_BYTE)	->EnableWindow(	(cached_caps & FLAG_FORMAT_BYTE			) != 0);
+				GetDlgItem(IDC_RADIO_TIME)	->EnableWindow(	(cached_caps & FLAG_FORMAT_MEDIA_TIME	) != 0);
 			}
 		}
 		break;
@@ -174,61 +225,52 @@ void CSeekForm::OnTimer(UINT_PTR id)
 
 void CSeekForm::OnOK()
 {
-	/*
-		Let's find out the desired time.
-	*/
+	const CComPtr<IMediaSeeking> ims(view->graph.ms);
+	if (!ims) {
+		DSUtil::ShowError(_T("No IMediaSeeking interface available for seeking"));
+		return;
+	}
 
-	int			h, m, s, ms, ret;
-	CString		t;
-	BOOL		keyframe = check_keyframe.GetCheck();
+	LONGLONG cur_position = 0LL;
+	int cur_flags = AM_SEEKING_NoPositioning;
 
-	if (radio_time.GetCheck()) {
-		edit_time.GetWindowText(t);
-
-		int c = _stscanf_s(t.GetBuffer(), _T("%2d:%2d:%2d.%3d"), &h, &m, &s, &ms);
-		if (c != 4) {			
-			DSUtil::ShowError(_T("Time format should be in the following form:\nHH:MM:SS.MS\ne.g.: 00:01:30.123"));
-			return ;
-		} else {
-
-			double	tms;
-			tms = h * 3600;
-			tms += m*60;
-			tms += s;
-
-			// to milliseconds
-			tms *= 1000;
-			tms += ms;
-
-			view->graph.Seek(tms, keyframe);
-		}
-	} else {
-		edit_frame.GetWindowText(t);
-
-		__int64	frame;
-		double	fps, ms;
-
-		ret = view->graph.GetFPS(fps);
-		if (ret < 0 || fps <= 0) {
-			OnTimeClick();
-			return ;
-		}
-
-		int c = _stscanf_s(t.GetBuffer(), _T("%I64d"), &frame);
-		if (c == 1) {
-			ms = ((double)(frame+0.5) * 1000.0 / fps);
-			view->graph.Seek(ms, keyframe);
-		} else {
-			DSUtil::ShowError(_T("Must be a number !!"));
-			return ;
+	if (IsDlgButtonChecked(IDC_CHECK_SET_CURRENT_POSITION)) {
+		CString time_str;
+		GetDlgItemText(IDC_EDIT_CURRENT_POSITION, time_str);
+		if (ParseTimeString(time_str, cur_position)) {
+			cur_flags =	 IsDlgButtonChecked(IDC_CHECK_RELATIVE_TO_PREVIOUS) ? AM_SEEKING_RelativePositioning : AM_SEEKING_AbsolutePositioning;
+			cur_flags |= IsDlgButtonChecked(IDC_CHECK_KEYFRAME)				? AM_SEEKING_SeekToKeyFrame : 0;
+			cur_flags |= IsDlgButtonChecked(IDC_CHECK_SEGMENT)				? AM_SEEKING_Segment : 0;
+			cur_flags |= IsDlgButtonChecked(IDC_CHECK_NO_FLUSH)				? AM_SEEKING_NoFlush : 0;
 		}
 	}
+
+	LONGLONG stop_position = 0LL;
+	int stop_flags = AM_SEEKING_NoPositioning;
+
+	if (IsDlgButtonChecked(IDC_CHECK_STOP_SET_POSITION)) {
+		CString time_str;
+		GetDlgItemText(IDC_EDIT_STOP_POSITION, time_str);
+		if (ParseTimeString(time_str, stop_position)) {
+			stop_flags =	IsDlgButtonChecked(IDC_CHECK_STOP_RELATIVE_TO_CURRENT)		? AM_SEEKING_IncrementalPositioning :
+							(IsDlgButtonChecked(IDC_CHECK_STOP_RELATIVE_TO_PREVIOUS)	? AM_SEEKING_RelativePositioning : AM_SEEKING_AbsolutePositioning);
+			stop_flags |=	IsDlgButtonChecked(IDC_CHECK_STOP_KEYFRAME)					? AM_SEEKING_SeekToKeyFrame : 0;
+			stop_flags |=	IsDlgButtonChecked(IDC_CHECK_STOP_SEGMENT)					? AM_SEEKING_Segment : 0;
+			stop_flags |=	IsDlgButtonChecked(IDC_CHECK_STOP_NO_FLUSH)					? AM_SEEKING_NoFlush : 0;
+		}
+	}
+
+	if (cur_flags || stop_flags) {
+		HRESULT hr = ims->SetPositions(&cur_position, cur_flags, &stop_position, stop_flags);
+		DSUtil::ShowError(hr, _T("IMediaSeeking::SetPositions returned error code"));
+	}
+
 	// Don't do default OK processing as this closes the modeless dialog
 }
 
-void CSeekForm::GetCurrentCaps(__int64 &c)
+int CSeekForm::GetCurrentCaps()
 {
-	c = 0;
+	int c = 0;
 
 	if (view) {
 		if (view->graph.ms) {
@@ -242,66 +284,165 @@ void CSeekForm::GetCurrentCaps(__int64 &c)
 			c |= seekcaps;
 
 			// we query the time formats
-			if (view->graph.ms->IsFormatSupported(&TIME_FORMAT_FRAME) == NOERROR) c |= FLAG_FORMAT_FRAME;
-			if (view->graph.ms->IsFormatSupported(&TIME_FORMAT_SAMPLE) == NOERROR) c |= FLAG_FORMAT_SAMPLE;
-			if (view->graph.ms->IsFormatSupported(&TIME_FORMAT_FIELD) == NOERROR) c |= FLAG_FORMAT_FIELD;
-			if (view->graph.ms->IsFormatSupported(&TIME_FORMAT_BYTE) == NOERROR) c |= FLAG_FORMAT_BYTE;
-			if (view->graph.ms->IsFormatSupported(&TIME_FORMAT_MEDIA_TIME) == NOERROR) c |= FLAG_FORMAT_MEDIA_TIME;
+			if (S_OK == view->graph.ms->IsFormatSupported(&TIME_FORMAT_FRAME))		c |= FLAG_FORMAT_FRAME;
+			if (S_OK == view->graph.ms->IsFormatSupported(&TIME_FORMAT_SAMPLE))		c |= FLAG_FORMAT_SAMPLE;
+			if (S_OK == view->graph.ms->IsFormatSupported(&TIME_FORMAT_FIELD))		c |= FLAG_FORMAT_FIELD;
+			if (S_OK == view->graph.ms->IsFormatSupported(&TIME_FORMAT_BYTE))		c |= FLAG_FORMAT_BYTE;
+			if (S_OK == view->graph.ms->IsFormatSupported(&TIME_FORMAT_MEDIA_TIME))	c |= FLAG_FORMAT_MEDIA_TIME;
 		}
+	}
+	return c;
+}
+
+bool CSeekForm::ParseTimeString(const CString& time_str, LONGLONG& time)
+{
+	bool parsed_ok = true;
+	time = 0LL;
+
+	if (TIME_FORMAT_MEDIA_TIME == time_format) {
+		int	hours = 0, minutes = 0; 
+		float seconds = 0.0f;
+		if (3 != _stscanf_s(time_str, _T("%2d:%2d:%f"), &hours, &minutes, &seconds)) {			
+			DSUtil::ShowError(_T("Time format should be in the following form:\nHH:MM:SS.<optional decimal places>\ne.g.: 00:01:30.1234567"));
+			parsed_ok = false;
+		} else {
+			time =	hours	* (LONGLONG)UNITS * 60LL * 60LL;
+			time += minutes	* (LONGLONG)UNITS * 60LL;
+			time += seconds * (float)	UNITS;
+		}
+	} else {
+		if (1 != _stscanf_s(time_str, _T("%I64d"), &time)) {
+			DSUtil::ShowError(_T("Time must be an integer !!"));
+			parsed_ok = false;
+		}
+	}
+	return parsed_ok;
+}
+
+CString CSeekForm::FormatTimeString(LONGLONG time)
+{
+	CString time_str;
+	if (TIME_FORMAT_MEDIA_TIME == time_format) {
+
+		const int hours	=	time / (UNITS * 60 * 60);
+		time -= (LONGLONG)hours * (UNITS * 60 * 60);
+
+		const int minutes =	time / (UNITS * 60);
+		time -= (LONGLONG)minutes * (UNITS * 60);
+
+		const int seconds =	time / (UNITS);
+		time -= (LONGLONG)seconds * UNITS;
+
+		time_str.Format(_T("%.2d:%.2d:%.2d.%.7I64d"), hours, minutes, seconds, time);
+
+	} else if (TIME_FORMAT_BYTE == time_format) {
+		time_str = CommaFormat(time);
+	} else {
+		time_str.Format(_T("%I64d"), time);
+	}
+	return time_str;
+}
+
+// Update the current position display. Only updated if values have changed from last update
+void CSeekForm::UpdateGraphPosition()
+{
+	const TCHAR* const na_string  = _T("Not available");
+
+	const CComPtr<IMediaSeeking> ims(view->graph.ms);
+	if (!ims)
+		return;
+
+	GUID current_format = GUID_NULL;
+	HRESULT hr = ims->GetTimeFormatW(&current_format);
+	if (FAILED(hr))
+		return;
+
+	// WARNING: only call SetTimeFormat if needed
+	// Calling SetTimeFormat several times a second causes playback performance problems with some filters
+	if (current_format == time_format || SUCCEEDED(ims->SetTimeFormat(&time_format))) {
+
+		LONGLONG cur_pos = -1LL, stop = -1LL, dur = -1LL;
+		hr = ims->GetPositions(&cur_pos, &stop);
+		if (cur_pos != cached_cur_pos) {
+			cached_cur_pos = cur_pos;
+			SetDlgItemText(IDC_STATIC_POSITION,		FAILED(hr) || cur_pos<0	? na_string : FormatTimeString(cur_pos) );
+		}
+
+		if (stop != cached_stop) {
+			cached_stop = stop;
+			SetDlgItemText(IDC_STATIC_STOP_POSITION, FAILED(hr) || stop<0	? na_string : FormatTimeString(stop) );
+		}
+
+		hr = ims->GetDuration(&dur);
+		if (dur != cached_duration) {
+			cached_duration = dur;
+			SetDlgItemText(IDC_STATIC_DURATION, 	FAILED(hr) || dur<0		? na_string : FormatTimeString(dur) );
+		}
+
+		double fps = -1.0;
+		if (view->graph.GetFPS(fps) < 0 || fps == 0.0) {
+			fps = -1.0;
+		}
+
+		if (fps != cached_fps) {
+			cached_fps = fps;
+			if (fps <= 0) {
+				SetDlgItemText(IDC_STATIC_FPS, na_string);
+			} else {
+				CString str;
+				str.Format(_T("%5.03f"), (float)fps);
+				SetDlgItemText(IDC_STATIC_FPS, str);
+			}
+		}
+	} else {
+		SetDlgItemText(IDC_STATIC_POSITION,			na_string);
+		SetDlgItemText(IDC_STATIC_STOP_POSITION,	na_string);
+		SetDlgItemText(IDC_STATIC_DURATION,			na_string);
+		SetDlgItemText(IDC_STATIC_FPS,				na_string);
 	}
 }
 
-
-void CSeekForm::UpdateGraphPosition()
+void CSeekForm::OnCheckSetCurrentPosition()
 {
-	double	pos_ms, dur_ms, fps;
-	int		ret;
+	EnableControls();
+}
 
-	pos_ms = 0;
-	dur_ms = 0;
-	fps    = -1;
+void CSeekForm::OnCheckSetStopPosition()
+{
+	EnableControls();
+}
 
-	if (view) {
-		ret = view->graph.GetPositionAndDuration(pos_ms, dur_ms);
-		if (ret < 0) {
-			pos_ms = 0;
-			dur_ms = 0;
-		}
+void CSeekForm::OnCheckStopRelativeToCurrent()
+{
+	EnableControls();
+}
 
-		ret = view->graph.GetFPS(fps);
-		if (ret == 0 && fps != 0) {
-		} else {
-			fps = -1.0;
-		}
-	}
+void CSeekForm::OnCheckStopRelativeToPrevious()
+{
+	EnableControls();
+}
 
-	CString	cur, dur;
-	MakeNiceTimeMS((int)pos_ms, cur);
-	MakeNiceTimeMS((int)dur_ms, dur);
+void CSeekForm::OnFormatTimeClick()
+{
+	SetTimeFormat(TIME_FORMAT_MEDIA_TIME);
+}
 
-	if (fps <= 0) {
-		label_fps.SetWindowText(_T("Not available"));
+void CSeekForm::OnFormatFrameClick()
+{
+	SetTimeFormat(TIME_FORMAT_FRAME);
+}
 
-		OnTimeClick();
-		radio_frame.EnableWindow(FALSE);
+void CSeekForm::OnFormatFieldClick()
+{
+	SetTimeFormat(TIME_FORMAT_FIELD);
+}
 
-	} else {
-		int64	tot_frames = (int64)(dur_ms * fps / 1000);
-		int64	cur_frames = (int64)(pos_ms * fps / 1000);
+void CSeekForm::OnFormatSampleClick()
+{
+	SetTimeFormat(TIME_FORMAT_SAMPLE);
+}
 
-		CString	t;
-		t.Format(_T(" (%I64d frames)"), tot_frames);
-		dur += t;
-		t.Format(_T(" (%I64d frames)"), cur_frames);
-		cur += t;
-
-		t.Format(_T("%5.03f"), (float)fps);
-		label_fps.SetWindowText(t);
-
-		radio_frame.EnableWindow(TRUE);
-	}
-
-
-	label_duration.SetWindowText(dur);
-	label_position.SetWindowText(cur);
+void CSeekForm::OnFormatByteClick()
+{
+	SetTimeFormat(TIME_FORMAT_BYTE);
 }
