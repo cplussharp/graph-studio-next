@@ -372,6 +372,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			hitpin->GetCenterPoint(&new_connection_start);
 			new_connection_end = new_connection_start;
 			new_connection_start_connected = hitpin->connected;
+            new_connection_start_type = hitpin->connectionType;
 			new_connection_end_connected = false;
 			drag_mode = DisplayView::DRAG_CONNECTION;
 
@@ -521,6 +522,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		new_connection_start = CPoint(-100,-100);
 		new_connection_end = CPoint(-101, -101);
 		new_connection_start_connected = false;
+        new_connection_start_type = Pin::PIN_CONNECTION_TYPE_OTHER;
 		new_connection_end_connected = false;
 		drag_mode = DisplayView::DRAG_GROUP;
 		ReleaseCapture();
@@ -789,8 +791,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// draw arrow
 		if (drag_mode == DisplayView::DRAG_CONNECTION) {
-			// Draw new connections that require disconnections in red rather than green as a visual cue
-			const DWORD color = (new_connection_start_connected || new_connection_end_connected) ? RGB(192,0,0) : RGB(0,128,0);
+			// Draw new connections that require disconnections in red rather than connection color as a visual cue
+			DWORD color = RenderParameters::color_connection_type[new_connection_start_type]; 
+            if (new_connection_start_connected || new_connection_end_connected)
+                color = RenderParameters::color_connection_break;
+
             const int nPenStyle = PS_DOT;
 			graph.DrawArrow(pDC, new_connection_start, new_connection_end, color, nPenStyle);
 		} else

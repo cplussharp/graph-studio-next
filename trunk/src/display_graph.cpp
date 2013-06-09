@@ -2887,13 +2887,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		for (int i=0; i<output_pins.GetCount(); i++) {
 			Pin		*pin = output_pins[i];
 			Pin		*peer = pin->peer;
-			DWORD	color = RGB(0,0,0);
 
 			if (pin && peer) {
+                DWORD	color = RenderParameters::color_connection_type[pin->connectionType];
 				CPoint	pt1, pt2;
 				pin->GetCenterPoint(&pt1);
 				peer->GetCenterPoint(&pt2);
-				if (pin->selected) color = params->select_color;
+				if (pin->selected) color = params->color_select;
 			
 				DoDrawArrow(dc, pt1, pt2, color);
 			}
@@ -2902,9 +2902,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void Filter::Draw(CDC *dc)
 	{
-		DWORD	back_color = params->filter_type_colors[Filter::FILTER_UNKNOWN];
+		DWORD	back_color = params->color_filter_type[Filter::FILTER_UNKNOWN];
 		if (connected) {
-			back_color = params->filter_type_colors[filter_type];
+			back_color = params->color_filter_type[filter_type];
 		}
 
 		CPen	pen_light(PS_SOLID, 1, params->color_filter_border_light);
@@ -2921,8 +2921,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// draw the selection frame
 		//---------------------------------------------------------------------
 		if (selected) {
-			CPen	sel_pen(PS_SOLID, 1, params->select_color);
-			CBrush	sel_brush(params->select_color);
+			CPen	sel_pen(PS_SOLID, 1, params->color_select);
+			CBrush	sel_brush(params->color_select);
 			dc->SelectObject(&sel_pen);
 			dc->SelectObject(&sel_brush);
 			dc->Rectangle(posx-2, posy-2, posx+width+2, posy+height+2);
@@ -3410,6 +3410,37 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (idStr)
 			CoTaskMemFree(idStr);
 
+        // Check Pin Media Type
+        connectionType = PIN_CONNECTION_TYPE_OTHER;
+        CMediaType pinMediaType;
+        DSUtil::MediaTypes pinMtList;
+
+        if (connected)
+            pin->ConnectionMediaType(&pinMediaType);
+        else if (SUCCEEDED(DSUtil::EnumMediaTypes(pin, pinMtList)))
+        {
+            for (int i=0;i<pinMtList.GetCount();i++)
+                if (pinMtList[i].majortype != MEDIATYPE_NULL)
+                {
+                    pinMediaType = pinMtList[i];
+                    break;
+                }
+        }
+
+        if (pinMediaType.IsValid())
+        {
+            if (pinMediaType.majortype == MEDIATYPE_Stream)
+                connectionType = PIN_CONNECTION_TYPE_STREAM;
+            else if (pinMediaType.majortype == MEDIATYPE_Audio)
+                connectionType = PIN_CONNECTION_TYPE_AUDIO;
+            else if (pinMediaType.majortype == MEDIATYPE_Video)
+                connectionType = PIN_CONNECTION_TYPE_VIDEO;
+            else if (pinMediaType.majortype == MEDIATYPE_Subtitle)
+                connectionType = PIN_CONNECTION_TYPE_SUBTITLE;
+            else if (pinMediaType.majortype == MEDIATYPE_Interleaved)
+                connectionType = PIN_CONNECTION_TYPE_MIXED;
+        }
+
 		return 0;
 	}
 
@@ -3449,8 +3480,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	{
 		CPen	pen_light(PS_SOLID, 1, params->color_filter_border_light);
 		CPen	pen_dark(PS_SOLID, 1, params->color_filter_border_dark);
-		CPen	pen_back(PS_SOLID, 1, params->filter_type_colors[0]);
-		CBrush	brush_back(params->filter_type_colors[0]);
+		CPen	pen_back(PS_SOLID, 1, params->color_filter_type[0]);
+		CBrush	brush_back(params->color_filter_type[0]);
 
 		int		pinsize = 5;
 		dc->SelectObject(&params->font_pin);
@@ -3575,96 +3606,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return false;
 	}
 
-
-	//-------------------------------------------------------------------------
-	//
-	//	RenderParameters class
-	//
-	//-------------------------------------------------------------------------
-
-	RenderParameters::RenderParameters()
-	{
-		color_back = RGB(192, 192, 192);		// default background color
-        color_back_remote = RGB(255, 192, 192);		// default background color
-		select_color = RGB(0,0,255);
-
-		// filter colors
-		color_filter_border_light = RGB(255, 255, 255);
-		color_filter_border_dark = RGB(128, 128, 128);
-
-		filter_type_colors[Filter::FILTER_UNKNOWN] = RGB(192,192,192);
-		filter_type_colors[Filter::FILTER_STANDARD] = RGB(192,192,255);
-		filter_type_colors[Filter::FILTER_WDM] = RGB(255,128,0);
-		filter_type_colors[Filter::FILTER_DMO] = RGB(0,192,64);
-
-		// default size at 100%
-		def_min_width = 92;
-		def_min_height = 86;
-		def_pin_spacing = 27;
-		def_filter_text_size = 10;
-		def_pin_text_size = 7;
-
-		display_file_name = true;
-		connect_mode = 0;
-		exact_match_mode = false;
-		abort_timeout = true;
-
-		render_start_time = 0;
-		in_render = false;
-		render_actions.clear();
-
-		Zoom(1.0);
-
-		// no preferred renderer
-		preferred_video_renderer = _T("");
-		video_renderers = NULL;
-
-        use_media_info = true;
-        is_remote = false;
-
-		// load bitmaps
-		BOOL ok;	
-		ok = bmp_volume_hi.LoadBitmap(IDB_BITMAP_VOLUME_HI);					if (!ok) return ;
-		ok = bmp_volume_lo.LoadBitmap(IDB_BITMAP_VOLUME_LO);					if (!ok) return ;
-		ok = bmp_clock_inactive_hi.LoadBitmap(IDB_BITMAP_CLOCK_INACTIVE_HI);	if (!ok) return ;
-		ok = bmp_clock_inactive_lo.LoadBitmap(IDB_BITMAP_CLOCK_INACTIVE_LO);	if (!ok) return ;
-		ok = bmp_clock_active_hi.LoadBitmap(IDB_BITMAP_CLOCK_ACTIVE_HI);		if (!ok) return ;
-		ok = bmp_clock_active_lo.LoadBitmap(IDB_BITMAP_CLOCK_ACTIVE_LO);		if (!ok) return ;
-	}
-
-	RenderParameters::~RenderParameters()
-	{
-	}
-
-	void RenderParameters::Zoom(int z)
-	{
-		zoom = z;
-
-		min_filter_width = (((int)(z * def_min_width / 100.0)));
-		min_filter_height = (((int)(z * def_min_height / 100.0)));
-		pin_spacing = (int)(z * def_pin_spacing / 100.0);
-
-		if (font_filter.m_hObject != 0) { font_filter.DeleteObject(); }
-		if (font_pin.m_hObject != 0) { font_pin.DeleteObject(); }
-
-		int size = 5 + (5.0*z / 100.0);
-		MakeFont(font_filter, _T("Arial"), size, false, false); 
-		size = 5 + (2.0*z / 100.0);
-		MakeFont(font_pin, _T("Arial"), size, false, false);
-	}
-
-	void RenderParameters::MarkRender(bool start)
-	{
-		if (in_render == start) return ;
-
-		// remember the time
-		in_render = start;
-		if (start) {
-			render_start_time = GetTickCount();
-			render_can_proceed = true;
-			render_actions.clear();
-		}
-	}
 
 	//-------------------------------------------------------------------------
 	//

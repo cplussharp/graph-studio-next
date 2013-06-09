@@ -44,6 +44,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		CPoint				new_connection_end;
 		bool				new_connection_start_connected;
 		bool				new_connection_end_connected;
+        Pin::PIN_CONNECTION_TYPE new_connection_start_type;
 
 		enum {
 			DRAG_GROUP = 0,

@@ -432,17 +432,10 @@ void CGraphView::OnInit()
 	default:	OnView100(); break;
 	}
 
-	render_params.use_media_info = AfxGetApp()->GetProfileInt(_T("Settings"), _T("UseMediaInfo"), 1) ? true : false;
-
 	// load default renderer
 	CString		def_vr = AfxGetApp()->GetProfileString(_T("Settings"), _T("Pref_Video_Renderer"), _T(""));
 	render_params.preferred_video_renderer = def_vr;
 	render_params.video_renderers = &video_renderers;
-
-    int connectMode = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ConnectMode"), 0);
-    if(connectMode<0) connectMode = 0;
-    else if(connectMode>2) connectMode = 2;
-    render_params.connect_mode = connectMode;
 
 	CgraphstudioApp::g_showConsole = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowConsoleWindow"), 0) ? true : false;
 	if (CgraphstudioApp::g_showConsole)
@@ -1875,7 +1868,7 @@ void CGraphView::OnFiltersManageBlacklist()
 
 void CGraphView::OnOptionsDisplayFileName()
 {
-	render_params.display_file_name = !render_params.display_file_name;
+	render_params.SetDisplayFileName(!render_params.display_file_name);
 	graph.RefreshFilters();
 	graph.SmartPlacement();
 	graph.Dirty();
@@ -1890,8 +1883,7 @@ void CGraphView::OnUpdateOptionsDisplayFileName(CCmdUI *pCmdUI)
 
 void CGraphView::OnConnectModeIntelligentClick()
 {
-	render_params.connect_mode = 0;
-    AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ConnectMode"), render_params.connect_mode);
+    render_params.SetConnectMode(GraphStudio::RenderParameters::ConnectMode::ConnectMode_Intelligent);
 }
 
 void CGraphView::OnUpdateConnectModeIntelligent(CCmdUI *pCmdUI)
@@ -1901,8 +1893,7 @@ void CGraphView::OnUpdateConnectModeIntelligent(CCmdUI *pCmdUI)
 
 void CGraphView::OnConnectModeDirectClick()
 {
-	render_params.connect_mode = 1;
-	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ConnectMode"), render_params.connect_mode);
+	render_params.SetConnectMode(GraphStudio::RenderParameters::ConnectMode::ConnectMode_Direct);
 }
 
 void CGraphView::OnUpdateConnectModeDirect(CCmdUI *pCmdUI)
@@ -1912,8 +1903,7 @@ void CGraphView::OnUpdateConnectModeDirect(CCmdUI *pCmdUI)
 
 void CGraphView::OnConnectModeDirectWmtClick()
 {
-	render_params.connect_mode = 2;
-    AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ConnectMode"), render_params.connect_mode);
+	render_params.SetConnectMode(GraphStudio::RenderParameters::ConnectMode::ConnectMode_DirectWithMT);
 }
 
 void CGraphView::OnUpdateConnectModeDirectWmt(CCmdUI *pCmdUI)
@@ -1949,8 +1939,7 @@ void CGraphView::OnUpdateOptionsUseMediaInfo(CCmdUI *pCmdUI)
 
 void CGraphView::OnOptionsUseMediaInfoClick()
 {
-	render_params.use_media_info = !render_params.use_media_info;
-	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("UseMediaInfo"), render_params.use_media_info);
+	render_params.SetUseMediaInfo(!render_params.use_media_info);
 }
 
 void CGraphView::OnUpdateShowGuidOfKnownTypes(CCmdUI *pCmdUI)
