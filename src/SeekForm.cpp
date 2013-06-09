@@ -126,7 +126,7 @@ BOOL CSeekForm::DoCreateDialog()
 	CheckDlgButton(IDC_CHECK_STOP_SET_POSITION,		false);
 	EnableControls();
 
-	GotoDlgCtrl(GetDlgItem(IDC_EDIT__CUR_POSITION));
+	GotoDlgCtrl(GetDlgItem(IDC_EDIT_CURRENT_POSITION));
 
 	return TRUE;
 }
