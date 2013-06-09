@@ -65,7 +65,7 @@ VS_VERSION_INFO VERSIONINFO
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "040704b0"
+        BLOCK "000004b0"
         BEGIN
             VALUE "CompanyName", "GraphStudioNext"
             VALUE "FileDescription", "PsiConfig DirectShow Filter"
@@ -79,7 +79,7 @@ BEGIN
     END
     BLOCK "VarFileInfo"
     BEGIN
-        VALUE "Translation", 0x407, 1200
+        VALUE "Translation", 0x0, 1200
     END
 END
 

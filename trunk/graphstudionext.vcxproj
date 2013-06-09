@@ -254,6 +254,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="graphstudionext.rc" />
+    <ResourceCompile Include="src\filters\analyzer\analyzer_proppage.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\sqlite\sqlite3.h" />
@@ -270,6 +271,8 @@
     <ClInclude Include="src\FilterFromFile.h" />
     <ClInclude Include="src\filters\analyzer\analyzer.h" />
     <ClInclude Include="src\filters\analyzer\analyzer_pospassthru.h" />
+    <ClInclude Include="src\filters\analyzer\analyzer_proppage_config.h" />
+    <ClInclude Include="src\filters\analyzer\analyzer_proppage_resource.h" />
     <ClInclude Include="src\filters\analyzer\filter_analyzer.h" />
     <ClInclude Include="src\filters\analyzer\filter_analyzer_writer.h" />
     <ClInclude Include="src\filters\audio_analyzer\audio_analyzer.h" />
@@ -358,6 +361,12 @@
     <ClCompile Include="src\DMOQualCtrlPage.cpp" />
     <ClCompile Include="src\FilterFromFile.cpp" />
     <ClCompile Include="src\filters\analyzer\analyzer.cpp" />
+    <ClCompile Include="src\filters\analyzer\analyzer_proppage_config.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="src\filters\analyzer\filter_analyzer.cpp" />
     <ClCompile Include="src\filters\analyzer\filter_analyzer_writer.cpp" />
     <ClCompile Include="src\filters\audio_analyzer\audio_analyzer.cpp" />

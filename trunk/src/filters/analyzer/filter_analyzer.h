@@ -14,7 +14,7 @@
 //
 //-----------------------------------------------------------------------------
 
-class CAnalyzerFilter : public CTransInPlaceFilter
+class CAnalyzerFilter : public CTransInPlaceFilter, public ISpecifyPropertyPages
 {
 private:
     CAnalyzer*			m_analyzer;
@@ -35,6 +35,9 @@ private:
 	virtual HRESULT StartStreaming();
 	virtual HRESULT StopStreaming();
     virtual HRESULT CheckInputType(const CMediaType* mtIn);
+
+    // ISpecifyPropertyPages interface
+    STDMETHODIMP GetPages(CAUUID *pPages);
 
     static CUnknown * WINAPI CreateInstance(LPUNKNOWN punk, HRESULT *phr);
 

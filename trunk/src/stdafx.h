@@ -134,6 +134,7 @@ using namespace std;
 #include "filters\analyzer\analyzer.h"
 #include "filters\analyzer\filter_analyzer.h"
 #include "filters\analyzer\filter_analyzer_writer.h"
+#include "filters\analyzer\analyzer_proppage_config.h"
 
 #include "..\video_analyzer_h.h"    // Interface
 #include "filters\video_analyzer\video_analyzer.h"

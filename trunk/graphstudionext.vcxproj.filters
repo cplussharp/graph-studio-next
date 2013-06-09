@@ -103,6 +103,9 @@
     <ResourceCompile Include="graphstudionext.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+    <ResourceCompile Include="src\filters\analyzer\analyzer_proppage.rc">
+      <Filter>Filters\filter_analyzer</Filter>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="interfaces\monofilters.h">
@@ -357,6 +360,12 @@
     <ClInclude Include="src\Crc32.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\filters\analyzer\analyzer_proppage_config.h">
+      <Filter>Filters\filter_analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filters\analyzer\analyzer_proppage_resource.h">
+      <Filter>Filters\filter_analyzer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -589,6 +598,9 @@
     </ClCompile>
     <ClCompile Include="src\Crc32.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filters\analyzer\analyzer_proppage_config.cpp">
+      <Filter>Filters\filter_analyzer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

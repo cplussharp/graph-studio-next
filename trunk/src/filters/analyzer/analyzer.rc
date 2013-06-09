@@ -68,12 +68,12 @@ BEGIN
         BLOCK "000004b0"
         BEGIN
             VALUE "CompanyName", "GraphStudioNext"
-            VALUE "FileDescription", "Dump DirectShow Filter"
+            VALUE "FileDescription", "Analyzer DirectShow Filter"
             VALUE "FileVersion", "1.0.0.0"
-            VALUE "InternalName", "Dump"
+            VALUE "InternalName", "Analyzer"
             VALUE "LegalCopyright", "Copyright © GraphStudioNext 2013"
-            VALUE "OriginalFilename", "Dump.dll"
-            VALUE "ProductName", "Dump"
+            VALUE "OriginalFilename", "Analyzer.dll"
+            VALUE "ProductName", "Analyzer"
             VALUE "ProductVersion", "1.0.0.0"
         END
     END

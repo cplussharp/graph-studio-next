@@ -63,7 +63,7 @@ protected:
 //
 //-----------------------------------------------------------------------------
 
-class CAnalyzerWriterFilter : public CBaseFilter, public IFileSinkFilter2, public IAMFilterMiscFlags
+class CAnalyzerWriterFilter : public CBaseFilter, public IFileSinkFilter2, public IAMFilterMiscFlags, public ISpecifyPropertyPages
 {
 private:
     CAnalyzer*  m_analyzer;
@@ -95,6 +95,9 @@ public:
 
     // Implements the IAMFilterMiscFlags interface
     STDMETHODIMP_(ULONG) GetMiscFlags(void) { return AM_FILTER_MISC_FLAGS_IS_RENDERER; }
+
+    // ISpecifyPropertyPages interface
+    STDMETHODIMP GetPages(CAUUID *pPages);
 
 protected:
 

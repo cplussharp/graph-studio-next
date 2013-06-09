@@ -236,9 +236,14 @@ CBasePin * CAnalyzerFilter::GetPin(int n)
 
 STDMETHODIMP CAnalyzerFilter::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
-	if (riid == __uuidof(IAnalyzerFilter)) {
+	if (riid == __uuidof(IAnalyzerFilter))
+    {
 		return m_analyzer->NonDelegatingQueryInterface(riid, ppv);
 	}
+    else if (riid == IID_ISpecifyPropertyPages)
+    {
+        return GetInterface((ISpecifyPropertyPages*) this, ppv);
+    }
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
@@ -309,6 +314,21 @@ STDMETHODIMP CAnalyzerFilter::Stop()
 	if (m_analyzer)
 		m_analyzer->AddHRESULT(SRK_BF_Stop, hr);
 	return hr;
+}
+
+STDMETHODIMP CAnalyzerFilter::GetPages(CAUUID *pPages)
+{
+    CheckPointer(pPages,E_POINTER);
+
+    pPages->cElems = 2;
+    pPages->pElems = (GUID *) CoTaskMemAlloc(pPages->cElems * sizeof(GUID));
+    if (pPages->pElems == NULL) {
+        return E_OUTOFMEMORY;
+    }
+
+    pPages->pElems[0] = __uuidof(AnalyzerPropPageConfig);
+    pPages->pElems[1] = __uuidof(AnalyzerPropPageLog);
+    return NOERROR;
 }
 
 #pragma endregion
