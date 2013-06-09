@@ -366,6 +366,9 @@
     <ClInclude Include="src\filters\analyzer\analyzer_proppage_resource.h">
       <Filter>Filters\filter_analyzer</Filter>
     </ClInclude>
+    <ClInclude Include="src\RenderParameters.h">
+      <Filter>Application</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -601,6 +604,9 @@
     </ClCompile>
     <ClCompile Include="src\filters\analyzer\analyzer_proppage_config.cpp">
       <Filter>Filters\filter_analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RenderParameters.cpp">
+      <Filter>Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

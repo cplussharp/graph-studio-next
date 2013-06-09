@@ -16,121 +16,22 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	//-------------------------------------------------------------------------
 	//
-	//	RenderAction class
-	//
-	//-------------------------------------------------------------------------
-	class RenderAction
-	{
-	public:
-		DWORD		time_ms;			// relative to operation start time
-		
-		enum {
-			ACTION_NONE			= 0,
-			ACTION_SELECT		= 1,
-			ACTION_CREATE		= 2,
-			ACTION_REJECT		= 3,
-			ACTION_TIMEOUT		= 4
-		};
-
-		int			type;
-		CString		displ_name;			// display name
-		GUID		clsid;				// filter clsid
-
-	public:
-		RenderAction() : time_ms(0), displ_name(_T("")), type(RenderAction::ACTION_NONE), clsid(GUID_NULL) { }
-		RenderAction(const RenderAction &f) : time_ms(f.time_ms), displ_name(f.displ_name), type(f.type), clsid(f.clsid) { }
-		~RenderAction() { };
-		RenderAction &operator =(const RenderAction &f) {
-			time_ms = f.time_ms;
-			displ_name = f.displ_name;
-			type = f.type;
-			clsid = f.clsid;
-			return *this;
-		}
-	};
-
-	//-------------------------------------------------------------------------
-	//
-	//	RenderParameters class
-	//
-	//-------------------------------------------------------------------------
-	class RenderParameters
-	{
-	public:
-
-		// color and font settings
-		DWORD			color_back;
-        DWORD			color_back_remote;
-
-		// filter settings
-		DWORD			filter_color;
-		DWORD			color_filter_border_light;
-		DWORD			color_filter_border_dark;
-		DWORD			select_color;
-		DWORD			filter_type_colors[4];
-
-		CFont			font_filter;
-		CFont			font_pin;
-
-		// zoom
-		int				zoom;
-		
-		// size of elements
-		int				min_filter_width;
-		int				min_filter_height;
-		int				pin_spacing;
-
-		// default size at 100%
-		int				def_min_width;
-		int				def_min_height;
-		int				def_pin_spacing;
-		int				def_filter_text_size;
-		int				def_pin_text_size;
-
-		// display as file name
-		bool			display_file_name;
-		int			    connect_mode;								// 0=itelligent|1=direct|2=directWithMT connect pins
-		bool			exact_match_mode;
-		bool			abort_timeout;								// abort rendering operation after 10 seconds
-
-		// render operation state
-		DWORD					render_start_time;
-		bool					in_render;
-		bool					render_can_proceed;
-		vector<RenderAction>	render_actions;						// moniker name list for filters in the last render operation
-
-		// Overlay Icons
-		CBitmap			bmp_volume_hi;
-		CBitmap			bmp_volume_lo;
-		CBitmap			bmp_clock_active_hi;
-		CBitmap			bmp_clock_active_lo;
-		CBitmap			bmp_clock_inactive_hi;
-		CBitmap			bmp_clock_inactive_lo;
-
-		// preferred video renderer
-		CString						preferred_video_renderer;		// display name
-		DSUtil::FilterTemplates		*video_renderers;				// list of filters we consider video renderers
-
-        bool            use_media_info;
-        bool            is_remote;
-
-	public:
-		RenderParameters();
-		virtual ~RenderParameters();
-
-		// adjust sizes
-		void Zoom(int z);
-		void MarkRender(bool start);
-	};
-
-	//-------------------------------------------------------------------------
-	//
 	//	Pin class
 	//
 	//-------------------------------------------------------------------------
 	class Pin
 	{
 	public:
+        typedef enum _PinConnectionType
+        {	
+            PIN_CONNECTION_TYPE_OTHER = 0,
+            PIN_CONNECTION_TYPE_STREAM,
+            PIN_CONNECTION_TYPE_AUDIO,
+            PIN_CONNECTION_TYPE_VIDEO,
+            PIN_CONNECTION_TYPE_SUBTITLE,
+            PIN_CONNECTION_TYPE_MIXED,
+        } 	PIN_CONNECTION_TYPE;
+
 		RenderParameters		*params;
 		Filter					*filter;
 		CString					name;
@@ -139,6 +40,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		Pin						*peer;			// peer pin
 		PIN_DIRECTION			dir;
 		bool					connected;
+        PIN_CONNECTION_TYPE     connectionType;
 		bool					selected;		// selected connection pin->peer (only valid for output pins)
 
 	public:

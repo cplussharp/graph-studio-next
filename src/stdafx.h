@@ -150,6 +150,7 @@ using namespace std;
 #include "url_label.h"
 #include "seeking_bar.h"
 #include "EVR_VideoWindow.h"
+#include "RenderParameters.h"
 #include "display_graph.h"
 #include "display_view.h"
 #include "filter_list.h"

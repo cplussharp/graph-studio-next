@@ -294,6 +294,7 @@
     <ClInclude Include="src\MediaInfoDLL.h" />
     <ClInclude Include="src\MediaTypeSelectForm.h" />
     <ClInclude Include="src\moreuuids.h" />
+    <ClInclude Include="src\RenderParameters.h" />
     <ClInclude Include="src\SbeConfigForm.h" />
     <ClInclude Include="src\SbeSinkPage.h" />
     <ClInclude Include="src\StatisticForm.h" />
@@ -397,6 +398,7 @@
     <ClCompile Include="src\NewGroupForm.cpp" />
     <ClCompile Include="src\ProgressForm.cpp" />
     <ClCompile Include="src\RemoteGraphForm.cpp" />
+    <ClCompile Include="src\RenderParameters.cpp" />
     <ClCompile Include="src\RenderUrlForm.cpp" />
     <ClCompile Include="src\SbeConfigForm.cpp" />
     <ClCompile Include="src\SbeSinkPage.cpp" />
