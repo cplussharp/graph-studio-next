@@ -2842,8 +2842,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void DoDrawArrow(CDC *dc, CPoint p1, CPoint p2, DWORD color, int nPenStyle)
 	{
-		CPen	pen(nPenStyle, 1, color);
-        CPen    penArrow(PS_SOLID, 1, color);
+		const	int connection_width = 2;
+		CPen	pen(nPenStyle, connection_width, color);
+        CPen    penArrow(PS_SOLID, connection_width, color);
 		CBrush	brush(color);
 
 		// direction vector
