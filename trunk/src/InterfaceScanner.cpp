@@ -121,6 +121,133 @@ void GetInterfaceInfo_IAMFilterMiscFlags(GraphStudio::PropItem* group, IUnknown*
     }
 }
 
+CString GetInterfaceInfo_IAMCrossbar_PhysicalType(long type)
+{
+    switch (type)
+    {
+        case PhysConn_Video_Tuner           : return _T("Video Tuner");
+        case PhysConn_Video_Composite       : return _T("Composite");
+        case PhysConn_Video_SVideo          : return _T("SVideo");
+        case PhysConn_Video_RGB             : return _T("RGB");
+        case PhysConn_Video_YRYBY           : return _T("YRYBY");
+        case PhysConn_Video_SerialDigital   : return _T("Video SerialDigital");
+        case PhysConn_Video_ParallelDigital : return _T("Video ParallelDigital");
+        case PhysConn_Video_SCSI            : return _T("Video SCSI");
+        case PhysConn_Video_AUX             : return _T("Video AUX");
+        case PhysConn_Video_1394            : return _T("Video 1394");
+        case PhysConn_Video_USB             : return _T("Video USB");
+        case PhysConn_Video_VideoDecoder    : return _T("VideoDecoder");
+        case PhysConn_Video_VideoEncoder    : return _T("VideoEncoder");
+        case PhysConn_Video_SCART           : return _T("SCART");
+        case PhysConn_Video_Black           : return _T("Black");
+                                                     
+        case PhysConn_Audio_Tuner           : return _T("Audio Tuner");
+        case PhysConn_Audio_Line            : return _T("Audio Line");
+        case PhysConn_Audio_Mic             : return _T("Audio Mic");
+        case PhysConn_Audio_AESDigital      : return _T("Audio AESDigital");
+        case PhysConn_Audio_SPDIFDigital    : return _T("Audio SPDIFDigital");
+        case PhysConn_Audio_SCSI            : return _T("Audio SCSI");
+        case PhysConn_Audio_AUX             : return _T("Audio AUX");
+        case PhysConn_Audio_1394            : return _T("Audio 1394");
+        case PhysConn_Audio_USB             : return _T("Audio USB");
+        case PhysConn_Audio_AudioDecoder    : return _T("Audio AudioDecoder");
+    }
+
+    return _T("Unknown");
+}
+
+void GetInterfaceInfo_IAMCrossbar(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IAMCrossbar> pI = pUnk;
+    if(pI)
+    {
+        long pinCountOut=0, pinCountIn=0;
+        pI->get_PinCounts(&pinCountOut, &pinCountIn);
+        group->AddItem(new GraphStudio::PropItem(_T("Pin Count Out"), pinCountOut));
+        group->AddItem(new GraphStudio::PropItem(_T("Pin Count In"), pinCountIn));
+
+        CStringArray strPinTypes;
+        for (long i=0; i < (pinCountIn+pinCountOut); i++)
+        {
+            bool isOutputPin = i >= pinCountIn;
+            int pinIndex = isOutputPin ? i-pinCountIn : i;
+            
+            long pinRelated=0, pinType=0;
+            HRESULT hrHasType = pI->get_CrossbarPinInfo(isOutputPin ? FALSE : TRUE, pinIndex, &pinRelated, &pinType);
+            CString strType = GetInterfaceInfo_IAMCrossbar_PhysicalType(hrHasType == S_OK ? pinType : 0);
+            strType.Append(isOutputPin ? _T(" Out") : _T(" In"));
+            strPinTypes.Add(strType);
+        }
+
+        for (long i=0; i < (pinCountIn+pinCountOut); i++)
+        {
+            bool isOutputPin = i >= pinCountIn;
+            int pinIndex = isOutputPin ? i-pinCountIn : i;
+            CString strPin = strPinTypes[i];
+            strPin.AppendFormat(_T(" (%d)"), pinIndex);
+
+            GraphStudio::PropItem* pinGroup = new GraphStudio::PropItem(strPin);
+            group->AddItem(pinGroup);
+
+            long pinRelated=0, pinType=0;
+            HRESULT hrHasType = pI->get_CrossbarPinInfo(isOutputPin ? FALSE : TRUE, pinIndex, &pinRelated, &pinType);
+            if (pinRelated > -1)
+            {
+                CString strPinRelated = strPinTypes[isOutputPin ? pinRelated + pinCountIn : pinRelated];
+                strPinRelated.AppendFormat(_T(" (%d)"), pinRelated);
+
+                pinGroup->AddItem(new GraphStudio::PropItem(_T("Related to"), strPinRelated, false));
+            }
+
+            // Can rout to
+            CStringArray strRout;
+            if (isOutputPin)
+            {
+                long pinCanRout = 0;
+                for (int j=0; j <= pinCountIn; j++)
+                    if (S_OK == pI->CanRoute(pinIndex, j))
+                    {
+                        CString strRoutPin = strPinTypes[j];
+                        strRoutPin.AppendFormat(_T(" (%d)"), j);
+                        strRout.Add(strRoutPin);
+                    }
+            }
+            else
+            {
+                long pinCanRout = 0;
+                for (int j=0; j <= pinCountOut; j++)
+                    if (S_OK == pI->CanRoute(j, pinIndex))
+                    {
+                        CString strRoutPin = strPinTypes[j + pinCountIn];
+                        strRoutPin.AppendFormat(_T(" (%d)"), j);
+                        strRout.Add(strRoutPin);
+                    }
+            }
+
+            CString strCanRoutTo;
+            for(int i=0;i<strRout.GetCount(); i++)
+            {
+                if(i > 0) strCanRoutTo += _T(" | ");
+                strCanRoutTo += strRout[i];
+            }
+            pinGroup->AddItem(new GraphStudio::PropItem(_T("Can Rout to"), strCanRoutTo, false));
+
+            if (isOutputPin)
+            {
+                long pinRouted = 0;
+                HRESULT hrRouted = pI->get_IsRoutedTo(pinIndex, &pinRouted);
+                if (hrRouted == S_OK && pinRouted > -1)
+                {
+                    CString strRouted = strPinTypes[pinRouted];
+                    strRouted.AppendFormat(_T(" (%d)"), pinRouted);
+
+                    pinGroup->AddItem(new GraphStudio::PropItem(_T("Routed to"), strRouted, false));
+                }
+            }
+        }
+    }
+}
+
 void GetInterfaceInfo_IAMDroppedFrames(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IAMDroppedFrames> pI = pUnk;
@@ -869,7 +996,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{4D5466B0-A49C-11D1-ABE8-00A0C905F375}"), TEXT("IAMClockAdjust"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389161.aspx")),
     CInterfaceInfo(TEXT("{9FD52741-176D-4B36-8F51-CA8F933223BE}"), TEXT("IAMClockSlave"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389163.aspx")),
     CInterfaceInfo(TEXT("{670D1D20-A068-11D0-B3F0-00AA003761C5}"), TEXT("IAMCopyCaptureFileProgress"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389169.aspx")),
-    CInterfaceInfo(TEXT("{C6E13380-30AC-11D0-A18C-00A0C9118956}"), TEXT("IAMCrossbar"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389171.aspx")),
+    CInterfaceInfo(TEXT("{C6E13380-30AC-11D0-A18C-00A0C9118956}"), TEXT("IAMCrossbar"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389171.aspx"), GetInterfaceInfo_IAMCrossbar),
     CInterfaceInfo(TEXT("{C0DFF467-D499-4986-972B-E1D9090FA941}"), TEXT("IAMDecoderCaps"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389177.aspx"), GetInterfaceInfo_IAMDecoderCaps),
     CInterfaceInfo(TEXT("{546F4260-D53E-11CF-B3F0-00AA003761C5}"), TEXT("IAMDirectSound"), TEXT("uuids.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389193.aspx")),
     CInterfaceInfo(TEXT("{C6E13344-30AC-11D0-A18C-00A0C9118956}"), TEXT("IAMDroppedFrames"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389311.aspx"), GetInterfaceInfo_IAMDroppedFrames),
