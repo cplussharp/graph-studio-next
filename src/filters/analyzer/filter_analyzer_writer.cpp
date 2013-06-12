@@ -33,9 +33,9 @@ CUnknown* CAnalyzerWriterFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 /*********************************************************************************************
 * CAnalyzerWriterInput class
 *********************************************************************************************/
-CAnalyzerWriterInput::CAnalyzerWriterInput(CBaseFilter* pFilter, CCritSec* pLock, HRESULT* phr, LPCWSTR pName, HANDLE file, CAnalyzer* pAnalyzer)
+CAnalyzerWriterInput::CAnalyzerWriterInput(CBaseFilter* pFilter, CCritSec* pLock, HRESULT* phr, LPCWSTR pName, HANDLE* pFile, CAnalyzer* pAnalyzer)
     : CRenderedInputPin(NAME("Input"), pFilter, pLock, phr, pName), 
-	m_file(file), 
+	m_pFile(pFile), 
 	m_analyzer(pAnalyzer)
 {
     ResetData();
@@ -108,8 +108,13 @@ STDMETHODIMP CAnalyzerWriterInput::Receive(IMediaSample *pSample)
             overlpd.Offset = lint.LowPart;
             overlpd.OffsetHigh = lint.HighPart;
 
-            if(!WriteFile(m_file, pBuf, length, &written, &overlpd))
-                return HRESULT_FROM_WIN32(GetLastError());
+            if (m_pFile != NULL && *m_pFile != INVALID_HANDLE_VALUE)
+            {
+                if(!WriteFile(*m_pFile, pBuf, length, &written, &overlpd))
+                    return HRESULT_FROM_WIN32(GetLastError());
+            }
+            else
+                written = length;
 
             m_pinData.cDataBytes += written;
 
@@ -117,8 +122,13 @@ STDMETHODIMP CAnalyzerWriterInput::Receive(IMediaSample *pSample)
         }
     }
 
-    if(!WriteFile(m_file, pBuf, length, &written, NULL))
-        return HRESULT_FROM_WIN32(GetLastError());
+    if (m_pFile != NULL && *m_pFile != INVALID_HANDLE_VALUE)
+    {
+        if(!WriteFile(*m_pFile, pBuf, length, &written, NULL))
+            return HRESULT_FROM_WIN32(GetLastError());
+    }
+    else
+        written = length;
 
     m_pinData.cDataBytes += written;
 
@@ -167,7 +177,10 @@ STDMETHODIMP CAnalyzerWriterInput::Read(void* pv, ULONG cb, ULONG* pcbRead)
 	DWORD tmp;
 	if(!read) read=&tmp;
 
-    BOOL rc = ReadFile(m_file, pv, cb, read, NULL);
+    if (m_pFile == NULL || *m_pFile == INVALID_HANDLE_VALUE)
+        return E_FAIL;
+
+    BOOL rc = ReadFile(*m_pFile, pv, cb, read, NULL);
 
     m_analyzer->AddIStreamRead(pv, cb, *read);
 
@@ -183,7 +196,10 @@ STDMETHODIMP CAnalyzerWriterInput::Write(void const* pv, ULONG cb, ULONG* pcbWri
 
     m_analyzer->AddIStreamWrite(pv, cb);
 
-    if(!WriteFile(m_file, pv, cb, wr, NULL))
+    if (m_pFile == NULL || *m_pFile == INVALID_HANDLE_VALUE)
+        return S_OK;
+
+    if(!WriteFile(*m_pFile, pv, cb, wr, NULL))
         return HRESULT_FROM_WIN32(GetLastError());
 
     //CAutoLock lock(m_pLock);
@@ -255,8 +271,15 @@ STDMETHODIMP CAnalyzerWriterInput::Seek(LARGE_INTEGER liDistanceToMove, DWORD dw
         break;
     }
 
-    LARGE_INTEGER newPos;
-    if (SetFilePointerEx(m_file, liDistanceToMove, &newPos, dwMoveMethod) == 0)
+    LARGE_INTEGER newPos = { 0 };
+
+    if (m_pFile == NULL || *m_pFile == INVALID_HANDLE_VALUE)
+    {
+        m_analyzer->AddIStreamSeek(dwOrigin, liDistanceToMove, newPos);
+        return S_OK;
+    }
+
+    if (SetFilePointerEx(*m_pFile, liDistanceToMove, &newPos, dwMoveMethod) == 0)
         return HRESULT_FROM_WIN32(GetLastError());
 
     m_analyzer->AddIStreamSeek(dwOrigin, liDistanceToMove, newPos);
@@ -267,8 +290,12 @@ STDMETHODIMP CAnalyzerWriterInput::Seek(LARGE_INTEGER liDistanceToMove, DWORD dw
 
 STDMETHODIMP CAnalyzerWriterInput::Stat(STATSTG* pStatstg, DWORD grfStatFlag) 
 {
-    if (GetFileSizeEx(m_file, (PLARGE_INTEGER) &pStatstg->cbSize) == 0)
+    if (m_pFile == NULL || *m_pFile == INVALID_HANDLE_VALUE)
+        return E_FAIL;
+
+    if (GetFileSizeEx(*m_pFile, (PLARGE_INTEGER) &pStatstg->cbSize) == 0)
         return HRESULT_FROM_WIN32(GetLastError());
+
     return S_OK;
 }
 
@@ -292,6 +319,11 @@ CAnalyzerWriterFilter::CAnalyzerWriterFilter(LPUNKNOWN pUnk, HRESULT *phr)
         *phr = E_OUTOFMEMORY;
     else
         m_analyzer->AddRef();
+
+    // create Pin
+	m_pPin = new CAnalyzerWriterInput(this, &m_csFilter, phr, L"Input", &m_file, m_analyzer);
+	if(m_pPin == NULL)
+		*phr = E_OUTOFMEMORY;
 }
 
 
@@ -341,7 +373,7 @@ STDMETHODIMP CAnalyzerWriterFilter::NonDelegatingQueryInterface(REFIID riid, voi
 
 int CAnalyzerWriterFilter::GetPinCount()
 {
-    if(m_file == INVALID_HANDLE_VALUE || m_pPin == NULL)
+    if(m_pPin == NULL)
         return 0;
 
     return 1;
@@ -372,14 +404,6 @@ STDMETHODIMP CAnalyzerWriterFilter::SetFileName(LPCOLESTR pszFileName, const AM_
 {
     CAutoLock lock(&m_csFilter);
 
-	// close old file
-	if (m_pPin != NULL) 
-	{
-		// warning - deleting m_pPin is not safe - m_PassThru could be using m_pPin and other objects may be referencing m_PassThru
-		delete m_pPin;
-		m_pPin = NULL;
-	}
-
 	CloseFile();
 
 	if (pszFileName == NULL || *pszFileName == L'\0')
@@ -398,15 +422,6 @@ STDMETHODIMP CAnalyzerWriterFilter::SetFileName(LPCOLESTR pszFileName, const AM_
 
 	if(m_file == INVALID_HANDLE_VALUE)
 		return E_FAIL;
-
-    // create Pin
-	HRESULT hr;
-	m_pPin = new CAnalyzerWriterInput(this, &m_csFilter, &hr, L"Input", m_file, m_analyzer);
-	if(m_pPin == NULL)
-	{
-		CloseFile();
-		return E_OUTOFMEMORY;
-	}
 
     // remember filename
     DWORD n = 1 + lstrlenW(pszFileName);
