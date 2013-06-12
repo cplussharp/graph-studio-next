@@ -18,7 +18,7 @@ class CAnalyzerPosPassThru;
 class CAnalyzerWriterInput : public CRenderedInputPin, public IStream, public IStreamBufferDataCounters
 {
 public:
-    CAnalyzerWriterInput(CBaseFilter* pFilter, CCritSec* pLock, HRESULT* phr, LPCWSTR pName, HANDLE file, CAnalyzer* pAnalyzer);
+    CAnalyzerWriterInput(CBaseFilter* pFilter, CCritSec* pLock, HRESULT* phr, LPCWSTR pName, HANDLE* pFile, CAnalyzer* pAnalyzer);
     ~CAnalyzerWriterInput(void);
 
     DECLARE_IUNKNOWN
@@ -51,7 +51,7 @@ public:
 
 protected:
     CCritSec m_lock;
-    HANDLE m_file;
+    HANDLE* m_pFile;
     SBE_PIN_DATA m_pinData;
     CAnalyzer* m_analyzer;
 };
