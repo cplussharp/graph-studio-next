@@ -189,6 +189,7 @@
     <None Include="Filter.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\HiResTimer.h" />
     <ClInclude Include="filter_time.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />

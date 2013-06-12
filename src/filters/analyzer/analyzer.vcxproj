@@ -183,6 +183,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\Crc32.cpp" />
     <ClCompile Include="analyzer.cpp" />
     <ClCompile Include="analyzer_proppage_config.cpp" />
     <ClCompile Include="Filter.cpp">
@@ -199,6 +200,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\lib\sqlite\sqlite3.h" />
+    <ClInclude Include="..\..\Crc32.h" />
+    <ClInclude Include="..\..\HiResTimer.h" />
     <ClInclude Include="analyzer.h" />
     <C1Include Include="analyzer_pospassthru.h" />
     <ClInclude Include="analyzer_proppage_config.h" />

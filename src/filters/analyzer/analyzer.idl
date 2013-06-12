@@ -4,46 +4,68 @@ import "ocidl.idl";
 import "objidl.idl";
 import "strmif.idl";
 
+[uuid("5406193C-E3EC-4E5A-95D3-29EC1EAEA033")]
+[helpstring("Flags whitch entries should be logged")]
+typedef enum StatisticCaptureFlags
+{
+    SCF_None = 0,
+
+    SCF_MediaSample     = 0x0001,
+    SCF_DataCrc         = 0x0002,   // Generate CRC for MediaSample Data or SRK_IS_Read/SRK_IS_Write
+    SCF_Streaming       = 0x0004,   // Start/Stop Streaming
+
+    SCF_IAsyncReader    = 0x0008,   // SRK_AR_xxx
+    SCF_IStream         = 0x0010,   // SRK_IS_xxx
+    SCF_IMediaSeeking   = 0x0020,   // SRK_MS_xxx
+    SCF_IMediaPosition  = 0x0040,   // SRK_MP_xxx
+    SCF_IBaseFilter     = 0x0080,   // SRK_BF_xxx
+    SCF_IPin            = 0x0100,   // SRK_IP_xxx
+    SCF_IMemInputPin    = 0x0200,   // SRK_IMP_xxx
+    SCF_IQualityControl = 0x0400,   // SRK_QC_xxx
+
+    SCF_All             = -1
+} StatisticCaptureFlags;
+
 [uuid("EFA80B5A-913E-4806-B7BC-3202234FDE70")]
 typedef enum StatisticRecordKind
 {
 	// Core filter events
     SRK_Empty = 0,    // Empty Record
-    SRK_MediaSample,
-    SRK_StartStreaming,
+    SRK_MediaSample = SCF_MediaSample,
+    SRK_StartStreaming = SCF_Streaming,
     SRK_StopStreaming,
 
     // IAsyncReader Entries
-    SRK_AR_Length = 100,
+    SRK_AR_Length = SCF_IAsyncReader,
     SRK_AR_Request,
     SRK_AR_SyncRead,
     SRK_AR_WaitNext,
 
     // IStream Entries
-    SRK_IS_Read = 200,
+    SRK_IS_Read = SCF_IStream,
     SRK_IS_Write,
     SRK_IS_Seek,
 
     // IMediaSeeking Entries
-    SRK_MS_SetPositions = 300,
+    SRK_MS_SetPositions = SCF_IMediaSeeking,
     SRK_MS_SetRate,
     SRK_MS_SetTimeFormat,
 
     // IMediaPosition Entries
-    SRK_MP_SetCurrentPosition = 400,
+    SRK_MP_SetCurrentPosition = SCF_IMediaPosition,
     SRK_MP_SetStopTime,
     SRK_MP_SetPrerollTime,
     SRK_MP_SetRate,
 
 	// IBaseFilter entries (some inherited from IMediaFilter)
-    SRK_BF_JoinFilterGraph = 500,
+    SRK_BF_JoinFilterGraph = SCF_IBaseFilter,
     SRK_BF_Pause,
     SRK_BF_Run,
     SRK_BF_SetSyncSource,
     SRK_BF_Stop,
 
 	// IPin entries
-    SRK_IP_BeginFlush = 600,
+    SRK_IP_BeginFlush = SCF_IPin,
     SRK_IP_Connect,
     SRK_IP_Disconnect,
     SRK_IP_EndFlush,
@@ -52,15 +74,11 @@ typedef enum StatisticRecordKind
     SRK_IP_ReceiveConnection,
 
 	// IMemInputpin entries
-	SRK_MIP_NotifyAllocator = 700,
+	SRK_MIP_NotifyAllocator = SCF_IMemInputPin,
 
 	// IQualityControl entries
-    SRK_QC_Notify = 800,
+    SRK_QC_Notify = SCF_IQualityControl,
     SRK_QC_SetSink
-
-
-
-
 } StatisticRecordKind;
 
 [uuid("66AA0068-8140-49BB-8125-FEC5AA2FE9F4")]
@@ -114,6 +132,9 @@ typedef struct StatisticRecordEntry
 
     [unique, size_is(nDataCount), helpstring("First bytes of the Media Sample")]
     byte *aData;
+
+    [helpstring("CRC32 value of the MediaSample Data")]
+    DWORD crcData;
 } StatisticRecordEntry;
 
 [object, uuid("780E9A9E-0CC8-4EE7-9788-3637D8495C51")]
@@ -132,19 +153,22 @@ interface IAnalyzerFilter : IUnknown
     [propget, id(1), helpstring("Is the analyzer enabled")] HRESULT Enabled([out, retval] VARIANT_BOOL* pVal);
     [propput, id(1), helpstring("Is the analyzer enabled")] HRESULT Enabled([in] VARIANT_BOOL newVal);
 
-    [propget, id(2), helpstring("LogFile")] HRESULT LogFile([out, retval] BSTR* pVal);
-    [propput, id(2), helpstring("LogFile")] HRESULT LogFile([in] BSTR newVal);
+    [propget, id(2), helpstring("Flags which entries should be captured (see StatisticCaptureFlags)")] HRESULT CaptureConfiguration([out, retval] int* pVal);
+    [propput, id(2), helpstring("Flags which entries should be captured (see StatisticCaptureFlags)")] HRESULT CaptureConfiguration([in] int newVal);
 
-    [propget, id(3), helpstring("Bytes to Capture for a Sample")] HRESULT PreviewSampleByteCount([out, retval] unsigned short* pVal);
-    [propput, id(3), helpstring("Bytes to Capture for a Sample")] HRESULT PreviewSampleByteCount([in] unsigned short newVal);
+    [propget, id(3), helpstring("LogFile")] HRESULT LogFile([out, retval] BSTR* pVal);
+    [propput, id(3), helpstring("LogFile")] HRESULT LogFile([in] BSTR newVal);
 
-    [id(4), helpstring("Reset Statistic")] HRESULT ResetStatistic();
-    [propget, id(5), helpstring("Count of statistic entries")] HRESULT EntryCount([out, retval] __int64 *pVal);
+    [propget, id(4), helpstring("Bytes to Capture for a Sample")] HRESULT PreviewSampleByteCount([out, retval] unsigned short* pVal);
+    [propput, id(4), helpstring("Bytes to Capture for a Sample")] HRESULT PreviewSampleByteCount([in] unsigned short newVal);
+
+    [id(5), helpstring("Reset Statistic")] HRESULT ResetStatistic();
+    [propget, id(6), helpstring("Count of statistic entries")] HRESULT EntryCount([out, retval] __int64 *pVal);
     
-    [id(6), helpstring("Get an entry from the statistic (if aData != NULL you need to CoTaskMemFree it)")]
+    [id(7), helpstring("Get an entry from the statistic (if aData != NULL you need to CoTaskMemFree it)")]
     HRESULT GetEntry([in] __int64 nr, [out, retval] StatisticRecordEntry *pVal);
 
-    [id(7), helpstring("Register or remove a callback for the events of the statistic")]
+    [id(8), helpstring("Register or remove a callback for the events of the statistic")]
     HRESULT SetCallback(IAnalyzerFilterCallback* pCallback);
 };
 
@@ -156,6 +180,7 @@ interface IAnalyzerFilter : IUnknown
 ] 
 library AnalyzerFilterLib
 {
+    enum StatisticCaptureFlags;
     enum StatisticRecordKind;
     struct StatisticRecordEntry;
     interface IAnalyzerFilterCallback;

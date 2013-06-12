@@ -249,7 +249,6 @@ STDMETHODIMP CAnalyzerFilter::NonDelegatingQueryInterface(REFIID riid, void ** p
 
 HRESULT CAnalyzerFilter::CheckInputType(const CMediaType* mtIn)
 {
-	//if (mtIn->majortype != MEDIATYPE_Video && mtIn->majortype != MEDIATYPE_Audio) return E_FAIL;
 	return NOERROR;
 }
 

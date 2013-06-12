@@ -20,6 +20,7 @@ BEGIN_MESSAGE_MAP(CAnalyzerPage, CDSPropertyPage)
     ON_COMMAND(IDC_CHECK_ENABLED, &CAnalyzerPage::OnCheckClick)
     ON_BN_CLICKED(IDC_BUTTON_RESET, &CAnalyzerPage::OnBnClickedButtonReset)
     ON_NOTIFY(LVN_GETDISPINFO, IDC_LIST_DATA, &CAnalyzerPage::OnLvnGetdispinfoListData)
+    ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST_DATA, &CAnalyzerPage::OnCustomDrawListData)
     ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_PREVIEWBYTECOUNT, OnSpinDeltaByteCount)
     ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CAnalyzerPage::OnBnClickedButtonRefresh)
     ON_BN_CLICKED(IDC_BUTTON_SAVE, &CAnalyzerPage::OnBnClickedButtonSave)
@@ -61,7 +62,8 @@ BOOL CAnalyzerPage::OnInitDialog()
 	m_listCtrl.SetFont(&font_entries);
 
     m_listCtrl.InsertColumn(Number,				_T("Nr"),					LVCFMT_RIGHT,	30);
-    m_listCtrl.InsertColumn(TimeStamp,			_T("TimeStamp (dif)"),		LVCFMT_RIGHT,	120);
+    m_listCtrl.InsertColumn(TimeStamp,			_T("TimeStamp"),		    LVCFMT_RIGHT,	110);
+    m_listCtrl.InsertColumn(TimeStampDif,		_T("TS dif (µs)"),  		LVCFMT_RIGHT,	70);
     m_listCtrl.InsertColumn(Kind,				_T("Kind"),					LVCFMT_LEFT,	180);
     m_listCtrl.InsertColumn(Discontinuity,		_T("Disc."),				LVCFMT_CENTER,	40);
     m_listCtrl.InsertColumn(Sync,				_T("Sync"),					LVCFMT_CENTER,	40);
@@ -74,6 +76,7 @@ BOOL CAnalyzerPage::OnInitDialog()
     m_listCtrl.InsertColumn(SampleFlags,		_T("SampleFlags"),			LVCFMT_LEFT,	150);
     m_listCtrl.InsertColumn(StreamID,			_T("HRESULT / StreamID"),	LVCFMT_LEFT,	150);
     m_listCtrl.InsertColumn(DataLength,			_T("DataLength"),			LVCFMT_RIGHT,	75);
+    m_listCtrl.InsertColumn(DataCrc,			_T("DataCRC"),			    LVCFMT_RIGHT,	75);
     m_listCtrl.InsertColumn(Data,				_T("Data"),					LVCFMT_LEFT,	350);
 
     m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP );
@@ -190,12 +193,33 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field, bool com
             case TimeStamp:
                 {
                     __int64 timeStamp = entry.EntryTimeStamp;
+					__int64 tHour = timeStamp / 60 / 60 / 1000 / 1000 / 10;
+                    timeStamp -= tHour * 60 * 60 * 1000 * 1000 * 10;
+                    __int64 tMin = timeStamp / 60 / 1000 / 1000 / 10;
+                    timeStamp -= tMin * 60 * 1000 * 1000 * 10;
+                    __int64 tSec = timeStamp / 1000 / 1000 / 10;
+                    timeStamp -= tSec * 1000 * 1000 * 10;
+                    __int64 tMs = timeStamp / 1000 / 10;
+                    timeStamp -= tMs * 1000 * 10;
+                    __int64 tMys = timeStamp / 10;
+
+                    val.Format(_T("%d:%02d:%02d.%03d,%03d"), (int)tHour, (int)tMin, (int)tSec, (int)tMs, (int)tMys);
+                }
+                break;
+
+            case TimeStampDif:
+                {
+                    __int64 timeStamp = entry.EntryTimeStamp;
                     StatisticRecordEntry prevEntry;
                     if (SUCCEEDED(filter->GetEntry(entry.EntryNr - 1, &prevEntry)))
                     {
                         timeStamp -= prevEntry.EntryTimeStamp;
                         FreeEntryData(prevEntry);
                     }
+                    else
+                        timeStamp = 0;
+
+                    timeStamp /= 10;
 					if (commaFormattedTimestamps)
 						val = CommaFormat(timeStamp);
 					else
@@ -304,6 +328,11 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field, bool com
 								&& entry.EntryKind != SRK_MS_SetRate && entry.EntryKind != SRK_MS_SetTimeFormat)
 						val.Format(_T("%d"),entry.ActualDataLength);
 				}
+                break;
+
+            case DataCrc:
+				if (entry.crcData != 0)
+					val.Format(_T("0x%08lX"), entry.crcData);
                 break;
 
             case Data:
@@ -479,6 +508,46 @@ void CAnalyzerPage::OnLvnGetdispinfoListData(NMHDR *pNMHDR, LRESULT *pResult)
     }
 
     *pResult = 0;
+}
+
+void CAnalyzerPage::OnCustomDrawListData(NMHDR *pNMHDR, LRESULT *pResult)
+{
+    COLORREF clrRow1 = RGB(255,255,255);
+    COLORREF clrRow2 = RGB(224,224,224);
+
+    *pResult = 0;
+
+    LPNMLVCUSTOMDRAW  lplvcd = (LPNMLVCUSTOMDRAW)pNMHDR;
+    int iRow = lplvcd->nmcd.dwItemSpec;
+
+    switch(lplvcd->nmcd.dwDrawStage)
+    {
+        case CDDS_PREPAINT :
+            *pResult = CDRF_NOTIFYITEMDRAW;
+            break;
+
+        // Modify item text and or background
+        case CDDS_ITEMPREPAINT:
+            lplvcd->clrText = RGB(0,0,0);
+            if(iRow % 2)
+                lplvcd->clrTextBk = clrRow2;
+            else
+                lplvcd->clrTextBk = clrRow1;
+
+            // If you want the sub items other then the item,
+            // set *pResult to CDRF_NOTIFYSUBITEMDRAW
+            *pResult = CDRF_NEWFONT;
+            break;
+
+        // Modify sub item text and/or background
+        case CDDS_SUBITEM | CDDS_PREPAINT | CDDS_ITEM:
+            if(iRow % 2)
+                lplvcd->clrTextBk = clrRow2;
+            else
+                lplvcd->clrTextBk = clrRow1;
+            *pResult = CDRF_DODEFAULT;
+            break;
+    }
 }
 
 void CAnalyzerPage::OnBnClickedButtonRefresh()
