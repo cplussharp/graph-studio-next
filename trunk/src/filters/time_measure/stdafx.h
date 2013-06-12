@@ -36,5 +36,8 @@
 #endif
 
 #include <streams.h>
+
+#include "..\..\HiResTimer.h"
+
 #include "time_measure_h.h"
 #include "filter_time.h"

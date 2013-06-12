@@ -97,6 +97,8 @@
 #include <dxva.h>
 #include <Vidcap.h>
 
+#include "HiResTimer.h"
+
 #include "..\resource.h"
 
 #include <list>

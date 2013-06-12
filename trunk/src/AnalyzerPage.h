@@ -26,6 +26,7 @@ protected:
 	{
 		Number = 0,				
 		TimeStamp,
+        TimeStampDif,
 		Kind,
 		Discontinuity,
 		Sync,
@@ -38,6 +39,7 @@ protected:
 		SampleFlags,
 		StreamID,
 		DataLength,
+        DataCrc,
 		Data,
 		NumColumns			// Must be last member of enum
 	};
@@ -71,6 +73,7 @@ public:
 	virtual HRESULT OnApplyChanges();
     afx_msg void OnBnClickedButtonReset();
     afx_msg void OnLvnGetdispinfoListData(NMHDR *pNMHDR, LRESULT *pResult);
+    afx_msg void OnCustomDrawListData(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnBnClickedButtonRefresh();
     afx_msg void OnBnClickedButtonSave();
     afx_msg void OnSpinDeltaByteCount(NMHDR* pNMHDR, LRESULT* pResult);

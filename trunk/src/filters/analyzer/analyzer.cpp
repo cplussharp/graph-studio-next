@@ -7,6 +7,20 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
+// Helper for ConfigFlags and RecordKinds
+// hibit(RecordKind) => ConfigFlag
+int hibit(unsigned int n)
+{
+    n |= (n >>   1);
+    n |= (n >>   2);
+    n |= (n >>   4);
+    n |= (n >>   8);
+    n |= (n >>  16);
+#ifdef _WIN64
+    n |= (n >>  32);
+#endif
+    return n ^ (n >> 1);
+}
 
 //-----------------------------------------------------------------------------
 //
@@ -16,7 +30,7 @@
 
 CAnalyzer::CAnalyzer(LPUNKNOWN pUnk) :
 	CUnknown(NAME("Analyzer"), pUnk),
-    m_enabled(VARIANT_TRUE), m_previewSampleByteCount(16), m_callback(NULL)
+    m_enabled(VARIANT_TRUE), m_config(StatisticCaptureFlags::SCF_All & ~StatisticCaptureFlags::SCF_DataCrc), m_previewSampleByteCount(16), m_callback(NULL)
 {
 }
 
@@ -42,14 +56,22 @@ STDMETHODIMP CAnalyzer::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 void CAnalyzer::InitEntry(StatisticRecordEntry& entry)
 {
     entry.EntryNr = m_entries.size();
-    entry.EntryTimeStamp = timer.GetTimeNS() / 100;		// Format in DirectShow time units for consistency
+    entry.EntryTimeStamp = timer.GetRealtimeNS() / 100;		// Format in DirectShow time units for consistency
 	entry.StreamTimeStart = entry.StreamTimeStop = VFW_E_SAMPLE_TIME_NOT_SET;
 	entry.MediaTimeStart = entry.MediaTimeStop = VFW_E_MEDIA_TIME_NOT_SET;
 }
 
+void CAnalyzer::AddEntry(const StatisticRecordEntry& entry)
+{
+    m_entries.push_back(entry);
+
+    if (m_callback != NULL)
+        m_callback->OnStatisticNewEntry(entry.EntryNr);
+}
+
 HRESULT CAnalyzer::AddSample(IMediaSample *pSample)
 {
-    if (!m_enabled) return S_OK;
+    if (!m_enabled || !m_config&SCF_MediaSample) return S_OK;
 
     // entry
     StatisticRecordEntry entry = { 0 };
@@ -104,10 +126,10 @@ HRESULT CAnalyzer::AddSample(IMediaSample *pSample)
         entry.HadIMediaSample2 = VARIANT_FALSE;
 
     // PreviewBytes
+    BYTE* pData = NULL;
     entry.nDataCount = m_previewSampleByteCount < entry.ActualDataLength ? m_previewSampleByteCount : entry.ActualDataLength;
     if (entry.nDataCount > 0)
     {
-        BYTE* pData = NULL;
         hr = pSample->GetPointer(&pData);
         if(SUCCEEDED(hr))
         {
@@ -118,42 +140,46 @@ HRESULT CAnalyzer::AddSample(IMediaSample *pSample)
             entry.nDataCount = hr;
     }
 
-    m_entries.push_back(entry);
+    // Crc
+    if (m_config&SCF_DataCrc)
+    {
+        if (entry.nDataCount == 0)
+        {
+            hr = pSample->GetPointer(&pData);
+            if(FAILED(hr))
+                entry.nDataCount = hr;
+        }
 
-    if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry(entry.EntryNr);
+        m_crc.GetCrc32FromData(pData, entry.ActualDataLength);
+    }
+
+    AddEntry(entry);
 
 	return S_OK;
 }
 
 HRESULT CAnalyzer::StartStreaming()
 {
-    if (!m_enabled) return S_OK;
+    if (!m_enabled || !m_config&SCF_Streaming) return S_OK;
 
     StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
     entry.EntryKind = SRK_StartStreaming;
 
-    m_entries.push_back(entry);
-
-    if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry(entry.EntryNr);
+    AddEntry(entry);
 
     return S_OK;
 }
 
 HRESULT CAnalyzer::StopStreaming()
 {
-    if (!m_enabled) return S_OK;
+    if (!m_enabled || !m_config&SCF_Streaming) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
     entry.EntryKind = SRK_StopStreaming;
 
-    m_entries.push_back(entry);
-
-    if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry(entry.EntryNr);
+    AddEntry(entry);
 
     return S_OK;
 }
@@ -161,7 +187,7 @@ HRESULT CAnalyzer::StopStreaming()
 
 HRESULT CAnalyzer::AddIStreamRead(const void* vp, ULONG cb, ULONG cbReaded)
 {
-    if (!m_enabled) return S_OK;
+    if (!m_enabled || !m_config&SCF_IStream) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -176,17 +202,17 @@ HRESULT CAnalyzer::AddIStreamRead(const void* vp, ULONG cb, ULONG cbReaded)
         CopyMemory(entry.aData, vp, entry.nDataCount);
     }
 
-    m_entries.push_back(entry);
+    if (m_config&SCF_DataCrc)
+        m_crc.GetCrc32FromData((BYTE*)vp, entry.ActualDataLength);
 
-    if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry(entry.EntryNr);
+    AddEntry(entry);
 
     return S_OK;
 }
 
 HRESULT CAnalyzer::AddIStreamWrite(const void* vp, ULONG cb)
 {
-    if (!m_enabled) return S_OK;
+    if (!m_enabled || !m_config&SCF_IStream) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -200,17 +226,17 @@ HRESULT CAnalyzer::AddIStreamWrite(const void* vp, ULONG cb)
         CopyMemory(entry.aData, vp, entry.nDataCount);
     }
 
-    m_entries.push_back(entry);
+    if (m_config&SCF_DataCrc)
+        m_crc.GetCrc32FromData((BYTE*)vp, entry.ActualDataLength);
 
-    if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry(entry.EntryNr);
+    AddEntry(entry);
 
     return S_OK;
 }
 
 HRESULT CAnalyzer::AddIStreamSeek(DWORD dwOrigin, const LARGE_INTEGER &liDistanceToMove, const LARGE_INTEGER newPos)
 {
-    if (!m_enabled) return S_OK;
+    if (!m_enabled || !m_config&SCF_IStream) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -219,17 +245,14 @@ HRESULT CAnalyzer::AddIStreamSeek(DWORD dwOrigin, const LARGE_INTEGER &liDistanc
     entry.StreamTimeStart = newPos.QuadPart;
     entry.SampleFlags = dwOrigin;
 
-    m_entries.push_back(entry);
-
-    if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry(entry.EntryNr);
+    AddEntry(entry);
 
     return S_OK;
 }
 
 HRESULT CAnalyzer::AddMSSetPositions(HRESULT hr, __inout_opt LONGLONG * pCurrent, DWORD CurrentFlags, __inout_opt LONGLONG * pStop, DWORD StopFlags)
 {
-    if (!m_enabled) return S_OK;
+    if (!m_enabled || !m_config&SCF_IMediaPosition) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -246,10 +269,7 @@ HRESULT CAnalyzer::AddMSSetPositions(HRESULT hr, __inout_opt LONGLONG * pCurrent
 		entry.SampleFlags = StopFlags;
 	}
 
-    m_entries.push_back(entry);
-
-    if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry(entry.EntryNr);
+    AddEntry(entry);
 
     return S_OK;
 }
@@ -257,7 +277,7 @@ HRESULT CAnalyzer::AddMSSetPositions(HRESULT hr, __inout_opt LONGLONG * pCurrent
 // TODO log rate
 HRESULT CAnalyzer::AddIPNewSegment(LONGLONG start, LONGLONG stop, double rate, HRESULT hr)
 {
-    if (!m_enabled) return S_OK;
+    if (!m_enabled || !m_config&SCF_IPin) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -267,17 +287,14 @@ HRESULT CAnalyzer::AddIPNewSegment(LONGLONG start, LONGLONG stop, double rate, H
 	entry.MediaTimeStop  = stop;
 	entry.StreamId = hr;
 
-    m_entries.push_back(entry);
-
-    if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry(entry.EntryNr);
+    AddEntry(entry);
 
     return S_OK;
 }
 
 HRESULT CAnalyzer::AddQCNotify(Quality q, HRESULT hr)
 {
-    if (!m_enabled) return S_OK;
+    if (!m_enabled || !m_config&SCF_IQualityControl) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -289,17 +306,14 @@ HRESULT CAnalyzer::AddQCNotify(Quality q, HRESULT hr)
 	entry.TypeSpecificFlags = q.Type;
 	entry.StreamId = hr;
 
-    m_entries.push_back(entry);
-
-    if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry(entry.EntryNr);
+    AddEntry(entry);
 
     return S_OK;
 }
 
 HRESULT CAnalyzer::AddDouble(StatisticRecordKind kind, HRESULT hr, double data)
 {
-    if (!m_enabled) return S_OK;
+    if (!m_enabled || !m_config&hibit(kind)) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -308,17 +322,14 @@ HRESULT CAnalyzer::AddDouble(StatisticRecordKind kind, HRESULT hr, double data)
 
 	entry.MediaTimeStart = UNITS * data;		// convert from floating point seconds to ref time
 
-    m_entries.push_back(entry);
-
-    if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry(entry.EntryNr);
+    AddEntry(entry);
 
 	return S_OK;
 }
 
 HRESULT CAnalyzer::AddHRESULT(StatisticRecordKind kind, HRESULT hr)
 {
-    if (!m_enabled) return S_OK;
+    if (!m_enabled || !m_config&hibit(kind)) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -326,17 +337,14 @@ HRESULT CAnalyzer::AddHRESULT(StatisticRecordKind kind, HRESULT hr)
 
 	entry.StreamId = hr;
 
-    m_entries.push_back(entry);
-
-    if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry(entry.EntryNr);
+    AddEntry(entry);
 
 	return S_OK;
 }
 
 HRESULT CAnalyzer::AddRefTime(StatisticRecordKind kind, LONGLONG refTime, HRESULT hr)
 {
-    if (!m_enabled) return S_OK;
+    if (!m_enabled || !m_config&hibit(kind)) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -345,17 +353,14 @@ HRESULT CAnalyzer::AddRefTime(StatisticRecordKind kind, LONGLONG refTime, HRESUL
 	entry.MediaTimeStart = refTime;
 	entry.StreamId = hr;
 
-    m_entries.push_back(entry);
-
-    if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry(entry.EntryNr);
+    AddEntry(entry);
 
 	return S_OK;
 }
 
 HRESULT CAnalyzer::AddMSSetTimeFormat(HRESULT hr, const GUID * pFormat)
 {
-    if (!m_enabled) return S_OK;
+    if (!m_enabled || !m_config&SCF_IMediaSeeking) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -369,10 +374,7 @@ HRESULT CAnalyzer::AddMSSetTimeFormat(HRESULT hr, const GUID * pFormat)
         CopyMemory(entry.aData, pFormat, entry.nDataCount);
 	}
 
-    m_entries.push_back(entry);
-
-    if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry(entry.EntryNr);
+    AddEntry(entry);
 
 	return S_OK;
 }
@@ -390,6 +392,19 @@ STDMETHODIMP CAnalyzer::get_Enabled(VARIANT_BOOL *pVal)
 STDMETHODIMP CAnalyzer::put_Enabled(VARIANT_BOOL val)
 {
     m_enabled = val;
+    return S_OK;
+}
+
+STDMETHODIMP CAnalyzer::get_CaptureConfiguration(int *pVal)
+{
+    CheckPointer(pVal, E_POINTER);
+    *pVal = m_config;
+    return S_OK;
+}
+
+STDMETHODIMP CAnalyzer::put_CaptureConfiguration(int val)
+{
+    m_config = val;
     return S_OK;
 }
 
