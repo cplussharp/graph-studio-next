@@ -37,6 +37,11 @@ CAnalyzerPage::CAnalyzerPage(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR strTitle) :
 	// retval
 	if (phr) *phr = NOERROR;
 	filter = NULL;
+
+    if(GraphStudio::HasFont(_T("Consolas")))
+        GraphStudio::MakeFont(font_entries, _T("Consolas"), 8, false, false);
+    else
+        GraphStudio::MakeFont(font_entries, _T("Courier New"), 8, false, false);
 }
 
 CAnalyzerPage::~CAnalyzerPage()
@@ -55,10 +60,6 @@ BOOL CAnalyzerPage::OnInitDialog()
 	title.ModifyStyleEx(0, WS_EX_CONTROLPARENT);
 
     // prepare listView
-    if(GraphStudio::HasFont(_T("Consolas")))
-        GraphStudio::MakeFont(font_entries, _T("Consolas"), 8, false, false);
-    else
-        GraphStudio::MakeFont(font_entries, _T("Courier New"), 8, false, false);
 	m_listCtrl.SetFont(&font_entries);
 
     m_listCtrl.InsertColumn(Number,				_T("Nr"),					LVCFMT_RIGHT,	30);
