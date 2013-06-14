@@ -112,7 +112,12 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PreBuildEvent>
-      <Command>SubWCRev.exe $(SolutionDir) $(ProjectDir)\src\VersionNo_SVN.tmpl.h $(ProjectDir)\src\VersionNo_SVN.h</Command>
+      <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
+
+echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+
+SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Generate the VersionNo_SVN.h file with the necessary repo identify info for versioning.</Message>
@@ -148,7 +153,12 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <PreBuildEvent>
-      <Command>SubWCRev.exe $(SolutionDir) $(ProjectDir)\src\VersionNo_SVN.tmpl.h $(ProjectDir)\src\VersionNo_SVN.h</Command>
+      <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
+
+echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+
+SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Generate the VersionNo_SVN.h file with the necessary repo identify info for versioning.</Message>
@@ -189,7 +199,12 @@
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
     <PreBuildEvent>
-      <Command>SubWCRev.exe $(SolutionDir) $(ProjectDir)\src\VersionNo_SVN.tmpl.h $(ProjectDir)\src\VersionNo_SVN.h</Command>
+      <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
+
+echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+
+SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Generate the VersionNo_SVN.h file with the necessary repo identify info for versioning.</Message>
@@ -228,7 +243,12 @@
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
     <PreBuildEvent>
-      <Command>SubWCRev.exe $(SolutionDir) $(ProjectDir)\src\VersionNo_SVN.tmpl.h $(ProjectDir)\src\VersionNo_SVN.h</Command>
+      <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
+
+echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+
+SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Generate the VersionNo_SVN.h file with the necessary repo identify info for versioning.</Message>
