@@ -14,9 +14,24 @@
 //-----------------------------------------------------------------------------
 
 class CMainFrame : public CFrameWnd
-{	
+{
+public:
+	CGraphView		*view;
+	CToolBar		m_wndToolBar;
+	CSeekingBar		m_wndSeekingBar;
+
+protected:
+	CStatusBar		m_wndStatusBar;
+	CReBar			m_wndReBar;
+    CComPtr<ITaskbarList3> m_pTaskbarList;
+    CComboBox       m_comboRate;
+    int             m_comboRate_defaultSel;
+
+    static const UINT m_uTaskbarBtnCreatedMsg;
+
 protected: 
 	CMainFrame();
+	virtual ~CMainFrame();
 	DECLARE_DYNCREATE(CMainFrame)
 	DECLARE_MESSAGE_MAP()
 
@@ -24,24 +39,10 @@ protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
     LRESULT OnTaskbarBtnCreated ( UINT uMsg, WPARAM wParam, LPARAM lParam );
 
-public:  // control bar embedded members
-	CStatusBar		m_wndStatusBar;
-	CToolBar		m_wndToolBar;
-	CToolBar		m_wndPlaybackBar;
-	CSeekingBar		m_wndSeekingBar;
-	CReBar			m_wndReBar;
-    CComPtr<ITaskbarList3> m_pTaskbarList;
-    CComboBox       m_comboRate;
-    int             m_comboRate_defaultSel;
-
-	// view
-	CGraphView		*view;
-
 	// Overrides
-public:
-	virtual ~CMainFrame();
-
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, 
+							CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
     void OnComboRateChanged();
 
 #ifdef _DEBUG
@@ -53,9 +54,9 @@ public:
 
     void OnUpdatePlayRate();
 
-    static const UINT m_uTaskbarBtnCreatedMsg;
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
+	afx_msg void OnFileClose();
 };
 
 

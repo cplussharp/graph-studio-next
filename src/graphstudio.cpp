@@ -67,7 +67,7 @@ BOOL CgraphstudioApp::InitInstance()
 
     m_nExitCode = 0;
 
-	CWinApp::InitInstance();
+	__super::InitInstance();
 
     EnableTaskbarInteraction(TRUE);
 
@@ -82,12 +82,23 @@ BOOL CgraphstudioApp::InitInstance()
 	SetRegistryKey(_T("MONOGRAM"));
 	LoadStdProfileSettings(8);  // Load standard INI file options (including MRU)
 
-	CSingleDocTemplate* pDocTemplate;
-	pDocTemplate = new CSingleDocTemplate(
-		IDR_MAINFRAME,
-		RUNTIME_CLASS(CGraphDoc),
-		RUNTIME_CLASS(CMainFrame),       // main SDI frame window
-		RUNTIME_CLASS(CGraphView));
+	bool single_doc = false;
+
+	CDocTemplate* pDocTemplate = NULL;
+
+	if (single_doc) {
+		pDocTemplate = new CSingleDocTemplate(
+			IDR_MAINFRAME,
+			RUNTIME_CLASS(CGraphDoc),
+			RUNTIME_CLASS(CMainFrame),       // main SDI frame window
+			RUNTIME_CLASS(CGraphView));
+	} else {
+		pDocTemplate = new CMultiDocTemplate(
+			IDR_MAINFRAME,
+			RUNTIME_CLASS(CGraphDoc),
+			RUNTIME_CLASS(CMainFrame),       // main SDI frame window
+			RUNTIME_CLASS(CGraphView));
+	}
 	if (!pDocTemplate) return FALSE;
 	AddDocTemplate(pDocTemplate);
 
@@ -217,7 +228,7 @@ int CgraphstudioApp::ExitInstance()
 {
     CMediaInfo::FreeInfoCache();
 
-    int ret = CWinApp::ExitInstance();
+    int ret = __super::ExitInstance();
     if (m_nExitCode != 0)
         ret = m_nExitCode;
 

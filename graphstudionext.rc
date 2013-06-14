@@ -994,7 +994,6 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
-        MENUITEM "New Window",                  ID_FILE_NEWWINDOW
         MENUITEM "&Open Graph/Media file...\tCtrl+O", ID_FILE_OPEN
         MENUITEM "Add Graph/&Media File...\tCtrl+A", ID_FILE_ADDMEDIAFILE
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
@@ -1022,6 +1021,8 @@ BEGIN
         MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
         MENUITEM "Print Se&tup...",             ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
+        MENUITEM "New &Window",                 ID_FILE_NEWWINDOW
+        MENUITEM "C&lose Window",               ID_FILE_CLOSE
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
     POPUP "&View"

@@ -16,9 +16,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	//-------------------------------------------------------------------------
 
 	MRUList::MRUList()
+		: initial_menu_length(-1)
+		, max_count(8)
 	{
-		list.RemoveAll();
-		max_count = 8;
 	}
 
 	MRUList::~MRUList()
@@ -85,33 +85,38 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void MRUList::GenerateMenu(CMenu *menu)
 	{
-		// we insert our items just before the last item (Exit)
-		int	cn = menu->GetMenuItemCount();
+		const int menu_length = menu->GetMenuItemCount();
+
+		if (initial_menu_length < 0)
+			initial_menu_length = menu_length;		// store the menu length the first time we're called before we modify it
+
+		// we insert our items just after print setup item (Exit)
 
 		// find print setup menu item
-		int end_pos = 0;
-		for (; end_pos < cn; end_pos++) {
-			if (menu->GetMenuItemID(end_pos) == ID_FILE_PRINT_SETUP)
+		int insert_pos = 0;
+		for (; insert_pos < menu_length; insert_pos++) {
+			if (menu->GetMenuItemID(insert_pos) == ID_FILE_PRINT_SETUP)
 				break;
 		}
-		end_pos += 4;	// find menu item four below print setup
+		insert_pos += 2;	// position after print setup and separator
 
-		while (cn >= end_pos) {
-			menu->DeleteMenu(cn-2, MF_BYPOSITION);
-			cn--;
+		// delete menu items added in previous calls
+		for (int i=0; i < menu_length-initial_menu_length; i++) {
+			menu->DeleteMenu(insert_pos, MF_BYPOSITION);
 		}
-		cn = menu->GetMenuItemCount();
-		
+
+		// add recent files
 		const int count = min(max_count, list.GetCount());
 		for (int i=0; i<count; i++) {
 			CString	t;
 			t.Format(_T("&%i %s"), (i+1), list[i]);
-			menu->InsertMenu(cn-1 + i, MF_BYPOSITION | MF_STRING, ID_LIST_MRU_FILE0 + i, t);
+			menu->InsertMenu(insert_pos + i, MF_BYPOSITION | MF_STRING, ID_LIST_MRU_FILE0 + i, t);
 		}
+		
+		// add clear list menu item and separator after file list
+		menu->InsertMenu(insert_pos + count, MF_BYPOSITION | MF_STRING, ID_LIST_MRU_CLEAR, _T("Clear Recent &List"));
+		menu->InsertMenu(insert_pos + count + 1, MF_BYPOSITION | MF_SEPARATOR);
 	
-		cn += count;
-		menu->InsertMenu(cn-1, MF_BYPOSITION | MF_STRING, ID_LIST_MRU_CLEAR, _T("Clear Recent &List"));
-		menu->InsertMenu(cn, MF_BYPOSITION | MF_SEPARATOR);
 	}
 
 GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
