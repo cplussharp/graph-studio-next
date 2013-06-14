@@ -139,7 +139,7 @@
 #define IDC_LIST_SCHEDULE               1048
 #define IDC_CHECK_RELATIVE_TO_PREVIOUS  1048
 #define IDC_BUTTON_ADD                  1049
-#define IDC_CHECK_SET_CURRENT_POSITION    1049
+#define IDC_CHECK_SET_CURRENT_POSITION  1049
 #define IDC_BUTTON_REMOVE               1050
 #define IDC_CHECK_SEGMENT               1050
 #define IDC_STATIC_DESC                 1051

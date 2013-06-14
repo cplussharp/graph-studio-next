@@ -19,7 +19,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	{
 	public:
 		CArray<CString>		list;
+
+	protected:
 		int					max_count;
+		int					initial_menu_length;
+
 	public:
 		MRUList();
 		virtual ~MRUList();

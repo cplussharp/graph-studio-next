@@ -28,6 +28,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
     ON_CBN_SELCHANGE(ID_COMBO_RATE, &CMainFrame::OnComboRateChanged)
 	ON_WM_MOUSEWHEEL()
 	ON_WM_MOUSEHWHEEL()
+	ON_COMMAND(ID_FILE_CLOSE, &CMainFrame::OnFileClose)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -93,10 +94,45 @@ CMainFrame::~CMainFrame()
 {
 }
 
+BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParentWnd, CCreateContext* pContext) 
+{
+	// base class does the real work
+
+	if (!__super::LoadFrame(nIDResource, dwDefaultStyle, pParentWnd, pContext))
+	{
+		return FALSE;
+	}
+
+	CWinApp* pApp = AfxGetApp();
+	if (pApp->m_pMainWnd == NULL)
+		pApp->m_pMainWnd = this;
+
+	//// enable customization button for all user toolbars
+	//BOOL bNameValid;
+	//CString strCustomize;
+	//bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
+	//ASSERT(bNameValid);
+
+	//for (int i = 0; i < iMaxUserToolbars; i ++)
+	//{
+	//	CMFCToolBar* pUserToolbar = GetUserToolBarByIndex(i);
+	//	if (pUserToolbar != NULL)
+	//	{
+	//		pUserToolbar->EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
+	//	}
+	//}
+
+	return TRUE;
+}
+
+void CMainFrame::OnFileClose()
+{
+	DestroyWindow();
+}
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	if (CFrameWnd::OnCreate(lpCreateStruct) == -1) return -1;
+	if (__super::OnCreate(lpCreateStruct) == -1) return -1;
 	
 	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT | TBSTYLE_TRANSPARENT) ||
 		!m_wndToolBar.LoadToolBar(IDR_MAINFRAME))
@@ -229,7 +265,7 @@ void CMainFrame::OnComboRateChanged()
 
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 {
-	if (!CFrameWnd::PreCreateWindow(cs)) return FALSE;
+	if (!__super::PreCreateWindow(cs)) return FALSE;
 
 	cs.style = cs.style &~ WS_VISIBLE;
 
@@ -308,7 +344,7 @@ BOOL CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 		}
 		return 0;
 	} else {
-		return CFrameWnd::OnMouseWheel(nFlags, zDelta, pt);
+		return __super::OnMouseWheel(nFlags, zDelta, pt);
 	}
 }
 
@@ -318,14 +354,14 @@ void CMainFrame::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
 	// The symbol _WIN32_WINNT must be >= 0x0600.
 	// TODO: Add your message handler code here and/or call default
 
-	CFrameWnd::OnMouseHWheel(nFlags, zDelta, pt);
+	__super::OnMouseHWheel(nFlags, zDelta, pt);
 }
 
 // CMainFrame diagnostics
 
 #ifdef _DEBUG
-void CMainFrame::AssertValid() const			{ CFrameWnd::AssertValid(); }
-void CMainFrame::Dump(CDumpContext& dc) const	{ CFrameWnd::Dump(dc); }
+void CMainFrame::AssertValid() const			{ __super::AssertValid(); }
+void CMainFrame::Dump(CDumpContext& dc) const	{ __super::Dump(dc); }
 #endif //_DEBUG
 
 
