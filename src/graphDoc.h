@@ -16,6 +16,7 @@ protected: // create from serialization only
 	DECLARE_DYNCREATE(CGraphDoc)
 
 	virtual BOOL OnNewDocument();
+	virtual BOOL CanCloseFrame(CFrameWnd* pFrame);
 	virtual void Serialize(CArchive& ar);
 
 #ifdef _DEBUG
