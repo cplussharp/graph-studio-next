@@ -28,7 +28,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
     ON_CBN_SELCHANGE(ID_COMBO_RATE, &CMainFrame::OnComboRateChanged)
 	ON_WM_MOUSEWHEEL()
 	ON_WM_MOUSEHWHEEL()
-	ON_COMMAND(ID_FILE_CLOSE, &CMainFrame::OnFileClose)
+	ON_COMMAND(ID_CLOSE_WINDOW, &CMainFrame::OnFileClose)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -127,7 +127,8 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 
 void CMainFrame::OnFileClose()
 {
-	DestroyWindow();
+	// Call OnClose rather than DestroyWindow() and use different command ID to force calling CDocumentCanCloseFrame to fixup CWinApp::m_pMainWnd
+	OnClose();
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)

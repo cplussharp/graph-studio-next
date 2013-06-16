@@ -1022,7 +1022,7 @@ BEGIN
         MENUITEM "Print Se&tup...",             ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
         MENUITEM "New &Window",                 ID_FILE_NEWWINDOW
-        MENUITEM "C&lose Window",               ID_FILE_CLOSE
+        MENUITEM "C&lose Window",               ID_CLOSE_WINDOW
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
     POPUP "&View"

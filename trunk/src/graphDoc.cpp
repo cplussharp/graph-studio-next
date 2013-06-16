@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include "graphDoc.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -71,6 +72,60 @@ void CGraphDoc::Dump(CDumpContext& dc) const
 	CDocument::Dump(dc);
 }
 #endif //_DEBUG
+
+static CFrameWnd* GetParentFrameForDocument(CDocument* doc)
+{
+	if (doc) {
+		POSITION view_position = doc->GetFirstViewPosition();
+		CView * const view = doc->GetNextView(view_position);
+		if (view) {
+			CFrameWnd * const frame = view->GetParentFrame();
+			if (frame) {
+				return frame;
+			}
+		}
+	}
+	return NULL;
+}
+
+BOOL CGraphDoc::CanCloseFrame(CFrameWnd* pFrame)
+{
+	BOOL can_close = __super::CanCloseFrame(pFrame);
+
+	if (can_close) {
+		CWinApp * const app = AfxGetApp();
+		CFrameWnd * const our_frame = GetParentFrameForDocument(this);
+		ASSERT(app);
+		ASSERT(our_frame);
+
+		// If we're closing and our frame window is m_pMainWnd then set m_pMainWnd to one of our siblings (if one exists) 
+		// before we're destroyed. If we don't do this then CWnd::OnNcDestroy will terminate the application
+		if (app && app->m_pMainWnd == our_frame) {
+			CDocTemplate * const our_doc_template = GetDocTemplate();
+			ASSERT(our_doc_template);
+			if (our_doc_template) {
+				POSITION other_doc_position = our_doc_template->GetFirstDocPosition();
+				ASSERT(other_doc_position);
+				CDocument* other_doc = NULL;
+
+				// Iterate through sibling documents looking for one that isn't this
+				while (other_doc_position && NULL != (other_doc = our_doc_template->GetNextDoc(other_doc_position))) {
+					if (other_doc != static_cast<CDocument*>(this)) {
+						CFrameWnd * const other_frame = GetParentFrameForDocument(other_doc);
+						ASSERT(other_frame);
+						if (other_frame) {
+							app->m_pMainWnd = other_frame;		// found sibling, set m_pMainWnd and finish
+							break;
+						}
+					}
+				}
+			}
+		}
+
+
+	}
+	return can_close;
+}
 
 
 void CGraphDoc::OnFileNewwindow() 
