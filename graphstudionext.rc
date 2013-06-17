@@ -1366,9 +1366,9 @@ END
 STRINGTABLE
 BEGIN
     ID_FILE_RENDERURL       "Render media from URL"
-    ID_BUTTON_PLAY          "Start the graph"
-    ID_BUTTON_PAUSE         "Pause the graph"
-    ID_BUTTON_STOP          "Stop the graph and seek to start"
+    ID_BUTTON_PLAY          "Start the graph\nStart"
+    ID_BUTTON_PAUSE         "Pause the graph\nPause"
+    ID_BUTTON_STOP          "Stop the graph and seek to start\nStop"
     ID_FILE_RENDERFILE      "Render media from file"
 END
 
@@ -1381,27 +1381,27 @@ END
 
 STRINGTABLE
 BEGIN
-    ID_BUTTON_DIRECT        "Direct connection mode"
-    ID_BUTTON_STEP          "Frame Step"
-    ID_BUTTON_REFRESH       "Refresh the graph display"
+    ID_BUTTON_DIRECT        "Direct connection mode\nDirect Connect"
+    ID_BUTTON_STEP          "Frame Step\nStep"
+    ID_BUTTON_REFRESH       "Refresh the graph display\nRefresh"
 END
 
 STRINGTABLE
 BEGIN
-    ID_BUTTON_SEEK          "Seek to specified position"
+    ID_BUTTON_SEEK          "Seek to specified position\nSeek"
     ID_VIEW_GRAPHCONSTRUCTIONREPORT "Show Graph Construction Report"
 END
 
 STRINGTABLE
 BEGIN
-    ID_BUTTON_ADDFILTER     "Insert a filter."
+    ID_BUTTON_ADDFILTER     "Insert a filter\nInsert Filter"
     ID_HELP_HRESULTLOOKUP   "Show list of known HRESULTs."
     ID_HELP_GUIDLOOKUP      "Show list of known GUIDs / CLSIDs / IIDs. "
     ID_OPTIONS_CONFIGURESBE "Configure the Stream Buffer Engine Settings"
-    ID_COMBO_RATE           "Change Playback Rate"
-    ID_BUTTON_INTELLIGENT   "Intelligent connection mode"
-    ID_BUTTON_DIRECT_WITHMT "Direct connection with MediaType mode"
-    ID_BUTTON_REMOVE_CONNECTIONS "Remove all connections between filters"
+    ID_COMBO_RATE           "Change Playback Rate\nPlayback Rate"
+    ID_BUTTON_INTELLIGENT   "Intelligent connection mode\nIntelligent Connect"
+    ID_BUTTON_DIRECT_WITHMT "Direct connection with MediaType mode\nMedia Type Connect"
+    ID_BUTTON_REMOVE_CONNECTIONS "Remove all connections between filters\nDisconnect All"
     ID_HELP_COMMANDLINEOPTIONS 
                             "Show the command line options for the programm."
 END
