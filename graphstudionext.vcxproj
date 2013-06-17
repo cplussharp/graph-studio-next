@@ -306,6 +306,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
     <ClInclude Include="src\graphstudio.h" />
     <ClInclude Include="src\graphView.h" />
     <ClInclude Include="src\GRF_File.h" />
+    <ClInclude Include="src\HiResTimer.h" />
     <ClInclude Include="src\InterfaceScanner.h" />
     <ClInclude Include="src\LookupForm.h" />
     <ClInclude Include="src\MainFrm.h" />

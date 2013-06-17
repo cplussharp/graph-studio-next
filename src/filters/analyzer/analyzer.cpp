@@ -141,16 +141,11 @@ HRESULT CAnalyzer::AddSample(IMediaSample *pSample)
     }
 
     // Crc
-    if (m_config&SCF_DataCrc)
+    if (m_config&SCF_DataCrc && entry.ActualDataLength > 0)
     {
-        if (entry.nDataCount == 0)
-        {
-            hr = pSample->GetPointer(&pData);
-            if(FAILED(hr))
-                entry.nDataCount = hr;
-        }
-
-        m_crc.GetCrc32FromData(pData, entry.ActualDataLength);
+        hr = pSample->GetPointer(&pData);
+        if(SUCCEEDED(hr))
+            entry.crcData = m_crc.GetCrc32FromData(pData, entry.ActualDataLength);
     }
 
     AddEntry(entry);
