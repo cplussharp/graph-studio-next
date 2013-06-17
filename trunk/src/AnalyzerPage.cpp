@@ -18,6 +18,7 @@
 BEGIN_MESSAGE_MAP(CAnalyzerPage, CDSPropertyPage)
 	ON_WM_SIZE()
     ON_COMMAND(IDC_CHECK_ENABLED, &CAnalyzerPage::OnCheckClick)
+    ON_COMMAND(IDC_CHECK_CRC, &CAnalyzerPage::OnCheckClick)
     ON_BN_CLICKED(IDC_BUTTON_RESET, &CAnalyzerPage::OnBnClickedButtonReset)
     ON_NOTIFY(LVN_GETDISPINFO, IDC_LIST_DATA, &CAnalyzerPage::OnLvnGetdispinfoListData)
     ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST_DATA, &CAnalyzerPage::OnCustomDrawListData)
@@ -113,8 +114,11 @@ HRESULT CAnalyzerPage::OnActivate()
 	// Read values
     VARIANT_BOOL isEnabled;
     filter->get_Enabled(&isEnabled);
-
     CheckDlgButton(IDC_CHECK_ENABLED, isEnabled ? BST_CHECKED : BST_UNCHECKED);
+
+    int captureConfig;
+    filter->get_CaptureConfiguration(&captureConfig);
+    CheckDlgButton(IDC_CHECK_CRC, captureConfig&SCF_DataCrc ? BST_CHECKED : BST_UNCHECKED);
 
     WORD previewByteCount;
     filter->get_PreviewSampleByteCount(&previewByteCount);
@@ -144,6 +148,15 @@ HRESULT CAnalyzerPage::OnApplyChanges()
     UpdateData();
     filter->put_Enabled(IsDlgButtonChecked(IDC_CHECK_ENABLED) ? VARIANT_TRUE : VARIANT_FALSE);
     filter->put_PreviewSampleByteCount(m_nPreviewByteCount);
+
+    int captureConfig;
+    filter->get_CaptureConfiguration(&captureConfig);
+    if(IsDlgButtonChecked(IDC_CHECK_CRC))
+        captureConfig |= SCF_DataCrc;
+    else
+        captureConfig &= ~SCF_DataCrc;
+    filter->put_CaptureConfiguration(captureConfig);
+
 	return NOERROR;
 }
 
