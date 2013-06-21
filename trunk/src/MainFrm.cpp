@@ -244,7 +244,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
     // set Process ID in title
     CString strTitle;
-    strTitle.Format(_T("GraphStudioNext (PID %08x)"), GetCurrentProcessId());
+#ifdef _WIN64
+    strTitle.Format(_T("GraphStudioNext ( 64Bit | PID %08x )"), GetCurrentProcessId());
+#else
+    strTitle.Format(_T("GraphStudioNext ( 32Bit | PID %08x )"), GetCurrentProcessId());
+#endif
     m_strTitle = strTitle;
 
 	// TODO: Remove this if you don't want tool tips
