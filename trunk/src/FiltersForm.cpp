@@ -550,8 +550,8 @@ void CFiltersForm::OnBnClickedCheckFavorite()
 	DSUtil::FilterTemplate *filter = GetSelected();
 	if (filter) {
 
-		BOOL					check		= check_favorite.GetCheck();
-		GraphStudio::BookmarkedFilters	*favorites	= CFavoritesForm::GetFavoriteFilters();
+		const BOOL						check		= check_favorite.GetCheck();
+		GraphStudio::BookmarkedFilters*	const favorites	= CFavoritesForm::GetFavoriteFilters();
 
 		if (check) {
 			favorites->AddBookmark(*filter);
@@ -564,7 +564,6 @@ void CFiltersForm::OnBnClickedCheckFavorite()
 				// remove this item
 				if (view && view->form_favorites) {
 					view->form_favorites->RemoveFilter(item);
-					view->form_favorites->UpdateFavoriteMenu();
 				}
 			}
 		}

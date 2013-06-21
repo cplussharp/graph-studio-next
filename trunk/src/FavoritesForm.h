@@ -164,7 +164,6 @@ public:
 
 	// update favorite filters
 	void UpdateTree();
-	void UpdateFavoriteMenu();
 	void RemoveFilter(HTREEITEM item);
 
     static int FillMenu(CMenu* filters_menu, GraphStudio::BookmarkedFilters* favorites, int offset = 0);

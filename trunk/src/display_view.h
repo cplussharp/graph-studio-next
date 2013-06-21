@@ -75,6 +75,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void OnMButtonDown(UINT nFlags, CPoint point);
 		void OnRButtonDown(UINT nFlags, CPoint point);
 		void OnLButtonDblClk(UINT nFlags, CPoint point);
+		afx_msg void OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu);	// forwarded from frame window
 
 		void OnRenderPin();
         void OnRemovePin();
@@ -97,6 +98,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// stream selection
 		void PrepareStreamSelectMenu(CMenu &menu, IUnknown *obj);
 		void PrepareCompatibleFiltersMenu(CMenu &menu, Pin *pin);
+		void UpdateFavoritesMenu();
         void PrepareFavoriteFiltersMenu(CMenu &menu);
 		void OnSelectStream(UINT id);
 		void OnCompatibleFilterClick(UINT id);

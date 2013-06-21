@@ -170,31 +170,6 @@ static int CALLBACK FavoriteCompare(LPARAM lParam1, LPARAM lParam2, LPARAM lPara
 	return 0;
 }
 
-void CFavoritesForm::UpdateFavoriteMenu()
-{
-	// first erase all added items
-	CMenu	*main_menu		= view->GetParentFrame()->GetMenu();
-	CMenu	*filters_menu	= main_menu->GetSubMenu(4);
-
-	// remove all
-	while (filters_menu->GetMenuItemCount() > 4) {
-		filters_menu->DeleteMenu(filters_menu->GetMenuItemCount() - 3, MF_BYPOSITION);
-	}
-
-	GraphStudio::BookmarkedFilters	*favorites = CFavoritesForm::GetFavoriteFilters();
-	favorites->Sort();
-
-	int	cnt = favorites->filters.GetCount() + favorites->groups.GetCount();
-
-	if (cnt > 0) {
-		int	offset = filters_menu->GetMenuItemCount() - 2;
-		int c = FillMenu(filters_menu, favorites, offset);
-
-		// separator at the end
-		filters_menu->InsertMenu(offset + c, MF_BYPOSITION | MF_SEPARATOR, 0);
-	}
-}
-
 int CFavoritesForm::FillMenu(CMenu* filters_menu, GraphStudio::BookmarkedFilters* favorites, int offset)
 {
 	int		i, id;
@@ -294,8 +269,6 @@ void CFavoritesForm::UpdateTree()
 	tvs.lpfnCompare = FavoriteCompare;
 	tvs.lParam		= (LPARAM)&tree;
 	tree.SortChildrenCB(&tvs);
-
-	UpdateFavoriteMenu();
 }
 
 void CFavoritesForm::RemoveFilter(HTREEITEM item)
