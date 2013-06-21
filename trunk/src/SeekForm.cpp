@@ -29,6 +29,8 @@ BEGIN_MESSAGE_MAP(CSeekForm, CDialog)
 	ON_BN_CLICKED(IDC_CHECK_STOP_SET_POSITION, &CSeekForm::OnCheckSetStopPosition)
 	ON_BN_CLICKED(IDC_CHECK_STOP_RELATIVE_TO_CURRENT, &CSeekForm::OnCheckStopRelativeToCurrent)
 	ON_BN_CLICKED(IDC_CHECK_STOP_RELATIVE_TO_PREVIOUS, &CSeekForm::OnCheckStopRelativeToPrevious)
+	ON_BN_CLICKED(IDC_BUTTON_SET_PREROLL, &CSeekForm::OnClickedButtonSetPreroll)
+	ON_BN_CLICKED(IDC_BUTTON_SET_RATE, &CSeekForm::OnClickedButtonSetRate)
 END_MESSAGE_MAP()
 
 struct VALNAME
@@ -85,10 +87,14 @@ CSeekForm::CSeekForm(CGraphView* graph_view, CWnd* pParent)	:
 
 void CSeekForm::ResetCachedValues()
 {
-	cached_cur_pos	= _I64_MIN;
-	cached_stop		= _I64_MIN;
-	cached_duration = _I64_MIN;
-	cached_fps		= FLT_MIN;
+	cached_cur_pos			= _I64_MIN;
+	cached_stop				= _I64_MIN;
+	cached_duration			= _I64_MIN;
+	cached_preroll			= _I64_MIN;
+	cached_available_start	= _I64_MIN;
+	cached_available_end	= _I64_MIN;
+	cached_fps				= FLT_MIN;
+	cached_rate				= FLT_MIN;
 }
 
 CSeekForm::~CSeekForm()
@@ -115,6 +121,8 @@ BOOL CSeekForm::DoCreateDialog()
 
 	CheckDlgButton(IDC_RADIO_TIME,	true);
 	SetTimeFormat(TIME_FORMAT_MEDIA_TIME);
+	SetDlgItemText(IDC_EDIT_RATE, _T("1.0"));
+	SetDlgItemText(IDC_EDIT_PREROLL, _T("0.0"));
 
 	list_caps.ResetContent();
 	for (int i=0; i<CapsFlagsCount; i++) {
@@ -188,8 +196,8 @@ void CSeekForm::SetTimeFormat(const GUID& new_time_format)
 
 	// set edit controls to hint format required to user
 	const TCHAR * const time_str = TIME_FORMAT_MEDIA_TIME == time_format ? _T("00:00:00.000") : _T("0");
-	SetDlgItemText(IDC_EDIT_CURRENT_POSITION,  time_str);
-	SetDlgItemText(IDC_EDIT_STOP_POSITION, time_str);
+	SetDlgItemText(IDC_EDIT_CURRENT_POSITION,	time_str);
+	SetDlgItemText(IDC_EDIT_STOP_POSITION,		time_str);
 }
 
 void CSeekForm::OnTimer(UINT_PTR id)
@@ -225,6 +233,19 @@ void CSeekForm::OnTimer(UINT_PTR id)
 
 void CSeekForm::OnOK()
 {
+	CWnd* const focused_window = GetFocus();
+	if (focused_window) {
+		// Allow user to press enter in other controls to apply their values
+		switch (focused_window->GetDlgCtrlID()) {
+			case IDC_EDIT_RATE:		
+				OnClickedButtonSetRate();		
+				return;
+			case IDC_EDIT_PREROLL:	
+				OnClickedButtonSetPreroll();	
+				return;
+		}
+	}
+
 	const CComPtr<IMediaSeeking> ims(view->graph.ms);
 	if (!ims) {
 		DSUtil::ShowError(_T("No IMediaSeeking interface available for seeking"));
@@ -266,6 +287,44 @@ void CSeekForm::OnOK()
 	}
 
 	// Don't do default OK processing as this closes the modeless dialog
+}
+
+void CSeekForm::OnClickedButtonSetPreroll()
+{
+	const CComQIPtr<IMediaPosition> imp(view->graph.ms);
+	if (!imp) {
+		DSUtil::ShowError(_T("No IMediaPosition interface available to set preroll"));
+		return;
+	}
+
+	CString preroll_str;
+	GetDlgItemText(IDC_EDIT_PREROLL, preroll_str);
+	const double preroll = _tcstod(preroll_str, NULL);
+	if (preroll != -HUGE_VAL && preroll != HUGE_VAL) {
+		const HRESULT hr = imp->put_PrerollTime(preroll);
+		DSUtil::ShowError(hr, _T("IMediaPosition::put_PrerollTime failure"));
+	} else {
+		DSUtil::ShowError(_T("Unable to parse preroll - must be a floating point number number of seconds"));
+	}
+}
+
+void CSeekForm::OnClickedButtonSetRate()
+{
+	const CComPtr<IMediaSeeking> ims(view->graph.ms);
+	if (!ims) {
+		DSUtil::ShowError(_T("No IMediaSeeking interface available to set rate"));
+		return;
+	}
+
+	CString rate_str;
+	GetDlgItemText(IDC_EDIT_RATE, rate_str);
+	const double rate = _tcstod(rate_str, NULL);
+	if (rate != 0.0 && rate != -HUGE_VAL && rate != HUGE_VAL) {
+		const HRESULT hr = ims->SetRate(rate);
+		DSUtil::ShowError(hr, _T("IMediaSeeking::SetRate failure"));
+	} else {
+		DSUtil::ShowError(_T("Unable to parse rate - must be a non-zero floating point number"));
+	}
 }
 
 int CSeekForm::GetCurrentCaps()
@@ -361,8 +420,9 @@ void CSeekForm::UpdateGraphPosition()
 	// Calling SetTimeFormat several times a second causes playback performance problems with some filters
 	if (current_format == time_format || SUCCEEDED(ims->SetTimeFormat(&time_format))) {
 
-		LONGLONG cur_pos = -1LL, stop = -1LL, dur = -1LL;
+		LONGLONG cur_pos = -1LL, stop = -1LL;
 		hr = ims->GetPositions(&cur_pos, &stop);
+
 		if (cur_pos != cached_cur_pos) {
 			cached_cur_pos = cur_pos;
 			SetDlgItemText(IDC_STATIC_POSITION,		FAILED(hr) || cur_pos<0	? na_string : FormatTimeString(cur_pos) );
@@ -373,10 +433,39 @@ void CSeekForm::UpdateGraphPosition()
 			SetDlgItemText(IDC_STATIC_STOP_POSITION, FAILED(hr) || stop<0	? na_string : FormatTimeString(stop) );
 		}
 
+		LONGLONG dur = -1LL;
 		hr = ims->GetDuration(&dur);
 		if (dur != cached_duration) {
 			cached_duration = dur;
 			SetDlgItemText(IDC_STATIC_DURATION, 	FAILED(hr) || dur<0		? na_string : FormatTimeString(dur) );
+		}
+
+		LONGLONG preroll = -1LL;
+		hr = ims->GetPreroll(&preroll);
+		if (preroll != cached_preroll) {
+			cached_preroll = preroll;
+			SetDlgItemText(IDC_STATIC_PREROLL, 	FAILED(hr) || preroll<0		? na_string : FormatTimeString(preroll) );
+		}
+
+		LONGLONG start = -1LL, end = -1LL;
+		hr = ims->GetAvailable(&start, &end);
+		if (start != cached_available_start || end != cached_available_end) {
+			cached_available_start	= start;
+			cached_available_end	= end;
+			SetDlgItemText(IDC_STATIC_AVAILABLE, FAILED(hr) ? na_string : FormatTimeString(start) + _T(" - ") + FormatTimeString(end));
+		}
+
+		double rate = -1.0;
+		hr = ims->GetRate(&rate);
+		if (rate != cached_rate) {
+			cached_rate = rate;
+			if (FAILED(hr)) {
+				SetDlgItemText(IDC_STATIC_RATE, na_string);
+			} else {
+				CString str;
+				str.Format(_T("%5.03f"), (float)rate);
+				SetDlgItemText(IDC_STATIC_RATE, str);
+			}
 		}
 
 		double fps = -1.0;

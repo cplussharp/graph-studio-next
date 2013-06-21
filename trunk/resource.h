@@ -2,6 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by graphstudionext.rc
 //
+#define IDC_BUTTON_SET_PREROLL          3
 #define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             100
 #define IDD_PROPPAGE_DMOQUALCTRL        102
@@ -122,7 +123,9 @@
 #define IDC_EDIT_PREVIEWBYTECOUNT       1031
 #define IDC_EDIT_STOP_POSITION          1031
 #define IDC_EDIT_DST_TOP                1032
+#define IDC_EDIT_RATE                   1032
 #define IDC_TREE                        1033
+#define IDC_EDIT_PREROLL                1033
 #define IDC_PROGRESS_POSITION           1034
 #define IDC_CHECK_AUTOSWITCH            1035
 #define IDC_STATIC_CAPTION              1037
@@ -144,6 +147,7 @@
 #define IDC_CHECK_SEGMENT               1050
 #define IDC_STATIC_DESC                 1051
 #define IDC_BUTTON_EXPORT               1051
+#define IDC_STATIC_AVAILABLE            1051
 #define IDC_STATIC_VERSION              1052
 #define IDC_BUTTON_IMPORT               1052
 #define IDC_CHECK_NO_FLUSH              1052
@@ -189,6 +193,7 @@
 #define IDC_STATIC_BUFFERS              1085
 #define IDC_STATIC_RATE                 1086
 #define IDC_STATIC_BYTES                1087
+#define IDC_STATIC_PREROLL              1087
 #define IDC_STATIC_URL                  1089
 #define IDC_CHECK_HIRES                 1090
 #define IDC_EXPLORER1                   1091
@@ -224,6 +229,7 @@
 #define IDC_USE_SAMPLE_SIZE             1129
 #define IDC_USE_FORMAT_BLOCK            1130
 #define IDC_CUSTOM_FORMAT               1132
+#define IDC_BUTTON_SET_RATE             1133
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -357,7 +363,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        179
 #define _APS_NEXT_COMMAND_VALUE         32917
-#define _APS_NEXT_CONTROL_VALUE         1133
+#define _APS_NEXT_CONTROL_VALUE         1135
 #define _APS_NEXT_SYMED_VALUE           103
 #endif
 #endif
