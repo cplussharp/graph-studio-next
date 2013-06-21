@@ -40,7 +40,11 @@ protected:
 	LONGLONG				cached_cur_pos;
 	LONGLONG				cached_stop;
 	LONGLONG				cached_duration;
+	LONGLONG				cached_preroll;
+	LONGLONG				cached_available_start;
+	LONGLONG				cached_available_end;
 	double					cached_fps;
+	double					cached_rate;
 
 protected:
 	enum { IDD = IDD_DIALOG_SEEK };
@@ -68,4 +72,6 @@ protected:
 	afx_msg void OnCheckSetStopPosition();
 	afx_msg void OnCheckStopRelativeToCurrent();
 	afx_msg void OnCheckStopRelativeToPrevious();
+	afx_msg void OnClickedButtonSetPreroll();
+	afx_msg void OnClickedButtonSetRate();
 };
