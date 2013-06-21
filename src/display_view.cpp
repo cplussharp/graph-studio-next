@@ -1341,6 +1341,46 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		stream_select = NULL;
 	}
 
+	void DisplayView::UpdateFavoritesMenu()
+	{
+		// first erase all added items
+		CMenu * const main_menu		= GetParentFrame()->GetMenu();
+		CMenu * const filters_menu	= main_menu ? main_menu->GetSubMenu(4) : NULL;
+		ASSERT(filters_menu);
+
+		if (filters_menu) {
+			// remove all items from menu apart from two at end
+			while (filters_menu->GetMenuItemCount() > 2) {
+				filters_menu->DeleteMenu(0, MF_BYPOSITION);
+			}
+
+			GraphStudio::BookmarkedFilters	* const favorites = CFavoritesForm::GetFavoriteFilters();
+			favorites->Sort();
+
+			const int	cnt = favorites->filters.GetCount() + favorites->groups.GetCount();
+
+			if (cnt > 0) {
+				const int	offset = filters_menu->GetMenuItemCount() - 2;
+				const int c = CFavoritesForm::FillMenu(filters_menu, favorites, offset);
+
+				// separator at the end
+				filters_menu->InsertMenu(offset + c, MF_BYPOSITION | MF_SEPARATOR, 0);
+			}
+		}
+	}
+
+	void DisplayView::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu)
+	{
+		if (pPopupMenu) {
+			const int menu_count = pPopupMenu->GetMenuItemCount();
+			if (menu_count > 0) {
+				if (pPopupMenu->GetMenuItemID(menu_count - 1) == ID_FILTERS_MANAGEBLACKLIST) {	// if this is this the favorites menu
+					UpdateFavoritesMenu();
+				}
+			}
+		}
+		// do NOT call base class here as this was called from CMainFrame rather than called through message map
+	}
 
 	void DisplayView::PrepareFavoriteFiltersMenu(CMenu &menu)
     {
@@ -1348,10 +1388,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		submenu.CreatePopupMenu();
         GraphStudio::BookmarkedFilters	*favorites = CFavoritesForm::GetFavoriteFilters();
         
+		UpdateFavoritesMenu();		// update favorites menu as the command handlers use it directly
         CFavoritesForm::FillMenu(&submenu, favorites);
 
 		// do insert the menu
-		int		count = menu.GetMenuItemCount();
+		const int count = menu.GetMenuItemCount();
 		menu.InsertMenu(count, MF_BYPOSITION | MF_STRING, 0, _T("Fa&vorite filters"));
 		menu.ModifyMenu(count, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("Fa&vorite filters"));
 		submenu.Detach();

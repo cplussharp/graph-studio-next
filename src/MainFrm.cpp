@@ -28,6 +28,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
     ON_CBN_SELCHANGE(ID_COMBO_RATE, &CMainFrame::OnComboRateChanged)
 	ON_WM_MOUSEWHEEL()
 	ON_WM_MOUSEHWHEEL()
+	ON_WM_INITMENUPOPUP()
 	ON_COMMAND(ID_CLOSE_WINDOW, &CMainFrame::OnFileClose)
 END_MESSAGE_MAP()
 
@@ -356,6 +357,12 @@ void CMainFrame::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
 	// TODO: Add your message handler code here and/or call default
 
 	__super::OnMouseHWheel(nFlags, zDelta, pt);
+}
+
+void CMainFrame::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu)
+{
+	view->OnInitMenuPopup(pPopupMenu, nIndex, bSysMenu);
+	__super::OnInitMenuPopup(pPopupMenu, nIndex, bSysMenu);
 }
 
 // CMainFrame diagnostics
