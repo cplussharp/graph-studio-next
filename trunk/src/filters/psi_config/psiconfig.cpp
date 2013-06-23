@@ -128,6 +128,9 @@ void CPsiConfigFilter::ConfigurePmtSectionsOnDemux(MPEG2_PMT_SECTION* pmtsec)
     static const DWORD ST_MPEG2_AUDIO = ISO_IEC_13818_3_AUDIO;
     static const DWORD ST_AC3_AUDIO = DOLBY_AC3_AUDIO;
 
+    // see also http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/M2TS.html
+    static const DWORD ST_H264 = 0x1b;
+
     if(!m_pDemux || !pmtsec) return;
     if(pmtsec->number_of_elementary_streams == 0) return;
 
@@ -139,7 +142,8 @@ void CPsiConfigFilter::ConfigurePmtSectionsOnDemux(MPEG2_PMT_SECTION* pmtsec)
            streamType == ST_MPEG2_VIDEO ||
            streamType == ST_MPEG1_AUDIO ||
            streamType == ST_MPEG2_AUDIO ||
-           streamType == ST_AC3_AUDIO)
+           streamType == ST_AC3_AUDIO ||
+           streamType == ST_H264)
         {
             hasEsToConfig = true;
 
@@ -169,6 +173,10 @@ void CPsiConfigFilter::ConfigurePmtSectionsOnDemux(MPEG2_PMT_SECTION* pmtsec)
                 mt.majortype = MEDIATYPE_Audio;
                 mt.subtype = MEDIASUBTYPE_DOLBY_AC3;
                 //mt.formattype = FORMAT_WaveFormatEx;
+                break;
+            case ST_H264:
+                mt.majortype = MEDIATYPE_Video;
+                mt.subtype = MEDIASUBTYPE_H264;
                 break;
             }
 
@@ -739,19 +747,21 @@ HRESULT CPayloadParserInputPin::GetMediaType(int iPosition, CMediaType *pmt)
     CheckPointer(pmt,E_POINTER);
 
     if(iPosition < 0) return E_INVALIDARG;
-    if(iPosition > 1) return VFW_S_NO_MORE_ITEMS;
+    if(iPosition > 2) return VFW_S_NO_MORE_ITEMS;
 
     pmt->majortype = m_forVideo ? MEDIATYPE_Video : MEDIATYPE_Audio;
 
     if(m_forVideo)
     {
-        if(!iPosition) pmt->subtype = MEDIASUBTYPE_MPEG1Video;
-        else pmt->subtype = MEDIASUBTYPE_MPEG2_VIDEO;
+        if (!iPosition) pmt->subtype = MEDIASUBTYPE_MPEG1Video;
+        else if (iPosition == 1) pmt->subtype = MEDIASUBTYPE_MPEG2_VIDEO;
+        else pmt->subtype = MEDIASUBTYPE_H264;
     }
     else
     {
-        if(!iPosition) pmt->subtype = MEDIASUBTYPE_MPEG1Audio;
-        else pmt->subtype = MEDIASUBTYPE_MPEG2_AUDIO;
+        if (!iPosition) pmt->subtype = MEDIASUBTYPE_MPEG1Audio;
+        else if (iPosition == 1) pmt->subtype = MEDIASUBTYPE_MPEG2_AUDIO;
+        else pmt->subtype = MEDIASUBTYPE_DOLBY_AC3;
     }
 
     return NOERROR;
@@ -766,7 +776,8 @@ HRESULT CPayloadParserInputPin::CheckMediaType(const CMediaType *pMediaType)
 
         if(pMediaType->subtype != MEDIASUBTYPE_NULL &&
             pMediaType->subtype != MEDIASUBTYPE_MPEG1Video && 
-            pMediaType->subtype != MEDIASUBTYPE_MPEG2_VIDEO)
+            pMediaType->subtype != MEDIASUBTYPE_MPEG2_VIDEO &&
+            pMediaType->subtype != MEDIASUBTYPE_H264)
             return VFW_E_INVALIDMEDIATYPE;
     }
     else
