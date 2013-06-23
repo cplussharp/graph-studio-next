@@ -6,13 +6,24 @@
 
 #include "display_graph.h"
 
-
 // CMediaTypeSelectForm dialog
 
-BOOL CMediaTypeSelectForm::s_use_major_type		= TRUE;
-BOOL CMediaTypeSelectForm::s_use_sub_type		= TRUE;
-BOOL CMediaTypeSelectForm::s_use_sample_size		= TRUE;
-BOOL CMediaTypeSelectForm::s_use_format_block	= TRUE;
+enum Columns			// Column order in list control
+{
+	INDEX = 0,
+	SUB_TYPE,
+	FORMAT_TYPE,
+	FORMAT_DETAILS,
+    MAJOR_TYPE,
+    CRC32
+};
+
+BOOL	CMediaTypeSelectForm::s_use_major_type		= TRUE;
+BOOL	CMediaTypeSelectForm::s_use_sub_type		= TRUE;
+BOOL	CMediaTypeSelectForm::s_use_sample_size		= TRUE;
+BOOL	CMediaTypeSelectForm::s_use_format_block	= TRUE;
+int		CMediaTypeSelectForm::s_sorted_column		= INDEX;
+int		CMediaTypeSelectForm::s_sort_reverse		= 1;
 
 
 IMPLEMENT_DYNAMIC(CMediaTypeSelectForm, CDialog)
@@ -37,16 +48,6 @@ BOOL CMediaTypeSelectForm::OnInitDialog()
 	m_title.ModifyStyle(0, WS_CLIPCHILDREN);
 	m_title.ModifyStyleEx(0, WS_EX_CONTROLPARENT);
 
-	enum Columns			// Column order in list control
-	{
-		INDEX = 0,
-		SUB_TYPE,
-		FORMAT_TYPE,
-		FORMAT_DETAILS,
-        MAJOR_TYPE,
-        CRC32
-	};
-
 	CRect clientRect;
 	media_types_list.GetClientRect(&clientRect);
 	const int columnWidth = (clientRect.Width() - GetSystemMetrics(SM_CXVSCROLL));
@@ -56,8 +57,8 @@ BOOL CMediaTypeSelectForm::OnInitDialog()
     media_types_list.InsertColumn(SUB_TYPE,			_T("Sub Type"),			LVCFMT_LEFT, columnWidth * 0.24, SUB_TYPE); 
 	media_types_list.InsertColumn(FORMAT_TYPE,		_T("Format Type"),		LVCFMT_LEFT, columnWidth * 0.19, FORMAT_TYPE); 
     media_types_list.InsertColumn(FORMAT_DETAILS,	_T("Format Details"),	LVCFMT_LEFT, columnWidth * 0.24, FORMAT_DETAILS); 
-    media_types_list.InsertColumn(MAJOR_TYPE,		_T("Major Type"),		LVCFMT_LEFT, columnWidth * 0.19, MAJOR_TYPE); 
-    media_types_list.InsertColumn(CRC32,		    _T("CRC32"),		    LVCFMT_LEFT, columnWidth * 0.11, CRC32); 
+    media_types_list.InsertColumn(MAJOR_TYPE,		_T("Major Type"),		LVCFMT_LEFT, columnWidth * 0.17, MAJOR_TYPE); 
+    media_types_list.InsertColumn(CRC32,		    _T("CRC32"),		    LVCFMT_LEFT, columnWidth * 0.13, CRC32); 
 
 	// First entry is <Default> Media Type
 	const LPCTSTR any = _T("<Default>");
@@ -117,7 +118,10 @@ BOOL CMediaTypeSelectForm::OnInitDialog()
 		media_types_list.SetItemData(index+1,					index);
 	}
 
-    // Select default entry
+	// sort by column and order we used last time
+	media_types_list.SortItems(CompareListItems,  (DWORD_PTR)this);
+
+    // Select default entry - currently always set to <any>
     LVITEM lvi;
 	ZeroMemory(&lvi, sizeof(lvi));
 	lvi.mask	= LVIF_STATE;
@@ -174,6 +178,7 @@ BEGIN_MESSAGE_MAP(CMediaTypeSelectForm, CDialog)
 	ON_NOTIFY(NM_DBLCLK, IDC_LIST_MEDIATYPES, &CMediaTypeSelectForm::OnDblclkListMediatypes)
 	ON_WM_SIZE()
 	ON_WM_SIZING()
+	ON_NOTIFY(LVN_COLUMNCLICK, IDC_LIST_MEDIATYPES, &CMediaTypeSelectForm::OnColumnclickListMediatypes)
 END_MESSAGE_MAP()
 
 
@@ -247,4 +252,47 @@ void CMediaTypeSelectForm::OnSizing(UINT fwSide, LPRECT pRect)
 		if (dlgRect->Height() < minHeight)
 			dlgRect->bottom = dlgRect->top + minHeight;
 	}
+}
+
+int CALLBACK CMediaTypeSelectForm::CompareListItems(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+{
+	int ret = 0;
+
+	ASSERT(lParamSort);
+	const CMediaTypeSelectForm * const form = (CMediaTypeSelectForm *)lParamSort;
+	const CListCtrl & list = form->media_types_list;
+
+	if (lParam1 < 0 || lParam2 < 0) {					// Always position <any> entry at top of list
+		ret = lParam1 - lParam2;					
+	} else if (INDEX == s_sorted_column) {				// if sorting by index just sort by lParam and allow reverse of sorting;
+		ret = s_sort_reverse * (lParam1 - lParam2);
+	} else {											// otherwise sort by string contents of column
+		LVFINDINFO find_info;
+		find_info.flags = LVFI_PARAM;
+
+		find_info.lParam = lParam1;
+		const CString str1 = list.GetItemText(list.FindItem(&find_info), s_sorted_column);
+		find_info.lParam = lParam2;
+		const CString str2 = list.GetItemText(list.FindItem(&find_info), s_sorted_column);
+
+		ret = s_sort_reverse * str1.Compare(str2);		// use case sensitive as case _is_ significant e.g. MEDIASUBTYPE_<fourcc>
+
+		if (0 == ret)
+			ret = lParam1 - lParam2;					// for equal values sort by increasing index
+	}
+	return ret;
+}
+
+void CMediaTypeSelectForm::OnColumnclickListMediatypes(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+
+	if (s_sorted_column == pNMLV->iSubItem)
+		s_sort_reverse = -s_sort_reverse;					// reverse the sort order when clicking on column we're already sorting by
+	else
+		s_sorted_column = pNMLV->iSubItem;					// otherwise change the sort column
+
+	media_types_list.SortItems(CompareListItems,  (DWORD_PTR)this);
+
+	*pResult = 0;
 }
