@@ -15,9 +15,9 @@ using namespace GraphStudio;
 //
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC(CGraphConstructionForm, CDialog)
+IMPLEMENT_DYNAMIC(CGraphConstructionForm, CGraphStudioModelessDialog)
 
-BEGIN_MESSAGE_MAP(CGraphConstructionForm, CDialog)
+BEGIN_MESSAGE_MAP(CGraphConstructionForm, CGraphStudioModelessDialog)
 	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
@@ -28,7 +28,7 @@ END_MESSAGE_MAP()
 //-----------------------------------------------------------------------------
 
 CGraphConstructionForm::CGraphConstructionForm(CWnd *pParent) : 
-	CDialog(CGraphConstructionForm::IDD, pParent)
+	CGraphStudioModelessDialog(CGraphConstructionForm::IDD, pParent)
 {
 }
 
@@ -38,7 +38,7 @@ CGraphConstructionForm::~CGraphConstructionForm()
 
 void CGraphConstructionForm::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	__super::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TITLEBAR, title);
 	DDX_Control(pDX, IDC_EXPLORER1, browser_window);
 }

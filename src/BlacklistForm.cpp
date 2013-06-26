@@ -14,10 +14,10 @@
 //
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC(CBlacklistForm, CDialog)
+IMPLEMENT_DYNAMIC(CBlacklistForm, CGraphStudioModelessDialog)
 
 CBlacklistForm::CBlacklistForm(CWnd* pParent /*=NULL*/, BOOL isHR /*=FALSE*/)
-	: CDialog(CBlacklistForm::IDD, pParent), m_isHR(isHR)
+	: CGraphStudioModelessDialog(CBlacklistForm::IDD, pParent), m_isHR(isHR)
 {
 
 }
@@ -28,7 +28,7 @@ CBlacklistForm::~CBlacklistForm()
 
 void CBlacklistForm::DoDataExchange(CDataExchange* pDX)
 {
-    CDialog::DoDataExchange(pDX);
+    __super::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_TITLEBAR, m_title);
     DDX_Control(pDX, IDC_LIST_BLACKLIST, m_listCtrl);
     if(m_btnAdd)
@@ -80,7 +80,7 @@ void CBlacklistForm::OnInitialize()
 }
 
 
-BEGIN_MESSAGE_MAP(CBlacklistForm, CDialog)
+BEGIN_MESSAGE_MAP(CBlacklistForm, CGraphStudioModelessDialog)
     ON_BN_CLICKED(IDC_BUTTON_ADD, &CBlacklistForm::OnBnClickedButtonAdd)
     ON_BN_CLICKED(IDC_BUTTON_REMOVE, &CBlacklistForm::OnBnClickedButtonRemove)
     ON_BN_CLICKED(IDC_BUTTON_ADD, &CBlacklistForm::OnBnClickedButtonImport)
@@ -93,7 +93,7 @@ END_MESSAGE_MAP()
 
 void CBlacklistForm::OnSize(UINT nType, int cx, int cy)
 {
-    CDialog::OnSize(nType, cx, cy);
+    __super::OnSize(nType, cx, cy);
 
     // resize our controls along...
 	CRect		rc, rc2;

@@ -14,7 +14,7 @@
 //
 //-----------------------------------------------------------------------------
 
-class CTextInfoForm : public CDialog
+class CTextInfoForm : public CGraphStudioModelessDialog
 {
 protected:
 	DECLARE_DYNAMIC(CTextInfoForm)
@@ -32,8 +32,6 @@ public:
 	CFont			font_report;
 
 	CArray<CString>	lines;
-
-	CGraphView		*view;
 
 public:
 

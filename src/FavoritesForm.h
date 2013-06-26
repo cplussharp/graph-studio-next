@@ -129,7 +129,7 @@ GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
 //	CFavoritesForm class
 //
 //-----------------------------------------------------------------------------
-class CFavoritesForm : public CDialog
+class CFavoritesForm : public CGraphStudioModelessDialog
 {
 protected:
 	DECLARE_MESSAGE_MAP()
@@ -142,7 +142,6 @@ public:
 	GraphStudio::FavoritesTree	tree;
 	CImageList					image_list;
 	CButton						btn_add_filters;
-	CGraphView					*view;
 	HTREEITEM					menu_fired_item;
 
 public:

@@ -6,6 +6,7 @@
 //
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
+#include "display_view.h"
 
 GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
@@ -51,6 +52,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		ON_COMMAND(ID_FILE_SETLOGFILE, &DisplayView::OnFileSetlogfile)
 		ON_UPDATE_COMMAND_UI(ID_FILE_SETLOGFILE, &DisplayView::OnUpdateFileSetlogfile)
+		ON_COMMAND(ID_VIEW_MAINWINDOW, &DisplayView::OnViewMainwindow)
 	END_MESSAGE_MAP()
 
 	DisplayView::DisplayView()
@@ -1449,6 +1451,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	{
 		pCmdUI->Enable(!graph.is_remote);
 		pCmdUI->SetCheck(!graph.is_remote && graph.IsLogFileOpen());
+	}
+
+	void DisplayView::OnViewMainwindow()
+	{
+		this->SetFocus();
 	}
 
 GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

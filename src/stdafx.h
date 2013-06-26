@@ -148,6 +148,7 @@ using namespace std;
 
 #include "mtypes_ext.h"
 
+#include "GraphStudioModelessDialog.h"
 #include "title_bar.h"
 #include "url_label.h"
 #include "seeking_bar.h"

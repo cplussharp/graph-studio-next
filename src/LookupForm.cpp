@@ -27,10 +27,10 @@ int CALLBACK CompareFunction(LPARAM lParam1, LPARAM lParam2, LPARAM lParamData)
 //
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC(CLookupForm, CDialog)
+IMPLEMENT_DYNAMIC(CLookupForm, CGraphStudioModelessDialog)
 
 CLookupForm::CLookupForm(CWnd* pParent /*=NULL*/, BOOL isHR /*=FALSE*/)
-	: CDialog(CLookupForm::IDD, pParent), m_isHR(isHR)
+	: CGraphStudioModelessDialog(CLookupForm::IDD, pParent), m_isHR(isHR)
 {
 
 }
@@ -41,7 +41,7 @@ CLookupForm::~CLookupForm()
 
 void CLookupForm::DoDataExchange(CDataExchange* pDX)
 {
-    CDialog::DoDataExchange(pDX);
+    __super::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_TITLEBAR, m_title);
     DDX_Control(pDX, IDC_LIST_LOOKUP, m_listCtrl);
     if(m_btnSearch)
@@ -121,7 +121,7 @@ void CLookupForm::OnInitialize()
 }
 
 
-BEGIN_MESSAGE_MAP(CLookupForm, CDialog)
+BEGIN_MESSAGE_MAP(CLookupForm, CGraphStudioModelessDialog)
     ON_BN_CLICKED(IDC_BUTTON_SEARCH, &CLookupForm::OnBnClickedButtonSearch)
     ON_WM_SIZE()
     ON_NOTIFY(LVN_COLUMNCLICK, IDC_LIST_LOOKUP, &CLookupForm::OnLvnColumnclickListLookup)
@@ -133,7 +133,7 @@ END_MESSAGE_MAP()
 
 void CLookupForm::OnSize(UINT nType, int cx, int cy)
 {
-    CDialog::OnSize(nType, cx, cy);
+    __super::OnSize(nType, cx, cy);
 
     // resize our controls along...
 	CRect		rc, rc2;

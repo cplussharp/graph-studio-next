@@ -20,6 +20,8 @@ public:
 	CToolBar		m_wndToolBar;
 	CSeekingBar		m_wndSeekingBar;
 
+	bool			TranslateKeyboardAccelerator(MSG *pMSG);	// used for processing keystrokes in modeless dialogs
+
 protected:
 	CStatusBar		m_wndStatusBar;
 	CReBar			m_wndReBar;

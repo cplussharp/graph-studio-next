@@ -18,9 +18,9 @@ typedef HRESULT (_stdcall *DllRegisterServerProc)();
 //	CFiltersForm class
 //
 //-----------------------------------------------------------------------------
-IMPLEMENT_DYNAMIC(CFiltersForm, CDialog)
+IMPLEMENT_DYNAMIC(CFiltersForm, CGraphStudioModelessDialog)
 
-BEGIN_MESSAGE_MAP(CFiltersForm, CDialog)
+BEGIN_MESSAGE_MAP(CFiltersForm, CGraphStudioModelessDialog)
 	ON_CBN_SELCHANGE(IDC_COMBO_CATEGORIES, &CFiltersForm::OnComboCategoriesChange)
 	ON_WM_SIZE()
 	ON_WM_MEASUREITEM()
@@ -47,7 +47,7 @@ DSUtil::FilterTemplates	CFiltersForm::cached_templates;
 //-----------------------------------------------------------------------------
 
 CFiltersForm::CFiltersForm(CWnd* pParent) : 
-	CDialog(CFiltersForm::IDD, pParent),
+	CGraphStudioModelessDialog(CFiltersForm::IDD, pParent),
 	info(CString(_T("root"))), m_pToolTip(NULL)
 {
 
@@ -61,7 +61,7 @@ CFiltersForm::~CFiltersForm()
 
 void CFiltersForm::DoDataExchange(CDataExchange* pDX)
 {
-    CDialog::DoDataExchange(pDX);
+    __super::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_TITLEBAR, title);
     DDX_Control(pDX, IDC_LIST_FILTERS, list_filters);
     DDX_Control(pDX, IDC_BUTTON_INSERT, btn_insert);
@@ -970,7 +970,7 @@ void CFiltersForm::OnRegisterClick()
 
 BOOL CFiltersForm::OnInitDialog()
 {
-	BOOL res = CDialog::OnInitDialog();
+	BOOL res = __super::OnInitDialog();
 	list_filters.Initialize();
 	return res;
 }

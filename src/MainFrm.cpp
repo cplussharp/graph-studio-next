@@ -126,6 +126,12 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	return TRUE;
 }
 
+// Translate a key down message into a keyboard accelerator, return true iff successful
+bool CMainFrame::TranslateKeyboardAccelerator(MSG *pMSG)	
+{
+	return m_hAccelTable && ::TranslateAccelerator(m_hWnd, m_hAccelTable, pMSG);
+}
+
 void CMainFrame::OnFileClose()
 {
 	// Call OnClose rather than DestroyWindow() and use different command ID to force calling CDocumentCanCloseFrame to fixup CWinApp::m_pMainWnd

@@ -14,7 +14,7 @@ class CGraphView;
 //	CEventsForm class
 //
 //-----------------------------------------------------------------------------
-class CEventsForm : public CDialog
+class CEventsForm : public CGraphStudioModelessDialog
 {
 protected:
 	DECLARE_DYNAMIC(CEventsForm)
@@ -27,7 +27,6 @@ public:
 	CListBox		list_events;
 	CButton			btn_clear;
 	CButton			btn_copy;
-	CGraphView		*view;
 
 public:
 	CEventsForm(CWnd* pParent = NULL);   // standard constructor

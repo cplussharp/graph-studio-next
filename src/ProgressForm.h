@@ -14,7 +14,7 @@ class CGraphView;
 //	CProgressForm class
 //
 //-----------------------------------------------------------------------------
-class CProgressForm : public CDialog
+class CProgressForm : public CGraphStudioModelessDialog
 {
 protected:
 	DECLARE_DYNAMIC(CProgressForm)
@@ -24,7 +24,6 @@ protected:
 public:
 	GraphStudio::TitleBar	title;
 
-	CGraphView				*view;
 	CButton					button_close;
 	CButton					check_close;
 	CStatic					label_caption;

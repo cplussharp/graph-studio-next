@@ -16,8 +16,8 @@
 //
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC(CSeekForm, CDialog)
-BEGIN_MESSAGE_MAP(CSeekForm, CDialog)
+IMPLEMENT_DYNAMIC(CSeekForm, CGraphStudioModelessDialog)
+BEGIN_MESSAGE_MAP(CSeekForm, CGraphStudioModelessDialog)
 	ON_WM_SIZE()
 	ON_WM_TIMER()
 	ON_COMMAND(IDC_RADIO_TIME, &CSeekForm::OnFormatTimeClick)
@@ -77,11 +77,11 @@ const int			CapsFlagsCount = sizeof(CapsFlags) / sizeof(CapsFlags[0]);
 //-----------------------------------------------------------------------------
 
 CSeekForm::CSeekForm(CGraphView* graph_view, CWnd* pParent)	: 
-	CDialog(CSeekForm::IDD, pParent),
-	view(graph_view),
+	CGraphStudioModelessDialog(CSeekForm::IDD, pParent),
 	time_format(TIME_FORMAT_MEDIA_TIME),
 	cached_caps(INT_MIN)
 {
+	view = graph_view;
 	ResetCachedValues();
 }
 
@@ -103,7 +103,7 @@ CSeekForm::~CSeekForm()
 
 void CSeekForm::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	__super::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TITLEBAR, title);
 	DDX_Control(pDX, IDC_LIST_CAPS, list_caps);
 }

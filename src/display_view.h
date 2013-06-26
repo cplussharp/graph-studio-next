@@ -120,6 +120,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         virtual void OnMpeg2DemuxCreatePsiPin();
 		afx_msg void OnFileSetlogfile();
 		afx_msg void OnUpdateFileSetlogfile(CCmdUI *pCmdUI);
+		afx_msg void OnViewMainwindow();
 	};
 
 

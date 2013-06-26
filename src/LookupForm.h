@@ -21,7 +21,7 @@ struct SortStruct { // this just keeps all the sorting data together so you don'
 //
 //-----------------------------------------------------------------------------
 
-class CLookupForm : public CDialog
+class CLookupForm : public CGraphStudioModelessDialog
 {
 	DECLARE_DYNAMIC(CLookupForm)
 
