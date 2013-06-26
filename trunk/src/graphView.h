@@ -89,6 +89,8 @@ public:
 	virtual ~CGraphView();
 
 	CGraphDoc* GetDocument() const;
+	CMainFrame* GetParentFrame() const;
+
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 
 #ifdef _DEBUG

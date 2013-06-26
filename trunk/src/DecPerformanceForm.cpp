@@ -21,9 +21,9 @@ namespace
 //	CDecPerformanceForm class
 //
 //-----------------------------------------------------------------------------
-IMPLEMENT_DYNAMIC(CDecPerformanceForm, CDialog)
+IMPLEMENT_DYNAMIC(CDecPerformanceForm, CGraphStudioModelessDialog)
 
-BEGIN_MESSAGE_MAP(CDecPerformanceForm, CDialog)
+BEGIN_MESSAGE_MAP(CDecPerformanceForm, CGraphStudioModelessDialog)
 	ON_WM_SIZE()
 	ON_BN_CLICKED(IDC_BUTTON_BROWSE, &CDecPerformanceForm::OnBrowseClick)
     ON_BN_CLICKED(IDC_BUTTON_PROPERTYPAGE, &CDecPerformanceForm::OnBnClickedButtonPropertypage)
@@ -42,9 +42,9 @@ END_MESSAGE_MAP()
 //-----------------------------------------------------------------------------
 
 CDecPerformanceForm::CDecPerformanceForm(CGraphView* parent_view, CWnd* pParent) : 
-	CDialog(CDecPerformanceForm::IDD, pParent)
-	, view(parent_view)
+	CGraphStudioModelessDialog(CDecPerformanceForm::IDD, pParent)
 {
+	view = parent_view;
 	running = false;
 	perf_operation = false;
     null_renderer.clsid = DSUtil::CLSID_NullRenderer;
@@ -60,7 +60,7 @@ CDecPerformanceForm::~CDecPerformanceForm()
 
 void CDecPerformanceForm::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	__super::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TITLEBAR, title);
 	DDX_Control(pDX, IDC_COMBO_PRESETS, cb_presets);
 	DDX_Control(pDX, IDC_COMBO_FILE, cb_files);

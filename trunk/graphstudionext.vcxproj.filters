@@ -372,6 +372,9 @@
     <ClInclude Include="src\HiResTimer.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\GraphStudioModelessDialog.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -610,6 +613,9 @@
     </ClCompile>
     <ClCompile Include="src\RenderParameters.cpp">
       <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GraphStudioModelessDialog.cpp">
+      <Filter>Dialogs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -13,8 +13,8 @@
 //	CProgressForm class
 //
 //-----------------------------------------------------------------------------
-IMPLEMENT_DYNAMIC(CProgressForm, CDialog)
-BEGIN_MESSAGE_MAP(CProgressForm, CDialog)
+IMPLEMENT_DYNAMIC(CProgressForm, CGraphStudioModelessDialog)
+BEGIN_MESSAGE_MAP(CProgressForm, CGraphStudioModelessDialog)
 	ON_BN_CLICKED(IDC_BUTTON_CLOSE, &CProgressForm::OnBnClickedButtonClose)
 	ON_WM_CLOSE()
 END_MESSAGE_MAP()
@@ -27,7 +27,7 @@ END_MESSAGE_MAP()
 //-----------------------------------------------------------------------------
 
 CProgressForm::CProgressForm(CWnd* pParent)	: 
-	CDialog(CProgressForm::IDD, pParent)
+	CGraphStudioModelessDialog(CProgressForm::IDD, pParent)
 {
 
 }
@@ -38,7 +38,7 @@ CProgressForm::~CProgressForm()
 
 void CProgressForm::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	__super::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TITLEBAR, title);
 	DDX_Control(pDX, IDC_BUTTON_CLOSE, button_close);
 	DDX_Control(pDX, IDC_CHECK_AUTOSWITCH, check_close);

@@ -14,9 +14,9 @@
 //
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC(CScheduleForm, CDialog)
+IMPLEMENT_DYNAMIC(CScheduleForm, CGraphStudioModelessDialog)
 
-BEGIN_MESSAGE_MAP(CScheduleForm, CDialog)
+BEGIN_MESSAGE_MAP(CScheduleForm, CGraphStudioModelessDialog)
 	ON_WM_SIZE()
 	ON_WM_MEASUREITEM()
 	ON_WM_ERASEBKGND()
@@ -33,7 +33,7 @@ END_MESSAGE_MAP()
 //-----------------------------------------------------------------------------
 
 CScheduleForm::CScheduleForm(CWnd* pParent)	: 
-	CDialog(CScheduleForm::IDD, pParent)
+	CGraphStudioModelessDialog(CScheduleForm::IDD, pParent)
 {
 
 }
@@ -45,7 +45,7 @@ CScheduleForm::~CScheduleForm()
 
 void CScheduleForm::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	__super::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST_SCHEDULE, list_schedule);
 	DDX_Control(pDX, IDC_TITLEBAR, title);
 }

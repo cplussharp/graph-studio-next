@@ -1006,7 +1006,7 @@ BEGIN
     BEGIN
         MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
         MENUITEM "&Open Graph/Media file...\tCtrl+O", ID_FILE_OPEN
-        MENUITEM "Add Graph/&Media File...\tCtrl+A", ID_FILE_ADDMEDIAFILE
+        MENUITEM "Add Graph/&Media File...\tCtrl+Shift+O", ID_FILE_ADDMEDIAFILE
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
         MENUITEM "Save &As Graph (.GRF)...\tCtrl+Shift+S", ID_FILE_SAVE_AS
         MENUITEM "Save As XML&....\tAlt+Shift+S", ID_FILE_SAVEASXML
@@ -1016,7 +1016,7 @@ BEGIN
             MENUITEM "Load Pins by Inde&x",         ID_FILEOPTIONS_LOADPINSBYINDEX
             MENUITEM "Load Pins by &ID",            ID_FILEOPTIONS_LOADPINSBYID
         END
-        MENUITEM "Save Graph Scr&eenshot\tCtrl+F12", ID_GRAPH_MAKEGRAPHSCREENSHOT
+        MENUITEM "Save Graph Scr&eenshot...\tCtrl+F12", ID_GRAPH_MAKEGRAPHSCREENSHOT
         MENUITEM SEPARATOR
         MENUITEM "&Render Media File...\tCtrl+R", ID_FILE_RENDERFILE
         MENUITEM "Render &URL...\tCtrl+U",      ID_FILE_RENDERURL
@@ -1043,11 +1043,12 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Refresh Graph\tF5",          ID_BUTTON_REFRESH
         MENUITEM SEPARATOR
-        MENUITEM "Graph &Construction Report\tCtrl+U", ID_VIEW_GRAPHCONSTRUCTIONREPORT
-        MENUITEM "Graph &Events\tCtrl+E",       ID_VIEW_GRAPHEVENTS
-        MENUITEM "Graph Stat&istics\tCtrl+W",   ID_VIEW_GRAPHSTATISTICS
-        MENUITEM "Te&xt Information\tCtrl+T",   ID_VIEW_TEXTINFORMATION
+        MENUITEM "Graph &Construction Report...\tCtrl+U", ID_VIEW_GRAPHCONSTRUCTIONREPORT
+        MENUITEM "Graph &Events...\tCtrl+E",    ID_VIEW_GRAPHEVENTS
+        MENUITEM "Graph Stat&istics...\tCtrl+W", ID_VIEW_GRAPHSTATISTICS
+        MENUITEM "Te&xt Information...\tCtrl+T", ID_VIEW_TEXTINFORMATION
         MENUITEM "&Performance Test...\tCtrl+M", ID_VIEW_DECODERPERFORMANCE
+        MENUITEM "Main Window\tCtrl+Backspace", ID_VIEW_MAINWINDOW
         MENUITEM SEPARATOR
         MENUITEM "&50%\tCtrl+2",                ID_VIEW_50
         MENUITEM "&75%\tCtrl+3",                ID_VIEW_75
@@ -1101,7 +1102,7 @@ BEGIN
     END
     POPUP "Favori&tes"
     BEGIN
-        MENUITEM "Manage &Favorites ...",       ID_FILTERS_MANAGEFAVORITES
+        MENUITEM "Manage &Favorites ...\tCtrl+I", ID_FILTERS_MANAGEFAVORITES
         MENUITEM "Manage &Blacklist ...",       ID_FILTERS_MANAGEBLACKLIST
     END
     POPUP "&Options"
@@ -1162,19 +1163,20 @@ BEGIN
     "5",            ID_VIEW_150,            VIRTKEY, CONTROL, NOINVERT
     "6",            ID_VIEW_200,            VIRTKEY, CONTROL, NOINVERT
     "=",            ID_VIEW_INCREASEZOOMLEVEL, ASCII, NOINVERT
-    "A",            ID_FILE_ADDMEDIAFILE,   VIRTKEY, CONTROL, NOINVERT
+    "A",            ID_EDIT_SELECT_ALL,     VIRTKEY, CONTROL, NOINVERT
     "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
     "D",            ID_FILTERS_DOUBLESELECTEDFILTERS, VIRTKEY, CONTROL, NOINVERT
     "E",            ID_VIEW_GRAPHEVENTS,    VIRTKEY, CONTROL, NOINVERT
     "F",            ID_GRAPH_INSERTFILTER,  VIRTKEY, CONTROL, NOINVERT
     "G",            ID_FILE_CONNECTTOREMOTEGRAPH, VIRTKEY, CONTROL, NOINVERT
     "H",            ID_FILE_DISCONNECTFROMREMOTEGRAPH, VIRTKEY, CONTROL, NOINVERT
-    "W",            ID_VIEW_GRAPHSTATISTICS, VIRTKEY, CONTROL, NOINVERT
+    "I",            ID_FILTERS_MANAGEFAVORITES, VIRTKEY, CONTROL, NOINVERT
     "K",            ID_BUTTON_SEEK,         VIRTKEY, CONTROL, NOINVERT
     "L",            ID_HELP_GUIDLOOKUP,     VIRTKEY, CONTROL, NOINVERT
     "M",            ID_VIEW_DECODERPERFORMANCE, VIRTKEY, CONTROL, NOINVERT
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_ADDMEDIAFILE,   VIRTKEY, SHIFT, CONTROL, NOINVERT
     "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
     "Q",            ID_HELP_GUIDLOOKUP,     VIRTKEY, CONTROL, NOINVERT
     "R",            ID_FILE_RENDERFILE,     VIRTKEY, CONTROL, NOINVERT
@@ -1184,7 +1186,7 @@ BEGIN
     "T",            ID_VIEW_TEXTINFORMATION, VIRTKEY, CONTROL, NOINVERT
     "U",            ID_VIEW_GRAPHCONSTRUCTIONREPORT, VIRTKEY, CONTROL, NOINVERT
     "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
-    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    VK_BACK,        ID_VIEW_MAINWINDOW,     VIRTKEY, CONTROL, NOINVERT
     VK_DELETE,      ID_DELETE_FILTER,       VIRTKEY, NOINVERT
     VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
     VK_ESCAPE,      ID_BUTTON_STOP,         VIRTKEY, NOINVERT
@@ -1195,12 +1197,17 @@ BEGIN
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
     VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
     VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
-    VK_OEM_MINUS,   ID_VIEW_DECREASEHORIZONTALSPACING, VIRTKEY, ALT, NOINVERT
     VK_OEM_MINUS,   ID_VIEW_DECREASEVERTICALSPACING, VIRTKEY, CONTROL, NOINVERT
+    VK_OEM_MINUS,   ID_VIEW_DECREASEHORIZONTALSPACING, VIRTKEY, ALT, NOINVERT
+    VK_OEM_MINUS,   ID_VIEW_DECREASEZOOMLEVEL, VIRTKEY, SHIFT, CONTROL, NOINVERT
     VK_OEM_PLUS,    ID_VIEW_INCREASEVERTICALSPACING, VIRTKEY, CONTROL, NOINVERT
     VK_OEM_PLUS,    ID_VIEW_INCREASEHORIZONTALSPACING, VIRTKEY, ALT, NOINVERT
+    VK_OEM_PLUS,    ID_VIEW_INCREASEZOOMLEVEL, VIRTKEY, SHIFT, CONTROL, NOINVERT
     VK_SPACE,       ID_BUTTON_PLAYPAUSE,    VIRTKEY, NOINVERT
+    VK_SPACE,       ID_BUTTON_PLAYPAUSE,    VIRTKEY, CONTROL, NOINVERT
     VK_SPACE,       ID_BUTTON_STEP,         VIRTKEY, SHIFT, NOINVERT
+    VK_SPACE,       ID_BUTTON_STEP,         VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "W",            ID_VIEW_GRAPHSTATISTICS, VIRTKEY, CONTROL, NOINVERT
     "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
     "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
 END
@@ -1341,8 +1348,6 @@ BEGIN
     ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
     ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
     ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
-    ID_EDIT_UNDO            "Undo the last action\nUndo"
-    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
 END
 
 STRINGTABLE
@@ -1456,6 +1461,7 @@ BEGIN
     ID_CLSID_FILTERGRAPH_PRIVATE_THREAD 
                             "Use FilterGraph with private worker thread (clears graph). Not documented by Microsoft"
     ID_FILE_SETLOGFILE      "Open or Close the Unicode log file for graph building operations. Can't be used for remote graphs"
+    ID_VIEW_MAINWINDOW      "Switch back to Main Window from different view"
 END
 
 #endif    // English (United States) resources

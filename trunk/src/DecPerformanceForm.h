@@ -14,7 +14,7 @@
 //
 //-----------------------------------------------------------------------------
 class CDecPerformanceForm : 
-	public CDialog
+	public CGraphStudioModelessDialog
 {
 protected:
 	DECLARE_MESSAGE_MAP()
@@ -39,7 +39,6 @@ private:
 	CListCtrl					list_results;
 
 	// view to work with
-	CGraphView						*view;
 	DSUtil::FilterTemplates        	decoders;
     DSUtil::FilterTemplate          null_renderer;
     DSUtil::FilterTemplate          time_filter_template;

@@ -14,7 +14,7 @@
 //
 //-----------------------------------------------------------------------------
 
-class CBlacklistForm : public CDialog
+class CBlacklistForm : public CGraphStudioModelessDialog
 {
 	DECLARE_DYNAMIC(CBlacklistForm)
 

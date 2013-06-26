@@ -15,8 +15,8 @@
 //
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC(CTextInfoForm, CDialog)
-BEGIN_MESSAGE_MAP(CTextInfoForm, CDialog)
+IMPLEMENT_DYNAMIC(CTextInfoForm, CGraphStudioModelessDialog)
+BEGIN_MESSAGE_MAP(CTextInfoForm, CGraphStudioModelessDialog)
 	ON_WM_SIZE()
 	ON_BN_CLICKED(IDC_BUTTON_COPYTEXT, &CTextInfoForm::OnBnClickedButtonCopytext)
     ON_CBN_SELCHANGE(IDC_COMBO_REPORTTYPE, &CTextInfoForm::OnBnClickedButtonRefresh)
@@ -38,7 +38,7 @@ int ReportNamesCount = sizeof(ReportNames)/sizeof(ReportNames[0]);
 
 
 CTextInfoForm::CTextInfoForm(CWnd* pParent) : 
-	CDialog(CTextInfoForm::IDD, pParent)
+	CGraphStudioModelessDialog(CTextInfoForm::IDD, pParent)
 {
 
 }
@@ -94,7 +94,7 @@ void CTextInfoForm::OnInitialize()
 
 void CTextInfoForm::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	__super::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_TITLEBAR, title);
 	DDX_Control(pDX, IDC_EDIT_DETAILS, edit_report);
 }

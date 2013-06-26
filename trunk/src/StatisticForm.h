@@ -26,7 +26,7 @@ struct GraphStatisticEntry
 //	CStatisticForm class
 //
 //-----------------------------------------------------------------------------
-class CStatisticForm : public CDialog
+class CStatisticForm : public CGraphStudioModelessDialog
 {
 protected:
 	DECLARE_DYNAMIC(CStatisticForm)
@@ -41,7 +41,6 @@ protected:
 
 public:
 	GraphStudio::TitleBar	title;
-	CGraphView				*view;
     CButton					btn_reset;
 	CButton					btn_export;
     CListCtrl               m_listCtrl;

@@ -78,7 +78,7 @@ public:
 //	CPropertyForm class
 //
 //-----------------------------------------------------------------------------
-class CPropertyForm : public CDialog
+class CPropertyForm : public CGraphStudioModelessDialog
 {
 protected:
 	DECLARE_DYNAMIC(CPropertyForm)
@@ -100,8 +100,6 @@ public:
 	// we're associated with this object (filter/pin)
 	IUnknown				*object;
 	IUnknown				*filter;
-
-	CGraphView				*view;
 
 	CPageContainer			*container;
 

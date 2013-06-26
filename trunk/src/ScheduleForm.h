@@ -47,7 +47,7 @@ public:
 //	CScheduleForm class
 //
 //-----------------------------------------------------------------------------
-class CScheduleForm : public CDialog
+class CScheduleForm : public CGraphStudioModelessDialog
 {
 protected:
 	DECLARE_DYNAMIC(CScheduleForm)
@@ -61,8 +61,6 @@ public:
 	CButton						btn_close;
 	CButton						btn_add;
 	CButton						btn_remove;
-
-	CGraphView					*view;
 
 	__int64						last_time;
 

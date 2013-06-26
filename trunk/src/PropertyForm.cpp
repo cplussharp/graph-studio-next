@@ -15,8 +15,8 @@
 //
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC(CPropertyForm, CDialog)
-BEGIN_MESSAGE_MAP(CPropertyForm, CDialog)
+IMPLEMENT_DYNAMIC(CPropertyForm, CGraphStudioModelessDialog)
+BEGIN_MESSAGE_MAP(CPropertyForm, CGraphStudioModelessDialog)
 	ON_WM_DESTROY()
 	ON_WM_CLOSE()
 	ON_WM_SIZE()
@@ -31,7 +31,7 @@ END_MESSAGE_MAP()
 //-----------------------------------------------------------------------------
 
 CPropertyForm::CPropertyForm(CWnd *pParent) : 
-	CDialog(CPropertyForm::IDD, pParent)
+	CGraphStudioModelessDialog(CPropertyForm::IDD, pParent)
 {
 	container = NULL;
 	object = NULL;
@@ -45,7 +45,7 @@ CPropertyForm::~CPropertyForm()
 
 void CPropertyForm::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	__super::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TAB_PAGES, tabs);
 	DDX_Control(pDX, IDC_BUTTON_APPLY, button_apply);
 	DDX_Control(pDX, IDOK, button_ok);

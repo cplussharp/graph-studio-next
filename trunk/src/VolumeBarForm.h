@@ -9,11 +9,7 @@
 
 class CGraphView;
 
-//-----------------------------------------------------------------------------
-//
-//	CVolumeBarForm class
-//
-//-----------------------------------------------------------------------------
+// No need to make this a CGraphStudioModelessDialog as it's not really a floating window
 class CVolumeBarForm : public CDialog
 {
 protected:

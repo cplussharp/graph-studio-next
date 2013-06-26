@@ -14,7 +14,7 @@ class CGraphView;
 //	CGraphConstructionForm class
 //
 //-----------------------------------------------------------------------------
-class CGraphConstructionForm : public CDialog
+class CGraphConstructionForm : public CGraphStudioModelessDialog
 {
 protected:
 	DECLARE_DYNAMIC(CGraphConstructionForm)
@@ -24,7 +24,6 @@ protected:
 
 public:
 	GraphStudio::TitleBar	title;
-	CGraphView				*view;
 	CBrowserControl			browser_window;
 
 public:

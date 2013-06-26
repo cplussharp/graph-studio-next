@@ -14,9 +14,9 @@
 //	CFavoritesForm class
 //
 //-----------------------------------------------------------------------------
-IMPLEMENT_DYNAMIC(CFavoritesForm, CDialog)
+IMPLEMENT_DYNAMIC(CFavoritesForm, CGraphStudioModelessDialog)
 
-BEGIN_MESSAGE_MAP(CFavoritesForm, CDialog)
+BEGIN_MESSAGE_MAP(CFavoritesForm, CGraphStudioModelessDialog)
 	ON_WM_SIZE()
 	ON_WM_KEYDOWN()
 	ON_NOTIFY(NM_RCLICK, IDC_TREE_FAVORITES, &CFavoritesForm::OnNMRclickTreeFavorites)
@@ -48,7 +48,7 @@ GraphStudio::BookmarkedFilters* CFavoritesForm::GetFavoriteFilters()
 }
 
 CFavoritesForm::CFavoritesForm(CWnd* pParent) : 
-	CDialog(CFavoritesForm::IDD, pParent)
+	CGraphStudioModelessDialog(CFavoritesForm::IDD, pParent)
 {
 }
 
@@ -58,7 +58,7 @@ CFavoritesForm::~CFavoritesForm()
 
 void CFavoritesForm::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	__super::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TITLEBAR, title);
 	DDX_Control(pDX, IDC_TREE_FAVORITES, tree);
 }

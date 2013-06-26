@@ -14,8 +14,8 @@
 //
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC(CStatisticForm, CDialog)
-BEGIN_MESSAGE_MAP(CStatisticForm, CDialog)
+IMPLEMENT_DYNAMIC(CStatisticForm, CGraphStudioModelessDialog)
+BEGIN_MESSAGE_MAP(CStatisticForm, CGraphStudioModelessDialog)
 	ON_WM_SIZE()
 	ON_WM_TIMER()
     ON_COMMAND(IDC_BUTTON_CLEAR, &CStatisticForm::OnResetClick)
@@ -30,7 +30,7 @@ END_MESSAGE_MAP()
 //-----------------------------------------------------------------------------
 
 CStatisticForm::CStatisticForm(CWnd* pParent)	: 
-	CDialog(CStatisticForm::IDD, pParent)
+	CGraphStudioModelessDialog(CStatisticForm::IDD, pParent)
 {
     ZeroMemory(&m_cachedEntry,sizeof(GraphStatisticEntry));
 }
@@ -42,7 +42,7 @@ CStatisticForm::~CStatisticForm()
 
 void CStatisticForm::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	__super::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TITLEBAR, title);
     DDX_Control(pDX, IDC_LIST_DATA, m_listCtrl);
 }

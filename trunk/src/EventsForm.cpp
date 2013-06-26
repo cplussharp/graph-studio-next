@@ -15,9 +15,9 @@
 //
 //-----------------------------------------------------------------------------
 
-IMPLEMENT_DYNAMIC(CEventsForm, CDialog)
+IMPLEMENT_DYNAMIC(CEventsForm, CGraphStudioModelessDialog)
 
-BEGIN_MESSAGE_MAP(CEventsForm, CDialog)
+BEGIN_MESSAGE_MAP(CEventsForm, CGraphStudioModelessDialog)
 	ON_WM_SIZE()
 	ON_BN_CLICKED(IDC_BUTTON_CLEAR, &CEventsForm::OnBnClickedButtonClear)
 	ON_BN_CLICKED(IDC_BUTTON_COPY, &CEventsForm::OnBnClickedButtonCopy)
@@ -30,7 +30,7 @@ END_MESSAGE_MAP()
 //-----------------------------------------------------------------------------
 
 CEventsForm::CEventsForm(CWnd* pParent)	: 
-	CDialog(CEventsForm::IDD, pParent)
+	CGraphStudioModelessDialog(CEventsForm::IDD, pParent)
 {
 
 }
@@ -41,7 +41,7 @@ CEventsForm::~CEventsForm()
 
 void CEventsForm::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	__super::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST_EVENTS, list_events);
 	DDX_Control(pDX, IDC_TITLEBAR, title);
 }

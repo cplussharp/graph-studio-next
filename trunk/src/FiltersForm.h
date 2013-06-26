@@ -13,7 +13,7 @@
 //
 //-----------------------------------------------------------------------------
 class CFiltersForm : 
-	public CDialog,
+	public CGraphStudioModelessDialog,
 	public GraphStudio::FilterListCallback
 {
 private:
@@ -47,9 +47,6 @@ private:
 	DSUtil::FilterCategories	categories;
 
 	static DSUtil::FilterTemplates		cached_templates;	// cache for searching
-
-	// view to work with
-	CGraphView					*view;
 
 	// Fake filter values
 	enum Category

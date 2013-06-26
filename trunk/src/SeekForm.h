@@ -14,7 +14,7 @@ class CGraphView;
 //	CSeekForm class
 //
 //-----------------------------------------------------------------------------
-class CSeekForm : public CDialog
+class CSeekForm : public CGraphStudioModelessDialog
 {
 public:
 	CSeekForm(CGraphView* graph_view, CWnd* pParent = NULL);
@@ -30,7 +30,6 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	GraphStudio::TitleBar	title;
-	CGraphView				*view;
 	CCheckListBox			list_caps;
 
 	GUID					time_format;
