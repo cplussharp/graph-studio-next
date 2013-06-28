@@ -78,11 +78,13 @@ BOOL CStatisticForm::DoCreateDialog(CWnd* parent)
 
     SetTimer(0, 1000, NULL);
 
-    SetWindowPos(NULL, 0, 0, 700, 400, SWP_NOMOVE);
-
 	return TRUE;
 }
 
+CRect CStatisticForm::GetDefaultRect() const 
+{
+	return CRect(50, 200, 750, 600);
+}
 
 void CStatisticForm::OnSize(UINT nType, int cx, int cy)
 {

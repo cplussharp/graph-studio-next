@@ -57,10 +57,13 @@ BOOL CGraphConstructionForm::DoCreateDialog(CWnd* parent)
 	// navigate to empty page to make the document valid
 	browser_window.Navigate(_T("about:blank"), &v, &v, &v, &v);
 
-	SetWindowPos(NULL, 0, 0, 400, 250, SWP_NOMOVE | SWP_NOACTIVATE);
 	return TRUE;
 }
 
+CRect CGraphConstructionForm::GetDefaultRect() const 
+{
+	return CRect(50, 200, 450, 450);
+}
 
 void CGraphConstructionForm::OnSize(UINT nType, int cx, int cy)
 {

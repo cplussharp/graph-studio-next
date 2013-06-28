@@ -35,6 +35,8 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);
+	virtual CRect GetDefaultRect() const;
+	virtual CString GetSettingsName() const;
 
 	DECLARE_MESSAGE_MAP()
 

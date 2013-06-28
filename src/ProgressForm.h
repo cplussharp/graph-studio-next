@@ -33,6 +33,7 @@ public:
 public:
 	CProgressForm(CWnd* pParent = NULL);   
 	virtual ~CProgressForm();
+  	virtual bool ShouldRestorePosition() const { return false; }
 
 	// Dialog Data
 	enum { IDD = IDD_DIALOG_PROGRESS };

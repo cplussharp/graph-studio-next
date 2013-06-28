@@ -108,11 +108,14 @@ BOOL CFiltersForm::DoCreateDialog(CWnd* parent)
 
 	tree_details.Initialize();
 
-	SetWindowPos(NULL, 0, 0, 700, 450, SWP_NOMOVE);
-
 	OnInitialize();
 	return TRUE;
 };
+
+CRect CFiltersForm::GetDefaultRect() const 
+{
+	return CRect(50, 200, 750, 650);
+}
 
 // CFiltersForm message handlers
 void CFiltersForm::OnInitialize()

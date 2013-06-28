@@ -72,6 +72,7 @@ public:
 public:
 	CScheduleForm(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CScheduleForm();
+	virtual CRect GetDefaultRect() const;
 
 	enum { IDD = IDD_DIALOG_SCHEDULE };
 

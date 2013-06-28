@@ -70,12 +70,15 @@ BOOL CTextInfoForm::DoCreateDialog(CWnd* parent)
     combo_reporttype.Create(WS_TABSTOP | WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, rc, &title, IDC_COMBO_REPORTTYPE);
     combo_reporttype.SetFont(GetFont());
 
-    SetWindowPos(NULL, 0, 0, 600, 400, SWP_NOMOVE);
-
 	OnInitialize();
 
 	return TRUE;
 };
+
+CRect CTextInfoForm::GetDefaultRect() const 
+{
+	return CRect(50, 200, 650, 600);
+}
 
 void CTextInfoForm::OnInitialize()
 {

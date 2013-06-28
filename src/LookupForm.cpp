@@ -68,12 +68,21 @@ BOOL CLookupForm::DoCreateDialog(CWnd* parent)
     m_editSearch.SetFont(GetFont());
     m_editSearch.SetFocus();
 
-    SetWindowPos(NULL, 0, 0, 600, 400, SWP_NOMOVE);
-
 	OnInitialize();
 
 	return TRUE;
 };
+
+CString CLookupForm::GetSettingsName() const
+{
+	// Distinguish saved positions of different window types
+	return __super::GetSettingsName() + (m_isHR ? _T("_HResult") : _T("_Guid"));
+}
+
+CRect CLookupForm::GetDefaultRect() const 
+{
+	return CRect(50, 200, 650, 600);
+}
 
 void CLookupForm::OnInitialize()
 {

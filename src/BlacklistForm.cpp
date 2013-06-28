@@ -61,12 +61,16 @@ BOOL CBlacklistForm::DoCreateDialog(CWnd* parent)
     m_editSearch.SetFont(GetFont());
     m_editSearch.SetFocus();
     */
-    SetWindowPos(NULL, 0, 0, 600, 400, SWP_NOMOVE);
 
 	OnInitialize();
 
 	return TRUE;
 };
+
+CRect CBlacklistForm::GetDefaultRect() const 
+{
+	return CRect(50, 200, 650, 600);
+}
 
 void CBlacklistForm::OnInitialize()
 {

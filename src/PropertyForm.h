@@ -106,6 +106,7 @@ public:
 public:
 	CPropertyForm(CWnd* pParent = NULL);  
 	virtual ~CPropertyForm();
+	virtual bool ShouldRestorePosition() const { return false; }		// leave this to the main window (and we have may have multiple instances)
 
 	enum { IDD = IDD_DIALOG_PROPERTYPAGE };
 

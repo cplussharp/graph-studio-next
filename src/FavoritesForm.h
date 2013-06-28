@@ -147,6 +147,7 @@ public:
 public:
 	CFavoritesForm(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CFavoritesForm();
+	CRect GetDefaultRect() const;
 
 	// Access to favorite filters singleton
 	static GraphStudio::BookmarkedFilters * GetFavoriteFilters();
