@@ -1826,21 +1826,20 @@ int CGraphView::InsertFilterFromFavorite(GraphStudio::BookmarkedFilter *filter)
 	ULONG					eaten = 0;
 
 	hr = CreateBindCtx(0, &bind);
+
 	if (FAILED(hr)) return -1;
 
 	hr = MkParseDisplayName(bind, filter->moniker_name, &eaten, &moniker);
-	if (hr != NOERROR) {
-		bind = NULL;
+	DSUtil::ShowError(hr, _T("Moniker name parse"));
+	if (FAILED(hr)) {
 		return -1;
 	}
 
 	hr = moniker->BindToObject(NULL, NULL, IID_IBaseFilter, (void**)&instance);
 	if (SUCCEEDED(hr))
 		hr = InsertNewFilter(instance, filter->name);
+	DSUtil::ShowError(hr, _T("Moniker bind failure"));
 
-	bind = NULL;
-	instance = NULL;
-	moniker = NULL;
 	return 0;
 }
 

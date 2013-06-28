@@ -26,6 +26,9 @@ BEGIN_MESSAGE_MAP(CFavoritesForm, CGraphStudioModelessDialog)
 	ON_COMMAND(ID_MENU_REMOVEFILTER, &CFavoritesForm::OnMenuRemovefilter)
 	ON_NOTIFY(TVN_KEYDOWN, IDC_TREE_FAVORITES, &CFavoritesForm::OnTvnKeydownTreeFavorites)
 	ON_COMMAND(ID_BUTTON_ADD_FILTERS, &CFavoritesForm::OnAddFilters)
+	ON_COMMAND(IDC_BUTTON_INSERT, &CFavoritesForm::InsertSelectedFilter)
+	ON_COMMAND(IDC_DELETE_SELECTED, &CFavoritesForm::DeleteSelected)
+	ON_NOTIFY(NM_DBLCLK, IDC_TREE_FAVORITES, &CFavoritesForm::OnDblclkTreeFavorites)
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -82,11 +85,27 @@ BOOL CFavoritesForm::DoCreateDialog(CWnd* parent)
 	tree.SetImageList(&image_list, TVSIL_STATE);
 	tree.SetItemHeight(20);
 
+	CRect rect_title;
+	title.GetWindowRect(rect_title);
+
 	// create buttons
-	CRect	rc;
-	rc.SetRect(0, 0, 80, 25);
-	btn_add_filters.Create(_T("Add Filter(s)"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, ID_BUTTON_ADD_FILTERS);
+	const int button_height = 25, button_width = 90;
+	const int border = (rect_title.Height() - button_height) / 2;
+
+	CRect	rc(border, border, button_width, button_height);
+
+	btn_add_filters.Create(_T("&Filters..."), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, ID_BUTTON_ADD_FILTERS);
 	btn_add_filters.SetFont(GetFont());
+
+	rc.OffsetRect(button_width + (2 * border), 0);
+
+	btn_insert_filters.Create(_T("&Insert Filter"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_INSERT);
+	btn_insert_filters.SetFont(GetFont());
+
+	rc.OffsetRect(button_width + (2 * border), 0);
+
+	btn_delete_selected.Create(_T("&Delete"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_DELETE_SELECTED);
+	btn_delete_selected.SetFont(GetFont());
 
 	OnInitialize();
 
@@ -123,17 +142,12 @@ void CFavoritesForm::OnSize(UINT nType, int cx, int cy)
 		title.GetClientRect(&rc2);
 		title.SetWindowPos(NULL, 0, 0, cx, rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
-		btn_add_filters.SetWindowPos(NULL, cx - 1*(80+6), 4, 80, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
-
 		tree.SetWindowPos(NULL, 0, rc2.Height(), cx, rc.Height() - rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
 		// invalidate all controls
 		title.Invalidate();
 
 		title.GetClientRect(&rc2);
-
-		btn_add_filters.Invalidate();
-
 	}
 }
 
@@ -423,67 +437,96 @@ void CFavoritesForm::OnTvnKeydownTreeFavorites(NMHDR *pNMHDR, LRESULT *pResult)
 	LPNMTVKEYDOWN pTVKeyDown = reinterpret_cast<LPNMTVKEYDOWN>(pNMHDR);
 	*pResult = 0;
 
-	if (pTVKeyDown->wVKey == VK_DELETE) {
-		OnKeyDown(VK_DELETE, 1, 0);
+	if (VK_DELETE == pTVKeyDown->wVKey) {
+		OnKeyDown(pTVKeyDown->wVKey, 1, 0);
 	}
 }
 
+void CFavoritesForm::OnDblclkTreeFavorites(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	InsertSelectedFilter();
+	*pResult = 0;
+}
 void CFavoritesForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
-	// handle DEL key
 	if (nChar == VK_DELETE) {
-	
-		HTREEITEM	item = tree.GetSelectedItem();
-		if (item != NULL) {
+		DeleteSelected();
+	}
+}
 
-			// delete this item
-			GraphStudio::BookmarkedFilters		*favorites = CFavoritesForm::GetFavoriteFilters();
-			GraphStudio::BookmarkedItem	*it = (GraphStudio::BookmarkedItem*)tree.GetItemData(item);
-			if (it->type == 0) {
-				// it's a filter
-				GraphStudio::BookmarkedFilter	*filter = (GraphStudio::BookmarkedFilter*)it;
+void CFavoritesForm::OnOK()
+{
+	InsertSelectedFilter();
+	// Don't call base class as this closes the dialog
+}
 
-				// if it has no parent it's a top group filter
-				if (filter->parent == NULL) {					
-					favorites->RemoveFilter(filter);
-					tree.DeleteItem(item);
-				} else {
-					filter->parent->RemoveFilter(filter);
-					tree.DeleteItem(item);
-				}
+void CFavoritesForm::DeleteSelected()
+{
+	HTREEITEM	item = tree.GetSelectedItem();
+	if (item != NULL) {
 
-				// delete instance
-				delete filter;
+		// delete this item
+		GraphStudio::BookmarkedFilters		*favorites = CFavoritesForm::GetFavoriteFilters();
+		GraphStudio::BookmarkedItem	*it = (GraphStudio::BookmarkedItem*)tree.GetItemData(item);
+		if (it->type == 0) {
+			// it's a filter
+			GraphStudio::BookmarkedFilter	*filter = (GraphStudio::BookmarkedFilter*)it;
 
-				favorites->Save();
-				UpdateTree();
-
-			} else 
-			if (it->type == 1) {
-				// it's a group
-				int i;
-				GraphStudio::BookmarkedGroup	*group = (GraphStudio::BookmarkedGroup*)it;
-				for (i=0; i<group->filters.GetCount(); i++) {
-					GraphStudio::BookmarkedFilter	*filter = group->filters[i];
-					if (filter->item) {
-						tree.DeleteItem(filter->item);
-						filter->item = NULL;
-					}
-				}
-
-				for (i=0; i<favorites->groups.GetCount(); i++) {
-					if (favorites->groups[i] == group) {
-						favorites->groups.RemoveAt(i);
-						break;
-					}
-				}
-
-				if (group->item) tree.DeleteItem(group->item);
-				delete group;
-				favorites->Save();
-				UpdateTree();
+			// if it has no parent it's a top group filter
+			if (filter->parent == NULL) {					
+				favorites->RemoveFilter(filter);
+				tree.DeleteItem(item);
+			} else {
+				filter->parent->RemoveFilter(filter);
+				tree.DeleteItem(item);
 			}
 
+			// delete instance
+			delete filter;
+
+			favorites->Save();
+			UpdateTree();
+
+		} else 
+		if (it->type == 1) {
+			// it's a group
+			int i;
+			GraphStudio::BookmarkedGroup	*group = (GraphStudio::BookmarkedGroup*)it;
+			for (i=0; i<group->filters.GetCount(); i++) {
+				GraphStudio::BookmarkedFilter	*filter = group->filters[i];
+				if (filter->item) {
+					tree.DeleteItem(filter->item);
+					filter->item = NULL;
+				}
+			}
+
+			for (i=0; i<favorites->groups.GetCount(); i++) {
+				if (favorites->groups[i] == group) {
+					favorites->groups.RemoveAt(i);
+					break;
+				}
+			}
+
+			if (group->item) tree.DeleteItem(group->item);
+			delete group;
+			favorites->Save();
+			UpdateTree();
+		}
+
+	}
+}
+
+void CFavoritesForm::InsertSelectedFilter()
+{
+	HTREEITEM	item = tree.GetSelectedItem();
+	if (item && view) {
+		// delete this item
+		GraphStudio::BookmarkedFilters		*favorites = CFavoritesForm::GetFavoriteFilters();
+		GraphStudio::BookmarkedItem	*it = (GraphStudio::BookmarkedItem*)tree.GetItemData(item);
+		if (it->type == 0) {
+			// it's a filter (not a group)
+			GraphStudio::BookmarkedFilter	*filter = (GraphStudio::BookmarkedFilter*)it;
+			view->InsertFilterFromFavorite(filter);
 		}
 	}
 }
