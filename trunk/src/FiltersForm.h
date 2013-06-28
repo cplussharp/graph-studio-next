@@ -77,7 +77,7 @@ public:
 	CFiltersForm(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CFiltersForm();
 
-	BOOL DoCreateDialog();
+	BOOL DoCreateDialog(CWnd* parent);
 
 	static bool FilterTemplateFromCLSID(const GUID& clsid, DSUtil::FilterTemplate& filter_template);
 

@@ -33,7 +33,7 @@ public:
 	enum { IDD = IDD_DIALOG_CONSTRUCTION };
 
 	// initialization
-	BOOL DoCreateDialog();
+	BOOL DoCreateDialog(CWnd* parent);
 
 	void OnSize(UINT nType, int cx, int cy);
 	void Reload(GraphStudio::RenderParameters *params);

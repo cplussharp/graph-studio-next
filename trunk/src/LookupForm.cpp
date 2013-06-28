@@ -50,9 +50,9 @@ void CLookupForm::DoDataExchange(CDataExchange* pDX)
         DDX_Control(pDX, IDC_EDIT_SEARCH, m_editSearch);
 }
 
-BOOL CLookupForm::DoCreateDialog()
+BOOL CLookupForm::DoCreateDialog(CWnd* parent)
 {
-	BOOL ret = Create(IDD);
+	BOOL ret = Create(IDD, parent);
 	if (!ret) return FALSE;
 
     // prepare titlebar

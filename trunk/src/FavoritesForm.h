@@ -157,7 +157,7 @@ public:
 	// Dialog Data
 	enum { IDD = IDD_DIALOG_FAVORITES };
 
-	BOOL DoCreateDialog();
+	BOOL DoCreateDialog(CWnd* parent);
 	void OnInitialize();
 	void OnSize(UINT nType, int cx, int cy);
 

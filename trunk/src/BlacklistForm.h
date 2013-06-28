@@ -23,7 +23,7 @@ public:
 	virtual ~CBlacklistForm();
 
 	enum { IDD = IDD_DIALOG_BLACKLIST };
-    BOOL DoCreateDialog();
+    BOOL DoCreateDialog(CWnd* parent);
     void OnInitialize();
 
 protected:

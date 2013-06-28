@@ -17,10 +17,10 @@ class CGraphView;
 class CSeekForm : public CGraphStudioModelessDialog
 {
 public:
-	CSeekForm(CGraphView* graph_view, CWnd* pParent = NULL);
+	CSeekForm(CGraphView* graph_view);
 	virtual ~CSeekForm();
 
-	BOOL DoCreateDialog();
+	BOOL DoCreateDialog(CWnd* parent);
 	void UpdateGraphPosition();
 
 protected:

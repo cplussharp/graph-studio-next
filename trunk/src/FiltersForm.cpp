@@ -74,9 +74,9 @@ void CFiltersForm::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_MFCLINK_SEARCH_ONLINE, m_search_online);
 }
 
-BOOL CFiltersForm::DoCreateDialog()
+BOOL CFiltersForm::DoCreateDialog(CWnd* parent)
 {
-	BOOL ret = Create(IDD);
+	BOOL ret = Create(IDD, parent);
 	if (!ret) return FALSE;
 
 	// prepare titlebar

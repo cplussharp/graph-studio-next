@@ -43,9 +43,9 @@ void CGraphConstructionForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EXPLORER1, browser_window);
 }
 
-BOOL CGraphConstructionForm::DoCreateDialog()
+BOOL CGraphConstructionForm::DoCreateDialog(CWnd* parent)
 {
-	BOOL ret = Create(IDD);
+	BOOL ret = Create(IDD, parent);
 	if (!ret) return FALSE;
 
 	// prepare titlebar

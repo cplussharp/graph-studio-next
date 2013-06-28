@@ -406,22 +406,22 @@ void CGraphView::OnInit()
 	LoadWindowPosition();
 
 	// initialize our event logger
-	form_events = new CEventsForm(NULL);
+	form_events = new CEventsForm(this);
 	form_events->view = this;
-	form_events->DoCreateDialog();
+	form_events->DoCreateDialog(this);
 
 	// initialize schedule
-	form_schedule = new CScheduleForm(NULL);
+	form_schedule = new CScheduleForm(this);
 	form_schedule->view = this;
-	form_schedule->DoCreateDialog();
+	form_schedule->DoCreateDialog(this);
 
-	form_textinfo = new CTextInfoForm(NULL);
+	form_textinfo = new CTextInfoForm(this);
 	form_textinfo->view = this;
-    form_textinfo->DoCreateDialog();
+    form_textinfo->DoCreateDialog(this);
 
-	form_progress = new CProgressForm(NULL);
+	form_progress = new CProgressForm(this);
 	form_progress->view = this;
-	form_progress->Create(IDD_DIALOG_PROGRESS);
+	form_progress->Create(IDD_DIALOG_PROGRESS, this);
 
 	graph.wndEvents = *form_events;
 	graph.MakeNew();
@@ -464,10 +464,10 @@ void CGraphView::OnInit()
 	// load favorites
 	GraphStudio::BookmarkedFilters * const favorites = CFavoritesForm::GetFavoriteFilters();
 
-	form_favorites = new CFavoritesForm();
+	form_favorites = new CFavoritesForm(this);
 	form_favorites->view = this;
 	favorites->Load();
-	form_favorites->DoCreateDialog();
+	form_favorites->DoCreateDialog(this);
 
 	GraphStudio::BookmarkedFilters * const blacklisted = CFavoritesForm::GetBlacklistedFilters();
 	blacklisted->Load();
@@ -735,7 +735,7 @@ void CGraphView::OnViewDecoderPerformance()
 {
 	if (!form_dec_performance) {
 		form_dec_performance = new CDecPerformanceForm(this);
-		form_dec_performance->DoCreateDialog();
+		form_dec_performance->DoCreateDialog(this);
 	}
 	form_dec_performance->ShowWindow(SW_SHOW);
 	form_dec_performance->SetActiveWindow();
@@ -746,7 +746,7 @@ void CGraphView::OnSeekClick()
 {
 	if (!form_seek) {
 		form_seek = new CSeekForm(this);
-		form_seek->DoCreateDialog();
+		form_seek->DoCreateDialog(this);
 	}
 	form_seek->ShowWindow(SW_SHOW);
 	form_seek->UpdateGraphPosition();
@@ -1051,9 +1051,9 @@ void CGraphView::OnGraphStreamingComplete()
 void CGraphView::OnGraphInsertFilter()
 {
 	if (!form_filters) {
-		form_filters = new CFiltersForm();
+		form_filters = new CFiltersForm(this);
 		form_filters->view = this;
-		form_filters->DoCreateDialog();
+		form_filters->DoCreateDialog(this);
 	}
 	form_filters->ShowWindow(SW_SHOW);
 	form_filters->SetActiveWindow();
@@ -1193,9 +1193,9 @@ void CGraphView::OnViewGraphEvents()
 void CGraphView::OnViewGraphStatistics()
 {
     if (!form_statistic) {
-		form_statistic = new CStatisticForm();
+		form_statistic = new CStatisticForm(this);
 		form_statistic->view = this;
-		form_statistic->DoCreateDialog();
+		form_statistic->DoCreateDialog(this);
 	}
 
 	form_statistic->ShowWindow(SW_SHOW);
@@ -1205,9 +1205,9 @@ void CGraphView::OnViewGraphStatistics()
 void CGraphView::OnViewGraphconstructionreport()
 {
 	if (!form_construction) {
-		form_construction = new CGraphConstructionForm(NULL);
+		form_construction = new CGraphConstructionForm(this);
 		form_construction->view = this;
-		form_construction->DoCreateDialog();
+		form_construction->DoCreateDialog(this);
 		form_construction->Reload(&render_params);
 	}
 	form_construction->ShowWindow(SW_SHOW);
@@ -1217,8 +1217,8 @@ void CGraphView::OnViewGraphconstructionreport()
 void CGraphView::OnHelpGuidLookup()
 {
     if(!form_guidlookup) {
-        form_guidlookup = new CLookupForm(NULL, FALSE);
-		form_guidlookup->DoCreateDialog();
+        form_guidlookup = new CLookupForm(this, FALSE);
+		form_guidlookup->DoCreateDialog(this);
 		form_guidlookup->view = this;
 	}
 	form_guidlookup->ShowWindow(SW_SHOW);
@@ -1228,8 +1228,8 @@ void CGraphView::OnHelpGuidLookup()
 void CGraphView::OnHelpHresultLookup()
 {
     if(!form_hresultlookup) {
-        form_hresultlookup = new CLookupForm(NULL, TRUE);
-		form_hresultlookup->DoCreateDialog();
+        form_hresultlookup = new CLookupForm(this, TRUE);
+		form_hresultlookup->DoCreateDialog(this);
 		form_hresultlookup->view = this;
 	}
 	form_hresultlookup->ShowWindow(SW_SHOW);
@@ -1870,8 +1870,8 @@ void CGraphView::OnFiltersManageBlacklist()
 {
     if(!form_blacklist)
     {
-        form_blacklist = new CBlacklistForm(NULL, FALSE);
-		form_blacklist->DoCreateDialog();
+        form_blacklist = new CBlacklistForm(this, FALSE);
+		form_blacklist->DoCreateDialog(this);
 	}
 	form_blacklist->ShowWindow(SW_SHOW);
 	form_blacklist->SetActiveWindow();
@@ -1988,8 +1988,8 @@ void CGraphView::OnOverlayIconClick(GraphStudio::OverlayIcon *icon, CPoint point
 		{
 			// let's bring up some slider bar for the volume
 			if (!form_volume) {
-				form_volume = new CVolumeBarForm();
-				form_volume->DoCreateDialog();
+				form_volume = new CVolumeBarForm(this);
+				form_volume->DoCreateDialog(this);
 			}
 			
 			form_volume->DoHide();
