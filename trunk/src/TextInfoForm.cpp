@@ -50,6 +50,7 @@ CTextInfoForm::~CTextInfoForm()
 BOOL CTextInfoForm::DoCreateDialog(CWnd* parent)
 {
 	BOOL ret = Create(IDD, parent);
+
 	if (!ret) return FALSE;
 
     // prepare titlebar
@@ -69,6 +70,11 @@ BOOL CTextInfoForm::DoCreateDialog(CWnd* parent)
     rc.SetRect(0, 0, 150, 23);
     combo_reporttype.Create(WS_TABSTOP | WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, rc, &title, IDC_COMBO_REPORTTYPE);
     combo_reporttype.SetFont(GetFont());
+
+	// Force a second resize to give the combo box a chance to position itself once it's fully created
+	// Would not be an issue if the setup above was done in OnInitDialog...
+	SetWindowPos(NULL, 0, 0, 0, 0, SWP_NOMOVE);		// resize down to zero
+	RestorePosition();								// then restore position or set default position
 
 	OnInitialize();
 
