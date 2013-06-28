@@ -19,6 +19,8 @@ class CSeekForm : public CGraphStudioModelessDialog
 public:
 	CSeekForm(CGraphView* graph_view);
 	virtual ~CSeekForm();
+	virtual CRect GetDefaultRect() const;
+	virtual bool ShouldRestoreSize() const { return false; }
 
 	BOOL DoCreateDialog(CWnd* parent);
 	void UpdateGraphPosition();

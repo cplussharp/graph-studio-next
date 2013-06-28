@@ -37,6 +37,7 @@ public:
 
 	CTextInfoForm(CWnd* pParent = NULL); 
 	virtual ~CTextInfoForm();
+	virtual CRect GetDefaultRect() const;
 
 	// Dialog Data
 	enum { IDD = IDD_DIALOG_TEXTVIEW };

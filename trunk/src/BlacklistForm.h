@@ -28,6 +28,7 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);
+	CRect GetDefaultRect() const;
 
 	DECLARE_MESSAGE_MAP()
 

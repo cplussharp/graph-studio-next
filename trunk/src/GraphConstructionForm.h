@@ -29,6 +29,7 @@ public:
 public:
 	CGraphConstructionForm(CWnd *pParent = NULL);   // standard constructor
 	virtual ~CGraphConstructionForm();
+	virtual CRect GetDefaultRect() const;
 
 	enum { IDD = IDD_DIALOG_CONSTRUCTION };
 

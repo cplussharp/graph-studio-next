@@ -63,11 +63,13 @@ BOOL CEventsForm::DoCreateDialog(CWnd* parent)
 	btn_copy.Create(_T("Copy"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_COPY);
 	btn_copy.SetFont(GetFont());
 
-	SetWindowPos(NULL, 0, 0, 400, 250, SWP_NOMOVE);
-
 	return TRUE;
 }
 
+CRect CEventsForm::GetDefaultRect() const 
+{
+	return CRect(50, 200, 450, 450);
+}
 
 void CEventsForm::OnSize(UINT nType, int cx, int cy)
 {

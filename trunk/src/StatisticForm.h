@@ -48,6 +48,7 @@ public:
 public:
 	CStatisticForm(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CStatisticForm();
+	virtual CRect GetDefaultRect() const;
 
 	enum { IDD = IDD_DIALOG_STATISTIC };
 

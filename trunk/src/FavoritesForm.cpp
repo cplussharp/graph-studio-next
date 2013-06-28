@@ -90,9 +90,13 @@ BOOL CFavoritesForm::DoCreateDialog(CWnd* parent)
 
 	OnInitialize();
 
-	SetWindowPos(NULL, 0, 0, 400, 300, SWP_NOMOVE);
 	return TRUE;
 };
+
+CRect CFavoritesForm::GetDefaultRect() const 
+{
+	return CRect(50, 200, 450, 500);
+}
 
 void CFavoritesForm::OnInitialize()
 {

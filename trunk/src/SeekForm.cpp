@@ -139,6 +139,11 @@ BOOL CSeekForm::DoCreateDialog(CWnd* parent)
 	return TRUE;
 }
 
+CRect CSeekForm::GetDefaultRect() const 
+{
+	return CRect(50, 200, 250, 450);
+}
+
 void CSeekForm::OnSize(UINT nType, int cx, int cy)
 {
 	// resize our header control to fit dialog...

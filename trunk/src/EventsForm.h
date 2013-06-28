@@ -31,6 +31,7 @@ public:
 public:
 	CEventsForm(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CEventsForm();
+	CRect GetDefaultRect() const;
 
 	enum { IDD = IDD_DIALOG_EVENTS };
 

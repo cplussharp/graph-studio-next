@@ -71,6 +71,7 @@ private:
 public:
 	CDecPerformanceForm(CGraphView* parent_view);
 	virtual ~CDecPerformanceForm();
+	virtual bool ShouldRestoreSize() const { return false; }
 
 	BOOL DoCreateDialog(CWnd* parent);
 
