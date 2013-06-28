@@ -120,7 +120,8 @@ void CGraphStudioModelessDialog::OnShowWindow(BOOL bShow, UINT nStatus)
 	CDialog::OnShowWindow(bShow, nStatus);
 	ASSERT(view);
 
-	RestorePosition();
+	if (bShow) 
+		RestorePosition();
 }
 
 void CGraphStudioModelessDialog::OnClose()
@@ -160,41 +161,42 @@ CRect CGraphStudioModelessDialog::GetDefaultRect() const
 
 void CGraphStudioModelessDialog::RestorePosition()
 {
-	if (ShouldRestorePosition() && !this->IsWindowVisible() && bShow && view) {
-		position_saved = false;
+	if (!view || !ShouldRestorePosition())
+		return;
 
-		CRect rect_current;
-		this->GetWindowRect(&rect_current);
+	position_saved = false;
 
-		// if any settings fail to read then defaults will be unusable
-		CRect rect_touse;
-		const CString name(GetSettingsName());
-		rect_touse.left	=	AfxGetApp()->GetProfileInt(name, _T("left"),	INT_MIN);
-		rect_touse.top	=	AfxGetApp()->GetProfileInt(name, _T("top"),		INT_MIN);
-		if (ShouldRestoreSize()) {
-			rect_touse.right	= rect_touse.left +	AfxGetApp()->GetProfileInt(name, _T("width"),	INT_MAX/2);
-			rect_touse.bottom	= rect_touse.top +	AfxGetApp()->GetProfileInt(name, _T("height"),	INT_MAX/2);
-		} else {
-			rect_touse.right	= rect_touse.left	+	rect_current.Width();
-			rect_touse.bottom	= rect_touse.top	+	rect_current.Height();
-		}
+	CRect rect_current;
+	this->GetWindowRect(&rect_current);
 
-		CRect rect_default(GetDefaultRect());
-		if (!ShouldRestoreSize()) {
-			rect_default.right	= rect_default.left + rect_current.Width();
-			rect_default.bottom = rect_default.top	+ rect_current.Height();
-		}
-
-		CRect rect_frame;
-		view->GetParentFrame()->GetWindowRect(&rect_frame);
-		rect_touse.OffsetRect(rect_frame.left, rect_frame.top);			// adjust rects by position of frame window
-		rect_default.OffsetRect(rect_frame.left, rect_frame.top);
-
-		EnsureRectVisible(rect_touse, rect_default);
-
-		const int flags = ShouldRestoreSize() ? 0 : SWP_NOSIZE;
-		this->SetWindowPos(NULL, rect_touse.left, rect_touse.top, rect_touse.Width(), rect_touse.Height(), flags);
+	// if any settings fail to read then defaults will be unusable
+	CRect rect_touse;
+	const CString name(GetSettingsName());
+	rect_touse.left	=	AfxGetApp()->GetProfileInt(name, _T("left"),	INT_MIN);
+	rect_touse.top	=	AfxGetApp()->GetProfileInt(name, _T("top"),		INT_MIN);
+	if (ShouldRestoreSize()) {
+		rect_touse.right	= rect_touse.left +	AfxGetApp()->GetProfileInt(name, _T("width"),	INT_MAX/2);
+		rect_touse.bottom	= rect_touse.top +	AfxGetApp()->GetProfileInt(name, _T("height"),	INT_MAX/2);
+	} else {
+		rect_touse.right	= rect_touse.left	+	rect_current.Width();
+		rect_touse.bottom	= rect_touse.top	+	rect_current.Height();
 	}
+
+	CRect rect_default(GetDefaultRect());
+	if (!ShouldRestoreSize()) {
+		rect_default.right	= rect_default.left + rect_current.Width();
+		rect_default.bottom = rect_default.top	+ rect_current.Height();
+	}
+
+	CRect rect_frame;
+	view->GetParentFrame()->GetWindowRect(&rect_frame);
+	rect_touse.OffsetRect(rect_frame.left, rect_frame.top);			// adjust rects by position of frame window
+	rect_default.OffsetRect(rect_frame.left, rect_frame.top);
+
+	EnsureRectVisible(rect_touse, rect_default);
+
+	const int flags = ShouldRestoreSize() ? 0 : SWP_NOSIZE;
+	this->SetWindowPos(NULL, rect_touse.left, rect_touse.top, rect_touse.Width(), rect_touse.Height(), flags);
 }
 
 void CGraphStudioModelessDialog::SavePosition()
