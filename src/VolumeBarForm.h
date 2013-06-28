@@ -34,7 +34,7 @@ public:
 	enum { IDD = IDD_DIALOG_VOLUMEBAR };
 
 	// initialization
-	BOOL DoCreateDialog();
+	BOOL DoCreateDialog(CWnd* parent);
 	void DoHide();
 	void DisplayVolume(IBaseFilter *filter);
 

@@ -52,7 +52,7 @@ public:
 	enum { IDD = IDD_DIALOG_STATISTIC };
 
 	// initialization
-	BOOL DoCreateDialog();
+	BOOL DoCreateDialog(CWnd* parent);
 	void OnSize(UINT nType, int cx, int cy);
 
 	afx_msg void OnTimer(UINT_PTR id);

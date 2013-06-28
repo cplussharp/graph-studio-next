@@ -69,10 +69,10 @@ private:
 	Timings							timings_avg;
 
 public:
-	CDecPerformanceForm(CGraphView* parent_view, CWnd* pParent = NULL);   // standard constructor
+	CDecPerformanceForm(CGraphView* parent_view);
 	virtual ~CDecPerformanceForm();
 
-	BOOL DoCreateDialog();
+	BOOL DoCreateDialog(CWnd* parent);
 
 	// start / stop test
 	void StartTiming();

@@ -76,8 +76,8 @@ const int			CapsFlagsCount = sizeof(CapsFlags) / sizeof(CapsFlags[0]);
 //
 //-----------------------------------------------------------------------------
 
-CSeekForm::CSeekForm(CGraphView* graph_view, CWnd* pParent)	: 
-	CGraphStudioModelessDialog(CSeekForm::IDD, pParent),
+CSeekForm::CSeekForm(CGraphView* graph_view)	: 
+	CGraphStudioModelessDialog(CSeekForm::IDD, graph_view),
 	time_format(TIME_FORMAT_MEDIA_TIME),
 	cached_caps(INT_MIN)
 {
@@ -108,9 +108,9 @@ void CSeekForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST_CAPS, list_caps);
 }
 
-BOOL CSeekForm::DoCreateDialog()
+BOOL CSeekForm::DoCreateDialog(CWnd* parent)
 {
-	BOOL ret = Create(IDD);
+	BOOL ret = Create(IDD, parent);
 	if (!ret) return FALSE;
 
 	// prepare titlebar

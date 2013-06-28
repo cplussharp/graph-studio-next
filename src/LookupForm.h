@@ -30,7 +30,7 @@ public:
 	virtual ~CLookupForm();
 
 	enum { IDD = IDD_DIALOG_LOOKUP };
-    BOOL DoCreateDialog();
+    BOOL DoCreateDialog(CWnd* parent);
     void OnInitialize();
 
 protected:

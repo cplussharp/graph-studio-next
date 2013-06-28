@@ -50,9 +50,9 @@ void CScheduleForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TITLEBAR, title);
 }
 
-BOOL CScheduleForm::DoCreateDialog()
+BOOL CScheduleForm::DoCreateDialog(CWnd* parent)
 {
-	BOOL ret = Create(IDD);
+	BOOL ret = Create(IDD, parent);
 	if (!ret) return FALSE;
 
 	list_schedule.Initialize();

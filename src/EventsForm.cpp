@@ -46,9 +46,9 @@ void CEventsForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TITLEBAR, title);
 }
 
-BOOL CEventsForm::DoCreateDialog()
+BOOL CEventsForm::DoCreateDialog(CWnd* parent)
 {
-	BOOL ret = Create(IDD);
+	BOOL ret = Create(IDD, parent);
 	if (!ret) return FALSE;
 
 	// prepare titlebar

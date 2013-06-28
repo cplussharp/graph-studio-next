@@ -47,9 +47,9 @@ CTextInfoForm::~CTextInfoForm()
 {
 }
 
-BOOL CTextInfoForm::DoCreateDialog()
+BOOL CTextInfoForm::DoCreateDialog(CWnd* parent)
 {
-	BOOL ret = Create(IDD);
+	BOOL ret = Create(IDD, parent);
 	if (!ret) return FALSE;
 
     // prepare titlebar

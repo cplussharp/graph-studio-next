@@ -63,9 +63,9 @@ void CFavoritesForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TREE_FAVORITES, tree);
 }
 
-BOOL CFavoritesForm::DoCreateDialog()
+BOOL CFavoritesForm::DoCreateDialog(CWnd* parent)
 {
-	BOOL ret = Create(IDD);
+	BOOL ret = Create(IDD, parent);
 	if (!ret) return FALSE;
 
 	// prepare titlebar

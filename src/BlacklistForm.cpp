@@ -43,9 +43,9 @@ void CBlacklistForm::DoDataExchange(CDataExchange* pDX)
         DDX_Control(pDX, IDC_EDIT_BLACKLIST_ENTRY, m_editEntry);
 }
 
-BOOL CBlacklistForm::DoCreateDialog()
+BOOL CBlacklistForm::DoCreateDialog(CWnd* parent)
 {
-	BOOL ret = Create(IDD);
+	BOOL ret = Create(IDD, parent);
 	if (!ret) return FALSE;
 
     // prepare titlebar

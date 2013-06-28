@@ -41,8 +41,8 @@ END_MESSAGE_MAP()
 //
 //-----------------------------------------------------------------------------
 
-CDecPerformanceForm::CDecPerformanceForm(CGraphView* parent_view, CWnd* pParent) : 
-	CGraphStudioModelessDialog(CDecPerformanceForm::IDD, pParent)
+CDecPerformanceForm::CDecPerformanceForm(CGraphView* parent_view) : 
+	CGraphStudioModelessDialog(CDecPerformanceForm::IDD, parent_view)
 {
 	view = parent_view;
 	running = false;
@@ -77,9 +77,9 @@ void CDecPerformanceForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_TYPE, cb_type);
 }
 
-BOOL CDecPerformanceForm::DoCreateDialog()
+BOOL CDecPerformanceForm::DoCreateDialog(CWnd* parent)
 {
-	BOOL ret = Create(IDD);
+	BOOL ret = Create(IDD, parent);
 	if (!ret) return FALSE;
 
 	// prepare titlebar

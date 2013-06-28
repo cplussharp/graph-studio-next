@@ -40,7 +40,7 @@ public:
 
 	// Dialog Data
 	enum { IDD = IDD_DIALOG_TEXTVIEW };
-    BOOL DoCreateDialog();
+    BOOL DoCreateDialog(CWnd* parent);
 
 	void OnSize(UINT nType, int cx, int cy);
 	void OnInitialize();

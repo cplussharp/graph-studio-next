@@ -35,7 +35,7 @@ public:
 	enum { IDD = IDD_DIALOG_EVENTS };
 
 	// initialization
-	BOOL DoCreateDialog();
+	BOOL DoCreateDialog(CWnd* parent);
 
 	void OnSize(UINT nType, int cx, int cy);
 	virtual BOOL OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT *pResult);

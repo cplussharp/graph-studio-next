@@ -47,9 +47,9 @@ void CVolumeBarForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATIC_BALANCE, label_balance);
 }
 
-BOOL CVolumeBarForm::DoCreateDialog()
+BOOL CVolumeBarForm::DoCreateDialog(CWnd* parent)
 {
-	BOOL ret = Create(IDD);
+	BOOL ret = Create(IDD, parent);
 	if (!ret) return FALSE;
 
 	slider_volume.SetRange(0, 100);
