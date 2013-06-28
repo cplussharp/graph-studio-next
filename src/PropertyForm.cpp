@@ -121,7 +121,7 @@ void CPropertyForm::OnSize(UINT nType, int cx, int cy)
 int CPropertyForm::DisplayPages(IUnknown *obj, IUnknown *filt, CString title, CGraphView *view)
 {
 	// create a new window
-	BOOL bret = Create(IDD_DIALOG_PROPERTYPAGE);
+	BOOL bret = Create(IDD_DIALOG_PROPERTYPAGE, view);
 	if (!bret) return -1;
 	SetWindowText(title);
 
