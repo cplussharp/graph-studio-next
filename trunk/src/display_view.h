@@ -90,8 +90,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void OnDeleteFilter();
 		void OnChooseSourceFile();
 		void OnChooseDestinationFile();
-		void OnFilterFavorite();
-		void OnFilterBlacklist();
 
 		void MakeScreenshot(const CString& base_filename);
 

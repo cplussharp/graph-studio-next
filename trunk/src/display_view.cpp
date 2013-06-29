@@ -43,8 +43,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         ON_COMMAND(ID_MPEG2DEMUX_CREATE_PSI_PIN, &DisplayView::OnMpeg2DemuxCreatePsiPin)
         ON_COMMAND(ID_CHOOSE_SOURCE_FILE, &DisplayView::OnChooseSourceFile)
         ON_COMMAND(ID_CHOOSE_DESTINATION_FILE, &DisplayView::OnChooseDestinationFile)
-        ON_COMMAND(ID_FILTER_FAVORITE, &DisplayView::OnFilterFavorite)
-        ON_COMMAND(ID_FILTER_BLACKLIST, &DisplayView::OnFilterBlacklist)
 
 		ON_COMMAND_RANGE(ID_STREAM_SELECT, ID_STREAM_SELECT+100, &DisplayView::OnSelectStream)
 		ON_COMMAND_RANGE(ID_COMPATIBLE_FILTER, ID_COMPATIBLE_FILTER+999, &DisplayView::OnCompatibleFilterClick)
@@ -1404,32 +1402,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
     {
         return 0;
     }
-
-	// Toggle the bookmark status of this Filter class
-	static void ToggleFilterClassBookmark(BookmarkedFilters* bookmarks, const Filter* filter)
-	{
-		if (bookmarks && filter) {
-			DSUtil::FilterTemplate filter_template;
-			if (CFiltersForm::FilterTemplateFromCLSID(filter->clsid, filter_template)) {
-				if (bookmarks->ContainsMoniker(filter_template.moniker_name)) {
-					bookmarks->RemoveBookmark(filter_template);
-				} else {
-					bookmarks->AddBookmark(filter_template);
-				}
-				bookmarks->Save();
-			}
-		}
-	}
-
-	void DisplayView::OnFilterFavorite()
-	{
-		ToggleFilterClassBookmark(CFavoritesForm::GetFavoriteFilters(), current_filter);
-	}
-
-	void DisplayView::OnFilterBlacklist()
-	{
-		ToggleFilterClassBookmark(CFavoritesForm::GetBlacklistedFilters(), current_filter);
-	}
 
 	void DisplayView::OnFileSetlogfile()
 	{
