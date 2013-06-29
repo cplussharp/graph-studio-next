@@ -7,12 +7,21 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
+static const AMOVIESETUP_FILTER s_FilterInfo = 
+{
+	&__uuidof(TimeMeasureFilter),				// Filter CLSID
+	L"GraphStudioNext Time Measure Filter",		// String name
+	MERIT_DO_NOT_USE,							// Filter merit
+	0,											// Number pins
+	NULL										// Pin details
+};
+
 const CFactoryTemplate CMonoTimeMeasure::g_Template = {
 		L"Time Measure Filter",
         &__uuidof(TimeMeasureFilter),
 		CMonoTimeMeasure::CreateInstance,
 		NULL,
-		NULL
+		&s_FilterInfo
 	};
 
 CUnknown* CMonoTimeMeasure::CreateInstance(LPUNKNOWN punk, HRESULT *phr)

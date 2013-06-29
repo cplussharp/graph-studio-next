@@ -7,12 +7,21 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
+static const AMOVIESETUP_FILTER s_FilterInfo = 
+{
+	&__uuidof(DumpFilter),				// Filter CLSID
+	L"GraphStudioNext Dump Filter",		// String name
+	MERIT_DO_NOT_USE,					// Filter merit
+	0,									// Number pins
+	NULL								// Pin details
+};
+
 const CFactoryTemplate CMonoDump::g_Template = {
-		L"Dump Filter",
+		L"GraphStudioNext Dump Filter",
         &__uuidof(DumpFilter),
 		CMonoDump::CreateInstance,
 		NULL,
-		NULL
+		&s_FilterInfo
 	};
 
 CUnknown* CMonoDump::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
