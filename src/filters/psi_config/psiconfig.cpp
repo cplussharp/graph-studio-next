@@ -10,16 +10,16 @@
 // Setup data
 const AMOVIESETUP_FILTER sudPsiConfig =
 {
-    &__uuidof(PsiConfigFilter),     // Filter CLSID
-    L"PSI Config",                  // String name
-    MERIT_DO_NOT_USE,               // Filter merit
+    &__uuidof(PsiConfigFilter),			// Filter CLSID
+    L"GraphStudioNext PSI Config",      // String name
+    MERIT_DO_NOT_USE,					// Filter merit
     0,
     NULL
 };
 
 // class ID and creator function for class factory
 const CFactoryTemplate CPsiConfigFilter::g_Template = {
-    L"PSI Config",
+    L"GraphStudioNext PSI Config",
     &__uuidof(PsiConfigFilter),
     CPsiConfigFilter::CreateInstance,
     NULL,

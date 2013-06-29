@@ -9,14 +9,23 @@
 
 #include "analyzer_pospassthru.h"
 
+static const AMOVIESETUP_FILTER s_FilterInfo = 
+{
+	&__uuidof(AnalyzerWriterFilter),				// Filter CLSID
+	L"GraphStudioNext Analyzer Writer Filter",		// String name
+	MERIT_DO_NOT_USE,								// Filter merit
+	0,												// Number pins
+	NULL											// Pin details
+};
 
-const CFactoryTemplate CAnalyzerWriterFilter::g_Template = {
-		L"Analyzer Writer Filter",
-        &__uuidof(AnalyzerWriterFilter),
-		CAnalyzerWriterFilter::CreateInstance,
-		NULL,
-		NULL
-	};
+const CFactoryTemplate CAnalyzerWriterFilter::g_Template = 
+{
+	L"GraphStudioNext Analyzer Writer Filter",
+    &__uuidof(AnalyzerWriterFilter),
+	CAnalyzerWriterFilter::CreateInstance,
+	NULL,
+	&s_FilterInfo
+};
 
 CUnknown* CAnalyzerWriterFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 {

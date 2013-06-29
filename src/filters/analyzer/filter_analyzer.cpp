@@ -152,12 +152,21 @@ protected:
 
 #pragma region CAnalyzerFilter
 
+static const AMOVIESETUP_FILTER s_FilterInfo = 
+{
+	&__uuidof(AnalyzerFilter),				// Filter CLSID
+	L"GraphStudioNext Analyzer Filter",		// String name
+	MERIT_DO_NOT_USE,						// Filter merit
+	0,										// Number pins
+	NULL									// Pin details
+};
+
 const CFactoryTemplate CAnalyzerFilter::g_Template = {
-		L"Analyzer Filter",
+		L"GraphStudioNext Analyzer Filter",
         &__uuidof(AnalyzerFilter),
 		CAnalyzerFilter::CreateInstance,
 		NULL,
-		NULL
+		&s_FilterInfo
 	};
 
 CUnknown* CAnalyzerFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
