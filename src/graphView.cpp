@@ -118,6 +118,8 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_LIST_MRU_CLEAR, &CGraphView::OnClearMRUClick)
 	ON_COMMAND(ID_GRAPH_MAKEGRAPHSCREENSHOT, &CGraphView::OnGraphScreenshot)
 	ON_COMMAND(ID_GRAPH_USECLOCK, &CGraphView::OnUseClock)
+    ON_COMMAND(ID_FILTER_FAVORITE, &CGraphView::OnFilterFavorite)
+    ON_COMMAND(ID_FILTER_BLACKLIST, &CGraphView::OnFilterBlacklist)
 	ON_COMMAND_RANGE(ID_LIST_MRU_FILE0, ID_LIST_MRU_FILE0+10, &CGraphView::OnDummyEvent)
     ON_COMMAND_RANGE(ID_AUDIO_SOURCE0, ID_AUDIO_SOURCE0+50, &CGraphView::OnDummyEvent)
 	ON_COMMAND_RANGE(ID_VIDEO_SOURCE0, ID_VIDEO_SOURCE0+50, &CGraphView::OnDummyEvent)
@@ -1864,6 +1866,42 @@ void CGraphView::OnFiltersManageFavorites()
 {
 	form_favorites->ShowWindow(SW_SHOW);
 	form_favorites->SetActiveWindow();
+}
+
+// Toggle the bookmark status of this Filter class
+static HTREEITEM ToggleFilterClassBookmark(GraphStudio::BookmarkedFilters* bookmarks, const GraphStudio::Filter* filter)
+{
+	HTREEITEM removed_item = NULL;
+
+	if (bookmarks && filter) {
+		DSUtil::FilterTemplate filter_template;
+		if (CFiltersForm::FilterTemplateFromCLSID(filter->clsid, filter_template)) {
+			if (bookmarks->ContainsMoniker(filter_template.moniker_name)) {
+				removed_item = bookmarks->RemoveBookmark(filter_template);
+			} else {
+				bookmarks->AddBookmark(filter_template);
+			}
+			bookmarks->Save();
+		}
+	}
+	return removed_item;
+}
+
+afx_msg void CGraphView::OnFilterFavorite()
+{
+	const HTREEITEM removed_item = ToggleFilterClassBookmark(CFavoritesForm::GetFavoriteFilters(), current_filter);
+	if (form_favorites) {
+		if (removed_item) {
+			form_favorites->RemoveFilter(removed_item);
+		} else {
+			form_favorites->UpdateTree();
+		}
+	}
+}
+
+afx_msg void CGraphView::OnFilterBlacklist()
+{
+	ToggleFilterClassBookmark(CFavoritesForm::GetBlacklistedFilters(), current_filter);
 }
 
 void CGraphView::OnUpdateFiltersManageBlacklist(CCmdUI *ui)

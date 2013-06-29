@@ -275,6 +275,8 @@ public:
 	afx_msg void OnUpdateClsidFiltergraph(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateClsidFiltergraphNoThread(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateClsidFiltergraphPrivateThread(CCmdUI *pCmdUI);
+	afx_msg void OnFilterFavorite();
+	afx_msg void OnFilterBlacklist();
 };
 
 #ifndef _DEBUG  // debug version in graphView.cpp
