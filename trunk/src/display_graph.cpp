@@ -1449,12 +1449,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			if (ofilter && ifilter) {
 				switch (CgraphstudioApp::g_ResolvePins) {
 					case CgraphstudioApp::BY_ID: {
+						// Work around buggy filters that return unsuitable pins or NULL from IBaseFilter::FindPin by searching manually for ID match
 					
 						CString id = node->GetValue(_T("outPinId"));
 						opin = ofilter->FindPinByID(id);
+						if (!opin || opin->connected || opin->dir == PINDIR_INPUT)
+							opin = ofilter->FindPinByMatchingID(id);
 					
 						id = node->GetValue(_T("inPinId"));
 						ipin = ifilter->FindPinByID(id);
+						if (!ipin || ipin->connected || ipin->dir == PINDIR_OUTPUT)
+							ipin = ifilter->FindPinByMatchingID(id);
 					
 					}	break;
 
@@ -1769,8 +1774,15 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			Pin *out_pin = NULL;
 			Pin *in_pin = NULL;
 			if (out_filter && in_filter) {
+				// Work around buggy filters that return unsuitable pins or NULL from IBaseFilter::FindPin by searching manually for ID match
+
 				out_pin = out_filter->FindPinByID(connection.output_pin_id);
+				if (!out_pin || out_pin->connected || out_pin->dir == PINDIR_INPUT)
+					out_pin = out_filter->FindPinByMatchingID(connection.output_pin_id);
+
 				in_pin = in_filter->FindPinByID(connection.input_pin_id);
+				if (!in_pin || in_pin->connected || in_pin->dir == PINDIR_OUTPUT)
+					in_pin = in_filter->FindPinByMatchingID(connection.input_pin_id);
 
 				if (!out_pin) {
 					CString errorStr;
@@ -3146,6 +3158,24 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		for (i=0; i<output_pins.GetCount(); i++) output_pins[i]->Select(select);
 	}
 
+	// Alternative Pin ID search - don't ask filter for pin by calling FindPin
+	// Work around for buggy filters where IBaseFilter::FindPin returns NULL or wrong pin even though a pin with the correct ID exists
+	Pin *Filter::FindPinByMatchingID(CString pin_id)
+	{
+		CArray<Pin*> *lists[] = {&output_pins, &input_pins};
+		const size_t num_lists = sizeof(lists)/sizeof(lists[0]);
+
+		for (CArray<Pin*> ** pins = lists; pins<lists+num_lists; pins++) {
+			for (int p=0; p<(**pins).GetCount(); p++) {
+				Pin * const pin = (**pins)[p];
+				if (pin->id == pin_id) 
+					return pin;
+			}
+		}
+
+		return NULL;
+	}
+
 	Pin *Filter::FindPinByID(CString pin_id)
 	{
 		CArray<Pin*> *lists[] = {&output_pins, &input_pins};
@@ -3161,20 +3191,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 					return pin;
 			}
 		}
-
-		// Alternative Pin ID search - don't ask filter
-		// Work around for buggy filters where IBaseFilter::FindPin returns wrong pin
-		//CArray<Pin*> *lists[] = {&output_pins, &input_pins};
-		//const size_t num_lists = sizeof(lists)/sizeof(lists[0]);
-
-		//for (CArray<Pin*> ** pins = lists; pins<lists+num_lists; pins++) {
-		//	for (int p=0; p<(**pins).GetCount(); p++) {
-		//		Pin * const pin = (**pins)[p];
-		//		if (pin->id == pin_id) 
-		//			return pin;
-		//	}
-		//}
-
 		return NULL;
 	}
 
