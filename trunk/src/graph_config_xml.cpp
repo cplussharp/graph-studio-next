@@ -62,9 +62,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 				CString filename = conf->GetValue(_T("source"));
 
-				hr = fsource->Load((LPCOLESTR)filename.GetBuffer(), NULL);
-				if (SUCCEEDED(hr))
-					return hr;
+				const DWORD file_attributes = GetFileAttributes(filename);
+
+				// Give the user a chance to fix up an invalid filename but only check file name for the first time
+				if (INVALID_FILE_ATTRIBUTES == file_attributes)
+					hr = E_INVALIDARG;
+				else 
+					hr = fsource->Load(filename, NULL);
 
 				while (FAILED(hr)) {
 					CFileSrcForm form(_T("Missing source file"));
@@ -81,9 +85,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 				CString filename = conf->GetValue(_T("dest"));
 
-				hr = fsink->SetFileName((LPCOLESTR)filename.GetBuffer(), NULL);
-				if (SUCCEEDED(hr))
-					return hr;
+				const DWORD file_attributes = GetFileAttributes(filename);
+
+				// Give the user a chance to fix up an invalid filename but only check file name for the first time
+				if (INVALID_FILE_ATTRIBUTES == file_attributes)
+					hr = E_INVALIDARG;
+				else 
+					hr = fsink->SetFileName(filename, NULL);
 
 				CFileSinkForm form(_T("Missing destination file"));
 				while (FAILED(hr)) {
