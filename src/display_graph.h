@@ -158,6 +158,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		Pin *FindPin(IPin *pin);
 		Pin *FindPinByPos(CPoint p, bool not_connected = true);
 		Pin *FindPinByID(CString id);
+		Pin *FindPinByMatchingID(CString id);
 		Pin *FindPinByName(CString id);
 		bool HasPin(IPin *pin);
 		void LoadPeers();
