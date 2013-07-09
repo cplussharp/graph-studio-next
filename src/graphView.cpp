@@ -385,15 +385,15 @@ CGraphDoc* CGraphView::GetDocument() const // non-debug version is inline
 	return (CGraphDoc*)m_pDocument;
 }
 
-CMainFrame* CGraphView::GetParentFrame() const // non-debug version is inline
+#endif //_DEBUG
+
+CMainFrame* CGraphView::GetParentFrame() const
 {
 	CFrameWnd * const frame = __super::GetParentFrame();
 	ASSERT(frame);
 	ASSERT(frame->IsKindOf(RUNTIME_CLASS(CMainFrame)));
 	return (CMainFrame*)frame;
 }
-
-#endif //_DEBUG
 
 
 // CGraphView message handlers
