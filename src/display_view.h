@@ -97,6 +97,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void PrepareStreamSelectMenu(CMenu &menu, IUnknown *obj);
 		void PrepareCompatibleFiltersMenu(CMenu &menu, Pin *pin);
 		void UpdateFavoritesMenu();
+		virtual void PopulateAudioRenderersMenu(CMenu& menu) {}
+		virtual void PopulateVideoRenderersMenu(CMenu& menu) {};
         void PrepareFavoriteFiltersMenu(CMenu &menu);
 		void OnSelectStream(UINT id);
 		void OnCompatibleFilterClick(UINT id);

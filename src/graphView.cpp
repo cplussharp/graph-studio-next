@@ -593,6 +593,24 @@ void CGraphView::UpdatePreferredVideoRenderersMenu()
 
 }
 
+void CGraphView::PopulateAudioRenderersMenu(CMenu& menu)
+{
+	for (int i=0; i<audio_renderers.filters.GetCount(); i++) {
+		DSUtil::FilterTemplate	&filter = audio_renderers.filters[i];
+        if(!filter.file_exists) continue;
+		menu.InsertMenu(i, MF_STRING, ID_AUDIO_RENDERER0 + i, _T("&") + filter.name);
+	}
+}
+
+void CGraphView::PopulateVideoRenderersMenu(CMenu& menu)
+{
+	for (int i=0; i<video_renderers.filters.GetCount(); i++) {
+		DSUtil::FilterTemplate	&filter = video_renderers.filters[i];
+        if(!filter.file_exists) continue;
+		menu.InsertMenu(i, MF_STRING, ID_VIDEO_RENDERER0 + i, _T("&") + filter.name);
+	}
+}
+
 void CGraphView::UpdateRenderersMenu()
 {
 	int		i;
@@ -636,12 +654,7 @@ void CGraphView::UpdateRenderersMenu()
 
 	// fill in audio renderers
 	audio_render_menu.CreatePopupMenu();
-	for (i=0; i<audio_renderers.filters.GetCount(); i++) {
-		DSUtil::FilterTemplate	&filter = audio_renderers.filters[i];
-        if(!filter.file_exists) continue;
-		audio_render_menu.InsertMenu(i, MF_STRING, ID_AUDIO_RENDERER0 + i, _T("&") + filter.name);
-	}
-
+	PopulateAudioRenderersMenu(audio_render_menu);
 	graphmenu->ModifyMenu(ID_GRAPH_INSERTAUDIORENDERER, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
 						  (UINT_PTR)audio_render_menu.m_hMenu, _T("Insert Audio Renderer"));
 
@@ -649,13 +662,7 @@ void CGraphView::UpdateRenderersMenu()
 
 	// fill in video renderers
 	video_render_menu.CreatePopupMenu();
-
-	for (i=0; i<video_renderers.filters.GetCount(); i++) {
-		DSUtil::FilterTemplate	&filter = video_renderers.filters[i];
-        if(!filter.file_exists) continue;
-		video_render_menu.InsertMenu(i, MF_STRING, ID_VIDEO_RENDERER0 + i, _T("&") + filter.name);
-	}
-
+	PopulateVideoRenderersMenu(video_render_menu);
 	graphmenu->ModifyMenu(ID_GRAPH_INSERTVIDEORENDERER, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
 						  (UINT_PTR)video_render_menu.m_hMenu, _T("Insert Video Renderer"));
 
@@ -1148,7 +1155,7 @@ void CGraphView::OnMpeg2DemuxCreatePsiPin()
                         current_pin = &pin;
 
                         // Insert and connect PSI Config Filter
-		                hr = InsertNewFilter(psiConfigFilter, filter.name, true /* connectCurrentPin */);
+		                hr = InsertNewFilter(psiConfigFilter, filter.name);
                     }
                 }
 
@@ -1851,7 +1858,7 @@ HRESULT CGraphView::InsertFilterFromTemplate(DSUtil::FilterTemplate &filter)
 	CComPtr<IBaseFilter>	instance;
 	HRESULT hr = filter.CreateInstance(&instance);
 	if (SUCCEEDED(hr))
-		hr = InsertNewFilter(instance, filter.name, /* connectCurrentPin = */ false);
+		hr = InsertNewFilter(instance, filter.name);
 	return hr;
 }
 
