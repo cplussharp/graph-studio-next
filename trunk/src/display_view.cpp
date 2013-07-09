@@ -131,23 +131,21 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		bool	offer_writer = !current_filter;		// offer writer filters if no filter selected
         bool    offer_remove = false;
 
-		if (current_pin && !current_pin->connected) {
-			DSUtil::MediaTypes			mtypes;
-			HRESULT						hr;
+		DSUtil::MediaTypes mtypes;
+		if (current_pin && current_pin->pin) {
+			HRESULT hr = DSUtil::EnumMediaTypes(current_pin->pin, mtypes);
+			ASSERT(SUCCEEDED(hr));
+		}
 
-			// we will ignore the async file source filter
-			if (current_filter->clsid != CLSID_AsyncReader) {
-				hr = DSUtil::EnumMediaTypes(current_pin->pin, mtypes);
-				if (SUCCEEDED(hr)) {
-					for (int i=0; i<mtypes.GetCount(); i++) {
-						if (mtypes[i].majortype == MEDIATYPE_Stream) {
-							offer_writer = true;
-							break;
-						}
+		if (current_pin && !current_pin->connected) {
+			if (current_filter->clsid != CLSID_AsyncReader) {		// we will ignore the async file source filter
+				for (int i=0; i<mtypes.GetCount(); i++) {
+					if (mtypes[i].majortype == MEDIATYPE_Stream) {
+						offer_writer = true;
+						break;
 					}
 				}
 			}
-
             // Check if we can remove
             CComQIPtr<IMpeg2Demultiplexer> pMpeg2Demux = current_pin->filter->filter;
             offer_remove = pMpeg2Demux && current_pin->dir == PINDIR_OUTPUT;
@@ -218,6 +216,26 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			// add Favorite filters
 			PrepareFavoriteFiltersMenu(menu);
 			p = menu.GetMenuItemCount();
+
+			bool audio_pin = false, video_pin = false;
+			for (int i=0; i<mtypes.GetCount(); i++) {
+				audio_pin = audio_pin || (mtypes[i].majortype == MEDIATYPE_Audio);
+				video_pin = video_pin || (mtypes[i].majortype == MEDIATYPE_Video);
+			}
+			if (audio_pin) {
+				CMenu		submenu;
+				submenu.CreatePopupMenu();
+				PopulateAudioRenderersMenu(submenu);
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("Insert &Audio Renderers"));
+				submenu.Detach();
+			}
+			if (video_pin) {
+				CMenu		submenu;
+				submenu.CreatePopupMenu();
+				PopulateVideoRenderersMenu(submenu);
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("Insert &Video Renderers"));
+				submenu.Detach();
+			}
 
 			if (current_pin) {
 				// check for compatible filters

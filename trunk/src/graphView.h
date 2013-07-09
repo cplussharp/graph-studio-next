@@ -132,6 +132,8 @@ public:
 	void UpdateMRUMenu();
 	void UpdateRenderersMenu();
 	void UpdatePreferredVideoRenderersMenu();
+	virtual void PopulateAudioRenderersMenu(CMenu& menu);
+	virtual void PopulateVideoRenderersMenu(CMenu& menu);
 
     void OnAudioSourceClick(UINT nID);
 	void OnVideoSourceClick(UINT nID);
