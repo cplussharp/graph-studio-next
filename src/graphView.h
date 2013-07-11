@@ -43,6 +43,9 @@ public:
     CLookupForm                 *form_guidlookup;
     CLookupForm                 *form_hresultlookup;
 
+    CCustomToolTipCtrl	        m_ToolTip;
+    CPoint                      m_lastToolTipPoint;
+
 	// active property pages
 	CArray<CPropertyForm*>		property_pages;
 
@@ -93,6 +96,10 @@ public:
 
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 
+    BOOL PreTranslateMessage(MSG* pMsg);
+    void OnInitialUpdate();
+    virtual void OnMouseMove(UINT nFlags, CPoint point);
+
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
@@ -127,6 +134,8 @@ public:
 	CString PromptForFileToOpen(bool only_media_files);
 	void FileSaveAs(DocumentType input_type);
 	void UpdateTitleBar();
+
+    void GetToolTipLabelText(POINT cursor, CString& labelText, CString& descriptionText) const;
 
 	// menu
 	void UpdateMRUMenu();

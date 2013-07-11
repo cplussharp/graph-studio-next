@@ -69,7 +69,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		virtual void OnDraw(CDC *pDC);
 		void OnSize(UINT nType, int cx, int cy);
 
-		void OnMouseMove(UINT nFlags, CPoint point);
+		virtual void OnMouseMove(UINT nFlags, CPoint point);
 		void OnLButtonDown(UINT nFlags, CPoint point);
 		void OnLButtonUp(UINT nFlags, CPoint point);
 		void OnMButtonDown(UINT nFlags, CPoint point);

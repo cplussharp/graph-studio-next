@@ -77,5 +77,24 @@ public:
     STDMETHODIMP get_EntryCount(__int64 *pVal);
     STDMETHODIMP GetEntry(__int64 nr, StatisticRecordEntry *pVal);
     STDMETHODIMP SetCallback(IAnalyzerFilterCallback* pCallback);
+
+
+    // IDispatch
+    STDMETHODIMP GetTypeInfoCount(__out UINT * pctinfo);
+    STDMETHODIMP GetTypeInfo(UINT itinfo, LCID lcid, __deref_out ITypeInfo ** pptinfo);
+    STDMETHODIMP GetIDsOfNames(REFIID riid, __in_ecount(cNames) LPOLESTR * rgszNames, UINT cNames, LCID lcid, __out_ecount(cNames) DISPID * rgdispid);
+
+    STDMETHODIMP Invoke(
+        DISPID dispidMember,
+        REFIID riid,
+        LCID lcid,
+        WORD wFlags,
+        __in DISPPARAMS * pdispparams,
+        __out_opt VARIANT * pvarResult,
+        __out_opt EXCEPINFO * pexcepinfo,
+        __out_opt UINT * puArgErr);
+
+protected:
+    CBaseDispatch m_basedisp;
 };
 

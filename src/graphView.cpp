@@ -235,6 +235,9 @@ CGraphView::CGraphView()
 	, last_stop_time_ns(0LL)
     , m_bExitOnStop(false)
 {
+    // Create the ToolTip control.
+	m_ToolTip.Create(this);
+	m_ToolTip.Activate(TRUE);
 }
 
 CGraphView::~CGraphView()
@@ -260,6 +263,57 @@ BOOL CGraphView::PreCreateWindow(CREATESTRUCT& cs)
 	if (!__super::PreCreateWindow(cs)) return FALSE;
 
 	return TRUE;
+}
+
+BOOL CGraphView::PreTranslateMessage(MSG* pMsg) 
+{
+   	switch (pMsg->message)
+	{
+    case WM_MOUSEMOVE:
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+	case WM_MBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+	case WM_MBUTTONUP:
+		m_ToolTip.RelayEvent(pMsg);
+		break;
+	}
+	
+	return __super::PreTranslateMessage(pMsg);
+}
+
+void CGraphView::OnInitialUpdate()
+{
+	__super::OnInitialUpdate();
+
+	CMFCToolTipInfo params;
+	params.m_bVislManagerTheme = TRUE;
+    params.m_bRoundedCorners = TRUE;
+	m_ToolTip.SetParams (&params);
+	m_ToolTip.AddTool(this, _T("."));
+	m_ToolTip.SetDelayTime(2000);		// 2 second before tooltips pop up in view
+}
+
+void CGraphView::OnMouseMove(UINT nFlags, CPoint point)
+{
+    // hide tooltip
+    if (m_ToolTip.IsWindowVisible())
+    {
+        if (m_lastToolTipPoint.x == 0 && m_lastToolTipPoint.y == 0)
+        {
+            m_lastToolTipPoint.SetPoint(point.x, point.y);
+        }
+        else if (abs(m_lastToolTipPoint.x - point.x) > 5 || abs(m_lastToolTipPoint.y - point.y) > 5)
+        {
+            m_ToolTip.Pop();
+            m_lastToolTipPoint.SetPoint(0, 0);
+        }
+    }
+
+    __super::OnMouseMove(nFlags, point);
 }
 
 // CGraphView printing
@@ -2370,4 +2424,14 @@ void CGraphView::OnUpdateClsidFiltergraphNoThread(CCmdUI *pCmdUI)
 void CGraphView::OnUpdateClsidFiltergraphPrivateThread(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(graph.m_filter_graph_clsid == &CLSID_FilterGraphPrivateThread);
+}
+
+
+
+void CGraphView::GetToolTipLabelText(POINT cursor, CString& labelText, CString& descriptionText) const
+{
+	// figure out where mouse is and what its over
+	labelText = _T("top line of tooltip");
+	descriptionText = _T("bottom line of tooltip");
+		
 }

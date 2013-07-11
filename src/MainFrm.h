@@ -62,4 +62,5 @@ protected:
 	afx_msg void OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu);
 };
 
-
+// for ToolTips
+extern CGraphView* GetActiveView();

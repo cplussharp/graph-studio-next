@@ -138,7 +138,7 @@ HRESULT CAnalyzerPage::OnActivate()
 HRESULT CAnalyzerPage::OnDisconnect()
 {
     isActiv = false;
-    filter->SetCallback(NULL);
+    //filter->SetCallback(NULL);
 	filter = NULL;
 	return NOERROR;
 }
