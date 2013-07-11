@@ -50,6 +50,9 @@ STDMETHODIMP CAnalyzer::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 	if (riid == __uuidof(IAnalyzerFilter)) {
 		return GetInterface((IAnalyzerFilter*)this, ppv);
 	}
+    else if (riid == __uuidof(IDispatch)) {
+		return GetInterface((IDispatch*)this, ppv);
+	}
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
@@ -485,6 +488,62 @@ STDMETHODIMP CAnalyzer::SetCallback(IAnalyzerFilterCallback* pCallback)
     m_callback = pCallback;
 
     return S_OK;
+}
+
+#pragma endregion
+
+#pragma region IDispatch Member
+/*********************************************************************************************
+* IDispatch
+*********************************************************************************************/
+STDMETHODIMP CAnalyzer::GetTypeInfoCount(__out UINT * pctinfo)
+{
+    return m_basedisp.GetTypeInfoCount(pctinfo);
+}
+
+STDMETHODIMP CAnalyzer::GetTypeInfo(UINT itinfo, LCID lcid, __deref_out ITypeInfo ** pptinfo)
+{
+    return m_basedisp.GetTypeInfo(__uuidof(IAnalyzerFilter), itinfo, lcid, pptinfo);
+}
+
+STDMETHODIMP CAnalyzer::GetIDsOfNames(REFIID riid, __in_ecount(cNames) LPOLESTR * rgszNames, UINT cNames, LCID lcid, __out_ecount(cNames) DISPID * rgdispid)
+{
+    return m_basedisp.GetIDsOfNames(__uuidof(IAnalyzerFilter), rgszNames,	cNames, lcid, rgdispid);
+}
+
+STDMETHODIMP CAnalyzer::Invoke(
+    DISPID dispidMember,
+    REFIID riid,
+    LCID lcid,
+    WORD wFlags,
+    __in DISPPARAMS * pdispparams,
+    __out_opt VARIANT * pvarResult,
+    __out_opt EXCEPINFO * pexcepinfo,
+    __out_opt UINT * puArgErr)
+{
+    // this parameter is a dead leftover from an earlier interface
+    if (IID_NULL != riid) {
+	    return DISP_E_UNKNOWNINTERFACE;
+    }
+
+    ITypeInfo * pti;
+    HRESULT hr = GetTypeInfo(0, lcid, &pti);
+
+    if (FAILED(hr)) {
+	    return hr;
+    }
+
+    hr = pti->Invoke(
+	    (IAnalyzerFilter*)this,
+	    dispidMember,
+	    wFlags,
+	    pdispparams,
+	    pvarResult,
+	    pexcepinfo,
+	    puArgErr);
+
+    pti->Release();
+    return hr;
 }
 
 #pragma endregion

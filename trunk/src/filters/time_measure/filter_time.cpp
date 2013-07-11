@@ -59,6 +59,9 @@ STDMETHODIMP CMonoTimeMeasure::NonDelegatingQueryInterface(REFIID riid, void ** 
 	if (riid == __uuidof(ITimeMeasureFilter)) {
 		return GetInterface((ITimeMeasureFilter*)this, ppv);
 	}
+    else if (riid == __uuidof(IDispatch)) {
+		return GetInterface((IDispatch*)this, ppv);
+	}
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
@@ -111,6 +114,57 @@ STDMETHODIMP CMonoTimeMeasure::GetStats(__int64 *runtime_ns, __int64 *frames, __
 
 
 
+/*********************************************************************************************
+* IDispatch
+*********************************************************************************************/
+STDMETHODIMP CMonoTimeMeasure::GetTypeInfoCount(__out UINT * pctinfo)
+{
+    return m_basedisp.GetTypeInfoCount(pctinfo);
+}
 
+STDMETHODIMP CMonoTimeMeasure::GetTypeInfo(UINT itinfo, LCID lcid, __deref_out ITypeInfo ** pptinfo)
+{
+    return m_basedisp.GetTypeInfo(__uuidof(ITimeMeasureFilter), itinfo, lcid, pptinfo);
+}
+
+STDMETHODIMP CMonoTimeMeasure::GetIDsOfNames(REFIID riid, __in_ecount(cNames) LPOLESTR * rgszNames, UINT cNames, LCID lcid, __out_ecount(cNames) DISPID * rgdispid)
+{
+    return m_basedisp.GetIDsOfNames(__uuidof(ITimeMeasureFilter), rgszNames,	cNames, lcid, rgdispid);
+}
+
+STDMETHODIMP CMonoTimeMeasure::Invoke(
+    DISPID dispidMember,
+    REFIID riid,
+    LCID lcid,
+    WORD wFlags,
+    __in DISPPARAMS * pdispparams,
+    __out_opt VARIANT * pvarResult,
+    __out_opt EXCEPINFO * pexcepinfo,
+    __out_opt UINT * puArgErr)
+{
+    // this parameter is a dead leftover from an earlier interface
+    if (IID_NULL != riid) {
+	    return DISP_E_UNKNOWNINTERFACE;
+    }
+
+    ITypeInfo * pti;
+    HRESULT hr = GetTypeInfo(0, lcid, &pti);
+
+    if (FAILED(hr)) {
+	    return hr;
+    }
+
+    hr = pti->Invoke(
+	    (ITimeMeasureFilter*)this,
+	    dispidMember,
+	    wFlags,
+	    pdispparams,
+	    pvarResult,
+	    pexcepinfo,
+	    puArgErr);
+
+    pti->Release();
+    return hr;
+}
 
 

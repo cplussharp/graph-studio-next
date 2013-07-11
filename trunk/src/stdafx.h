@@ -69,6 +69,8 @@
 
 #include <afxtempl.h>
 #include <afxlinkctrl.h>
+#include <afxtooltipctrl.h>
+#include <afxglobals.h>
 #include <afxadv.h> // for jumplist
 //#include <afxlistctrl.h>    // CMFCListCtrl
 
@@ -147,6 +149,8 @@ using namespace std;
 #include "filters\audio_analyzer\filter_audio_analyzer.h"
 
 #include "mtypes_ext.h"
+
+#include "CustomToolTipCtrl.h"
 
 #include "GraphStudioModelessDialog.h"
 #include "title_bar.h"

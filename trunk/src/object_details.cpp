@@ -1241,37 +1241,22 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (extralen <= 0) return 0;
 
         CBitStreamReader br(extra, extralen);
-        BOOL nalParsed = TRUE;
+        int lastNullBytes = 0;
 
-        while(nalParsed)
+        while(br.GetPos() < extralen-4)
         {
-            UINT16 length = br.ReadU16();   // some types start with the length
-            if(length == 0)
+            BYTE val = br.ReadU8();
+
+            if (val == 0) lastNullBytes++;
+            else if (val == 1 && lastNullBytes >= 3)
             {
-                if(br.ReadU8() == 1)
-                {
-                    // was NAL prefix
-                    nalParsed = NALParser(br, mtinfo);
-                }
-                else
-                {
-                    // try again, some use 4 bytes as prefix
-                    if(br.ReadU8() == 1)
-                    {
-                        // was NAL prefix
-                        nalParsed = NALParser(br, mtinfo);
-                    }
-                    else
-                        return 0;
-                }
+                NALParser(br, mtinfo);
+                // zum vollen byte springen
+                br.SetPos(br.GetPos());
+                lastNullBytes = 0;
             }
             else
-            {
-                int oldPos = br.GetPos();
-                NALParser(br, mtinfo);
-                br.SetPos(oldPos + length);
-                nalParsed = TRUE;
-            }
+                lastNullBytes = 0;
         }
 
 		return 0;

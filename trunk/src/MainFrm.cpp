@@ -375,13 +375,16 @@ void CMainFrame::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu)
 	__super::OnInitMenuPopup(pPopupMenu, nIndex, bSysMenu);
 }
 
+// for tooltip
+CGraphView*	GetActiveView()
+{ 
+	return ((CMainFrame*)(AfxGetApp()->GetMainWnd()))->view;
+}
+
 // CMainFrame diagnostics
 
 #ifdef _DEBUG
 void CMainFrame::AssertValid() const			{ __super::AssertValid(); }
 void CMainFrame::Dump(CDumpContext& dc) const	{ __super::Dump(dc); }
 #endif //_DEBUG
-
-
-
 

@@ -980,6 +980,55 @@ void GetInterfaceInfo_IMemInputPin(GraphStudio::PropItem* group, IUnknown* pUnk)
 	}
 }
 
+
+
+
+
+/*****************************************************************************************
+* Internal Interface Infos
+******************************************************************************************/
+void GetInterfaceInfo_ITimeMeasureFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<ITimeMeasureFilter> pI = pUnk;
+    if(pI)
+    {
+        __int64 runtime_ns, frames, realtime_ns;
+        pI->GetStats(&runtime_ns, &frames, &realtime_ns);
+
+        group->AddItem(new GraphStudio::PropItem(_T("Frames"), frames));
+        group->AddItem(new GraphStudio::PropItem(_T("Runtime (100ns)"), runtime_ns));
+        group->AddItem(new GraphStudio::PropItem(_T("Realtime (100ns)"), realtime_ns));
+	}
+}
+
+void GetInterfaceInfo_IAnalyzerFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IAnalyzerFilter> pI = pUnk;
+    if(pI)
+    {
+        VARIANT_BOOL enabled;
+        pI->get_Enabled(&enabled);
+        group->AddItem(new GraphStudio::PropItem(_T("Enabled"), enabled != VARIANT_FALSE));
+
+        // TODO CaptureConfiguration anzeigen (Flagstatus als eigene Gruppe)
+
+        int config;
+        pI->get_CaptureConfiguration(&config);
+        CString configStr;
+        configStr.Format(_T("0x%08lX", config));
+        group->AddItem(new GraphStudio::PropItem(_T("CaptureConfiguration"), configStr, false));
+
+        unsigned short previewSampleByteCount;
+        pI->get_PreviewSampleByteCount(&previewSampleByteCount);
+        group->AddItem(new GraphStudio::PropItem(_T("PreviewSampleByteCount"), previewSampleByteCount));
+
+        __int64 entryCount;
+        pI->get_EntryCount(&entryCount);
+        group->AddItem(new GraphStudio::PropItem(_T("EntryCount"), entryCount));
+	}
+}
+
+
 /*****************************************************************************************
 * known Interfaces to test
 ******************************************************************************************/
@@ -1350,7 +1399,12 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{ed3e0c66-18c8-4ea6-9300-f6841fdd35dc}"), TEXT("ITunerCapEx"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{919F24C5-7B14-42ac-A4B0-2AE08DAF00AC}"), TEXT("IPSITables"), TEXT("mpeg2psiparser.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd694840.aspx")),
     
-    CInterfaceInfo(TEXT("{2BA1785D-4D1B-44EF-85E8-C7F1D3F20184}"), TEXT("ICameraControl"), TEXT("vidcap.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376298.aspx"), GetInterfaceInfo_ICameraControl)
+    CInterfaceInfo(TEXT("{2BA1785D-4D1B-44EF-85E8-C7F1D3F20184}"), TEXT("ICameraControl"), TEXT("vidcap.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376298.aspx"), GetInterfaceInfo_ICameraControl),
+
+
+    // Internal Interfaces
+    CInterfaceInfo(TEXT("{B278651D-1678-4add-941A-0EFDAD41F930}"), TEXT("ITimeMeasureFilter"), TEXT("time_measure.idl"), TEXT(""), GetInterfaceInfo_ITimeMeasureFilter),
+    CInterfaceInfo(TEXT("{51039F7F-907D-4E3F-B16F-721BC7317094}"), TEXT("IAnalyzerFilter"), TEXT("analyzer.idl"), TEXT(""), GetInterfaceInfo_IAnalyzerFilter)
 };
 const UINT CInterfaceScanner::m_countKnownInterfaces = sizeof(m_knownInterfaces) / sizeof(m_knownInterfaces[0]);
 

@@ -375,6 +375,9 @@
     <ClInclude Include="src\GraphStudioModelessDialog.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="src\CustomToolTipCtrl.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -616,6 +619,9 @@
     </ClCompile>
     <ClCompile Include="src\GraphStudioModelessDialog.cpp">
       <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CustomToolTipCtrl.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

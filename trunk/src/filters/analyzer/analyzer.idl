@@ -147,8 +147,8 @@ interface IAnalyzerFilterCallback : IUnknown
     HRESULT OnStatisticResetted();
 }
 
-[object, uuid("51039F7F-907D-4E3F-B16F-721BC7317094")]
-interface IAnalyzerFilter : IUnknown
+[object, uuid("51039F7F-907D-4E3F-B16F-721BC7317094"), dual, oleautomation]
+interface IAnalyzerFilter : IDispatch
 {
     [propget, id(1), helpstring("Is the analyzer enabled")] HRESULT Enabled([out, retval] VARIANT_BOOL* pVal);
     [propput, id(1), helpstring("Is the analyzer enabled")] HRESULT Enabled([in] VARIANT_BOOL newVal);
@@ -168,8 +168,8 @@ interface IAnalyzerFilter : IUnknown
     [id(7), helpstring("Get an entry from the statistic (if aData != NULL you need to CoTaskMemFree it)")]
     HRESULT GetEntry([in] __int64 nr, [out, retval] StatisticRecordEntry *pVal);
 
-    [id(8), helpstring("Register or remove a callback for the events of the statistic")]
-    HRESULT SetCallback(IAnalyzerFilterCallback* pCallback);
+    /*[id(8), helpstring("Register or remove a callback for the events of the statistic")]
+    HRESULT SetCallback(IAnalyzerFilterCallback* pCallback);*/
 };
 
 [
@@ -183,26 +183,26 @@ library AnalyzerFilterLib
     enum StatisticCaptureFlags;
     enum StatisticRecordKind;
     struct StatisticRecordEntry;
-    interface IAnalyzerFilterCallback;
+    //interface IAnalyzerFilterCallback;
     interface IAnalyzerFilter;
 
     [uuid("CA6B3460-28B3-4A6E-A7FC-A83CF1DEEC49")]
     coclass AnalyzerFilter
     {
-        interface IBaseFilter;
+        [default] interface IBaseFilter;
         interface ISpecifyPropertyPages;
-        [default] interface IAnalyzerFilter;
+        interface IAnalyzerFilter;
     }
 
     [uuid("CA6B3460-28B3-4A6E-A7FC-A83CF1DEEC4A")]
     coclass AnalyzerWriterFilter
     {
-        interface IBaseFilter;
+        [default] interface IBaseFilter;
         interface IFileSinkFilter2;
         interface IAMFilterMiscFlags;
         interface IMediaSeeking;
         interface ISpecifyPropertyPages;
-        [default] interface IAnalyzerFilter;
+        interface IAnalyzerFilter;
     }
 
     [uuid("19E56670-B62F-4658-BC54-086E798EF97B")]
