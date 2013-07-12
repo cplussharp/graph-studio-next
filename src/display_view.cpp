@@ -86,11 +86,20 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// find out if there is any filter being selected
 		current_filter = graph.FindFilterByPos(point);
-		if (!current_filter) return ;
 
 		// check for a pin - will have different menu
-		current_pin = current_filter->FindPinByPos(point, false);
-		OnPropertyPage();
+		current_pin = current_filter ? current_filter->FindPinByPos(point, false) : NULL;
+
+		// if no filter or pin under cursor so check for connection line under cursor
+		if (!current_filter && !current_pin) {
+			for (int i=0; !current_pin && i<graph.filters.GetCount(); i++) 
+				current_pin = graph.filters[i]->FindConnectionLineByPos(point);
+			if (current_pin)
+				current_filter = current_pin->filter;
+		}
+
+		if (current_filter || current_pin)
+			OnPropertyPage();
 	}
 
 	void DisplayView::OnRButtonDown(UINT nFlags, CPoint point)
@@ -113,6 +122,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		if (!current_pin)
 			current_pin = GetPinFromFilterClick(current_filter, nFlags, /* findConnectedPin = */ false);
+
+		// if no filter or pin under cursor so check for connection line under cursor
+		if (!current_filter && !current_pin) {
+			for (int i=0; !current_pin && i<graph.filters.GetCount(); i++) 
+				current_pin = graph.filters[i]->FindConnectionLineByPos(point);
+			if (current_pin)
+				current_filter = current_pin->filter;
+		}
 
 		// make rendering inactive for connected pins
 		UINT	renderFlags = 0;
@@ -1228,7 +1245,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	void DisplayView::OnCompatibleFilterClick(UINT id)
 	{		
 		id -= ID_COMPATIBLE_FILTER;
-		if (id >= compatible_filters.filters.GetCount()) 
+		if (id >= (UINT)compatible_filters.filters.GetCount()) 
 			return ;
 
 		// create an instance of the filter and insert it into the graph
