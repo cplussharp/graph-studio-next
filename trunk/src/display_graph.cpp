@@ -1173,26 +1173,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// The IBaseFilter* are only used to find matching Filters so will not crash if pointers are invalid
 		CArray<IBaseFilter *>	filters_loaded_order;
 
-		HRESULT connection_hresult = S_OK;
-		HRESULT filter_hresult = S_OK;
-
 		for (it = gn->nodes.begin(); it != gn->nodes.end(); it++) {
 			XML::XMLNode * const node = *it;
 
 			if (node->name == _T("filter"))	{
 				CComPtr<IBaseFilter> created_filter;
 				hr = LoadXML_Filter(node, created_filter);
-				filters_loaded_order.Add(created_filter.p);		// Add NULL if filter failed to load
-				if (FAILED(hr))
-					filter_hresult = hr;
-
+				filters_loaded_order.Add(created_filter.p);		// Add NULL if filter failed to load to preserve correct filter indices
 			} else if (node->name == _T("render")) 
 				hr = LoadXML_Render(node); 
 			else if (node->name == _T("connect")) {
 				hr = LoadXML_Connect(node, filters_loaded_order); 
-				if (FAILED(hr))
-					connection_hresult = hr;
-
 			} else if (node->name == _T("config")) 
 				hr = LoadXML_Config(node); 
 			else if (node->name == _T("iamgraphstreams")) 
@@ -1201,18 +1192,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				hr = LoadXML_Schedule(node); 
 			else if (node->name == _T("command")) 
 				hr = LoadXML_Command(node); 
-		}
-
-		// TODO report all errors - perhaps in graph construction window?
-
-		if (FAILED(filter_hresult)) {
-			SmartPlacement();			// arrange filters so user can see what's failed
-			DSUtil::ShowError(filter_hresult, _T("Failed to create filter(s)"));
-		}
-
-		if (FAILED(connection_hresult)) {
-			SmartPlacement();			// arrange filters so user can see what's failed
-			DSUtil::ShowError(connection_hresult, _T("Connection(s) failed - try different XML options"));
 		}
 
 		return S_OK;
@@ -1433,8 +1412,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	HRESULT DisplayGraph::LoadXML_Connect(XML::XMLNode *node, const CArray<IBaseFilter *> & indexed_filters)
 	{
+		CheckPointer(node, E_POINTER);
+
 		Pin * opin = NULL;
 		Pin * ipin = NULL;
+		Filter * ofilter = NULL;
+		Filter * ifilter = NULL;
+		CString out_id, in_id;
 
 		const int ofilter_index = node->GetValue(_T("outFilterIndex"), -1);
 		const int ifilter_index = node->GetValue(_T("inFilterIndex"), -1);
@@ -1443,23 +1427,23 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				&& ifilter_index >= 0 && ifilter_index < indexed_filters.GetCount()) {
 
 			// Look filter up in out list as DirectShow may have rearranged order within the graph
-			Filter * const ofilter = FindFilter(indexed_filters[ofilter_index]);
-			Filter * const ifilter = FindFilter(indexed_filters[ifilter_index]);
+			ofilter = FindFilter(indexed_filters[ofilter_index]);
+			ifilter = FindFilter(indexed_filters[ifilter_index]);
 
 			if (ofilter && ifilter) {
 				switch (CgraphstudioApp::g_ResolvePins) {
 					case CgraphstudioApp::BY_ID: {
 						// Work around buggy filters that return unsuitable pins or NULL from IBaseFilter::FindPin by searching manually for ID match
 					
-						CString id = node->GetValue(_T("outPinId"));
-						opin = ofilter->FindPinByID(id);
+						out_id = node->GetValue(_T("outPinId"));
+						opin = ofilter->FindPinByID(out_id);
 						if (!opin || opin->connected || opin->dir == PINDIR_INPUT)
-							opin = ofilter->FindPinByMatchingID(id);
+							opin = ofilter->FindPinByMatchingID(out_id);
 					
-						id = node->GetValue(_T("inPinId"));
-						ipin = ifilter->FindPinByID(id);
+						in_id = node->GetValue(_T("inPinId"));
+						ipin = ifilter->FindPinByID(in_id);
 						if (!ipin || ipin->connected || ipin->dir == PINDIR_OUTPUT)
-							ipin = ifilter->FindPinByMatchingID(id);
+							ipin = ifilter->FindPinByMatchingID(in_id);
 					
 					}	break;
 
@@ -1468,21 +1452,25 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 						int index = node->GetValue(_T("outPinIndex"), -1);
 						if (index >= 0 && index < ofilter->output_pins.GetCount())
 							opin = ofilter->output_pins[index];
+						if (!opin)
+							out_id.Format(_T("%d"), index);
 
 						index = node->GetValue(_T("inPinIndex"), -1);
 						if (index >= 0 && index < ifilter->input_pins.GetCount())
 							ipin = ifilter->input_pins[index];
+						if (!ipin)
+							in_id.Format(_T("%d"), index); 
 
 					}	break;
 
 					case CgraphstudioApp::BY_NAME:
 					default: {
 
-						CString id = node->GetValue(_T("outPinName"));
-						opin = ofilter->FindPinByName(id);
+						out_id = node->GetValue(_T("outPinName"));
+						opin = ofilter->FindPinByName(out_id);
 					
-						id = node->GetValue(_T("inPinName"));
-						ipin = ifilter->FindPinByName(id);
+						in_id = node->GetValue(_T("inPinName"));
+						ipin = ifilter->FindPinByName(in_id);
 
 					}	break;
 				}
@@ -1495,8 +1483,22 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			ipin = FindPinByPath(node->GetValue(_T("in")));
 		}
 
-		if (!opin || !ipin) 
+		if (!opin || !ipin) {
+			CString str;
+			if (!ofilter || !ifilter) {
+				str.Format(_T("Could not find %s filter index %d"), 
+						ofilter ? _T("input")	: _T("output"),
+						ofilter ? ifilter_index : ofilter_index);
+			} else {
+				str.Format(_T("Could not find %s pin %s on filter %s"), 
+						opin ? _T("input")				: _T("output"),
+						opin ? in_id					: out_id,
+						opin ? ifilter->display_name	: ofilter->display_name);
+			}
+			SmartPlacement();
+			DSUtil::ShowError(E_FAIL, str);
 			return VFW_E_NOT_FOUND;
+		}
 
 		const CString direct = node->GetValue(_T("direct"));
 
@@ -1515,6 +1517,18 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				// If connection with media type failed reattempt connection without media type
 				hr = gb->ConnectDirect(opin->pin, ipin->pin, NULL);
 			}
+		}
+
+		if (FAILED(hr)) {
+			CString str;
+			str.Format(_T("Error connecting %s pin %s to %s pin %s"), 
+					(const TCHAR *)ofilter->name,	
+					(const TCHAR *)opin->name,
+					(const TCHAR *)ifilter->name,
+					(const TCHAR *)ipin->name);
+			SmartPlacement();
+			DSUtil::ShowError(hr, str);
+			return hr;
 		}
 
 		// reload newly added filters
@@ -1554,8 +1568,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (clsid_str != _T("")) {
 			filter_id_type = 0;
             hr = CLSIDFromString((LPOLESTR)clsid_str.GetBuffer(), &clsid);
-			if (FAILED(hr)) 
+			if (FAILED(hr)) {
+				CString str;
+				str.Format(_T("Error parsing %s CLSID %s"), (const TCHAR *)name, (const TCHAR *)clsid_str);
+				SmartPlacement();
+				DSUtil::ShowError(hr, str);
 				return hr;
+			}
 		} else
 		if (dn != _T("")) {
 			filter_id_type = 1;
@@ -1567,6 +1586,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			{
 				// create by CLSID
 				hr = CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
+				if (FAILED(hr)) {
+					CString str;
+					str.Format(_T("CoCreateInstance error %s CLSID %s"), (const TCHAR *)name, (const TCHAR *)clsid_str);
+					SmartPlacement();
+					DSUtil::ShowError(hr, str);
+					return hr;
+				}
 			}
 			break;
 		case 1:
@@ -1584,9 +1610,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 					}
 				}
 
-				if (FAILED(hr)) instance = NULL;
-				bind = NULL;
-				moniker = NULL;
+				if (FAILED(hr)) {
+					CString str;
+					str.Format(_T("Error creating %s display name %s"), (const TCHAR *)name, (const TCHAR *)dn);
+					SmartPlacement();
+					DSUtil::ShowError(hr, str);
+					return hr;
+				}
 			}
 			break;
 		default:
@@ -1596,29 +1626,21 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			break;
 		}
 
-		// add the filter instance
-		if (SUCCEEDED(hr) && instance) {
-			// add the filter to graph
-			hr = AddFilter(instance, name);
-			if (FAILED(hr)) {
-				// display error message
-			}
+		// add the filter to graph
+		hr = AddFilter(instance, name);
+		if (FAILED(hr)) {
+			CString str;
+			str.Format(_T("Error adding filter %s"), (const TCHAR *)name);
+			SmartPlacement();
+			DSUtil::ShowError(hr, str);
+			return hr;
 		}
 
 		// check for known interfaces
-		if (SUCCEEDED(hr)) {
-			hr = LoadXML_Interfaces(node, instance);
-			is_configured = SUCCEEDED(hr);
-		}
+		hr = LoadXML_Interfaces(node, instance);
 
-		if (SUCCEEDED(hr) && instance != NULL && !is_configured) {
-
-			// now check for a few interfaces
-			int r = ConfigureInsertedFilter(instance, name);
-			if (r < 0) {
-				instance = NULL;
-			}
-		}
+		// now check for a few interfaces
+		int r = ConfigureInsertedFilter(instance, name);
 
 		RefreshFilters();
 		return hr;
@@ -1632,10 +1654,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		for (XML::XMLIterator it = node->nodes.begin(); it != node->nodes.end(); it++) {
 			XML::XMLNode * const iface = *it;
 			hr = LoadXML_ConfigInterface(iface, filter);
-			if (FAILED(hr)) 
-				return hr;
 		}
-
 		return hr;
 	}
 
@@ -1671,6 +1690,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			if (!filter.ibasefilter) {
 				CString errorStr;
 				errorStr.Format(_T("Cannot create filter %d %s, CLSID %s"), filter.index, (LPCTSTR)filter.name, (LPCTSTR)guidStr);
+				SmartPlacement();
 				DSUtil::ShowError(hr, errorStr);
 
 			} else {
@@ -1744,6 +1764,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 					if (!success) {
 						CString errorStr;
 						errorStr.Format(_T("Cannot load state for filter %d %s, CLSID %s"), filter.index, (LPCTSTR)filter.name, (LPCTSTR)guidStr);
+						SmartPlacement();
 						DSUtil::ShowError(hr, errorStr);
 					}
 				}
@@ -1790,16 +1811,16 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 							(LPCTSTR)connection.output_pin_id,
 							connection.output_filter_index,
 							(LPCTSTR)out_filter->display_name);
-					DSUtil::ShowError(errorStr);
-				}
-
-				if (!in_pin) {
+					SmartPlacement();
+					DSUtil::ShowError(E_FAIL, errorStr);
+				} else if (!in_pin) {
 					CString errorStr;
 					errorStr.Format(_T("Can't find input pin ID %s for filter %d %s"), 
 							(LPCTSTR)connection.input_pin_id,
 							connection.input_filter_index,
 							(LPCTSTR)in_filter->display_name);
-					DSUtil::ShowError(errorStr);
+					SmartPlacement();
+					DSUtil::ShowError(E_FAIL, errorStr);
 				}
 
 				if (out_pin && in_pin) {
@@ -1812,12 +1833,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 								(LPCTSTR)connection.output_pin_id,
 								(LPCTSTR)in_filter->display_name,
 								(LPCTSTR)connection.input_pin_id);
-						DSUtil::ShowError(hr, errorStr);
 
 						hr = gb->ConnectDirect(out_pin->pin, in_pin->pin, NULL);	// reattempt with no media type
 
-						CString title(_T("No media type: "));
-						DSUtil::ShowError(hr, title + errorStr);
+						if (FAILED(hr)) {
+							CString title(_T("No media type: "));
+							SmartPlacement();
+							DSUtil::ShowError(hr, title + errorStr);
+						}
 					}
 				}
 			}

@@ -58,7 +58,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			//	<ifilesourcefilter source="d:\sga.avi"/>
 
 			CComQIPtr<IFileSourceFilter> fsource(filter);
-			if (fsource) {
+			if (!fsource) {
+				hr = E_NOINTERFACE;
+			} else {
 
 				CString filename = conf->GetValue(_T("source"));
 
@@ -81,8 +83,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			//	<ifilesinkfilter dest="d:\sga.avi"/>
 
 			CComQIPtr<IFileSinkFilter> fsink(filter);
-			if (fsink) {
-
+			if (!fsink) {
+				hr = E_NOINTERFACE;
+			} else {
 				CString filename = conf->GetValue(_T("dest"));
 
 				const DWORD file_attributes = GetFileAttributes(filename);
@@ -160,9 +163,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 				BOOL	blocking = (conf->GetValue(_T("blocking"), 1) == 1 ? TRUE : FALSE);
 				sink->SetBlocking(blocking);
-
-				if (FAILED(hr)) 
-					return hr;
 			}
 
 		PRESET("imonogramgraphsource")
@@ -173,8 +173,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			if (SUCCEEDED(hr)) {
 				CString	srcname = conf->GetValue(_T("name"));
 				hr = src->SetSourceName(srcname.GetBuffer());
-				if (FAILED(hr)) 
-					return hr;
 			}
 
 		PRESET("imonogramqueue")
@@ -185,8 +183,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			if (SUCCEEDED(hr)) {
 				int samples = conf->GetValue(_T("samples"), 10);
 				hr = queue->SetBufferSize(samples);
-				if (FAILED(hr)) 
-					return hr;
 			}
 
 		PRESET("imonogramaudioproc")
@@ -281,7 +277,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				config.object_type = object_type;
 				config.output_type = output_type;
 				config.bitrate     = bitrate;
-				enc->SetConfig(&config);	
+				hr = enc->SetConfig(&config);	
 			}
 
 		PRESET("imonogramx264")
@@ -490,6 +486,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		PRESET_END()
 
+		if (FAILED(hr)) {
+			CString str;
+			str.Format(_T("Error restoring %s data"), (const TCHAR *)conf->name);
+			SmartPlacement();
+			DSUtil::ShowError(hr, str);
+		}
 
 		return hr;
 	}
