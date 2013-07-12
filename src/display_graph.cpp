@@ -1805,6 +1805,24 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				if (!in_pin || in_pin->connected || in_pin->dir == PINDIR_OUTPUT)
 					in_pin = in_filter->FindPinByMatchingID(connection.input_pin_id);
 
+				// workaround for inf tee output pin misnumbering issues when connections below last output disconnected
+				if (!out_pin) {
+					int pin_index = -1;
+					if (1 == _stscanf(connection.output_pin_id, _T("Output%d"), &pin_index)) {	// If ID of form Output<integer>
+						while (!out_pin && --pin_index >= 0) {									// Look backwards for pins of ID Output<integer>
+							CString pin_id;
+							pin_id.Format(_T("Output%d"), pin_index);							
+
+							out_pin = out_filter->FindPinByID(pin_id);
+							if (!out_pin || out_pin->connected || out_pin->dir == PINDIR_INPUT) {
+								out_pin = out_filter->FindPinByMatchingID(pin_id);				// work around pins with buggy IFilter::FindPin
+								if (out_pin->connected || out_pin->dir == PINDIR_INPUT)
+									out_pin = NULL;													// pin unsuitable
+							}
+						}
+					}
+				}
+
 				if (!out_pin) {
 					CString errorStr;
 					errorStr.Format(_T("Can't find output pin ID %s for filter %d %s"), 
