@@ -160,6 +160,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		Pin *FindPinByID(CString id);
 		Pin *FindPinByMatchingID(CString id);
 		Pin *FindPinByName(CString id);
+		Pin* FindConnectionLineByPos(CPoint pt) const;
 		bool HasPin(IPin *pin);
 		void LoadPeers();
 		void RemoveSelectedConnections();
@@ -184,6 +185,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// overlay icons
 		int CheckIcons(CPoint pt);
+
+		static const int SELECTION_BORDER = 10;
 	};
 
 
@@ -332,8 +335,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void DrawArrow(CDC *dc, CPoint p1, CPoint p2, DWORD color = RGB(0,0,0), int nPenStyle = PS_SOLID);
 
 		// mouse interaction
-		Filter *FindFilterByPos(CPoint pt);
-		Pin *FindPinByPos(CPoint pt);
+		Filter *FindFilterByPos(CPoint pt) const;
+		Pin *FindPinByPos(CPoint pt) const;
 
 		// state information
 		int GetState(FILTER_STATE &state, DWORD timeout=INFINITE);

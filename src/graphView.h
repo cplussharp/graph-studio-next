@@ -15,7 +15,7 @@
 //
 //-----------------------------------------------------------------------------
 
-class CGraphView : public GraphStudio::DisplayView
+class CGraphView : public GraphStudio::DisplayView, public CustomToolTipCallback
 {
 protected: 
 	CGraphView();
@@ -135,7 +135,8 @@ public:
 	void FileSaveAs(DocumentType input_type);
 	void UpdateTitleBar();
 
-    void GetToolTipLabelText(POINT cursor, CString& labelText, CString& descriptionText) const;
+	// CustomToolTipCallback implementation
+    virtual void GetToolTipLabelText(POINT cursor, CString& labelText, CString& descriptionText) const;
 
 	// menu
 	void UpdateMRUMenu();

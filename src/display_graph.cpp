@@ -1981,16 +1981,16 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return hr;
 	}
 
-	Pin *DisplayGraph::FindPinByPos(CPoint pt)
+	Pin *DisplayGraph::FindPinByPos(CPoint pt) const
 	{
 		Filter *filter = FindFilterByPos(pt);
 		if (!filter) return NULL;
 		return filter->FindPinByPos(pt);
 	}
 
-	Filter *DisplayGraph::FindFilterByPos(CPoint pt)
+	Filter *DisplayGraph::FindFilterByPos(CPoint pt) const
 	{
-		int border = 6;
+		const int border = Filter::SELECTION_BORDER;
 		for (int i=0; i<filters.GetCount(); i++) {
 			Filter *filter = filters[i];
 			CRect	rc(filter->posx-border, filter->posy-2, 
@@ -3105,7 +3105,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 	}
 
-	void Filter::SelectConnection(UINT flags, CPoint pt)
+	Pin* Filter::FindConnectionLineByPos(CPoint pt) const
 	{
 		// we check our output pins and test for hit
 		for (int i=0; i<output_pins.GetCount(); i++) {
@@ -3118,17 +3118,23 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				pin->GetCenterPoint(&pt1);
 				peer->GetCenterPoint(&pt2);
 
-				bool hit = LineHit(pt1, pt2, pt);
-				if (hit) {
-					
-					// testing ...
-					pin->Select(true);
-				} else {
-					pin->Select(false);
-				}
+				if (LineHit(pt1, pt2, pt))
+					return pin;
 			}
-
 		}
+		return NULL;
+	}
+
+	void Filter::SelectConnection(UINT flags, CPoint pt)
+	{
+		// Deselect all output pins
+		for (int i=0; i<output_pins.GetCount(); i++)
+			output_pins[i]->Select(false);
+
+		// Select pin clicked on
+		Pin * const pin = FindConnectionLineByPos(pt);
+		if (pin)
+			pin->Select(true);
 	}
 
 	void Filter::BeginDrag()
@@ -3220,7 +3226,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			pin->GetCenterPoint(&cp);
 
 			float	dist = (float)sqrt((float)((p.x-cp.x)*(p.x-cp.x) + (p.y-cp.y)*(p.y-cp.y)));
-			if (dist < 8.0) return pin;
+			if (dist <= SELECTION_BORDER) 
+				return pin;
 		}
 		for (i=0; i<input_pins.GetCount(); i++) {
 			Pin *pin = input_pins[i];
@@ -3230,7 +3237,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			pin->GetCenterPoint(&cp);
 
 			float	dist = (float)sqrt((float)((p.x-cp.x)*(p.x-cp.x) + (p.y-cp.y)*(p.y-cp.y)));
-			if (dist < 8.0) return pin;
+			if (dist <= SELECTION_BORDER) 
+				return pin;
 		}
 		return NULL;
 	}
@@ -3619,8 +3627,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		float dist;
 		if (DistancePointLine(&f1, &f2, &h, &dist) < 0) return false;
-		if (dist < 3.5) return true;
-		return false;
+		return dist < Filter::SELECTION_BORDER;
 	}
 
 

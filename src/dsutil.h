@@ -266,6 +266,7 @@ namespace DSUtil
 
 	bool IsVideoUncompressed(GUID subtype);
     bool IsAudioUncompressed(GUID subtype);
+	CString FormatBlockSummary(const AM_MEDIA_TYPE& mediaType);
 
 	CString get_next_token(CString &str, CString separator);
 
