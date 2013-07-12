@@ -2438,12 +2438,8 @@ void CGraphView::GetToolTipLabelText(POINT cursorScreenPos, CString& labelText, 
 	GraphStudio::Pin * sel_pin = sel_filter ? sel_filter->FindPinByPos(pos, false) : NULL;
 
 	if (!sel_filter && !sel_pin) {										// no filter or pin under cursor so check for connection line
-		for (int i=0; i<graph.filters.GetCount(); i++) {
+		for (int i=0; !sel_pin && i<graph.filters.GetCount(); i++) {
 			sel_pin = graph.filters[i]->FindConnectionLineByPos(pos);
-			if (sel_pin) {
-				sel_filter = graph.filters[i];
-				break;
-			}
 		}
 	}
 
