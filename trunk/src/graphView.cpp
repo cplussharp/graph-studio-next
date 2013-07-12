@@ -234,6 +234,7 @@ CGraphView::CGraphView()
 	, last_start_time_ns(0LL)
 	, last_stop_time_ns(0LL)
     , m_bExitOnStop(false)
+	, m_ToolTip(this)
 {
     // Create the ToolTip control.
 	m_ToolTip.Create(this);
@@ -294,7 +295,7 @@ void CGraphView::OnInitialUpdate()
     params.m_bRoundedCorners = TRUE;
 	m_ToolTip.SetParams (&params);
 	m_ToolTip.AddTool(this, _T("."));
-	m_ToolTip.SetDelayTime(2000);		// 2 second before tooltips pop up in view
+	m_ToolTip.SetDelayTime(500);		// 2 second before tooltips pop up in view
 }
 
 void CGraphView::OnMouseMove(UINT nFlags, CPoint point)
@@ -2427,11 +2428,43 @@ void CGraphView::OnUpdateClsidFiltergraphPrivateThread(CCmdUI *pCmdUI)
 }
 
 
-
-void CGraphView::GetToolTipLabelText(POINT cursor, CString& labelText, CString& descriptionText) const
+void CGraphView::GetToolTipLabelText(POINT cursorScreenPos, CString& labelText, CString& descriptionText) const
 {
-	// figure out where mouse is and what its over
-	labelText = _T("top line of tooltip");
-	descriptionText = _T("bottom line of tooltip");
-		
+	ScreenToClient(&cursorScreenPos);
+	CPoint pos(cursorScreenPos);
+	pos += GetScrollPosition();
+
+	GraphStudio::Filter * sel_filter = graph.FindFilterByPos(pos);
+	GraphStudio::Pin * sel_pin = sel_filter ? sel_filter->FindPinByPos(pos, false) : NULL;
+
+	if (!sel_filter && !sel_pin) {										// no filter or pin under cursor so check for connection line
+		for (int i=0; i<graph.filters.GetCount(); i++) {
+			sel_pin = graph.filters[i]->FindConnectionLineByPos(pos);
+			if (sel_pin) {
+				sel_filter = graph.filters[i];
+				break;
+			}
+		}
+	}
+
+	if (sel_pin && sel_pin->connected) {
+		AM_MEDIA_TYPE mt;
+		memset(&mt, 0, sizeof(mt));
+		const HRESULT hr = sel_pin->pin->ConnectionMediaType(&mt);
+		if (SUCCEEDED(hr)) {
+			GraphStudio::NameGuid(mt.majortype, labelText, false);
+			CString guid;
+			GraphStudio::NameGuid(mt.subtype, guid, false);
+			labelText += "\r\n";
+			labelText  += guid;
+			descriptionText = DSUtil::FormatBlockSummary(mt);
+		} else {
+			labelText = _T("Error getting media type");
+			GraphStudio::NameHResult(hr, descriptionText);
+		}
+		FreeMediaType(mt);
+	} else if (sel_filter) {
+		GraphStudio::GetObjectName(sel_filter->clsid, labelText);
+		descriptionText = sel_filter->file_name;
+	}
 }
