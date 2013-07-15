@@ -249,7 +249,7 @@ public:
     void OnUpdateRemoveConnections(CCmdUI *pCmdUI);
     void OnRemoveConnections();
 
-	void ChangeFilterSizeParam(int& value, int delta);
+	void ChangeFilterSizeParam(int& value, int delta, int min_value=GraphStudio::DisplayGraph::GRID_SIZE);
 	BOOL DoMouseHorzWheel(UINT fFlags, short zDelta, CPoint point);
 
 	afx_msg void OnViewProgressview();

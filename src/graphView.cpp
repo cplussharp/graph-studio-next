@@ -2196,7 +2196,7 @@ void CGraphView::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
 	} else if (ctrl) {								// control hwheel (or alt-control wheel)
 		int delta = (abs(zDelta) / WHEEL_DELTA);	// Round towards zero
 		delta = (zDelta < 0 ? -delta : delta);
-		ChangeFilterSizeParam(render_params.filter_wrap_width, delta);
+		ChangeFilterSizeParam(render_params.filter_wrap_width, delta, render_params.min_filter_width - 5*GraphStudio::DisplayGraph::GRID_SIZE);
 	}
 	// we don't handle anything but scrolling (no modifier keys)
 	// if the parent is a splitter, it will handle the message
@@ -2243,10 +2243,10 @@ BOOL CGraphView::DoMouseHorzWheel(UINT fFlags, short zDelta, CPoint point)
 	return bResult;
 }
 
-void CGraphView::ChangeFilterSizeParam(int& value, int delta)
+void CGraphView::ChangeFilterSizeParam(int& value, int delta, int min_value)
 {
 	int new_gap = value + (delta * GraphStudio::DisplayGraph::GRID_SIZE);
-	new_gap = max(GraphStudio::DisplayGraph::GRID_SIZE, new_gap);
+	new_gap = max(min_value, new_gap);
 
 	if (new_gap != value) {
 		value = new_gap;
@@ -2277,12 +2277,12 @@ void CGraphView::OnViewIncreaseVerticalSpacing()
 
 void CGraphView::OnViewDecreaseFilterWrapWidth()
 {
-	ChangeFilterSizeParam(render_params.filter_wrap_width, -2);
+	ChangeFilterSizeParam(render_params.filter_wrap_width, -2, render_params.min_filter_width - 5*GraphStudio::DisplayGraph::GRID_SIZE);
 }
 
 void CGraphView::OnViewIncreaseFilterWrapWidth()
 {
-	ChangeFilterSizeParam(render_params.filter_wrap_width, +2);
+	ChangeFilterSizeParam(render_params.filter_wrap_width, +2, render_params.min_filter_width - 5*GraphStudio::DisplayGraph::GRID_SIZE);
 }
 
 static void SetResolvePins(CgraphstudioApp::PinResolution r)
