@@ -348,7 +348,7 @@ void CMainFrame::OnUpdatePlayRate()
 
 BOOL CMainFrame::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
-	if ((nFlags&MK_CONTROL) && (nFlags&MK_SHIFT)) {		// Control+shift wheel change speed
+	if (!(nFlags&MK_CONTROL) && (nFlags&MK_SHIFT)) {		// Shift wheel change speed
 		if (zDelta <= -WHEEL_DELTA || zDelta >= WHEEL_DELTA) {
 			const int sel = m_comboRate.GetCurSel() + ((zDelta > 0) ? -1 : 1);
 			m_comboRate.SetCurSel(sel);

@@ -189,6 +189,8 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_VIEW_INCREASEHORIZONTALSPACING, &CGraphView::OnViewIncreaseHorizontalSpacing)
 	ON_COMMAND(ID_VIEW_DECREASEVERTICALSPACING, &CGraphView::OnViewDecreaseVerticalSpacing)
 	ON_COMMAND(ID_VIEW_INCREASEVERTICALSPACING, &CGraphView::OnViewIncreaseVerticalSpacing)
+	ON_COMMAND(ID_VIEW_DECREASEFILTERWRAPWIDTH, &CGraphView::OnViewDecreaseFilterWrapWidth)
+	ON_COMMAND(ID_VIEW_INCREASEFILTERWRAPWIDTH, &CGraphView::OnViewIncreaseFilterWrapWidth)
 	ON_COMMAND(ID_FILEOPTIONS_LOADPINSBYNAME, &CGraphView::OnFileoptionsLoadpinsbyname)
 	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_LOADPINSBYNAME, &CGraphView::OnUpdateFileoptionsLoadpinsbyname)
 	ON_COMMAND(ID_FILEOPTIONS_LOADPINSBYINDEX, &CGraphView::OnFileoptionsLoadpinsbyindex)
@@ -2169,10 +2171,10 @@ BOOL CGraphView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 			OnViewIncreasezoomlevel();
 		}
 		return 0;
-	} else if (shift && !ctrl) {					// shift wheel- change x filter spacing
+	} else if (shift && ctrl) {						// ctrl-shift wheel- change y filter spacing
 		int delta = (abs(zDelta) / WHEEL_DELTA);	// Round towards zero
 		delta = (zDelta < 0 ? delta : -delta);
-		ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterYGap, delta);
+		ChangeFilterSizeParam(render_params.filter_y_gap, delta);
 		return 0;
 	} else {
 		return __super::OnMouseWheel(nFlags, zDelta, pt);
@@ -2187,10 +2189,14 @@ void CGraphView::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
 	const int shift = nFlags & MK_SHIFT;
 	const int ctrl = nFlags & MK_CONTROL;
 
-	if (shift && !ctrl) {							// shift wheel
+	if (shift && !ctrl) {							// shift hwheel (or alt-shift wheel)
 		int delta = (abs(zDelta) / WHEEL_DELTA);	// Round towards zero
 		delta = (zDelta < 0 ? -delta : delta);
-		ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterXGap, delta);
+		ChangeFilterSizeParam(render_params.filter_x_gap, delta);
+	} else if (ctrl) {								// control hwheel (or alt-control wheel)
+		int delta = (abs(zDelta) / WHEEL_DELTA);	// Round towards zero
+		delta = (zDelta < 0 ? -delta : delta);
+		ChangeFilterSizeParam(render_params.filter_wrap_width, delta);
 	}
 	// we don't handle anything but scrolling (no modifier keys)
 	// if the parent is a splitter, it will handle the message
@@ -2237,7 +2243,7 @@ BOOL CGraphView::DoMouseHorzWheel(UINT fFlags, short zDelta, CPoint point)
 	return bResult;
 }
 
-void CGraphView::ChangeFilterSpacing(int& value, int delta)
+void CGraphView::ChangeFilterSizeParam(int& value, int delta)
 {
 	int new_gap = value + (delta * GraphStudio::DisplayGraph::GRID_SIZE);
 	new_gap = max(GraphStudio::DisplayGraph::GRID_SIZE, new_gap);
@@ -2251,22 +2257,32 @@ void CGraphView::ChangeFilterSpacing(int& value, int delta)
 
 void CGraphView::OnViewDecreaseHorizontalSpacing()
 {
-	ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterXGap, -1);
+	ChangeFilterSizeParam(render_params.filter_x_gap, -1);
 }
 
 void CGraphView::OnViewIncreaseHorizontalSpacing()
 {
-	ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterXGap, +1);
+	ChangeFilterSizeParam(render_params.filter_x_gap, +1);
 }
 
 void CGraphView::OnViewDecreaseVerticalSpacing()
 {
-	ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterYGap, -1);
+	ChangeFilterSizeParam(render_params.filter_y_gap, -1);
 }
 
 void CGraphView::OnViewIncreaseVerticalSpacing()
 {
-	ChangeFilterSpacing(GraphStudio::DisplayGraph::g_filterYGap, +1);
+	ChangeFilterSizeParam(render_params.filter_y_gap, +1);
+}
+
+void CGraphView::OnViewDecreaseFilterWrapWidth()
+{
+	ChangeFilterSizeParam(render_params.filter_wrap_width, -2);
+}
+
+void CGraphView::OnViewIncreaseFilterWrapWidth()
+{
+	ChangeFilterSizeParam(render_params.filter_wrap_width, +2);
 }
 
 static void SetResolvePins(CgraphstudioApp::PinResolution r)
