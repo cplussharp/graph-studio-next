@@ -21,11 +21,6 @@
 
 GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
-
-	int DisplayGraph::g_filterXGap = 40;
-	int DisplayGraph::g_filterYGap = 32;
-
-
     static int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* /*lpelfe*/, NEWTEXTMETRICEX* /*lpntme*/, int /*FontType*/, LPARAM lParam)
     {
         LPARAM* l = (LPARAM*)lParam;
@@ -2450,10 +2445,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				filter->column = col;
 				filter->posx = columns[col].x;
 				filter->posy = y_pos;
-				columns[col].y = NextGridPos(y_pos + filter->height + g_filterYGap);	// update y position of bottom of column
+				columns[col].y = NextGridPos(y_pos + filter->height + params->filter_y_gap);	// update y position of bottom of column
 
 				if (col+1 < columns.GetCount()) {		// if current column too narrow reposition all following columns	
-					const int next_filter_x = NextGridPos(columns[col].x + filter->width + g_filterXGap);
+					const int next_filter_x = NextGridPos(columns[col].x + filter->width + params->filter_x_gap);
 
 					if (next_filter_x > columns[col+1].x) {
 						const int dif = next_filter_x - columns[col+1].x;
@@ -2635,7 +2630,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				height = params->min_filter_height;
 			}
 		}
-		if (!filter || !f) return ;
+		if (!filter || !f) 
+			return ;
 
 		// get the filter CLSID
 		f->GetClassID(&clsid);
@@ -2647,7 +2643,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// load name
 		name = CString(info.achName);
-		if (name == _T("")) name = _T("(Unnamed filter)");
+		if (name == _T("")) 
+			name = _T("(Unnamed filter)");
 
 		display_name = name;
 
@@ -2826,18 +2823,28 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		//---------------------------------------------------------------------		
 		if (graph) {
 			graph->dc->SelectObject(&params->font_filter);
-			CSize	size = graph->dc->GetTextExtent(display_name);
-			size.cx += 2 * 24;
-			width = (size.cx + 15) &~ 0x0f;		if (width < params->min_filter_width) width = params->min_filter_width;
-			height = (size.cy + 15) &~ 0x0f;	if (height < params->min_filter_height) height = params->min_filter_height;
 
-			int		maxpins = max(input_pins.GetCount(), output_pins.GetCount());
-			int		minsize = (((1 + maxpins)*params->pin_spacing) + (params->pin_spacing/2)) &~ 0x0f;
-			if (height < minsize) height = minsize;
+			CRect rect(0, 0, params->filter_wrap_width, 0);
+			graph->dc->DrawText(display_name, -1, &rect, DT_CALCRECT | DT_WORDBREAK);
+
+			CSize size = rect.Size();
+			size.cx += 4 * DisplayGraph::GRID_SIZE;			// add border either side of text
+
+			const int	maxpins = max(input_pins.GetCount(), output_pins.GetCount());
+			size.cy += (maxpins*params->pin_spacing);		// add vertical space for pins
+			size.cy += 2 * DisplayGraph::GRID_SIZE;			// add border at bottom of text
+
+			width = DisplayGraph::NextGridPos(size.cx);		
+			if (width < params->min_filter_width) 
+				width = params->min_filter_width;
+			height = DisplayGraph::NextGridPos(size.cy);	
+			if (height < params->min_filter_height) 
+				height = params->min_filter_height;
 		}
 
 		// we don't need it anymore
-		if (info.pGraph) info.pGraph->Release();
+		if (info.pGraph) 
+			info.pGraph->Release();
 	}
 
 	bool Filter::HasPin(IPin *pin)
@@ -2961,15 +2968,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			back_color = params->color_filter_type[filter_type];
 		}
 
-		CPen	pen_light(PS_SOLID, 1, params->color_filter_border_light);
-		CPen	pen_dark(PS_SOLID, 1, params->color_filter_border_dark);
-		CPen	pen_back(PS_SOLID, 1, back_color);
+		CPen pen_light(PS_SOLID, 1, params->color_filter_border_light);
+		CPen pen_dark(PS_SOLID, 1, params->color_filter_border_dark);
+		CPen pen_back(PS_SOLID, 1, back_color);
 		CBrush	brush_back(back_color);
 		dc->SetBkMode(TRANSPARENT);
 
-		CPen	*prev_pen   = dc->SelectObject(&pen_back);
-		CBrush	*prev_brush = dc->SelectObject(&brush_back);
-		CFont	*prev_font	= dc->SelectObject(&params->font_filter);
+		CPen	* const prev_pen   = dc->SelectObject(&pen_back);
+		CBrush	* const prev_brush = dc->SelectObject(&brush_back);
 
 		//---------------------------------------------------------------------
 		// draw the selection frame
@@ -3005,28 +3011,18 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		dc->LineTo(posx+3, posy+3);	dc->LineTo(posx+width-3, posy+3);
 
 		//---------------------------------------------------------------------
-		// draw the font
-		//---------------------------------------------------------------------
-		CRect	rc(posx, posy+8, posx+width, posy+height);
-		dc->DrawText(display_name, &rc, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
-
-		dc->SelectObject(prev_pen);
-		dc->SelectObject(prev_brush);
-		dc->SelectObject(prev_font);
-
-		//---------------------------------------------------------------------
 		// draw the pins
 		//---------------------------------------------------------------------
 		int i, x, y;
 		x = posx-5;
-		y = posy + params->pin_spacing;
+		y = posy + params->pin_spacing/2;
 		for (i=0; i<input_pins.GetCount(); i++) {
 			Pin *pin = input_pins[i];
 			pin->Draw(dc, true, x, y);
 			y += params->pin_spacing;
 		}
 		x = posx+width-2;
-		y = posy + params->pin_spacing;
+		y = posy + params->pin_spacing/2;
 		for (i=0; i<output_pins.GetCount(); i++) {
 			Pin *pin = output_pins[i];
 			pin->Draw(dc, false, x, y);
@@ -3034,11 +3030,26 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		//---------------------------------------------------------------------
+		// draw the filter name
+		//---------------------------------------------------------------------
+
+		const int max_pins = max(input_pins.GetCount(), output_pins.GetCount());
+		const int start_y = posy + (params->pin_spacing*max_pins);
+
+		CFont	* const prev_font	= dc->SelectObject(&params->font_filter);
+		CRect	rc(posx+2*DisplayGraph::GRID_SIZE, start_y, posx+width-2*DisplayGraph::GRID_SIZE, posy+height);
+		dc->DrawText(display_name, &rc, DT_CENTER | DT_WORDBREAK | DT_TOP);
+
+		dc->SelectObject(prev_pen);
+		dc->SelectObject(prev_brush);
+		dc->SelectObject(prev_font);
+
+		//---------------------------------------------------------------------
 		// draw overlay icons
 		//---------------------------------------------------------------------
-		int	ocx		 = 16;
-		int ocy		 = 16;
-		int	offset	 = 6;
+		const int	ocx		 = 16;
+		const int ocy		 = 16;
+		const int	offset	 = 6;
 
 		int	ov_count = overlay_icons.GetCount();
 
@@ -3049,7 +3060,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				OverlayIcon	*icon = overlay_icons[i];
 
 				int		ox = posx + width - (ov_count - i)*ocx - offset;
-				int		oy = posy + offset;
+				int		oy = posy + height - 3 * DisplayGraph::GRID_SIZE;
 
 				if (overlay_icon_active == i) {
 					tmp_dc.SelectObject(icon->icon_hover[icon->state]);
@@ -3086,7 +3097,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// if not already added, add the next column beyond this one to leave enough space for this filter
 		if (new_column == graph->columns.GetCount()-1) {
 			CPoint	pt;
-			pt.x = DisplayGraph::NextGridPos(x + width + DisplayGraph::g_filterXGap);
+			pt.x = DisplayGraph::NextGridPos(x + width + params->filter_x_gap);
 			pt.y = DisplayGraph::GRID_SIZE;
 			graph->columns.Add(pt);
 		}
@@ -3113,11 +3124,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			// Don't position ourselves any higher than the upstream filter that positioned us
 			if (posy == 0)	{
 				posy = DisplayGraph::NextGridPos(max(current_column.y, y));
-				current_column.y = DisplayGraph::NextGridPos(posy + height + DisplayGraph::g_filterYGap);
+				current_column.y = DisplayGraph::NextGridPos(posy + height + params->filter_y_gap);
 			}
 
 			// calculate position of next column that leaves enough space for this filter
-			const int next_column_x = DisplayGraph::NextGridPos(current_column.x + width + DisplayGraph::g_filterXGap);
+			const int next_column_x = DisplayGraph::NextGridPos(current_column.x + width + params->filter_x_gap);
 
 			if (column+1 < graph->columns.GetCount()
 					&& next_column_x > graph->columns[column+1].x) {		// right of this filter is further right than next column x position
@@ -3435,7 +3446,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		// calculate X and Y
-		pt->y = filter->posy + (1+index)*params->pin_spacing + 4;
+		pt->y = filter->posy + index*params->pin_spacing + params->pin_spacing/2 + 4;
 		if (dir == PINDIR_INPUT) {
 			pt->x = filter->posx - 1;
 		} else {

@@ -237,9 +237,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		static inline int NextGridPos(const int coord) { return (coord+7) &~ 0x07; } 
 		static inline int PrevGridPos(const int coord) { return coord &~ 0x07; } 
 
-		static int g_filterXGap;
-		static int g_filterYGap;
-
 		// graph itself
 		CComPtr<IGraphBuilder>			gb;
 		CComPtr<ICaptureGraphBuilder2>	cgb;

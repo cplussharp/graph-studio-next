@@ -94,10 +94,12 @@ BOOL CCliOptionsForm::OnInitDialog()
     strTxt += _T("Horizontal wheel            -> Scroll graph horizontally\r\n");
     strTxt += _T("Alt + wheel                 -> Scroll graph horizontally\r\n");
     strTxt += _T("Ctrl + wheel                -> Change zoom level\r\n");
-    strTxt += _T("Shift + wheel               -> Change vertical filter spacing\r\n");
+    strTxt += _T("Ctrl + Shift + wheel        -> Change vertical filter spacing\r\n");
     strTxt += _T("Shift + horizontal wheel    -> Change horizontal filter spacing\r\n");
+    strTxt += _T("Ctrl + horizontal wheel     -> Change filter wrap width\r\n");
     strTxt += _T("Alt + Shift + wheel         -> Change horizontal filter spacing\r\n");
-    strTxt += _T("Ctrl + Shift + wheel        -> Change playback speed\r\n\r\n");
+    strTxt += _T("Alt + Ctrl + wheel		  -> Change filter wrap width\r\n");
+    strTxt += _T("Shift + wheel               -> Change playback speed\r\n\r\n");
 
     edit_options.SetWindowText(strTxt);
 

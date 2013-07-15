@@ -249,7 +249,7 @@ public:
     void OnUpdateRemoveConnections(CCmdUI *pCmdUI);
     void OnRemoveConnections();
 
-	void ChangeFilterSpacing(int& value, int delta);
+	void ChangeFilterSizeParam(int& value, int delta);
 	BOOL DoMouseHorzWheel(UINT fFlags, short zDelta, CPoint point);
 
 	afx_msg void OnViewProgressview();
@@ -269,6 +269,8 @@ public:
 	afx_msg void OnViewIncreaseHorizontalSpacing();
 	afx_msg void OnViewDecreaseVerticalSpacing();
 	afx_msg void OnViewIncreaseVerticalSpacing();
+	afx_msg void OnViewDecreaseFilterWrapWidth();
+	afx_msg void OnViewIncreaseFilterWrapWidth();
 	afx_msg void OnFileoptionsLoadpinsbyname();
 	afx_msg void OnUpdateFileoptionsLoadpinsbyname(CCmdUI *pCmdUI);
 	afx_msg void OnFileoptionsLoadpinsbyindex();

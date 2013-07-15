@@ -74,7 +74,12 @@ public:
 	// size of elements
 	int				min_filter_width;
 	int				min_filter_height;
+	int				filter_wrap_width;
 	int				pin_spacing;
+
+	// spacing between filters
+	int				filter_x_gap;
+	int				filter_y_gap;
 
 	// default size at 100%
 	static const int				def_min_width;

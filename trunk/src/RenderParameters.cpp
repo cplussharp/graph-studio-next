@@ -67,6 +67,9 @@ RenderParameters::RenderParameters()
 	render_actions.clear();
 
 	Zoom(1.0);
+	filter_wrap_width = 100;
+	filter_x_gap = 40;
+	filter_y_gap = 32;
 
 	// no preferred renderer
 	preferred_video_renderer = _T("");
