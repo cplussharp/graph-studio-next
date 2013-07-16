@@ -2534,7 +2534,10 @@ static void DoRelativeSeek(IMediaSeeking* ims, const GUID& offset_format, const 
 
 afx_msg void CGraphView::OnSeekBackward1()
 {
-	DoRelativeSeek(graph.ms, TIME_FORMAT_FRAME, -1);
+	if (graph.supports_frame_seeking)
+		DoRelativeSeek(graph.ms, TIME_FORMAT_FRAME, -1);
+	else
+		DoRelativeSeek(graph.ms, TIME_FORMAT_MEDIA_TIME, -graph.min_time_per_frame);
 }
 
 afx_msg void CGraphView::OnSeekBackward2()
@@ -2554,7 +2557,10 @@ afx_msg void CGraphView::OnSeekBackward4()
 
 afx_msg void CGraphView::OnSeekForward1()
 {
-	DoRelativeSeek(graph.ms, TIME_FORMAT_FRAME, 1);
+	if (graph.supports_frame_seeking)
+		DoRelativeSeek(graph.ms, TIME_FORMAT_FRAME, 1);
+	else
+		DoRelativeSeek(graph.ms, TIME_FORMAT_MEDIA_TIME, graph.min_time_per_frame);
 }
 
 afx_msg void CGraphView::OnSeekForward2()
@@ -2572,33 +2578,16 @@ afx_msg void CGraphView::OnSeekForward4()
 	DoRelativeSeek(graph.ms, TIME_FORMAT_MEDIA_TIME, 60 * UNITS);
 }
 
-static bool CanSeekByTimeFormat(IMediaSeeking * ims, const GUID & time_format)
-{
-	bool enable = false;
-	if (ims) {
-		DWORD caps = AM_SEEKING_CanSeekAbsolute;
-		if (S_OK == ims->CheckCapabilities(&caps)) {
-			if (S_OK == ims->IsUsingTimeFormat(&time_format)) {
-				enable = true;
-			} else {
-				// Some filters fail to convert time formats even when they advertise they support them
-				// so test the conversion before enabling seeking
-				LONGLONG dummy = 0LL;
-				enable =	SUCCEEDED(ims->ConvertTimeFormat(&dummy, NULL, dummy, &time_format)) && 
-							SUCCEEDED(ims->ConvertTimeFormat(&dummy, &time_format, dummy, NULL));
-			}
-		}
-	}
-	return enable;
-}
-
 afx_msg void CGraphView::OnUpdateSeekByFrame(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(CanSeekByTimeFormat(graph.ms, TIME_FORMAT_FRAME));
+	bool enable = graph.supports_frame_seeking;
+	if (!enable)
+		enable = graph.supports_time_seeking && graph.min_time_per_frame > 0LL && graph.min_time_per_frame < _I64_MAX;
+	pCmdUI->Enable(enable);
 }
 
 afx_msg void CGraphView::OnUpdateSeekByTime(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(CanSeekByTimeFormat(graph.ms, TIME_FORMAT_MEDIA_TIME));
+	pCmdUI->Enable(graph.supports_time_seeking);
 }
 

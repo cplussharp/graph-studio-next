@@ -2038,7 +2038,7 @@ namespace DSUtil
 			if(mediaType.formattype == FORMAT_VideoInfo && mediaType.cbFormat >= sizeof(VIDEOINFOHEADER))
                 bmi = &((const VIDEOINFOHEADER*)mediaType.pbFormat)->bmiHeader;
             else if( (mediaType.formattype == FORMAT_VideoInfo2 || mediaType.formattype == FORMAT_MPEG2_VIDEO)
-					&& mediaType.cbFormat >= sizeof(VIDEOINFOHEADER) )
+					&& mediaType.cbFormat >= sizeof(VIDEOINFOHEADER2) )
                 bmi = &((const VIDEOINFOHEADER2*)mediaType.pbFormat)->bmiHeader;
 
             if(bmi != NULL) 
