@@ -105,7 +105,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		CArray<Pin*>			output_pins;
 
 		int						posx, posy;			// position in the display
-		int						width, height;
+		int						width, height;		// drawn dimensions
+		int						name_width;			// drawn width of filter name with word wrapping
 		CPoint					start_drag_pos;
 
 		int						column;				// The column index that we're arranged in. Not set if negative
