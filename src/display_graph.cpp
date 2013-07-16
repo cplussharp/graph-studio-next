@@ -3082,20 +3082,16 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		//---------------------------------------------------------------------
 		// draw overlay icons
 		//---------------------------------------------------------------------
-		const int	ocx		 = 16;
-		const int ocy		 = 16;
-		const int	offset	 = 6;
-
-		int	ov_count = overlay_icons.GetCount();
+		const int	ov_count = overlay_icons.GetCount();
 
 		if (ov_count > 0) {
 			CDC		tmp_dc;
 			tmp_dc.CreateCompatibleDC(NULL);
 			for (i=0; i<ov_count; i++) {
-				OverlayIcon	*icon = overlay_icons[i];
+				const OverlayIcon	* const icon = overlay_icons[i];
 
-				int		ox = posx + width - (ov_count - i)*ocx - offset;
-				int		oy = posy + height - 3 * DisplayGraph::GRID_SIZE;
+				const int		ox = posx + width - (ov_count - i)*OVERLAY_ICON_WIDTH - OVERLAY_ICON_OFFSET;
+				const int		oy = posy + height - 3 * DisplayGraph::GRID_SIZE;
 
 				if (overlay_icon_active == i) {
 					tmp_dc.SelectObject(icon->icon_hover[icon->state]);
@@ -3103,8 +3099,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 					tmp_dc.SelectObject(icon->icon_normal[icon->state]);
 				}
 	
-				DWORD	transpColor = tmp_dc.GetPixel(0, 0);		
-				dc->TransparentBlt(ox, oy, ocx, ocy, &tmp_dc, 0, 0, ocx, ocy, transpColor);
+				const DWORD	transpColor = tmp_dc.GetPixel(0, 0);		
+				dc->TransparentBlt(ox, oy, OVERLAY_ICON_WIDTH, OVERLAY_ICON_HEIGHT, &tmp_dc, 
+						0, 0, OVERLAY_ICON_WIDTH, OVERLAY_ICON_HEIGHT, transpColor);
 			}
 			tmp_dc.DeleteDC();
 		}
@@ -3373,29 +3370,25 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	int Filter::CheckIcons(CPoint pt)
 	{
 		// check icon regions
-		int i;
-		int	offset	= 6;
-		int	ocx		= 16;
-		int ocy		= 16;
-		int	oy		= posy + offset;
+		const int oy		= posy + height - 3 * DisplayGraph::GRID_SIZE;
 
-		int	ov_count = overlay_icons.GetCount();
+		const int	ov_count = overlay_icons.GetCount();
 		if (ov_count <= 0) {
 			return -1;
 		}
 
 		// not in vertical range
-		if (pt.y < oy || pt.y >= (oy+ocy)) {
+		if (pt.y < oy || pt.y >= (oy+OVERLAY_ICON_HEIGHT)) {
 			overlay_icon_active = -1;
 			return -1;
 		}
 
-		for (i=0; i<ov_count; i++) {
-			OverlayIcon	*icon = overlay_icons[i];
+		for (int i=0; i<ov_count; i++) {
+			const OverlayIcon	* const icon = overlay_icons[i];
 
-			int		ox = posx + width - (ov_count - i)*ocx - offset;
+			const int		ox = posx + width - (ov_count - i)*OVERLAY_ICON_WIDTH - OVERLAY_ICON_OFFSET;
 
-			if (pt.x >= ox && pt.x < ox+ocx) {
+			if (pt.x >= ox && pt.x < ox+OVERLAY_ICON_WIDTH) {
 				overlay_icon_active = i;
 				return i;
 			}
