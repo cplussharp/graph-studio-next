@@ -265,8 +265,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// helpers
 		bool							uses_clock;
-		double							fps;
         DWORD                           rotRegister;
+
+		// cached seeking and playback information
+		double							fps;
+		bool							supports_time_seeking;
+		bool							supports_frame_seeking;
+		LONGLONG						min_time_per_frame;		// The minimum time gap between video frames across all pins in the graph. _I64_MAX if unavailable
 
 		const GUID *					m_filter_graph_clsid;
 

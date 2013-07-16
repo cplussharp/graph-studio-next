@@ -519,24 +519,29 @@ void CSeekForm::OnCheckStopRelativeToPrevious()
 void CSeekForm::OnFormatTimeClick()
 {
 	SetTimeFormat(TIME_FORMAT_MEDIA_TIME);
+	view->graph.RefreshFPS();
 }
 
 void CSeekForm::OnFormatFrameClick()
 {
 	SetTimeFormat(TIME_FORMAT_FRAME);
+	view->graph.RefreshFPS();
 }
 
 void CSeekForm::OnFormatFieldClick()
 {
 	SetTimeFormat(TIME_FORMAT_FIELD);
+	view->graph.RefreshFPS();
 }
 
 void CSeekForm::OnFormatSampleClick()
 {
 	SetTimeFormat(TIME_FORMAT_SAMPLE);
+	view->graph.RefreshFPS();
 }
 
 void CSeekForm::OnFormatByteClick()
 {
 	SetTimeFormat(TIME_FORMAT_BYTE);
+	view->graph.RefreshFPS();
 }

@@ -28,6 +28,26 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         return TRUE;
     }
 
+	static bool CanSeekByTimeFormat(IMediaSeeking * ims, const GUID & time_format)
+	{
+		bool enable = false;
+		if (ims) {
+			DWORD caps = AM_SEEKING_CanSeekAbsolute;
+			if (S_OK == ims->CheckCapabilities(&caps)) {
+				if (S_OK == ims->IsUsingTimeFormat(&time_format)) {
+					enable = true;
+				} else {
+					// Some filters fail to convert time formats even when they advertise they support them
+					// so test the conversion before enabling seeking
+					LONGLONG dummy = 0LL;
+					enable =	SUCCEEDED(ims->ConvertTimeFormat(&dummy, NULL, dummy, &time_format)) && 
+								SUCCEEDED(ims->ConvertTimeFormat(&dummy, &time_format, dummy, NULL));
+				}
+			}
+		}
+		return enable;
+	}
+
     bool HasFont(CString fontName)
     {
         // Get the screen DC
@@ -149,6 +169,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		, dirty(true)
 		, m_filter_graph_clsid(&CLSID_FilterGraph)
 		, m_log_file(INVALID_HANDLE_VALUE)
+		, supports_time_seeking(false)
+		, supports_frame_seeking(false)
+		, min_time_per_frame(_I64_MAX)
 	{
 		HRESULT			hr = NOERROR;
 		graph_callback = new GraphCallbackImpl(NULL, &hr, this);
@@ -610,8 +633,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	int DisplayGraph::RefreshFPS()
 	{
+		supports_time_seeking = CanSeekByTimeFormat(ms, TIME_FORMAT_MEDIA_TIME);
+		supports_frame_seeking = CanSeekByTimeFormat(ms, TIME_FORMAT_FRAME);
+
+		// calculate fps via min_time_per_frame in case frame time format is not supported
+		if (min_time_per_frame > 0LL && min_time_per_frame < _I64_MAX) {
+			fps = (double)UNITS / (double)min_time_per_frame;
+		} else {
+			fps = 0.0;
+		}
+
 		if (!ms) {
-			fps = 0;
 			return 0;
 		}
 
@@ -635,7 +667,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 			// special case
 			if (rtFrames == 0 || rtDur == 0) {
-				fps = 0.0;
 				return 0;
 			}
 
@@ -646,7 +677,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		} while (0);
 
 		if (FAILED(hr)) {
-			fps = -1.0;
 			return -1;
 		}
 
@@ -2042,6 +2072,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		CComPtr<IEnumFilters> enum_filters;
 		CComPtr<IBaseFilter> ifilter;
+
+		min_time_per_frame = _I64_MAX;		// set to large value so that pins can update smallest frame time during refresh
 
 		// Make a backup of stale list and clear the main list
 		CArray<Filter*> stale_filters;
@@ -3513,12 +3545,25 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
                 connectionType = PIN_CONNECTION_TYPE_STREAM;
             else if (pinMediaType.majortype == MEDIATYPE_Audio)
                 connectionType = PIN_CONNECTION_TYPE_AUDIO;
-            else if (pinMediaType.majortype == MEDIATYPE_Video)
-                connectionType = PIN_CONNECTION_TYPE_VIDEO;
-            else if (pinMediaType.majortype == MEDIATYPE_Subtitle)
+			else if (pinMediaType.majortype == MEDIATYPE_Subtitle)
                 connectionType = PIN_CONNECTION_TYPE_SUBTITLE;
             else if (pinMediaType.majortype == MEDIATYPE_Interleaved)
                 connectionType = PIN_CONNECTION_TYPE_MIXED;
+            else if (pinMediaType.majortype == MEDIATYPE_Video) {
+                connectionType = PIN_CONNECTION_TYPE_VIDEO;
+
+				if (filter && filter->graph) {
+					LONGLONG avTimePerFrame = 0LL;
+					if(pinMediaType.formattype == FORMAT_VideoInfo && pinMediaType.cbFormat >= sizeof(VIDEOINFOHEADER)) {
+						avTimePerFrame = ((const VIDEOINFOHEADER*)pinMediaType.pbFormat)->AvgTimePerFrame;
+					} else if( (pinMediaType.formattype == FORMAT_VideoInfo2 || pinMediaType.formattype == FORMAT_MPEG2_VIDEO)
+							&& pinMediaType.cbFormat >= sizeof(VIDEOINFOHEADER2) )  {
+						avTimePerFrame = ((const VIDEOINFOHEADER2*)pinMediaType.pbFormat)->AvgTimePerFrame;
+					}
+					if (avTimePerFrame > 0LL && avTimePerFrame < filter->graph->min_time_per_frame)
+						filter->graph->min_time_per_frame = avTimePerFrame;
+				}
+			} 
         }
 
 		return 0;
