@@ -188,6 +188,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		int CheckIcons(CPoint pt);
 
 		static const int SELECTION_BORDER = 10;
+
+		static const int OVERLAY_ICON_WIDTH = 16;
+		static const int OVERLAY_ICON_HEIGHT = 16;
+		static const int OVERLAY_ICON_OFFSET = 6;
 	};
 
 
