@@ -2470,6 +2470,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	Filter::Filter(DisplayGraph *parent)
 		: column(-1)
+		, name_width(0)
 	{
 		graph = parent;
 		params = (graph != NULL ? graph->params : NULL);
@@ -2828,6 +2829,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			graph->dc->DrawText(display_name, -1, &rect, DT_CALCRECT | DT_WORDBREAK);
 
 			CSize size = rect.Size();
+			name_width = size.cx;
 			size.cx += 4 * DisplayGraph::GRID_SIZE;			// add border either side of text
 
 			const int	maxpins = max(input_pins.GetCount(), output_pins.GetCount());
@@ -3037,7 +3039,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		const int start_y = posy + (params->pin_spacing*max_pins);
 
 		CFont	* const prev_font	= dc->SelectObject(&params->font_filter);
-		CRect	rc(posx+2*DisplayGraph::GRID_SIZE, start_y, posx+width-2*DisplayGraph::GRID_SIZE, posy+height);
+		const int x_offset = (width-name_width) / 2;			// centre text and wrap to original width measurement
+		CRect	rc(posx+x_offset, start_y, posx+x_offset+name_width, posy+height);
 		dc->DrawText(display_name, &rc, DT_CENTER | DT_WORDBREAK | DT_TOP);
 
 		dc->SelectObject(prev_pen);
