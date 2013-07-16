@@ -291,6 +291,16 @@ public:
 	afx_msg void OnUpdateClsidFiltergraphPrivateThread(CCmdUI *pCmdUI);
 	afx_msg void OnFilterFavorite();
 	afx_msg void OnFilterBlacklist();
+	afx_msg void OnSeekBackward1();
+	afx_msg void OnSeekBackward2();
+	afx_msg void OnSeekBackward3();
+	afx_msg void OnSeekBackward4();
+	afx_msg void OnSeekForward1();
+	afx_msg void OnSeekForward2();
+	afx_msg void OnSeekForward3();
+	afx_msg void OnSeekForward4();
+	afx_msg void OnUpdateSeekByFrame(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateSeekByTime(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in graphView.cpp

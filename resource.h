@@ -360,13 +360,21 @@
 #define ID_VIEW_MAINWINDOW              32917
 #define ID_VIEW_DECREASEFILTERWRAPWIDTH 32922
 #define ID_VIEW_INCREASEFILTERWRAPWIDTH 32923
+#define ID_SEEK_FORWARD_1               32924
+#define ID_SEEK_FORWARD_2               32925
+#define ID_SEEK_FORWARD_3               32926
+#define ID_SEEK_FORWARD_4               32927
+#define ID_SEEK_BACKWARD_1              32928
+#define ID_SEEK_BACKWARD_2              32929
+#define ID_SEEK_BACKWARD_3              32930
+#define ID_SEEK_BACKWARD_4              32931
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        179
-#define _APS_NEXT_COMMAND_VALUE         32925
+#define _APS_NEXT_COMMAND_VALUE         32935
 #define _APS_NEXT_CONTROL_VALUE         1135
 #define _APS_NEXT_SYMED_VALUE           104
 #endif

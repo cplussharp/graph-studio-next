@@ -118,6 +118,22 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_LIST_MRU_CLEAR, &CGraphView::OnClearMRUClick)
 	ON_COMMAND(ID_GRAPH_MAKEGRAPHSCREENSHOT, &CGraphView::OnGraphScreenshot)
 	ON_COMMAND(ID_GRAPH_USECLOCK, &CGraphView::OnUseClock)
+	ON_COMMAND(ID_SEEK_BACKWARD_1, &CGraphView::OnSeekBackward1)
+	ON_COMMAND(ID_SEEK_BACKWARD_2, &CGraphView::OnSeekBackward2)
+	ON_COMMAND(ID_SEEK_BACKWARD_3, &CGraphView::OnSeekBackward3)
+	ON_COMMAND(ID_SEEK_BACKWARD_4, &CGraphView::OnSeekBackward4)
+	ON_COMMAND(ID_SEEK_FORWARD_1, &CGraphView::OnSeekForward1)
+	ON_COMMAND(ID_SEEK_FORWARD_2, &CGraphView::OnSeekForward2)
+	ON_COMMAND(ID_SEEK_FORWARD_3, &CGraphView::OnSeekForward3)
+	ON_COMMAND(ID_SEEK_FORWARD_4, &CGraphView::OnSeekForward4)
+	ON_UPDATE_COMMAND_UI(ID_SEEK_BACKWARD_1, &CGraphView::OnUpdateSeekByFrame)
+	ON_UPDATE_COMMAND_UI(ID_SEEK_BACKWARD_2, &CGraphView::OnUpdateSeekByTime)
+	ON_UPDATE_COMMAND_UI(ID_SEEK_BACKWARD_3, &CGraphView::OnUpdateSeekByTime)
+	ON_UPDATE_COMMAND_UI(ID_SEEK_BACKWARD_4, &CGraphView::OnUpdateSeekByTime)
+	ON_UPDATE_COMMAND_UI(ID_SEEK_FORWARD_1, &CGraphView::OnUpdateSeekByFrame)
+	ON_UPDATE_COMMAND_UI(ID_SEEK_FORWARD_2, &CGraphView::OnUpdateSeekByTime)
+	ON_UPDATE_COMMAND_UI(ID_SEEK_FORWARD_3, &CGraphView::OnUpdateSeekByTime)
+	ON_UPDATE_COMMAND_UI(ID_SEEK_FORWARD_4, &CGraphView::OnUpdateSeekByTime)
     ON_COMMAND(ID_FILTER_FAVORITE, &CGraphView::OnFilterFavorite)
     ON_COMMAND(ID_FILTER_BLACKLIST, &CGraphView::OnFilterBlacklist)
 	ON_COMMAND_RANGE(ID_LIST_MRU_FILE0, ID_LIST_MRU_FILE0+10, &CGraphView::OnDummyEvent)
@@ -2480,3 +2496,109 @@ void CGraphView::GetToolTipLabelText(POINT cursorScreenPos, CString& labelText, 
 		descriptionText = sel_filter->file_name;
 	}
 }
+
+static void DoRelativeSeek(IMediaSeeking* ims, const GUID& offset_format, const LONGLONG& offset)
+{
+	do {
+		if (!ims) {
+			ASSERT(false);
+			break;
+		}
+
+		LONGLONG cur_pos = 0LL;
+		if (FAILED(ims->GetCurrentPosition(&cur_pos))) {
+			ASSERT(false);
+			break;
+		}
+
+		if (S_OK == ims->IsUsingTimeFormat(&offset_format)){		// no conversion needed, just add offset
+			cur_pos += offset;
+		} else {
+			// convert from current format to offset_format
+			LONGLONG offset_base = 0LL;
+			if (FAILED(ims->ConvertTimeFormat(&offset_base, &offset_format, cur_pos, NULL))) {
+				ASSERT(false);
+				break;
+			}
+
+			// convert from offset_format to current format
+			if (FAILED(ims->ConvertTimeFormat(&cur_pos, NULL, offset_base + offset, &offset_format))) {
+				ASSERT(false);
+				break;
+			}
+		}
+		ims->SetPositions(&cur_pos, AM_SEEKING_AbsolutePositioning, NULL, AM_SEEKING_NoPositioning);
+
+	} while (false);
+}
+
+afx_msg void CGraphView::OnSeekBackward1()
+{
+	DoRelativeSeek(graph.ms, TIME_FORMAT_FRAME, -1);
+}
+
+afx_msg void CGraphView::OnSeekBackward2()
+{
+	DoRelativeSeek(graph.ms, TIME_FORMAT_MEDIA_TIME, -1 * UNITS);
+}
+
+afx_msg void CGraphView::OnSeekBackward3()
+{
+	DoRelativeSeek(graph.ms, TIME_FORMAT_MEDIA_TIME, -10 * UNITS);
+}
+
+afx_msg void CGraphView::OnSeekBackward4()
+{
+	DoRelativeSeek(graph.ms, TIME_FORMAT_MEDIA_TIME, -60 * UNITS);
+}
+
+afx_msg void CGraphView::OnSeekForward1()
+{
+	DoRelativeSeek(graph.ms, TIME_FORMAT_FRAME, 1);
+}
+
+afx_msg void CGraphView::OnSeekForward2()
+{
+	DoRelativeSeek(graph.ms, TIME_FORMAT_MEDIA_TIME, 1 * UNITS);
+}
+
+afx_msg void CGraphView::OnSeekForward3()
+{
+	DoRelativeSeek(graph.ms, TIME_FORMAT_MEDIA_TIME, 10 * UNITS);
+}
+
+afx_msg void CGraphView::OnSeekForward4()
+{
+	DoRelativeSeek(graph.ms, TIME_FORMAT_MEDIA_TIME, 60 * UNITS);
+}
+
+static bool CanSeekByTimeFormat(IMediaSeeking * ims, const GUID & time_format)
+{
+	bool enable = false;
+	if (ims) {
+		DWORD caps = AM_SEEKING_CanSeekAbsolute;
+		if (S_OK == ims->CheckCapabilities(&caps)) {
+			if (S_OK == ims->IsUsingTimeFormat(&time_format)) {
+				enable = true;
+			} else {
+				// Some filters fail to convert time formats even when they advertise they support them
+				// so test the conversion before enabling seeking
+				LONGLONG dummy = 0LL;
+				enable =	SUCCEEDED(ims->ConvertTimeFormat(&dummy, NULL, dummy, &time_format)) && 
+							SUCCEEDED(ims->ConvertTimeFormat(&dummy, &time_format, dummy, NULL));
+			}
+		}
+	}
+	return enable;
+}
+
+afx_msg void CGraphView::OnUpdateSeekByFrame(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(CanSeekByTimeFormat(graph.ms, TIME_FORMAT_FRAME));
+}
+
+afx_msg void CGraphView::OnUpdateSeekByTime(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(CanSeekByTimeFormat(graph.ms, TIME_FORMAT_MEDIA_TIME));
+}
+
