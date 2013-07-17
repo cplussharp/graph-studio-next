@@ -318,7 +318,9 @@ void CGraphView::OnInitialUpdate()
     params.m_bRoundedCorners = TRUE;
 	m_ToolTip.SetParams (&params);
 	m_ToolTip.AddTool(this, _T("."));
-	m_ToolTip.SetDelayTime(500);		// 2 second before tooltips pop up in view
+	m_ToolTip.SetDelayTime(500);					// 0.5 secondS before tooltips pop up in view
+	m_ToolTip.SetDelayTime(TTDT_RESHOW, 500);		// 0.5 seconds before tooltip after moving
+	m_ToolTip.SetDelayTime(TTDT_AUTOPOP, INT_MAX);	// leave tooltip visible
 }
 
 void CGraphView::OnMouseMove(UINT nFlags, CPoint point)
