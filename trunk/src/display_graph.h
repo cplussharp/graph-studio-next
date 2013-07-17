@@ -210,7 +210,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		virtual void OnRenderFinished() = 0;
 	};
 
-	class GraphCallbackImpl : public CUnknown, public IAMGraphBuilderCallback 
+	class GraphCallbackImpl : public CUnknown, protected IAMGraphBuilderCallback, protected IAMFilterGraphCallback 
 	{
 	public:
 		DisplayGraph	*graph;
@@ -222,8 +222,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		DECLARE_IUNKNOWN;
 		STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void **ppv);
 
+		// IAMGraphBuilderCallback overrides
 		STDMETHODIMP SelectedFilter(IMoniker *pMon);
 		STDMETHODIMP CreatedFilter(IBaseFilter *pFilter);
+
+		// IAMFilterGraphCallback overrides
+		HRESULT UnableToRender(IPin *pPin);			// This method uses the thiscall calling convention, rather than __stdcall.
 	};
 
 

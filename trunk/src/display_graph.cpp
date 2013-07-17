@@ -3744,8 +3744,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	STDMETHODIMP GraphCallbackImpl::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 	{
-		if (riid == IID_IAMGraphBuilderCallback) {
-			return GetInterface((IAMGraphBuilderCallback*)this, ppv);
+		if (riid == __uuidof(IAMGraphBuilderCallback)) {
+			return GetInterface(static_cast<IAMGraphBuilderCallback*>(this), ppv);
+		} else if (riid == IID_IAMFilterGraphCallback) {
+			return GetInterface(static_cast<IAMFilterGraphCallback*>(this), ppv);
 		} else
 			return __super::NonDelegatingQueryInterface(riid, ppv);
 	}
@@ -3867,22 +3869,43 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		/**********************************************************************
 			List of filters used in a render operation
 		***********************************************************************/
-		if (graph->params->in_render) {
-			RenderAction	ra;
+		RenderAction	ra;
 
-			// moniker name
-			CLSID		clsid;
-			pFilter->GetClassID(&clsid);
+		// moniker name
+		pFilter->GetClassID(&ra.clsid);
 
-			ra.time_ms = GetTickCount() - graph->params->render_start_time;
-			ra.type = RenderAction::ACTION_CREATE;
-			ra.clsid = clsid;
+		ra.time_ms = GetTickCount() - graph->params->render_start_time;
+		ra.type = RenderAction::ACTION_CREATE;
 
-			graph->params->render_actions.push_back(ra);
-		}
+		graph->params->render_actions.push_back(ra);
 
 		return NOERROR;
 	}
+
+	HRESULT GraphCallbackImpl::UnableToRender(IPin *pPin)		// This method uses the thiscall calling convention, rather than __stdcall.
+	{
+		RenderAction	ra;
+		ra.time_ms = GetTickCount() - graph->params->render_start_time;
+		ra.type = RenderAction::ACTION_RENDER_FAILURE;
+		ra.clsid = GUID_NULL;
+		ra.displ_name = _T("Unknown pin");
+
+		if (pPin) {
+			PIN_INFO info;
+			memset(&info, 0, sizeof(info));
+			if (SUCCEEDED(pPin->QueryPinInfo(&info))) {
+				ra.displ_name = CString(info.achName, sizeof(info.achName)/sizeof(info.achName[0]));
+				if (info.pFilter) {
+					info.pFilter->GetClassID(&ra.clsid);
+				}
+			}
+		}
+
+		graph->params->render_actions.push_back(ra);
+
+		return S_FALSE;			// returning S_OK requests the filter graph manager to re-render the same pin
+	}
+
 
 GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
 
