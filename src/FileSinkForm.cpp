@@ -94,6 +94,7 @@ void CFileSinkForm::OnBnClickedRadioFile()
 	combo_url.EnableWindow(FALSE);
 	combo_file.EnableWindow(TRUE);
 	button_browse.EnableWindow(TRUE);
+	GotoDlgCtrl(&combo_file);
 }
 
 void CFileSinkForm::OnBnClickedRadioUrl()
@@ -103,6 +104,7 @@ void CFileSinkForm::OnBnClickedRadioUrl()
 	combo_url.EnableWindow(TRUE);
 	combo_file.EnableWindow(FALSE);
 	button_browse.EnableWindow(FALSE);
+	GotoDlgCtrl(&combo_url);
 }
 
 void CFileSinkForm::OnBnClickedButtonBrowse()
