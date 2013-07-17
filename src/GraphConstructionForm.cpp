@@ -150,9 +150,9 @@ void CGraphConstructionForm::GenerateHTML(CString &text, GraphStudio::RenderPara
 				CString color, action_name;
 
 				switch (action.type) {
-					case RenderAction::ACTION_SELECT:	color=_T("8D8DF0");		action_name=_T("Selected");		break;
-					case RenderAction::ACTION_REJECT:	color=_T("FF0000");		action_name=_T("Rejected");		break;
-					case RenderAction::ACTION_TIMEOUT:	color=_T("00F000");		action_name=_T("Timeout");		break;
+					case RenderAction::ACTION_SELECT:			color=_T("D0D0D0");		action_name=_T("Filter Selected");		break;
+					case RenderAction::ACTION_REJECT:			color=_T("FF0000");		action_name=_T("Filter Rejected");		break;
+					case RenderAction::ACTION_TIMEOUT:			color=_T("D0D000");		action_name=_T("Timeout");				break;
 				}
 
 				DSUtil::FilterTemplate		templ;
@@ -169,6 +169,7 @@ void CGraphConstructionForm::GenerateHTML(CString &text, GraphStudio::RenderPara
 			break;
 
 			case RenderAction::ACTION_CREATE:
+			case RenderAction::ACTION_RENDER_FAILURE:
 			{
 				PropItem			info(_T("info"));
 				GetFilterDetails(action.clsid, &info);
@@ -181,11 +182,23 @@ void CGraphConstructionForm::GenerateHTML(CString &text, GraphStudio::RenderPara
 					if (item->name == _T("Object Name")) name = item->value;
 				}
 
-				item = _T("<tr bgcolor=\"#D0D0D0\">");
+				CString color, action_name;
+				switch (action.type) {
+					case RenderAction::ACTION_CREATE:			
+						color=_T("8D8DF0");		
+						action_name.Format(_T("Created filter %s"), (const TCHAR*)name);		
+						break;
+					case RenderAction::ACTION_RENDER_FAILURE:	
+						color=_T("FF8D8D");		
+						action_name.Format(_T("Failed to render pin %s on filter %s"), (const TCHAR*)action.displ_name, (const TCHAR*)name);		
+						break;
+				}
+
+				item = _T("<tr bgcolor=\"#") + color + _T("\">");
 
 					t.Format(_T("%5.3f sec"), action.time_ms / 1000.0);
 					item += _T("<td width=100>") + t + _T("</td>");
-					item += _T("<td width=90% colspan=2>Created : ") + name + _T("</td>");
+					item += _T("<td width=90% colspan=2>") + action_name + _T("</td>");
 
 				item += _T("</tr>\n");
 				text += item;
