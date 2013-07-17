@@ -288,15 +288,20 @@ BOOL CGraphView::PreTranslateMessage(MSG* pMsg)
 {
    	switch (pMsg->message)
 	{
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+	case WM_MBUTTONUP:
+		// Prevent clicking from disabling tooltip by reactivating tooltip after mouse button released
+		m_ToolTip.Activate(FALSE);
+		m_ToolTip.Activate(TRUE);
+		// fall through
+
     case WM_MOUSEMOVE:
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	case WM_MBUTTONDOWN:
-	case WM_LBUTTONUP:
-	case WM_RBUTTONUP:
-	case WM_MBUTTONUP:
 		m_ToolTip.RelayEvent(pMsg);
 		break;
 	}
