@@ -1841,7 +1841,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 							out_pin = out_filter->FindPinByID(pin_id);
 							if (!out_pin || out_pin->connected || out_pin->dir == PINDIR_INPUT) {
 								out_pin = out_filter->FindPinByMatchingID(pin_id);				// work around pins with buggy IFilter::FindPin
-								if (out_pin->connected || out_pin->dir == PINDIR_INPUT)
+								if (!out_pin || out_pin->connected || out_pin->dir == PINDIR_INPUT)
 									out_pin = NULL;													// pin unsuitable
 							}
 						}
