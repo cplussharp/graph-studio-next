@@ -1664,8 +1664,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// check for known interfaces
 		hr = LoadXML_Interfaces(node, instance);
 
-		// now check for a few interfaces
-		int r = ConfigureInsertedFilter(instance, name);
+		//-------------------------------------------------------------
+		//	IStreamBufferConfigure
+		//-------------------------------------------------------------
+		CComQIPtr<IStreamBufferInitialize> pInitSbe(instance);
+		if(pInitSbe) {
+			DSUtil::InitSbeObject(pInitSbe);
+		}
 
 		RefreshFilters();
 		return hr;
