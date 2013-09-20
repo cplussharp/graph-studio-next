@@ -171,6 +171,8 @@ public:
     HRESULT CheckMediaType(const CMediaType *pmt);
     STDMETHODIMP Receive(IMediaSample *pSample);
     STDMETHODIMP EndOfStream(void);
+
+    void FillParsedMediaType();
 };
 
 

@@ -908,6 +908,8 @@ HRESULT CPayloadParserInputPin::Receive(IMediaSample * pSample)
                 CopyMemory(dst, pData + iSeqHeadStart, (iSeqHeadStop-iSeqHeadStart+1));
                 dst += (iSeqHeadStop-iSeqHeadStart+1);
                 CopyMemory(dst, pData + iSeqExtStart, (iSeqExtStop-iSeqExtStart+1));
+
+                FillParsedMediaType();
             }
             else
             {
@@ -1046,6 +1048,98 @@ STDMETHODIMP CPayloadParserInputPin::EndOfStream(void)
     return CRenderedInputPin::EndOfStream();
 }
 
+
+void CPayloadParserInputPin::FillParsedMediaType(void)
+{
+    if (m_parsedMediaType.majortype == MEDIATYPE_Video &&
+        m_parsedMediaType.subtype == MEDIASUBTYPE_MPEG2_VIDEO &&
+        m_parsedMediaType.formattype == FORMAT_MPEG2_VIDEO &&
+        m_parsedMediaType.pbFormat != NULL)
+    {
+        // Parse MPEG2SequenceHeader and fill Bitmapinfoheader and Videoinfoheader2 with the information
+        MPEG2VIDEOINFO* pInfo = (MPEG2VIDEOINFO*)m_parsedMediaType.pbFormat;
+        if (pInfo->cbSequenceHeader < 8)
+            return;
+
+        BYTE* pSeq = (BYTE*)pInfo->dwSequenceHeader;
+        pSeq += 4;
+
+        // breite
+        pInfo->hdr.bmiHeader.biWidth = *pSeq << 4;
+        pSeq++;
+        pInfo->hdr.bmiHeader.biWidth += (*pSeq & 0xF0) >> 4;
+        pInfo->hdr.rcSource.right = pInfo->hdr.bmiHeader.biWidth;
+        pInfo->hdr.rcTarget.right = pInfo->hdr.bmiHeader.biWidth;
+        
+        // höhe
+        pInfo->hdr.bmiHeader.biHeight = (*pSeq & 0x0F) << 8;
+        pSeq++;
+        pInfo->hdr.bmiHeader.biHeight += *pSeq;
+        pInfo->hdr.rcSource.bottom = pInfo->hdr.bmiHeader.biHeight;
+        pInfo->hdr.rcTarget.bottom = pInfo->hdr.bmiHeader.biHeight;
+        pSeq++;
+
+        // aspect
+        BYTE aspect = (*pSeq & 0xF0) >> 4;
+        switch (aspect)
+        {
+            case 1:
+                pInfo->hdr.dwPictAspectRatioX = 1;
+                pInfo->hdr.dwPictAspectRatioY = 1;
+                break;
+            case 2:
+                pInfo->hdr.dwPictAspectRatioX = 4;
+                pInfo->hdr.dwPictAspectRatioY = 3;
+                break;
+            case 3:
+                pInfo->hdr.dwPictAspectRatioX = 16;
+                pInfo->hdr.dwPictAspectRatioY = 9;
+                break;
+            case 4:
+                pInfo->hdr.dwPictAspectRatioX = 221;
+                pInfo->hdr.dwPictAspectRatioY = 100;
+                break;
+        }
+
+        // framerate
+        BYTE framerate = (*pSeq & 0x0F);
+        switch (framerate)
+        {
+            case 1:
+                pInfo->hdr.AvgTimePerFrame = 10000000.0 / (24000.0 / 1001.0);
+                break;
+            case 2:
+                pInfo->hdr.AvgTimePerFrame = 10000000.0 / 24.0;
+                break;
+            case 3:
+                pInfo->hdr.AvgTimePerFrame = 10000000.0 / 25.0;
+                break;
+            case 4:
+                pInfo->hdr.AvgTimePerFrame = 10000000.0 / (30000.0 / 1001.0);
+                break;
+            case 5:
+                pInfo->hdr.AvgTimePerFrame = 10000000.0 / 30.0;
+                break;
+            case 6:
+                pInfo->hdr.AvgTimePerFrame = 10000000.0 / 50.0;
+                break;
+            case 7:
+                pInfo->hdr.AvgTimePerFrame = 10000000.0 / (60000.0 / 1001.0);
+                break;
+            case 8:
+                pInfo->hdr.AvgTimePerFrame = 10000000.0 / 60.0;
+                break;
+        }
+        pSeq++;
+            
+        // bitrate
+        pInfo->hdr.dwBitRate = *pSeq << 10;
+        pSeq++;
+        pInfo->hdr.dwBitRate += *pSeq << 2;
+        pSeq++;
+        pInfo->hdr.dwBitRate += (*pSeq & 0xC0) >> 6;
+    }
+}
 
 //-----------------------------------------------------------------------------
 //
