@@ -110,6 +110,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PreBuildEvent>
       <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
@@ -151,6 +152,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
       <AdditionalDependencies>Quartz.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PreBuildEvent>
       <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
@@ -197,6 +199,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PreBuildEvent>
       <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
@@ -241,6 +244,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PreBuildEvent>
       <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
