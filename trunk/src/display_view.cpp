@@ -243,14 +243,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				CMenu		submenu;
 				submenu.CreatePopupMenu();
 				PopulateAudioRenderersMenu(submenu);
-				menu.InsertMenu(p++, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("Insert &Audio Renderers"));
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("&Audio Renderers"));
 				submenu.Detach();
 			}
 			if (video_pin) {
 				CMenu		submenu;
 				submenu.CreatePopupMenu();
 				PopulateVideoRenderersMenu(submenu);
-				menu.InsertMenu(p++, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("Insert &Video Renderers"));
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("&Video Renderers"));
 				submenu.Detach();
 			}
 
@@ -264,18 +264,18 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 
 			if (!current_pin || !current_pin->connected) {
-				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_NULL_STREAM, _T("Insert &Null Renderer"));
-				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_DUMP_STREAM, _T("Insert D&ump Filter"));
-				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_ANALYZE_WRITER_STREAM, _T("Insert Analyzer &Writer Filter"));
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_NULL_STREAM, _T("&Null Renderer"));
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_DUMP_STREAM, _T("D&ump Filter"));
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_ANALYZE_WRITER_STREAM, _T("Analyzer &Writer Filter"));
 			}
 
 			if (offer_writer) {
-				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_FILE_WRITER, _T("Insert &File Writer"));
+				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_FILE_WRITER, _T("F&ile Writer"));
 			}
 
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_TEE_STREAM, _T("Insert &Tee Filter"));
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_TIME_MEASURE_STREAM, _T("Insert Time &Measure Filter"));
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_ANALYZE_STREAM, _T("Insert &Analyzer Filter"));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_TEE_STREAM, _T("&Tee Filter"));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_TIME_MEASURE_STREAM, _T("Time &Measure Filter"));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_ANALYZE_STREAM, _T("&Analyzer Filter"));
 		}
 
 		CPoint	pt;
@@ -1428,8 +1428,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// do insert the menu
 		const int count = menu.GetMenuItemCount();
-		menu.InsertMenu(count, MF_BYPOSITION | MF_STRING, 0, _T("Fa&vorite filters"));
-		menu.ModifyMenu(count, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("Fa&vorite filters"));
+		menu.InsertMenu(count, MF_BYPOSITION | MF_STRING, 0, _T("&Favorite filters"));
+		menu.ModifyMenu(count, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("&Favorite filters"));
 		submenu.Detach();
 	}
 
