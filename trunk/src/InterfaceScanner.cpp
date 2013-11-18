@@ -487,29 +487,44 @@ void GetInterfaceInfo_IFileSourceFilter(GraphStudio::PropItem* group, IUnknown* 
     }
 }
 
-const CString TimeFormat2String(const GUID& timeFormatGuid)
+static const struct
 {
-    if(timeFormatGuid == GUID_TIME_MUSIC)
-        return CString(_T("Music"));
-    else if(timeFormatGuid == GUID_TIME_SAMPLES)
-        return CString(_T("Sample"));
-    else if(timeFormatGuid == GUID_TIME_REFERENCE)
-        return CString(_T("Reference"));
+	const GUID	& Guid;
+	const TCHAR * Name;
+} TimeFormats[] = 
+{
+	{	TIME_FORMAT_MEDIA_TIME,			_T("MediaTime")		},
+	{	TIME_FORMAT_NONE,				_T("None")			},
+	{	TIME_FORMAT_FRAME,				_T("Frame")			},
+	{	TIME_FORMAT_SAMPLE,				_T("Sample")		},
+	{	TIME_FORMAT_FIELD,				_T("Field")			},
+	{	TIME_FORMAT_BYTE,				_T("Byte")			},
+	{	GUID_TIME_MUSIC,				_T("Music")			},
+	{	GUID_TIME_SAMPLES,				_T("Samples/sec")	},	// different name to distinguish from TIME_FORMAT_SAMPLE
+	{	GUID_TIME_REFERENCE,			_T("Reference")		},
+};
 
-    if(timeFormatGuid == TIME_FORMAT_MEDIA_TIME)
-        return CString(_T("MediaTime"));
-    else if(timeFormatGuid == TIME_FORMAT_NONE)
-        return CString(_T("None"));
-    else if(timeFormatGuid == TIME_FORMAT_FRAME)
-        return CString(_T("Frame"));
-    else if(timeFormatGuid == TIME_FORMAT_SAMPLE)
-        return CString(_T("Sample"));
-    else if(timeFormatGuid == TIME_FORMAT_FIELD)
-        return CString(_T("Field"));
-    else if(timeFormatGuid == TIME_FORMAT_BYTE)
-        return CString(_T("Byte"));
+static CString TimeFormat2String(const GUID& timeFormatGuid)
+{
+	for (int i=0; i<sizeof(TimeFormats)/sizeof(TimeFormats[0]); i++) {
+		if (timeFormatGuid == TimeFormats[i].Guid) {
+			return TimeFormats[i].Name;
+		}
+	}
+	return _T("Unknown");
+}
 
-    return CString(_T(""));
+static CString ListSupportedTimeFormats(IMediaSeeking * seeking)
+{
+	CString strFormats;
+	for (int i=0; i<sizeof(TimeFormats)/sizeof(TimeFormats[0]); i++) {
+        if(S_OK == seeking->IsFormatSupported(&TimeFormats[i].Guid)) {
+			if (strFormats.GetLength() > 0)
+				strFormats += _T(", ");
+			strFormats += TimeFormats[i].Name;
+		}
+	}
+	return strFormats;
 }
 
 void GetInterfaceInfo_IMediaSeeking(GraphStudio::PropItem* group, IUnknown* pUnk)
@@ -596,27 +611,7 @@ void GetInterfaceInfo_IMediaSeeking(GraphStudio::PropItem* group, IUnknown* pUnk
         else
             group->AddItem(new GraphStudio::PropItem(_T("PreferredFormat"), _T(""), false));
 
-        CStringArray strFormats;
-        if(S_OK == pI->IsFormatSupported(&TIME_FORMAT_MEDIA_TIME))
-            strFormats.Add(TimeFormat2String(TIME_FORMAT_MEDIA_TIME));
-        else if(S_OK == pI->IsFormatSupported(&TIME_FORMAT_NONE))
-            strFormats.Add(TimeFormat2String(TIME_FORMAT_NONE));
-        else if(S_OK == pI->IsFormatSupported(&TIME_FORMAT_FRAME))
-            strFormats.Add(TimeFormat2String(TIME_FORMAT_FRAME));
-        else if(S_OK == pI->IsFormatSupported(&TIME_FORMAT_SAMPLE))
-            strFormats.Add(TimeFormat2String(TIME_FORMAT_SAMPLE));
-        else if(S_OK == pI->IsFormatSupported(&TIME_FORMAT_FIELD))
-            strFormats.Add(TimeFormat2String(TIME_FORMAT_FIELD));
-        else if(S_OK == pI->IsFormatSupported(&TIME_FORMAT_BYTE))
-            strFormats.Add(TimeFormat2String(TIME_FORMAT_BYTE));
-
-        CString strFormatText;
-        for(int i=0;i<strFormats.GetCount(); i++)
-        {
-            if(i > 0) strFormatText += _T(", ");
-            strFormatText += strFormats[i];
-        }
-        group->AddItem(new GraphStudio::PropItem(_T("SupportedFormats"), strFormatText));
+        group->AddItem(new GraphStudio::PropItem(_T("SupportedFormats"), ListSupportedTimeFormats(pI)));
     }
 }
 
