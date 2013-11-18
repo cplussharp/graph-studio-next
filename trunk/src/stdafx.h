@@ -82,6 +82,7 @@
 #include <medparam.h>
 #include <mmreg.h>
 #include <ks.h>
+#include <ksproxy.h>
 #include <ksmedia.h>
 #include <mfidl.h>
 #include <evr.h>

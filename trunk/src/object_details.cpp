@@ -398,6 +398,45 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		con_pin = NULL;
 
         //-----------------------------------------------------------------
+		// IKsPin
+		//-----------------------------------------------------------------
+        CComQIPtr<IKsPin> ksPin = pin;
+        if(ksPin) {
+
+			// Mediums
+			KSMULTIPLE_ITEM * pmi = NULL;
+			hr = ksPin->KsQueryMediums(&pmi);
+			if (SUCCEEDED(hr) && pmi) {
+
+				//-----------------------------------------------------------------
+				// enumerate available mediums
+				//-----------------------------------------------------------------
+				PropItem * const mediums = group->AddItem(new PropItem(_T("Registered Pin Mediums (IKsPin)")));
+
+				mediums->AddItem(new PropItem(_T("Count"), (unsigned int)pmi->Count));
+
+				// Use pointer arithmetic to reference the first medium structure.
+				REGPINMEDIUM *pmedium = (REGPINMEDIUM*)(pmi + 1);
+				for (ULONG i = 0; i < pmi->Count; i++, pmedium++) {
+
+					CString mediumName;
+					mediumName.Format(_T("Medium %d"), i+1);		// use 1-based names
+
+					PropItem * const mediumProp = mediums->AddItem(new PropItem(mediumName));
+
+					//CString		strClsMedium;
+					//GraphStudio::NameGuid(pmedium->clsMedium, strClsMedium, CgraphstudioApp::g_showGuidsOfKnownTypes);
+					//mediumProp->AddItem(new PropItem(_T("clsMedium"),	strClsMedium));
+
+					mediumProp->AddItem(new PropItem(_T("clsMedium"),	pmedium->clsMedium));
+					mediumProp->AddItem(new PropItem(_T("dw1"),			(unsigned int)pmedium->dw1));
+					mediumProp->AddItem(new PropItem(_T("dw2"),			(unsigned int)pmedium->dw2));
+				}
+			}
+			CoTaskMemFree(pmi);
+		}
+
+        //-----------------------------------------------------------------
 		// IMPEG2PIDMap
 		//-----------------------------------------------------------------
         CComQIPtr<IMPEG2PIDMap> pidMap = pin;
