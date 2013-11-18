@@ -1010,7 +1010,7 @@ void GetInterfaceInfo_IAnalyzerFilter(GraphStudio::PropItem* group, IUnknown* pU
         int config;
         pI->get_CaptureConfiguration(&config);
         CString configStr;
-        configStr.Format(_T("0x%08lX", config));
+        configStr.Format(_T("0x%08lX"), config);
         group->AddItem(new GraphStudio::PropItem(_T("CaptureConfiguration"), configStr, false));
 
         unsigned short previewSampleByteCount;
