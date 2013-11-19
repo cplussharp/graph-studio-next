@@ -363,19 +363,61 @@ bool CSeekForm::ParseTimeString(const CString& time_str, LONGLONG& time)
 	bool parsed_ok = true;
 	time = 0LL;
 
+	const TCHAR * const timeFormatString	= _T("%I64d");		// parse reference time without LL prefix
+	const TCHAR * const timeFormatStringLL	= _T("LL%I64d");	// Use LL prefix string to disambiguate seconds from reference time
+
 	if (TIME_FORMAT_MEDIA_TIME == time_format) {
-		int	hours = 0, minutes = 0; 
-		float seconds = 0.0f;
-		if (3 != _stscanf_s(time_str, _T("%2d:%2d:%f"), &hours, &minutes, &seconds)) {			
-			DSUtil::ShowError(_T("Time format should be in the following form:\nHH:MM:SS.<optional decimal places>\ne.g.: 00:01:30.1234567"));
-			parsed_ok = false;
+
+		// attempt to parse with LL suffix
+		int parsedArgs = _stscanf_s(time_str, timeFormatStringLL, &time);
+		if (1 == parsedArgs) {
+			parsed_ok = true;
 		} else {
-			time =	hours	* (LONGLONG)UNITS * 60LL * 60LL;
-			time += minutes	* (LONGLONG)UNITS * 60LL;
-			time += seconds * (float)	UNITS;
+			// attempt to parse as hours:minutes:seconds
+
+			float arg1=0.0f, arg2=0.0f, arg3=0.0f;
+			parsedArgs = _stscanf_s(time_str, _T("%f:%f:%f"), &arg1, &arg2, &arg3);
+
+			switch (parsedArgs) {
+			case 1:
+				arg3 = arg1;			// seconds
+				arg1 = arg2 = 0.0f;
+				break;
+			case 2:
+				arg3 = arg2;			// seconds
+				arg2 = arg1;			// minutes
+				arg1 = 0.0f;
+				break;
+			case 3:
+				// no action required. Hours, minutes and seconds given
+				break;
+
+			default:
+				parsed_ok = false;
+				break;
+			}
+
+			if (parsed_ok) {
+				time =	(double)arg1	* (UNITS * 60.0 * 60.0	);		// hours
+				time += (double)arg2	* (UNITS * 60.0			);		// minutes
+				time += (double)arg3	* (UNITS				);		// seconds
+			}
+		}
+
+		if (!parsed_ok) {
+			DSUtil::ShowError(E_INVALIDARG,
+					_T("Time format should be in the following form:\n")
+					_T("<optional hours :><optional minutes :><seconds><.decimal places>\n")
+					_T("OR LL<reference time> (tenths of a microsecond)\n\n")
+					_T("For example:\n")
+					_T("02:01:30.537 is 2 hours, 1 minute, 30.537 seconds\n")
+					_T("LL11000000 is eleven million reference units or 1.1 seconds\n")
+					_T("00:01:-0.001 is 0.001 seconds before one minute or 59.999 seconds")
+					);
 		}
 	} else {
-		if (1 != _stscanf_s(time_str, _T("%I64d"), &time)) {
+		if (1 != _stscanf_s(time_str, timeFormatStringLL, &time)			// allow LL prefix if used
+				&& 1!= _stscanf_s(time_str, timeFormatString, &time)) {
 			DSUtil::ShowError(_T("Time must be an integer !!"));
 			parsed_ok = false;
 		}
