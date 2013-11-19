@@ -46,6 +46,12 @@ const int RenderParameters::def_pin_spacing = 27;
 const int RenderParameters::def_filter_text_size = 10;
 const int RenderParameters::def_pin_text_size = 7;
 
+const int RenderParameters::def_zoom		= 100;
+const int RenderParameters::def_x_gap		= 40;
+const int RenderParameters::def_y_gap		= 32;
+const int RenderParameters::def_wrap_width	= 100;
+
+
 RenderParameters::ConnectMode RenderParameters::connect_mode = ConnectMode::ConnectMode_Intelligent;
 bool RenderParameters::display_file_name = true;
 bool RenderParameters::use_media_info = false;
@@ -66,10 +72,10 @@ RenderParameters::RenderParameters()
 	in_render = false;
 	render_actions.clear();
 
-	Zoom(1.0);
-	filter_wrap_width = 100;
-	filter_x_gap = 40;
-	filter_y_gap = 32;
+	Zoom(def_zoom);
+	filter_wrap_width	= def_wrap_width;
+	filter_x_gap		= def_x_gap;
+	filter_y_gap		= def_y_gap;
 
 	// no preferred renderer
 	preferred_video_renderer = _T("");
@@ -120,6 +126,14 @@ void RenderParameters::MarkRender(bool start)
 		render_can_proceed = true;
 		render_actions.clear();
 	}
+}
+
+void RenderParameters::ResetGraphLayout()
+{
+	filter_wrap_width = RenderParameters::def_wrap_width;
+	filter_x_gap		= RenderParameters::def_x_gap;
+	filter_y_gap		= RenderParameters::def_y_gap;
+	Zoom(def_zoom);
 }
 
 GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

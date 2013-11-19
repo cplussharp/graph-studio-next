@@ -250,6 +250,7 @@ public:
     void OnRemoveConnections();
 
 	void ChangeFilterSizeParam(int& value, int delta, int min_value=GraphStudio::DisplayGraph::GRID_SIZE);
+	void SaveGraphLayoutSettings();
 	BOOL DoMouseHorzWheel(UINT fFlags, short zDelta, CPoint point);
 
 	afx_msg void OnViewProgressview();
@@ -271,6 +272,7 @@ public:
 	afx_msg void OnViewIncreaseVerticalSpacing();
 	afx_msg void OnViewDecreaseFilterWrapWidth();
 	afx_msg void OnViewIncreaseFilterWrapWidth();
+	afx_msg void OnResetGraphLayout();
 	afx_msg void OnFileoptionsLoadpinsbyname();
 	afx_msg void OnUpdateFileoptionsLoadpinsbyname(CCmdUI *pCmdUI);
 	afx_msg void OnFileoptionsLoadpinsbyindex();

@@ -207,6 +207,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_VIEW_INCREASEVERTICALSPACING, &CGraphView::OnViewIncreaseVerticalSpacing)
 	ON_COMMAND(ID_VIEW_DECREASEFILTERWRAPWIDTH, &CGraphView::OnViewDecreaseFilterWrapWidth)
 	ON_COMMAND(ID_VIEW_INCREASEFILTERWRAPWIDTH, &CGraphView::OnViewIncreaseFilterWrapWidth)
+	ON_COMMAND(ID_VIEW_RESETGRAPHLAYOUT, &CGraphView::OnResetGraphLayout)
 	ON_COMMAND(ID_FILEOPTIONS_LOADPINSBYNAME, &CGraphView::OnFileoptionsLoadpinsbyname)
 	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_LOADPINSBYNAME, &CGraphView::OnUpdateFileoptionsLoadpinsbyname)
 	ON_COMMAND(ID_FILEOPTIONS_LOADPINSBYINDEX, &CGraphView::OnFileoptionsLoadpinsbyindex)
@@ -513,6 +514,12 @@ void CGraphView::OnInit()
 	frame->m_wndSeekingBar.SetGraphView(this);
 
 	mru.Load();
+
+	//int zoom_level = 
+
+	render_params.filter_wrap_width = AfxGetApp()->GetProfileInt(_T("Settings"), _T("WrapWidth"),	render_params.filter_wrap_width);
+	render_params.filter_x_gap		= AfxGetApp()->GetProfileInt(_T("Settings"), _T("XGap"),		render_params.filter_x_gap);
+	render_params.filter_y_gap		= AfxGetApp()->GetProfileInt(_T("Settings"), _T("YGap"),		render_params.filter_y_gap);
 
 	int zoom_level = AfxGetApp()->GetProfileInt(_T("Settings"), _T("Zoom"), 100);
 	switch (zoom_level) {
@@ -2281,7 +2288,15 @@ void CGraphView::ChangeFilterSizeParam(int& value, int delta, int min_value)
 		value = new_gap;
 		graph.SmartPlacement();
 		Invalidate();
+		SaveGraphLayoutSettings();
 	}
+}
+
+void CGraphView::SaveGraphLayoutSettings()
+{
+	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("WrapWidth"),	render_params.filter_wrap_width);
+	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("XGap"),		render_params.filter_x_gap);
+	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("YGap"),		render_params.filter_y_gap);
 }
 
 void CGraphView::OnViewDecreaseHorizontalSpacing()
@@ -2312,6 +2327,13 @@ void CGraphView::OnViewDecreaseFilterWrapWidth()
 void CGraphView::OnViewIncreaseFilterWrapWidth()
 {
 	ChangeFilterSizeParam(render_params.filter_wrap_width, +2, render_params.min_filter_width - 5*GraphStudio::DisplayGraph::GRID_SIZE);
+}
+
+void CGraphView::OnResetGraphLayout()
+{
+	render_params.ResetGraphLayout();
+	SaveGraphLayoutSettings();
+	DoZoom(render_params.zoom);
 }
 
 static void SetResolvePins(CgraphstudioApp::PinResolution r)
