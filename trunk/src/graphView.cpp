@@ -1544,13 +1544,15 @@ void CGraphView::OnDropFiles(HDROP hDropInfo)
 			if (drop_filter) {
 				if (source) {
 					hr = source->Load(filename, NULL);
+					DSUtil::ShowError(hr, _T("Loading source file (IFileSourceFilter::Load)"));
 					needs_refresh = true;
 				} else if (sink) {
 					hr = sink->SetFileName(filename, NULL);
+					DSUtil::ShowError(hr, _T("Loading sink file (IFileSinkFilter::SetFileName)"));
 					needs_refresh = true;
 				} else {
 					// Let user know if they've dropped on an unsupported filter
-					DSUtil::ShowError(_T("Filter under cursor does not support IFileSourceFilter or ISinkFilter"));
+					DSUtil::ShowError(_T("Files dropped on filter that does not support IFileSourceFilter or ISinkFilter"));
 				}
 			} else {
 				if (!(GetKeyState(VK_CONTROL) & 0x80)) {
