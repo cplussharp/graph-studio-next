@@ -1051,6 +1051,7 @@ BEGIN
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
         MENUITEM SEPARATOR
         MENUITEM "&Refresh Graph\tF5",          ID_BUTTON_REFRESH
+        MENUITEM "Reset Graph La&yout",         ID_VIEW_RESETGRAPHLAYOUT
         MENUITEM SEPARATOR
         MENUITEM "Graph &Construction Report...\tCtrl+U", ID_VIEW_GRAPHCONSTRUCTIONREPORT
         MENUITEM "Graph &Events...\tCtrl+E",    ID_VIEW_GRAPHEVENTS

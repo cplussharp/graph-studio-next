@@ -89,7 +89,12 @@ public:
 	static const int				def_filter_text_size;
 	static const int				def_pin_text_size;
 
-    enum ConnectMode {
+	static const int				def_zoom;
+	static const int				def_x_gap;
+	static const int				def_y_gap;
+	static const int				def_wrap_width;
+
+	enum ConnectMode {
         ConnectMode_Intelligent,
         ConnectMode_Direct,
         ConnectMode_DirectWithMT
@@ -138,6 +143,8 @@ public:
     }
 
     bool            is_remote;
+
+	void ResetGraphLayout();
 
 public:
 	RenderParameters();
