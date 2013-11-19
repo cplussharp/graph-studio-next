@@ -1075,7 +1075,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	{
 		CString	title;
 		if (current_pin) {
-			title = current_pin->name + _T(" Properties");
+			title = current_pin->filter->name + _T("/") + current_pin->name + _T(" Properties");
 			OnDisplayPropertyPage(current_pin->pin, current_filter->filter, title);
 			return ;
 		}
