@@ -1660,6 +1660,7 @@ void CGraphView::OnDisplayPropertyPage(IUnknown *object, IUnknown *filter, CStri
 		CPropertyForm	*page = property_pages[i];
 		if (object == page->object) {
 			property_pages[i]->ShowWindow(SW_SHOW);
+			property_pages[i]->SetFocus();
 			return ;
 		}
 	}
