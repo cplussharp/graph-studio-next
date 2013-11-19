@@ -89,7 +89,7 @@ void CRemoteGraphForm::OnRefreshClick()
 
 	graphs.RemoveAll();
 	list_graphs.ResetContent();
-	sel_graph = NULL;
+	sel_graph = RemoteGraph();
 
 	hr = GetRunningObjectTable(0, &rot);
 	if (FAILED(hr)) return ;
@@ -118,7 +118,6 @@ void CRemoteGraphForm::OnRefreshClick()
 			RemoteGraph	gr;
 			gr.name = name;
 			gr.moniker = moniker;
-			gr.moniker->AddRef();
 
 			list_graphs.AddString(name);
 			graphs.Add(gr);
@@ -146,11 +145,10 @@ void CRemoteGraphForm::OnConnectClick()
 
 void CRemoteGraphForm::OnLbnSelchangeListGraphs()
 {
-	int sel = list_graphs.GetCurSel();
-
-	sel_graph = NULL;
+	const int sel = list_graphs.GetCurSel();
+	sel_graph = RemoteGraph();
 	if (sel >= 0 && sel < graphs.GetCount()) {
-		sel_graph = graphs[sel].moniker;
+		sel_graph = graphs[sel];
 	}
 }
 
