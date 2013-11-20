@@ -122,6 +122,7 @@ public:
 	void OnRenderFileClick();
 	void OnGraphInsertFilter();
     void OnGraphInsertFilterFromFile();
+	void OnSaveAsXmlAndGrf();
 	void OnClearMRUClick();
 	void OnMRUClick(UINT nID);
 	void OnGraphScreenshot();
@@ -132,8 +133,9 @@ public:
 	void OnGraphStreamingComplete();
 
 	CString PromptForFileToOpen(bool only_media_files);
-	void FileSaveAs(DocumentType input_type);
+	HRESULT FileSaveAs(DocumentType input_type);
 	void UpdateTitleBar();
+	HRESULT DoFileSave();
 
 	// CustomToolTipCallback implementation
     virtual void GetToolTipLabelText(POINT cursor, CString& labelText, CString& descriptionText) const;
@@ -303,6 +305,7 @@ public:
 	afx_msg void OnSeekForward4();
 	afx_msg void OnUpdateSeekByFrame(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSeekByTime(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateSaveAsXmlAndGrf(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in graphView.cpp
