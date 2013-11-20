@@ -113,6 +113,8 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_FILE_DISCONNECTFROMREMOTEGRAPH, &CGraphView::OnDisconnectRemote)
 	ON_COMMAND(ID_GRAPH_INSERTFILTER, &CGraphView::OnGraphInsertFilter)
     ON_COMMAND(ID_GRAPH_INSERTFILTERFROMFILE, &CGraphView::OnGraphInsertFilterFromFile)
+    ON_COMMAND(ID_FILEOPTIONS_SAVEASXMLANDGRF, &CGraphView::OnSaveAsXmlAndGrf)
+	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_SAVEASXMLANDGRF, &CGraphView::OnUpdateSaveAsXmlAndGrf)
 	ON_COMMAND(ID_VIEW_GRAPHEVENTS, &CGraphView::OnViewGraphEvents)
     ON_COMMAND(ID_VIEW_GRAPHSTATISTICS, &CGraphView::OnViewGraphStatistics)
 	ON_COMMAND(ID_LIST_MRU_CLEAR, &CGraphView::OnClearMRUClick)
@@ -515,8 +517,6 @@ void CGraphView::OnInit()
 
 	mru.Load();
 
-	//int zoom_level = 
-
 	render_params.filter_wrap_width = AfxGetApp()->GetProfileInt(_T("Settings"), _T("WrapWidth"),	render_params.filter_wrap_width);
 	render_params.filter_x_gap		= AfxGetApp()->GetProfileInt(_T("Settings"), _T("XGap"),		render_params.filter_x_gap);
 	render_params.filter_y_gap		= AfxGetApp()->GetProfileInt(_T("Settings"), _T("YGap"),		render_params.filter_y_gap);
@@ -540,6 +540,7 @@ void CGraphView::OnInit()
 		ShowConsole(true);				// Don't do anything on startup unless show console setting is true
 
 	CgraphstudioApp::g_useInternalGrfParser = AfxGetApp()->GetProfileInt(_T("Settings"), _T("UseInternalGrfParser"), 0) ? true : false;
+	CgraphstudioApp::g_SaveXmlAndGrf = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveXmlAndGrf"), CgraphstudioApp::g_SaveXmlAndGrf);
 
 	int showGuids = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowGuidsOfKnownTypes"), 1);
     CgraphstudioApp::g_showGuidsOfKnownTypes = showGuids != 0;
@@ -896,28 +897,59 @@ void CGraphView::UpdateTitleBar()
 	GetDocument()->SetTitle(short_name);
 }
 
-void CGraphView::OnFileSaveClick()
+void CGraphView::OnSaveAsXmlAndGrf()
+{
+	CgraphstudioApp::g_SaveXmlAndGrf = !CgraphstudioApp::g_SaveXmlAndGrf;
+	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("SaveXmlAndGrf"), CgraphstudioApp::g_SaveXmlAndGrf);
+}
+
+afx_msg void CGraphView::OnUpdateSaveAsXmlAndGrf(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(CgraphstudioApp::g_SaveXmlAndGrf ? 1 : 0);
+}
+
+HRESULT CGraphView::DoFileSave()
 {
 	HRESULT hr = S_OK;
+	if (CgraphstudioApp::g_SaveXmlAndGrf) {				// Save both GRF and XML, modify extension where needed
+		CPath grf_name = document_filename;
+		if (document_type != GRF)
+			grf_name.RenameExtension(_T(".grf"));
+		hr = graph.SaveGRF(grf_name);
+		DSUtil::ShowError(hr, _T("Can't save GRF file"));
 
-	switch (document_type) {
-	case GRF:
-		hr = graph.SaveGRF(document_filename);
-		break;
-	case XML:
-		hr = graph.SaveXML(document_filename);
-		break;
-	case NONE:
-		FileSaveAs(GRF);
-		return;
+		CPath xml_name = document_filename;
+		if (document_type != XML)
+			xml_name.RenameExtension(_T(".xml"));
+		hr = graph.SaveXML(xml_name);
+		DSUtil::ShowError(hr, _T("Can't save XML file"));
+
+	} else {
+		switch (document_type) {
+		case GRF:
+			hr = graph.SaveGRF(document_filename);
+			break;
+		case XML:
+			hr = graph.SaveXML(document_filename);
+			break;
+		}
+		DSUtil::ShowError(hr, _T("Can't save file"));
 	}
 
 	if (SUCCEEDED(hr)) {
-		// updatujeme MRU list
 		mru.NotifyEntry(document_filename);
 		UpdateMRUMenu();
+	}
+	return hr;
+}
+
+void CGraphView::OnFileSaveClick()
+{
+	HRESULT hr = S_OK;
+	if (NONE == document_type) {
+		hr = FileSaveAs(GRF);		// no document type chosen yet, default to grf and prompt for filename
 	} else {
-		DSUtil::ShowError(hr, _T("Can't save file"));
+		hr = DoFileSave();
 	}
 }
 
@@ -931,7 +963,7 @@ void CGraphView::OnFileSaveasxml()
 	FileSaveAs(XML);
 }
 
-void CGraphView::FileSaveAs(DocumentType input_type)
+HRESULT CGraphView::FileSaveAs(DocumentType input_type)
 {
 	// nabrowsujeme subor
 	// NB references to indices below
@@ -955,51 +987,47 @@ void CGraphView::FileSaveAs(DocumentType input_type)
 	dlg.m_ofn.lpstrFile = input_filename.GetBufferSetLength(MAX_PATH + 1);
 	dlg.m_ofn.nMaxFile = MAX_PATH + 1;
 
-	if (dlg.DoModal() == IDOK) {
-		CString filename = dlg.GetPathName();
-		DocumentType save_as = GRF;
+	HRESULT hr = E_ABORT;
 
-		CPath output_path = filename;
+	if (dlg.DoModal() == IDOK) {
+		document_type = GRF;
+		CPath output_path = dlg.GetPathName();
 		const CString output_extension = output_path.GetExtension();
 
 		// decide type of file to save
 		if (output_extension.CompareNoCase(_T(".grf")) == 0) {
 			// If GRF extension, save as GRF
-			save_as = GRF;
+			document_type = GRF;
 		} else if (output_extension.CompareNoCase(_T(".xml")) == 0) {
 			// If XML extension, save as XML
-			save_as = XML;
+			document_type = XML;
 		} else if (output_extension.IsEmpty()) {
 			switch (dlg.m_ofn.nFilterIndex) {
-			case 1:		save_as = XML;			break;
-			case 2:		save_as = GRF;			break;
-			default:	save_as = input_type;	break;	// ambigous, use type passed in
+			case 1:		document_type = XML;			break;
+			case 2:		document_type = GRF;			break;
+			default:	document_type = input_type;		break;	// ambigous, use type passed in
 			}
 		}
 
 		// add file exension if none
 		if (output_extension.IsEmpty()) {
-			if (XML == save_as)
+			if (XML == document_type)
 				output_path.AddExtension(_T(".xml"));
 			else
 				output_path.AddExtension(_T(".grf"));
 		}
 
-		filename = CString(output_path);
+		document_filename = output_path.m_strPath;
+		hr = DoFileSave();
 
-		HRESULT hr = XML==save_as ? graph.SaveXML(filename) : graph.SaveGRF(filename);
-		if (FAILED(hr)) {
-			DSUtil::ShowError(hr, _T("Can't save file"));
-		} else {
-			document_filename = filename;
-			document_type = save_as;
-
-			// update MRU list
-			mru.NotifyEntry(filename);
-			UpdateMRUMenu();
+		if (SUCCEEDED(hr)) {
 			UpdateTitleBar();
+		} else {
+			document_filename = _T("");		// failed to save, reset filename to force prompt next time
+			document_type = NONE;
 		}
 	}
+	return hr;
 }
 
 // render_media_file - default false but allows caller to force render as media file if needed

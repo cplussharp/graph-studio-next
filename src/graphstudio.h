@@ -33,6 +33,7 @@ public:
     virtual int ExitInstance();
 
     static bool g_useInternalGrfParser;
+	static bool g_SaveXmlAndGrf; 
     static bool g_showConsole;
     static bool g_showGuidsOfKnownTypes;
     

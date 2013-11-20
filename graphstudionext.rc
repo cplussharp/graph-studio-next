@@ -1019,11 +1019,12 @@ BEGIN
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
         MENUITEM "Save &As Graph (.GRF)...\tCtrl+Shift+S", ID_FILE_SAVE_AS
         MENUITEM "Save As XML&....\tAlt+Shift+S", ID_FILE_SAVEASXML
-        POPUP "XML Opt&ions"
+        POPUP "File Opt&ions"
         BEGIN
-            MENUITEM "Load Pins by &Name",          ID_FILEOPTIONS_LOADPINSBYNAME
-            MENUITEM "Load Pins by Inde&x",         ID_FILEOPTIONS_LOADPINSBYINDEX
-            MENUITEM "Load Pins by &ID",            ID_FILEOPTIONS_LOADPINSBYID
+            MENUITEM "Always &Save GRF and XML",    ID_FILEOPTIONS_SAVEASXMLANDGRF
+            MENUITEM "Load XML Pins by &Name",      ID_FILEOPTIONS_LOADPINSBYNAME
+            MENUITEM "Load XML Pins by Inde&x",     ID_FILEOPTIONS_LOADPINSBYINDEX
+            MENUITEM "Load XML Pins by &ID",        ID_FILEOPTIONS_LOADPINSBYID
         END
         MENUITEM "Save Graph Scr&eenshot...\tCtrl+F12", ID_GRAPH_MAKEGRAPHSCREENSHOT
         MENUITEM SEPARATOR
