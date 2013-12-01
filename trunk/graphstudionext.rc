@@ -45,7 +45,11 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
+#if defined(_WIN64)
+IDR_MAINFRAME           ICON                    "res\\graphstudionext64.ico"
+#else
 IDR_MAINFRAME           ICON                    "res\\graphstudionext.ico"
+#endif
 IDR_graphstudioTYPE     ICON                    "res\\graphstudioDoc.ico"
 
 /////////////////////////////////////////////////////////////////////////////
