@@ -593,6 +593,7 @@ void CAnalyzerPage::OnBnClickedButtonSave()
 		}
 
         CFile file(filename, CFile::modeCreate|CFile::modeWrite);
+        CString csvSep = CStatisticForm::GetCsvSeparator();
 
         // Output header
         CString row = _T("");
@@ -605,7 +606,7 @@ void CAnalyzerPage::OnBnClickedButtonSave()
             m_listCtrl.GetColumn(field, &column);
 
             if (field > 0)
-                row.Append(_T(";"));
+                row.Append(csvSep);
             row.Append(column.pszText);
 
             delete [] column.pszText;
@@ -623,7 +624,7 @@ void CAnalyzerPage::OnBnClickedButtonSave()
             for(int field=0; field<NumColumns; field++)
             {
                 if (field > 0)
-                    row.Append(_T(";"));
+                    row.Append(csvSep);
                 row.Append(GetEntryString(i,field, false));		// don't format CSV with commas in timestamps
             }
             row.Append(_T("\n"));

@@ -60,4 +60,6 @@ public:
 	afx_msg void OnResetClick();
     afx_msg void OnExportClick();
     afx_msg void OnLvnGetdispinfoListData(NMHDR *pNMHDR, LRESULT *pResult);
+
+    static CString GetCsvSeparator();
 };

@@ -173,6 +173,7 @@ void CStatisticForm::OnExportClick()
 		}
 
         CFile file(filename, CFile::modeCreate|CFile::modeWrite);
+        CString csvSep = GetCsvSeparator();
 
         // Output header
         CString row = _T("");
@@ -185,7 +186,7 @@ void CStatisticForm::OnExportClick()
             m_listCtrl.GetColumn(field, &column);
 
             if (field > 0)
-                row.Append(_T(";"));
+                row.Append(csvSep);
             row.Append(column.pszText);
 
             delete [] column.pszText;
@@ -207,7 +208,7 @@ void CStatisticForm::OnExportClick()
             for(int field=0; field<7; field++)
             {
                 if (field > 0)
-                    row.Append(_T(";"));
+                    row.Append(csvSep);
                 row.Append(GetEntryString(i,field));
             }
             row.Append(_T("\n"));
@@ -216,6 +217,15 @@ void CStatisticForm::OnExportClick()
             file.Write(outputText, ::strlen(outputText));
         }
     }
+}
+
+CString CStatisticForm::GetCsvSeparator()
+{
+    TCHAR szSep[8];
+    GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, szSep, 8);
+    if (szSep[0] == _T(','))
+        return _T(";");
+    return _T(",");
 }
 
 const CString CStatisticForm::GetEntryString(LONG entryNr, int field)
