@@ -144,7 +144,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
       <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
@@ -232,7 +232,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
@@ -270,6 +270,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
     <None Include="res\bitmap_volume.bmp" />
     <None Include="res\bitmap_volume2.bmp" />
     <None Include="res\graphstudionext.ico" />
+	<None Include="res\graphstudionext64.ico" />
     <None Include="res\graphstudionext.rc2" />
     <None Include="res\graphstudioDoc.ico" />
     <None Include="res\icon1.ico" />
@@ -282,7 +283,6 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\sqlite\sqlite3.h" />
-    <ClInclude Include="lib\sqlite\sqlite3_forcelib.h" />
     <ClInclude Include="src\AnalyzerPage.h" />
     <ClInclude Include="src\BlacklistForm.h" />
     <ClInclude Include="src\CliOptionsForm.h" />

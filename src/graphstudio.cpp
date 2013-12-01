@@ -48,7 +48,11 @@ CgraphstudioApp::CgraphstudioApp()
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
      
+#ifdef _WIN64
+    SetAppID(_T("CPlusSharp.GraphStudioNext64"));
+#else
     SetAppID(_T("CPlusSharp.GraphStudioNext"));
+#endif
 }
 
 
