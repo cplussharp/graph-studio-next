@@ -122,7 +122,21 @@ void CFilterDetailsPage::OnBuildTree()
 		case GraphStudio::Filter::FILTER_UNKNOWN:	type = _T("Unknown"); break;
 		}	
 		group->AddItem(new GraphStudio::PropItem(_T("Type"), type));
-		GraphStudio::GetFilterDetails(CFiltersForm::GetFilterCategories(), gfilter.clsid, group);
+		GraphStudio::GetFilterDetails(gfilter.clsid, group);
+
+	GraphStudio::PropItem * const categories_item = new GraphStudio::PropItem(_T("Categories"));
+	GraphStudio::PropItem * const categories_count = categories_item->AddItem(new GraphStudio::PropItem(_T("Count"), 0));
+	const int num_categories = GraphStudio::GetFilterInformationFromCLSID(CFiltersForm::GetFilterCategories(), gfilter.clsid, categories_item);
+
+	if (num_categories > 0) {							// if any categories
+		CString count_str;
+		count_str.Format(_T("%d"), num_categories);
+		categories_count->value = count_str;			// update correct count
+		info.AddItem(categories_item);					// add to tree
+
+	} else {
+		delete categories_item;							// else delete item and don't add to tree
+	}
 }
 
 //-----------------------------------------------------------------------------

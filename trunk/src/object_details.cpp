@@ -169,7 +169,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return ret;
 	}
 
-	int GetFilterDetails(const DSUtil::FilterCategories& categories, const CLSID & clsid, PropItem *info)
+	// Only usable for filters, not DMOs
+	int GetFilterDetails(const CLSID & clsid, PropItem *info)
 	{
 		info->AddItem(new PropItem(_T("CLSID"), clsid));
 
@@ -188,6 +189,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			info->AddItem(fileinfo);
 		}
 
+		return 0;
+	}
+
+	// returns number of categories of information (zero for none)
+	int GetFilterInformationFromCLSID(const DSUtil::FilterCategories & categories, const GUID & clsid, PropItem * info)
+	{
 		int category_index = 0;
 
 		// Check every category for information
@@ -211,8 +218,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 					reg.QueryBinaryValue(_T("FilterData"), buf, &size);
 
 					// parse data
-					DSUtil::FilterTemplate		filter_template;
-					const int ret = filter_template.Load((char*)buf, size);
+					DSUtil::FilterTemplate filter_template;
+					const int ret = filter_template.LoadFilterData((char*)buf, size);
 					delete[] buf;
 
 					if (0 == ret) {
@@ -226,40 +233,44 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 						category_info->AddItem(new GraphStudio::PropItem(_T("Category Name"), cat.name));
 						category_info->AddItem(new GraphStudio::PropItem(_T("Category GUID"), category_guid_str));
 
-						CString		val;
-						val.Format(_T("0x%08x"), filter_template.merit);
-						category_info->AddItem(new PropItem(_T("Merit"), val));
-						val.Format(_T("0x%08x"), filter_template.version);
-						category_info->AddItem(new PropItem(_T("Version"), val));
-
-						// registered pin details
-
-						const int pin_count = filter_template.input_pins.GetCount() + filter_template.output_pins.GetCount();
-						if (pin_count > 0) {
-							PropItem * const pin_details = category_info->AddItem(new PropItem(_T("Registered Pins")));
-							pin_details->AddItem(new PropItem(_T("Count"), pin_count));
-
-							for (int i=0; i<filter_template.input_pins.GetCount(); i++) {
-								DSUtil::PinTemplate	&pin = filter_template.input_pins[i];
-								CString		name;
-								name.Format(_T("Input Pin %d"), i);
-								PropItem * const pininfo = pin_details->AddItem(new PropItem(name));
-								GetPinTemplateDetails(&pin, pininfo);
-							}
-							for (int i=0; i<filter_template.output_pins.GetCount(); i++) {
-								DSUtil::PinTemplate	&pin = filter_template.output_pins[i];
-								CString		name;
-								name.Format(_T("Output Pin %d"), i);
-								PropItem	* const pininfo = pin_details->AddItem(new PropItem(name));
-								GetPinTemplateDetails(&pin, pininfo);
-							}
-						}
-
+						GetFilterInformationFromTemplate(filter_template, category_info);
 					}
 				}
 			}
 		}
+		return category_index;
+	}
 
+	int GetFilterInformationFromTemplate(const DSUtil::FilterTemplate & filter_template, PropItem *info)
+	{
+		CString		val;
+		val.Format(_T("0x%08x"), filter_template.merit);
+		info->AddItem(new PropItem(_T("Merit"), val));
+		val.Format(_T("0x%08x"), filter_template.version);
+		info->AddItem(new PropItem(_T("Version"), val));
+
+		// registered pin details
+
+		const int pin_count = filter_template.input_pins.GetCount() + filter_template.output_pins.GetCount();
+		if (pin_count > 0) {
+			PropItem * const pin_details = info->AddItem(new PropItem(_T("Registered Pins")));
+			pin_details->AddItem(new PropItem(_T("Count"), pin_count));
+
+			for (int i=0; i<filter_template.input_pins.GetCount(); i++) {
+				const DSUtil::PinTemplate	&pin = filter_template.input_pins[i];
+				CString		name;
+				name.Format(_T("Input Pin %d"), i);
+				PropItem * const pininfo = pin_details->AddItem(new PropItem(name));
+				GetPinTemplateDetails(&pin, pininfo);
+			}
+			for (int i=0; i<filter_template.output_pins.GetCount(); i++) {
+				const DSUtil::PinTemplate	&pin = filter_template.output_pins[i];
+				CString		name;
+				name.Format(_T("Output Pin %d"), i);
+				PropItem	* const pininfo = pin_details->AddItem(new PropItem(name));
+				GetPinTemplateDetails(&pin, pininfo);
+			}
+		}
 		return 0;
 	}
 

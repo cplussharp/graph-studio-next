@@ -502,7 +502,7 @@ namespace DSUtil
 		return -1;
 	}
 
-	int FilterTemplate::Load(char *buf, int size)
+	int FilterTemplate::LoadFilterData(char *buf, int size)
 	{
 		DWORD	*b = (DWORD*)buf;
 
@@ -647,15 +647,18 @@ namespace DSUtil
 				int	size = ar->rgsabound[0].cElements;
 
 				// load merit and version
-				Load((char*)ar->pvData, size);
+				LoadFilterData((char*)ar->pvData, size);
 			}
 			VariantClear(&var);
 
 			VariantInit(&var);
-			hr = propbag->Read(L"CLSID", &var, 0);
-			if (SUCCEEDED(hr) && var.vt == VT_BSTR) {			// failure to read CLSID is a fatal error
-				hr = CLSIDFromString(var.bstrVal, &clsid);
+			hr_prop = propbag->Read(L"CLSID", &var, 0);
+			if (SUCCEEDED(hr_prop) && var.vt == VT_BSTR) {			// allow failure to read CLSID as this happens with DMOs
+				hr_prop = CLSIDFromString(var.bstrVal, &clsid);
+				ASSERT(SUCCEEDED(hr_prop));
+				ASSERT(GUID_NULL != clsid);
 			}
+
 			VariantClear(&var);
 		}
 		return hr;
@@ -827,11 +830,13 @@ namespace DSUtil
 		} while (0);
 
 		// now add the DMO categories
-		categories.Add(FilterCategory(_T("DMO Audio Decoder"), DMOCATEGORY_AUDIO_DECODER, true));
-		categories.Add(FilterCategory(_T("DMO Audio Effect"), DMOCATEGORY_AUDIO_EFFECT, true));
-		categories.Add(FilterCategory(_T("DMO Video Decoder"), DMOCATEGORY_VIDEO_DECODER, true));
-		categories.Add(FilterCategory(_T("DMO Video Effect"), DMOCATEGORY_VIDEO_EFFECT, true));
-		categories.Add(FilterCategory(_T("DMO Audio Capture Effect"), DMOCATEGORY_AUDIO_CAPTURE_EFFECT, true));
+		categories.Add(FilterCategory(_T("DMO Video Decoder"),			DMOCATEGORY_VIDEO_DECODER, true));
+		categories.Add(FilterCategory(_T("DMO Video Effect"),			DMOCATEGORY_VIDEO_EFFECT, true));
+		categories.Add(FilterCategory(_T("DMO Video Encoder"),			DMOCATEGORY_VIDEO_ENCODER, true));
+		categories.Add(FilterCategory(_T("DMO Audio Decoder"),			DMOCATEGORY_AUDIO_DECODER, true));
+		categories.Add(FilterCategory(_T("DMO Audio Effect"),			DMOCATEGORY_AUDIO_EFFECT, true));
+		categories.Add(FilterCategory(_T("DMO Audio Encoder"),			DMOCATEGORY_AUDIO_ENCODER, true));
+		categories.Add(FilterCategory(_T("DMO Audio Capture Effect"),	DMOCATEGORY_AUDIO_CAPTURE_EFFECT, true));
 		
 		if (propbag) propbag->Release();
 		if (moniker) moniker->Release();
@@ -1454,7 +1459,7 @@ namespace DSUtil
 				filter.type = FilterTemplate::FT_DMO;
 				filter.moniker = NULL;
 
-				LPOLESTR		str;
+				LPOLESTR		str = NULL;
 				CString			display_name;
 
 				display_name = _T("@device:dmo:");
