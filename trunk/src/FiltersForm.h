@@ -16,6 +16,9 @@ class CFiltersForm :
 	public CGraphStudioModelessDialog,
 	public GraphStudio::FilterListCallback
 {
+public:
+	static const DSUtil::FilterCategories & GetFilterCategories();
+
 private:
 	DECLARE_MESSAGE_MAP()
 	DECLARE_DYNAMIC(CFiltersForm)
@@ -42,9 +45,6 @@ private:
 	GraphStudio::PropItem		info;
     CMFCLinkCtrl                m_search_online;
     CToolTipCtrl*               m_pToolTip;
-
-	// enumerated stuff
-	DSUtil::FilterCategories	categories;
 
 	static DSUtil::FilterTemplates		cached_templates;	// cache for searching
 

@@ -38,13 +38,19 @@ BEGIN_MESSAGE_MAP(CFiltersForm, CGraphStudioModelessDialog)
 	ON_BN_CLICKED(IDC_CHECK_BLACKLIST, &CFiltersForm::OnBnClickedCheckBlacklist)
 END_MESSAGE_MAP()
 
-DSUtil::FilterTemplates	CFiltersForm::cached_templates;
-
 //-----------------------------------------------------------------------------
 //
 //	CFiltersForm class
 //
 //-----------------------------------------------------------------------------
+
+DSUtil::FilterTemplates		CFiltersForm::cached_templates;
+
+const DSUtil::FilterCategories & CFiltersForm::GetFilterCategories()
+{
+	static DSUtil::FilterCategories theCategories;		// singleton wrapped in getter, constructed on demand
+	return theCategories;
+}
 
 CFiltersForm::CFiltersForm(CWnd* pParent) : 
 	CGraphStudioModelessDialog(CFiltersForm::IDD, pParent),
@@ -158,8 +164,10 @@ void CFiltersForm::OnInitialize()
 
 	DSUtil::FilterTemplates filters;
 
+	const DSUtil::FilterCategories & categories = GetFilterCategories();
+
 	for (int i=0; i<categories.categories.GetCount(); i++) {
-		DSUtil::FilterCategory	&cat = categories.categories[i];
+		const DSUtil::FilterCategory	&cat = categories.categories[i];
 
 		// ignore empty categories
 		filters.Enumerate(cat);
@@ -444,23 +452,10 @@ void CFiltersForm::OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult)
 			// display information
 			info.Clear();
 			GraphStudio::PropItem	*group;
+			const DSUtil::FilterCategories & categories = GetFilterCategories();
 
 			group = info.AddItem(new GraphStudio::PropItem(_T("Filter Details")));
 			{
-				if (filter->category != GUID_NULL) {
-					CString category_name;
-					for (int i=0; i<categories.categories.GetCount(); i++) {
-						DSUtil::FilterCategory	&cat = categories.categories[i];
-						if (cat.clsid == filter->category) {
-							category_name = cat.name;
-						}
-					}
-					CString category_guid;
-					GraphStudio::NameGuid(filter->category, category_guid, false);
-					group->AddItem(new GraphStudio::PropItem(_T("Category"), 
-							category_name + _T(" ") + category_guid));
-				}
-
 				CString	type;
 				switch (filter->type) {
 					case DSUtil::FilterTemplate::FT_DMO:		type = _T("DMO"); break;
@@ -486,7 +481,7 @@ void CFiltersForm::OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult)
 					val.Format(_T("0x%08x"), filter->merit);
 					group->AddItem(new GraphStudio::PropItem(_T("Merit"), val));
 				}
-				GraphStudio::GetFilterDetails(filter->clsid, group);
+				GraphStudio::GetFilterDetails(categories, filter->clsid, group);
 			}
 			tree_details.BuildPropertyTree(&info);
 

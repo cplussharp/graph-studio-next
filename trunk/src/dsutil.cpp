@@ -898,7 +898,7 @@ namespace DSUtil
 		_Sort_(0, filters.GetCount()-1);
 	}
 
-	int FilterTemplates::Enumerate(FilterCategory &cat)
+	int FilterTemplates::Enumerate(const FilterCategory &cat)
 	{
 		filters.RemoveAll();
 
@@ -1610,8 +1610,8 @@ namespace DSUtil
 	int FilterTemplates::AddFilters(IEnumMoniker *emoniker, int enumtype, GUID category)
 	{
 		IMoniker			*moniker = NULL;
-		ULONG				f;
-		HRESULT				hr;
+		ULONG						f;
+		HRESULT						hr;
 
 		emoniker->Reset();
 		while (emoniker->Next(1, &moniker, &f) == NOERROR) {

@@ -169,7 +169,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return ret;
 	}
 
-	int GetFilterDetails(CLSID clsid, PropItem *info)
+	int GetFilterDetails(const DSUtil::FilterCategories& categories, const CLSID & clsid, PropItem *info)
 	{
 		info->AddItem(new PropItem(_T("CLSID"), clsid));
 
@@ -177,45 +177,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		GetObjectName(clsid, name);
 		info->AddItem(new PropItem(_T("Object Name"), name));
 
-		// load binary data
-		CString		clsid_str;
-		CLSIDToString(clsid, clsid_str);
-		clsid_str = _T("\\CLSID\\{083863F1-70DE-11d0-BD40-00A0C911CE86}\\Instance\\") + clsid_str;
-
-		DSUtil::FilterTemplate		temp;
-		bool						loaded = false;
-
-		CRegKey		reg;
-		if (reg.Open(HKEY_CLASSES_ROOT, clsid_str, KEY_READ) == ERROR_SUCCESS) {
-			
-			// get binary data
-			ULONG		size;
-			if (reg.QueryBinaryValue(_T("FilterData"), NULL, &size) == ERROR_SUCCESS) {
-				BYTE *buf = (BYTE*)malloc(size+1);
-				reg.QueryBinaryValue(_T("FilterData"), buf, &size);
-
-				// parse data
-				int ret = temp.Load((char*)buf, size);
-				if (ret == 0) {
-					loaded = true;
-
-					CString		val;
-					val.Format(_T("0x%08x"), temp.merit);
-					info->AddItem(new PropItem(_T("Merit"), val));
-					val.Format(_T("0x%08x"), temp.version);
-					info->AddItem(new PropItem(_T("Version"), val));
-
-				}
-
-				free(buf);
-			}
-	
-			reg.Close();
-		}
-
+		// file details
 		CString		filename;
 		GetObjectFile(clsid, filename);
-		PropItem	*fileinfo = new PropItem(_T("File"));
+		PropItem	* const fileinfo = new PropItem(_T("File"));
 
 		if (GetFileDetails(filename, fileinfo) < 0) {
 			delete fileinfo;
@@ -223,29 +188,75 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			info->AddItem(fileinfo);
 		}
 
-		// registered pin details
-		if (loaded) {
-			PropItem	*pin_details = info->AddItem(new PropItem(_T("Registered Pins")));
-			int cnt = temp.input_pins.GetCount() + temp.output_pins.GetCount();
-			pin_details->AddItem(new PropItem(_T("Count"), cnt));
+		int category_index = 0;
 
-			int i, c;
-			c = 0;
-			for (i=0; i<temp.input_pins.GetCount(); i++) {
-				DSUtil::PinTemplate	&pin = temp.input_pins[i];
-				CString		name;
-				name.Format(_T("Pin %d"), c);
-				PropItem	*pininfo = pin_details->AddItem(new PropItem(name));
-				GetPinTemplateDetails(&pin, pininfo);
-				c++;
-			}
-			for (i=0; i<temp.output_pins.GetCount(); i++) {
-				DSUtil::PinTemplate	&pin = temp.output_pins[i];
-				CString		name;
-				name.Format(_T("Pin %d"), c);
-				PropItem	*pininfo = pin_details->AddItem(new PropItem(name));
-				GetPinTemplateDetails(&pin, pininfo);
-				c++;
+		// Check every category for information
+		for (int c=0; c<categories.categories.GetCount(); c++) {
+			const DSUtil::FilterCategory	&cat = categories.categories[c];
+
+			// load binary data
+			CString		filter_clsid_str;
+			CLSIDToString(clsid, filter_clsid_str);
+			CString cat_clsid_str;
+			CLSIDToString(cat.clsid, cat_clsid_str);
+			const CString reg_key_name = _T("\\CLSID\\") + cat_clsid_str + _T("\\Instance\\") + filter_clsid_str;
+
+			CRegKey		reg;
+			if (reg.Open(HKEY_CLASSES_ROOT, reg_key_name, KEY_READ) == ERROR_SUCCESS) {
+
+				// get binary data
+				ULONG		size = 0;
+				if (reg.QueryBinaryValue(_T("FilterData"), NULL, &size) == ERROR_SUCCESS) {
+					BYTE * const buf = new byte[size+1];
+					reg.QueryBinaryValue(_T("FilterData"), buf, &size);
+
+					// parse data
+					DSUtil::FilterTemplate		filter_template;
+					const int ret = filter_template.Load((char*)buf, size);
+					delete[] buf;
+
+					if (0 == ret) {
+						CString		name;
+						name.Format(_T("Category %d"), category_index++);
+						PropItem * const category_info = info->AddItem(new PropItem(name));
+
+						CString category_guid_str;
+						GraphStudio::NameGuid(cat.clsid, category_guid_str, false);
+
+						category_info->AddItem(new GraphStudio::PropItem(_T("Category Name"), cat.name));
+						category_info->AddItem(new GraphStudio::PropItem(_T("Category GUID"), category_guid_str));
+
+						CString		val;
+						val.Format(_T("0x%08x"), filter_template.merit);
+						category_info->AddItem(new PropItem(_T("Merit"), val));
+						val.Format(_T("0x%08x"), filter_template.version);
+						category_info->AddItem(new PropItem(_T("Version"), val));
+
+						// registered pin details
+
+						const int pin_count = filter_template.input_pins.GetCount() + filter_template.output_pins.GetCount();
+						if (pin_count > 0) {
+							PropItem * const pin_details = category_info->AddItem(new PropItem(_T("Registered Pins")));
+							pin_details->AddItem(new PropItem(_T("Count"), pin_count));
+
+							for (int i=0; i<filter_template.input_pins.GetCount(); i++) {
+								DSUtil::PinTemplate	&pin = filter_template.input_pins[i];
+								CString		name;
+								name.Format(_T("Input Pin %d"), i);
+								PropItem * const pininfo = pin_details->AddItem(new PropItem(name));
+								GetPinTemplateDetails(&pin, pininfo);
+							}
+							for (int i=0; i<filter_template.output_pins.GetCount(); i++) {
+								DSUtil::PinTemplate	&pin = filter_template.output_pins[i];
+								CString		name;
+								name.Format(_T("Output Pin %d"), i);
+								PropItem	* const pininfo = pin_details->AddItem(new PropItem(name));
+								GetPinTemplateDetails(&pin, pininfo);
+							}
+						}
+
+					}
+				}
 			}
 		}
 
@@ -266,15 +277,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (pin->types > 0) {
 			PropItem	*types = info->AddItem(new PropItem(_T("Media Types")));
 			for (int i=0; i<pin->types; i++) {
-				CString		mn, sn, mv, sv;
-				mn.Format(_T("Major %d"), i);
-				sn.Format(_T("Subtype %d"), i);
+				CString		mn, mv, sv;
+				mn.Format(_T("Media Type %d"), i);
 
 				GraphStudio::NameGuid(pin->major[i],mv,CgraphstudioApp::g_showGuidsOfKnownTypes);
 				GraphStudio::NameGuid(pin->minor[i],sv,CgraphstudioApp::g_showGuidsOfKnownTypes);
-
-				types->AddItem(new PropItem(mn, mv));
-				types->AddItem(new PropItem(sn, sv));
+				types->AddItem(new PropItem(mn, mv + _T(", ") + sv));
 			}
 		}
 		return 0;

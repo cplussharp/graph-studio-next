@@ -51,6 +51,8 @@ BOOL CDetailsPage::OnInitDialog()
 	ok = tree.Create(NULL, WS_CHILD | WS_VISIBLE, rc, this, IDC_TREE);
 	if (!ok) return FALSE;
 
+	tree.left_width = 90;		// make first column narrower
+
 	info.Clear();
 	OnBuildTree();
 
@@ -120,7 +122,7 @@ void CFilterDetailsPage::OnBuildTree()
 		case GraphStudio::Filter::FILTER_UNKNOWN:	type = _T("Unknown"); break;
 		}	
 		group->AddItem(new GraphStudio::PropItem(_T("Type"), type));
-		GraphStudio::GetFilterDetails(gfilter.clsid, group);
+		GraphStudio::GetFilterDetails(CFiltersForm::GetFilterCategories(), gfilter.clsid, group);
 }
 
 //-----------------------------------------------------------------------------

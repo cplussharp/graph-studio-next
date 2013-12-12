@@ -172,7 +172,7 @@ void CGraphConstructionForm::GenerateHTML(CString &text, GraphStudio::RenderPara
 			case RenderAction::ACTION_RENDER_FAILURE:
 			{
 				PropItem			info(_T("info"));
-				GetFilterDetails(action.clsid, &info);
+				GetFilterDetails(CFiltersForm::GetFilterCategories(), action.clsid, &info);
 
 				// find for the name
 				CString				name = _T("Unknown Filter");
