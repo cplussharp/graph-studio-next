@@ -147,7 +147,7 @@ namespace DSUtil
 		HRESULT FindFilename();
 
 		int LoadFromMonikerName(CString displayname);
-		int Load(char *buf, int size);
+		int LoadFilterData(char *buf, int size);
 		int WriteMerit();
 		int ParseMonikerName();
 

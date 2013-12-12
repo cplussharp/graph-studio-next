@@ -97,6 +97,8 @@ BOOL CFiltersForm::DoCreateDialog(CWnd* parent)
 	// create buttons
 	const CRect	button_rect(0, 0, 100, 23);
 	btn_register.Create(_T("&Register"), WS_TABSTOP | WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, button_rect, &title, IDC_BUTTON_REGISTER);
+
+	tree_details.left_width = 110;		// Set left width to allow more room
 	tree_details.Create(_T("Filter &Details"), WS_TABSTOP | WS_CHILD | WS_VISIBLE, button_rect, this, IDC_TREE);
 
 	CRect edit_rect(0,0,16,16);		// recommended edit control height is 14 but add a bit as 14 looks cramped
@@ -451,10 +453,26 @@ void CFiltersForm::OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult)
 
 			// display information
 			info.Clear();
-			GraphStudio::PropItem	*group;
 			const DSUtil::FilterCategories & categories = GetFilterCategories();
 
-			group = info.AddItem(new GraphStudio::PropItem(_T("Filter Details")));
+			if (filter->category != GUID_NULL) {
+				GraphStudio::PropItem * const category_item = info.AddItem(new GraphStudio::PropItem(_T("Category")));
+
+				CString category_name;
+				for (int i=0; i<categories.categories.GetCount(); i++) {
+					const DSUtil::FilterCategory	&cat = categories.categories[i];
+					if (cat.clsid == filter->category) {
+						category_name = cat.name;
+					}
+				}
+				CString category_guid;
+				GraphStudio::NameGuid(filter->category, category_guid, false);
+
+				category_item->AddItem(new GraphStudio::PropItem(_T("Category Name"), category_name));
+				category_item->AddItem(new GraphStudio::PropItem(_T("Category GUID"), category_guid));
+			}
+
+			GraphStudio::PropItem * const group= info.AddItem(new GraphStudio::PropItem(_T("Filter Details")));
 			{
 				CString	type;
 				switch (filter->type) {
@@ -476,13 +494,19 @@ void CFiltersForm::OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult)
 
 				group->AddItem(new GraphStudio::PropItem(_T("Type"), type));
 
-				if (filter->type == DSUtil::FilterTemplate::FT_DMO) {
-					CString		val;
-					val.Format(_T("0x%08x"), filter->merit);
-					group->AddItem(new GraphStudio::PropItem(_T("Merit"), val));
-				}
-				GraphStudio::GetFilterDetails(categories, filter->clsid, group);
+				// Use the values found during enumeration rather than values found in the registry
+				if (GUID_NULL != filter->clsid)
+					group->AddItem(new GraphStudio::PropItem(_T("CLSID"), filter->clsid));
+				if (!filter->name.IsEmpty())
+					group->AddItem(new GraphStudio::PropItem(_T("Object Name"), filter->name));
+				if (!filter->file.IsEmpty())
+					group->AddItem(new GraphStudio::PropItem(_T("File"), filter->file));
 			}
+			GraphStudio::PropItem * const template_info = info.AddItem(new GraphStudio::PropItem(_T("Filter Data")));
+			{
+				GraphStudio::GetFilterInformationFromTemplate(*filter, template_info);
+			}
+
 			tree_details.BuildPropertyTree(&info);
 
 			// favorite filter ?
