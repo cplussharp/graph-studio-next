@@ -192,7 +192,7 @@ namespace DSUtil
 		virtual ~FilterTemplates();
 
 		// enumeracia kategorii
-		int Enumerate(FilterCategory &cat);
+		int Enumerate(const FilterCategory &cat);
 		int Enumerate(GUID clsid);
 		int EnumerateDMO(GUID clsid);
 		HRESULT EnumerateAllRegisteredFilters();
