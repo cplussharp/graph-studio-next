@@ -373,7 +373,7 @@ int CPropertyForm::AnalyzeDMO(IUnknown *obj)
 		AddPropertyPage(new CWMResizerPage(NULL, &hr, _T("IWMResizer")), obj);
 
     // Check if it has IDMOQualityControl
-    CComPtr<IWMResizerProps> qualctrl;
+    CComPtr<IDMOQualityControl> qualctrl;
     hr = obj->QueryInterface(IID_IDMOQualityControl, (void**)&qualctrl);
 	if (SUCCEEDED(hr) && qualctrl)
 		AddPropertyPage(new CDMOQualCtrlPage(NULL, &hr, _T("DMOQualCtrl")), obj);
