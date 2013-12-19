@@ -2860,17 +2860,32 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// calculate size
 		//---------------------------------------------------------------------		
 		if (graph) {
-			graph->dc->SelectObject(&params->font_filter);
+			const int num_pin_rows = max(input_pins.GetCount(), output_pins.GetCount());
 
-			CRect rect(0, 0, params->filter_wrap_width, 0);
+			// Determine max horizontal width required to draw pin labels
+			graph->dc->SelectObject(&params->font_pin);
+			int filter_width = params->filter_wrap_width;
+
+			for (int n=0; n < num_pin_rows; n++) {
+				int pin_labels_width = params->pin_spacing / 2;			// minimum gap between pin labels or pin label and filter box
+				if (n < input_pins.GetCount()) {
+					pin_labels_width += graph->dc->GetTextExtent(input_pins[n]->name).cx;
+				}
+				if (n < output_pins.GetCount()) {
+					pin_labels_width += graph->dc->GetTextExtent(output_pins[n]->name).cx;
+				}
+				filter_width = max(filter_width, pin_labels_width);
+			}
+
+			graph->dc->SelectObject(&params->font_filter);
+			CRect rect(0, 0, filter_width, 0);
 			graph->dc->DrawText(display_name, -1, &rect, DT_CALCRECT | DT_WORDBREAK);
 
 			CSize size = rect.Size();
 			name_width = size.cx;
 			size.cx += 4 * DisplayGraph::GRID_SIZE;			// add border either side of text
 
-			const int	maxpins = max(input_pins.GetCount(), output_pins.GetCount());
-			size.cy += (maxpins*params->pin_spacing);		// add vertical space for pins
+			size.cy += (num_pin_rows*params->pin_spacing);	// add vertical space for pins
 			size.cy += 2 * DisplayGraph::GRID_SIZE;			// add border at bottom of text
 
 			width = DisplayGraph::NextGridPos(size.cx);		
@@ -3601,14 +3616,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void Pin::Draw(CDC *dc, bool input, int x, int y)
 	{
-		CPen	pen_light(PS_SOLID, 1, params->color_filter_border_light);
-		CPen	pen_dark(PS_SOLID, 1, params->color_filter_border_dark);
-		CPen	pen_back(PS_SOLID, 1, params->color_filter_type[0]);
+		CPen	pen_light(PS_SOLID, 1,	params->color_filter_border_light);
+		CPen	pen_dark(PS_SOLID,	1,	params->color_filter_border_dark);
+		CPen	pen_back(PS_SOLID,	1,	params->color_filter_type[0]);
 		CBrush	brush_back(params->color_filter_type[0]);
 
-		int		pinsize = 5;
+		const int		pinsize = 5;
 		dc->SelectObject(&params->font_pin);
-		CSize	size = dc->GetTextExtent(name);
+		const CSize	name_size = dc->GetTextExtent(name);
 
 		if (input) {
 			dc->SelectObject(&pen_dark);
@@ -3628,7 +3643,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			dc->SetPixel(x+2+pinsize/2, y+pinsize/2 + 2, params->color_filter_border_dark);
 
 			// pin name
-			CRect	rc(x+pinsize+6, y - 10, x+pinsize+6+size.cx, y + 4+pinsize + 10);
+			CRect	rc(x+pinsize+6, y - 10, x+pinsize+6+name_size.cx, y + 4+pinsize + 10);
 			dc->DrawText(name, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
 		} else {
@@ -3652,7 +3667,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			dc->SetPixel(x+pinsize/2, y+pinsize/2 + 2, params->color_filter_border_dark);
 
 			// pin name
-			CRect	rc(x-4-size.cx, y - 10, x-4, y + 4+pinsize + 10);
+			CRect	rc(x-4-name_size.cx, y - 10, x-4, y + 4+pinsize + 10);
 			dc->DrawText(name, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 		}
 
