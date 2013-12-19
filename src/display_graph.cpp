@@ -2864,36 +2864,39 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 			// Determine max horizontal width required to draw pin labels
 			graph->dc->SelectObject(&params->font_pin);
-			int filter_width = params->filter_wrap_width;
+			int pin_labels_width	= 0;
 
 			for (int n=0; n < num_pin_rows; n++) {
-				int pin_labels_width = params->pin_spacing / 2;			// minimum gap between pin labels or pin label and filter box
+				int row_width = 0;						// minimum gap between pin labels or pin label and filter box
 				if (n < input_pins.GetCount()) {
-					pin_labels_width += graph->dc->GetTextExtent(input_pins[n]->name).cx;
+					row_width += graph->dc->GetTextExtent(input_pins[n]->name).cx;
 				}
 				if (n < output_pins.GetCount()) {
-					pin_labels_width += graph->dc->GetTextExtent(output_pins[n]->name).cx;
+					row_width += graph->dc->GetTextExtent(output_pins[n]->name).cx;
 				}
-				filter_width = max(filter_width, pin_labels_width);
+				pin_labels_width = max(pin_labels_width, row_width);
 			}
 
 			graph->dc->SelectObject(&params->font_filter);
-			CRect rect(0, 0, filter_width, 0);
+			CRect rect(0, 0, params->filter_wrap_width, 0);
 			graph->dc->DrawText(display_name, -1, &rect, DT_CALCRECT | DT_WORDBREAK);
 
-			CSize size = rect.Size();
-			name_width = size.cx;
-			size.cx += 4 * DisplayGraph::GRID_SIZE;			// add border either side of text
+			// If width determined by pin labels, recalculate height for pin label width
+			if (rect.Size().cx < pin_labels_width) {
+				rect = CRect(0, 0, pin_labels_width, 0);
+				graph->dc->DrawText(display_name, -1, &rect, DT_CALCRECT | DT_WORDBREAK);
+				rect.right = pin_labels_width;
+			}
 
-			size.cy += (num_pin_rows*params->pin_spacing);	// add vertical space for pins
-			size.cy += 2 * DisplayGraph::GRID_SIZE;			// add border at bottom of text
+			name_width = rect.Size().cx;
 
-			width = DisplayGraph::NextGridPos(size.cx);		
-			if (width < params->min_filter_width) 
-				width = params->min_filter_width;
-			height = DisplayGraph::NextGridPos(size.cy);	
-			if (height < params->min_filter_height) 
-				height = params->min_filter_height;
+			// add horizontal text border and round up to next grid size
+			width = DisplayGraph::NextGridPos(name_width + params->pin_spacing);	
+			width = max(width, params->min_filter_width);
+
+			// add vertical border for text, space for pins and round up to next grid size
+			height = DisplayGraph::NextGridPos(rect.Size().cy + params->pin_spacing/2 + (num_pin_rows*params->pin_spacing));	
+			height = max(height, params->min_filter_height);
 		}
 
 		// we don't need it anymore
