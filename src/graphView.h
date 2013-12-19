@@ -121,6 +121,7 @@ public:
 	void OnSeekClick();
 	void OnRenderFileClick();
 	void OnGraphInsertFilter();
+	void OnFindInFiltersWindow();
     void OnGraphInsertFilterFromFile();
 	void OnSaveAsXmlAndGrf();
 	void OnClearMRUClick();

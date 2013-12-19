@@ -148,7 +148,7 @@ void CFiltersForm::OnInitialize()
 	// merits
 	merit_mode = CFiltersForm::MERIT_MODE_ALL;
 	combo_merit.ResetContent();
-	combo_merit.AddString(_T("All Filters"));
+	combo_merit.AddString(_T("All Merit Values"));
 	combo_merit.AddString(_T("= MERIT_DO_NOT_USE"));
 	combo_merit.AddString(_T(">= MERIT_DO_NOT_USE"));
 	combo_merit.AddString(_T("> MERIT_DO_NOT_USE"));
@@ -161,7 +161,7 @@ void CFiltersForm::OnInitialize()
 	combo_merit.AddString(_T("= MERIT_PREFERRED"));
 	combo_merit.AddString(_T(">= MERIT_PREFERRED"));
 	combo_merit.AddString(_T("> MERIT_PREFERRED"));
-	combo_merit.AddString(_T("Non-Standard Merits"));
+	combo_merit.AddString(_T("Non-Standard Merit"));
 	combo_merit.SetCurSel(0);
 
 	DSUtil::FilterTemplates filters;
@@ -234,6 +234,9 @@ void CFiltersForm::OnComboCategoriesChange()
 		filters.Enumerate(*item_data);
 	}
 	RefreshFilterList(filters);
+	info.Clear();
+	tree_details.BuildPropertyTree(&info);
+
 }
 
 void CFiltersForm::RefreshFilterList(const DSUtil::FilterTemplates &filters)
@@ -252,11 +255,45 @@ void CFiltersForm::RefreshFilterList(const DSUtil::FilterTemplates &filters)
 	list_filters.UpdateList();
 }
 
+void CFiltersForm::FindFilterWithCLSID(const CLSID & filter_clsid)
+{
+	CString clsid_str;
+	GraphStudio::CLSIDToString(filter_clsid, clsid_str);
+
+	edit_search.SetWindowText(clsid_str);
+	list_filters.SetSearchString(clsid_str);
+	if (list_filters.GetItemCount() <= 0) {								// if nothing found
+		if (	combo_categories.GetCurSel()	!= CATEGORY_ALL			// if category isn't ALL DirectShow filters
+			||	combo_merit.GetCurSel()			!= MERIT_MODE_ALL)		// OR merit isn't 'ANY'
+		{						
+			combo_categories.SetCurSel(CATEGORY_ALL);					// set category to ALL DirectShow filters
+			merit_mode = MERIT_MODE_ALL;
+ 			combo_merit.SetCurSel(merit_mode);							// and merit to 'ANY'
+			OnComboCategoriesChange();									// and refresh
+		}
+	}
+
+	if (list_filters.GetItemCount() > 0) {								// If any found
+		list_filters.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED);		// select first filter found
+
+		DSUtil::FilterTemplate * const filter = (DSUtil::FilterTemplate*)list_filters.GetItemData(0);
+		ASSERT(filter);
+		if (filter)
+			UpdateFilterDetails(*filter);								// update rest of page
+	} else {
+		info.Clear();
+		tree_details.BuildPropertyTree(&info);
+	}
+}
+
+
 void CFiltersForm::OnEnUpdateSearchString()
 {
 	CString search_string;
 	edit_search.GetWindowText(search_string);
 	list_filters.SetSearchString(search_string);
+	info.Clear();
+	tree_details.BuildPropertyTree(&info);
 }
 
 bool CFiltersForm::CanBeDisplayed(const DSUtil::FilterTemplate &filter)
@@ -449,106 +486,91 @@ void CFiltersForm::OnFilterItemClick(NMHDR *pNMHDR, LRESULT *pResult)
 		(pNMLV->uNewState & ODS_SELECTED)) {
 		DSUtil::FilterTemplate	*filter = (DSUtil::FilterTemplate*)list_filters.GetItemData(pNMLV->iItem);
 
-		if (filter) {
-
-			// display information
-			info.Clear();
-			const DSUtil::FilterCategories & categories = GetFilterCategories();
-
-			if (filter->category != GUID_NULL) {
-				GraphStudio::PropItem * const category_item = info.AddItem(new GraphStudio::PropItem(_T("Category")));
-
-				CString category_name;
-				for (int i=0; i<categories.categories.GetCount(); i++) {
-					const DSUtil::FilterCategory	&cat = categories.categories[i];
-					if (cat.clsid == filter->category) {
-						category_name = cat.name;
-					}
-				}
-				CString category_guid;
-				GraphStudio::NameGuid(filter->category, category_guid, false);
-
-				category_item->AddItem(new GraphStudio::PropItem(_T("Category Name"), category_name));
-				category_item->AddItem(new GraphStudio::PropItem(_T("Category GUID"), category_guid));
-			}
-
-			GraphStudio::PropItem * const group= info.AddItem(new GraphStudio::PropItem(_T("Filter Details")));
-			{
-				CString	type;
-				switch (filter->type) {
-					case DSUtil::FilterTemplate::FT_DMO:		type = _T("DMO"); break;
-					case DSUtil::FilterTemplate::FT_KSPROXY:	type = _T("WDM"); break;
-					case DSUtil::FilterTemplate::FT_FILTER:		type = _T("Standard"); break;
-					case DSUtil::FilterTemplate::FT_ACM_ICM:	type = _T("ACM/ICM"); break;
-					case DSUtil::FilterTemplate::FT_PNP:		type = _T("Plug && Play"); break;
-				}	
-				group->AddItem(new GraphStudio::PropItem(_T("Display Name"), filter->moniker_name));
-
-				// The following properties are only present for some hardware devices
-				if (!filter->description.IsEmpty())
-					group->AddItem(new GraphStudio::PropItem(_T("Description"), filter->description));
-				if (!filter->device_path.IsEmpty())
-					group->AddItem(new GraphStudio::PropItem(_T("Device Path"), filter->device_path));
-				if (filter->wave_in_id >= 0)
-					group->AddItem(new GraphStudio::PropItem(_T("waveIn ID"), filter->wave_in_id));
-
-				group->AddItem(new GraphStudio::PropItem(_T("Type"), type));
-
-				// Use the values found during enumeration rather than values found in the registry
-				if (GUID_NULL != filter->clsid)
-					group->AddItem(new GraphStudio::PropItem(_T("CLSID"), filter->clsid));
-				if (!filter->name.IsEmpty())
-					group->AddItem(new GraphStudio::PropItem(_T("Object Name"), filter->name));
-				if (!filter->file.IsEmpty())
-					group->AddItem(new GraphStudio::PropItem(_T("File"), filter->file));
-			}
-			GraphStudio::PropItem * const template_info = info.AddItem(new GraphStudio::PropItem(_T("Filter Data")));
-			{
-				GraphStudio::GetFilterInformationFromTemplate(*filter, template_info);
-			}
-
-			tree_details.BuildPropertyTree(&info);
-
-			// favorite filter ?
-			GraphStudio::BookmarkedFilters * const favorites = CFavoritesForm::GetFavoriteFilters();
-			check_favorite.SetCheck(favorites->IsBookmarked(*filter));
-
-			// blacklisted filter
-			GraphStudio::BookmarkedFilters * const blacklisted = CFavoritesForm::GetBlacklistedFilters();
-			check_blacklist.SetCheck(blacklisted->IsBookmarked(*filter));
-
-            // create search url
-            LPOLESTR str;
-            StringFromCLSID(filter->clsid, &str);
-		    CString	str_clsid(str);
-            CString str_name = filter->name;
-            str_name.Replace(' ', '+');
-            CString url;
-            CString file = filter->file.Mid(CPath(filter->file).FindFileName());
-            url.Format(TEXT("http://www.google.com/search?q=%s+OR+\\\"%s\\\"+OR+%s"), str_clsid, str_name, file);
-            m_search_online.SetURL(url);
-            if (str) CoTaskMemFree(str);
-		}
-		/*
-		list_details.DeleteAllItems();
-
-			int ni;
-			ni = list_details.InsertItem(0, _T("Name"));	list_details.SetItemText(ni, 1, filter->name);
-			ni = list_details.InsertItem(1, _T("File"));	list_details.SetItemText(ni, 1, filter->file);
-
-			LPOLESTR	str;
-			StringFromCLSID(filter->clsid, &str);
-			CString		clsid_str(str);
-			CoTaskMemFree(str);
-			ni = list_details.InsertItem(2, _T("CLSID"));	list_details.SetItemText(ni, 1, clsid_str);
-
-			CString		m;
-			m.Format(_T("0x%08X"), filter->merit);
-			ni = list_details.InsertItem(3, _T("Merit"));	list_details.SetItemText(ni, 1, m);
-
-		}
-		*/
+		if (filter)
+			UpdateFilterDetails(*filter);
 	}
+}
+
+void CFiltersForm::UpdateFilterDetails(const DSUtil::FilterTemplate &filter)
+{
+	// display information
+	info.Clear();
+	const DSUtil::FilterCategories & categories = GetFilterCategories();
+
+	if (filter.category != GUID_NULL) {
+		GraphStudio::PropItem * const category_item = info.AddItem(new GraphStudio::PropItem(_T("Category")));
+
+		CString category_name;
+		for (int i=0; i<categories.categories.GetCount(); i++) {
+			const DSUtil::FilterCategory	&cat = categories.categories[i];
+			if (cat.clsid == filter.category) {
+				category_name = cat.name;
+			}
+		}
+		CString category_guid;
+		GraphStudio::NameGuid(filter.category, category_guid, false);
+
+		category_item->AddItem(new GraphStudio::PropItem(_T("Category Name"), category_name));
+		category_item->AddItem(new GraphStudio::PropItem(_T("Category GUID"), category_guid));
+	}
+
+	GraphStudio::PropItem * const group= info.AddItem(new GraphStudio::PropItem(_T("Filter Details")));
+	{
+		CString	type;
+		switch (filter.type) {
+			case DSUtil::FilterTemplate::FT_DMO:		type = _T("DMO"); break;
+			case DSUtil::FilterTemplate::FT_KSPROXY:	type = _T("WDM"); break;
+			case DSUtil::FilterTemplate::FT_FILTER:		type = _T("Standard"); break;
+			case DSUtil::FilterTemplate::FT_ACM_ICM:	type = _T("ACM/ICM"); break;
+			case DSUtil::FilterTemplate::FT_PNP:		type = _T("Plug && Play"); break;
+		}	
+		group->AddItem(new GraphStudio::PropItem(_T("Display Name"), filter.moniker_name));
+
+		// The following properties are only present for some hardware devices
+		if (!filter.description.IsEmpty())
+			group->AddItem(new GraphStudio::PropItem(_T("Description"), filter.description));
+		if (!filter.device_path.IsEmpty())
+			group->AddItem(new GraphStudio::PropItem(_T("Device Path"), filter.device_path));
+		if (filter.wave_in_id >= 0)
+			group->AddItem(new GraphStudio::PropItem(_T("waveIn ID"), filter.wave_in_id));
+
+		group->AddItem(new GraphStudio::PropItem(_T("Type"), type));
+
+		// Use the values found during enumeration rather than values found in the registry
+		if (GUID_NULL != filter.clsid)
+			group->AddItem(new GraphStudio::PropItem(_T("CLSID"), filter.clsid));
+		if (!filter.name.IsEmpty())
+			group->AddItem(new GraphStudio::PropItem(_T("Object Name"), filter.name));
+		if (!filter.file.IsEmpty())
+			group->AddItem(new GraphStudio::PropItem(_T("File"), filter.file));
+	}
+	GraphStudio::PropItem * const template_info = info.AddItem(new GraphStudio::PropItem(_T("Filter Data")));
+	{
+		GraphStudio::GetFilterInformationFromTemplate(filter, template_info);
+	}
+
+	tree_details.BuildPropertyTree(&info);
+
+	// favorite filter ?
+	GraphStudio::BookmarkedFilters * const favorites = CFavoritesForm::GetFavoriteFilters();
+	check_favorite.SetCheck(favorites->IsBookmarked(filter));
+
+	// blacklisted filter
+	GraphStudio::BookmarkedFilters * const blacklisted = CFavoritesForm::GetBlacklistedFilters();
+	check_blacklist.SetCheck(blacklisted->IsBookmarked(filter));
+
+	// create search url
+	LPOLESTR str;
+	StringFromCLSID(filter.clsid, &str);
+	CString	str_clsid(str);
+	CString str_name = filter.name;
+	str_name.Replace(' ', '+');
+	CString url;
+	CString file = filter.file.Mid(CPath(filter.file).FindFileName());
+	url.Format(TEXT("http://www.google.com/search?q=%s+OR+\\\"%s\\\"+OR+%s"), str_clsid, str_name, file);
+	m_search_online.SetURL(url);
+	if (str) 
+		CoTaskMemFree(str);
 }
 
 void CFiltersForm::OnBnClickedCheckBlacklist()

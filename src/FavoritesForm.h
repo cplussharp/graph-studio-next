@@ -58,7 +58,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// removing bookmarked items
 		HTREEITEM RemoveBookmark(DSUtil::FilterTemplate &ft);
-		bool IsBookmarked(DSUtil::FilterTemplate &ft);
+		bool IsBookmarked(const DSUtil::FilterTemplate &ft);
 		bool ContainsMoniker(const CString& moniker_name);
 		void RemoveFilter(BookmarkedFilter *filter);
 	};
@@ -88,7 +88,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// I/O on bookmarked filters
 		int AddBookmark(DSUtil::FilterTemplate &ft);
 		HTREEITEM RemoveBookmark(DSUtil::FilterTemplate &ft);
-		bool IsBookmarked(DSUtil::FilterTemplate &ft);
+		bool IsBookmarked(const DSUtil::FilterTemplate &ft);
 		bool ContainsMoniker(const CString& moniker_display_name);
 		void RemoveFilter(BookmarkedFilter *filter);
 

@@ -176,6 +176,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_PROPERTYPAGE, _T("&Properties..."));
 		}
 
+		if (current_filter && !current_pin) {
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_SHOW_IN_FILTERS_WINDOW, _T("Find &in Filters..."));
+		}
+
 		/////////////////////// Pin operations
 
 		if (current_pin && !current_pin->connected) {
