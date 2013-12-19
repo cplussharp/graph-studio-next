@@ -23,7 +23,9 @@ private:
 	DECLARE_MESSAGE_MAP()
 	DECLARE_DYNAMIC(CFiltersForm)
 
+	void UpdateFilterDetails(const DSUtil::FilterTemplate &filters);
 	void RefreshFilterList(const DSUtil::FilterTemplates &filters);
+	void FindFilterWithCLSID(const CLSID & filter_clsid);
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
     HICON m_hIcon;
@@ -49,10 +51,11 @@ private:
 	static DSUtil::FilterTemplates		cached_templates;	// cache for searching
 
 	// Fake filter values
-	enum Category
+	enum 
 	{
-		CATEGORY_FAVORITES = 1,
-		CATEGORY_BLACKLIST = 3
+		CATEGORY_ALL = 2,
+		CATEGORY_FAVORITES = 10,
+		CATEGORY_BLACKLIST = 11,
 	};
 
 	enum {
@@ -96,7 +99,6 @@ private:
 	// filtering
 	DSUtil::FilterTemplate *GetSelected();
 	bool CanBeDisplayed(const DSUtil::FilterTemplate &filter);
-
 
 	// filterlist callback
 	virtual void OnItemDblClk(int item);

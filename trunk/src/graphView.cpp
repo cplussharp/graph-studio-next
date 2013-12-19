@@ -112,6 +112,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_FILE_CONNECTTOREMOTEGRAPH, &CGraphView::OnConnectRemote)
 	ON_COMMAND(ID_FILE_DISCONNECTFROMREMOTEGRAPH, &CGraphView::OnDisconnectRemote)
 	ON_COMMAND(ID_GRAPH_INSERTFILTER, &CGraphView::OnGraphInsertFilter)
+	ON_COMMAND(ID_SHOW_IN_FILTERS_WINDOW, &CGraphView::OnFindInFiltersWindow)
     ON_COMMAND(ID_GRAPH_INSERTFILTERFROMFILE, &CGraphView::OnGraphInsertFilterFromFile)
     ON_COMMAND(ID_FILEOPTIONS_SAVEASXMLANDGRF, &CGraphView::OnSaveAsXmlAndGrf)
 	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_SAVEASXMLANDGRF, &CGraphView::OnUpdateSaveAsXmlAndGrf)
@@ -1181,6 +1182,17 @@ void CGraphView::OnGraphInsertFilter()
 	}
 	form_filters->ShowWindow(SW_SHOW);
 	form_filters->SetActiveWindow();
+}
+
+void CGraphView::OnFindInFiltersWindow()
+{
+	if (current_filter) {
+		OnGraphInsertFilter();
+		ASSERT(form_filters);
+		if (form_filters) {
+			form_filters->FindFilterWithCLSID(current_filter->clsid);
+		}
+	}
 }
 
 void CGraphView::OnGraphInsertFilterFromFile()

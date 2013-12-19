@@ -623,7 +623,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		filters.RemoveAll();
 	}
 
-	bool BookmarkedGroup::IsBookmarked(DSUtil::FilterTemplate &ft)
+	bool BookmarkedGroup::IsBookmarked(const DSUtil::FilterTemplate &ft)
 	{
 		for (int i=0; i<filters.GetCount(); i++) {
 			BookmarkedFilter *f = filters[i];
@@ -913,7 +913,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return NULL;
 	}
 
-	bool BookmarkedFilters::IsBookmarked(DSUtil::FilterTemplate &ft)
+	bool BookmarkedFilters::IsBookmarked(const DSUtil::FilterTemplate &ft)
 	{
 		int i;
 		for (i=0; i<groups.GetCount(); i++) {
