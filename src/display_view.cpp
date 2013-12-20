@@ -1116,12 +1116,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	void DisplayView::UpdateScrolling()
 	{
 		CSize	size = graph.GetGraphSize();
-		
 		SetScrollSizes(MM_TEXT, size);
-
 	}
 
-	void DisplayView::MakeScreenshot(const CString& base_filename)
+	void DisplayView::MakeScreenshot(const CString& image_filename, const GUID& gdiplus_format)
 	{
 		// find out the rectangle
 		int	minx = 10000000;
@@ -1148,8 +1146,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		maxy = DisplayGraph::NextGridPos(maxy) + DisplayGraph::GRID_SIZE;
 
 		// now copy the bitmap
-		int	cx = (maxx-minx);
-		int cy = (maxy-miny);
+		const int	cx = (maxx-minx);
+		const int cy = (maxy-miny);
 
 		if (cx == 0 || cy == 0) {
 			OpenClipboard();
@@ -1158,17 +1156,16 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			return ;
 		}
 
-		CRect		imgrect(minx, miny, maxx, maxy);
-		CRect		bufrect(0, 0, back_width, back_height);
-		CDC			tempdc;
-		CBitmap		tempbitmap;
+		const CRect		imgrect(minx, miny, maxx, maxy);
+		const CRect		bufrect(0, 0, back_width, back_height);
+		CDC				tempdc;
+		CBitmap			tempbitmap;
+		CRect		area = imgrect;
 
-		CRect		area=imgrect;
 		area.IntersectRect(&imgrect, &bufrect);
-
 		tempdc.CreateCompatibleDC(&memDC);
 		tempbitmap.CreateBitmap(area.Width(), area.Height(), 1, 32, NULL);
-		CBitmap *old = tempdc.SelectObject(&tempbitmap);
+		CBitmap * const old = tempdc.SelectObject(&tempbitmap);
 		tempdc.BitBlt(0, 0, area.Width(), area.Height(), &memDC, area.left, area.top, SRCCOPY);
 
 		OpenClipboard();
@@ -1176,56 +1173,15 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		SetClipboardData(CF_BITMAP, tempbitmap.GetSafeHandle());
 		CloseClipboard();
 
-        // ask for file
-        CString	filter;
-	    CString	filename;
-	    filter = _T("PNG (*.png)|*.png|JPEG (*.jpg,*.jpeg)|*.jpg;*.jpeg|GIF (*.gif)|*.gif|TIFF (*.tiff,*.tif)|*.tiff;*.tif|Bitmap (*.bmp)|*.bmp|All Files (*.*)|*.*|");
-
-	    CFileDialog dlg(FALSE,_T("png"),NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_PATHMUSTEXIST,filter);
-
-		CPath input_path(base_filename);
-		input_path.RemoveExtension();
-		CString input_filename = CString(input_path);
-	
-		dlg.m_ofn.lpstrFile = input_filename.GetBufferSetLength(MAX_PATH + 1);
-		dlg.m_ofn.nMaxFile = MAX_PATH + 1;
-
-        int ret = dlg.DoModal();
-
-	    filename = dlg.GetPathName();
-	    if (ret == IDOK)
-        {
-            GUID format = Gdiplus::ImageFormatPNG;
-		    CPath path(filename);
-		    if (path.GetExtension() == _T(""))
-            {
-			    path.AddExtension(_T(".png"));
-			    filename = CString(path);
-            }
-            else
-            {
-                CString ext = path.GetExtension();
-                ext.MakeLower();
-                if(ext == _T(".jpg") || ext == _T(".jpeg"))
-                    format = Gdiplus::ImageFormatJPEG;
-                else if(ext == _T(".gif"))
-                    format = Gdiplus::ImageFormatGIF;
-                else if(ext == _T(".bmp"))
-                    format = Gdiplus::ImageFormatBMP;
-                else if(ext == _T(".tiff") || ext == _T(".tif"))
-                    format = Gdiplus::ImageFormatTIFF;
-            }
-
-            CImage img;
-            img.Attach(tempbitmap);
-            img.Save(filename, format);
-        }
+        CImage img;
+        img.Attach(tempbitmap);
+        HRESULT hr = img.Save(image_filename, gdiplus_format);
+		DSUtil::ShowError(hr, _T("Failed to save image file"));
 
         // free resources
 		tempdc.SelectObject(old);
 		tempbitmap.DeleteObject();
 		tempdc.DeleteDC();
-
 	}
 
 	void DisplayView::OnSelectStream(UINT id)

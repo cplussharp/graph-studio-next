@@ -1025,7 +1025,9 @@ BEGIN
         MENUITEM "Save As XML&....\tAlt+Shift+S", ID_FILE_SAVEASXML
         POPUP "File Opt&ions"
         BEGIN
-            MENUITEM "Always &Save GRF and XML",    ID_FILEOPTIONS_SAVEASXMLANDGRF
+			MENUITEM "Use Internal GRF file &parser", ID_OPTIONS_USEINTERNALGRFFILEPARSER
+            MENUITEM "Always Save GRF and &XML",    ID_FILEOPTIONS_SAVEASXMLANDGRF
+            MENUITEM "Always Save &Screenshot",		ID_FILEOPTIONS_SAVE_SCREENHSOT
             MENUITEM "Load XML Pins by &Name",      ID_FILEOPTIONS_LOADPINSBYNAME
             MENUITEM "Load XML Pins by Inde&x",     ID_FILEOPTIONS_LOADPINSBYINDEX
             MENUITEM "Load XML Pins by &ID",        ID_FILEOPTIONS_LOADPINSBYID
@@ -1140,7 +1142,6 @@ BEGIN
         MENUITEM "&Abort Render After 10 Seconds", ID_OPTIONS_ABORTRENDER
         MENUITEM "Show Console &Window",        ID_OPTIONS_SHOWCONSOLEWINDOW
         MENUITEM "Display As &File Name",       ID_OPTIONS_DISPLAYASFILENAME
-        MENUITEM "Use &Internal GRF file parser", ID_OPTIONS_USEINTERNALGRFFILEPARSER
         MENUITEM "Show &GUID of Known Types",   ID_OPTIONS_SHOWGUIDOFKNOWNTYPES
         MENUITEM "Exact Match &Lookup Mode",    ID_OPTIONS_EXACTMATCH
         MENUITEM "Use &MediaInfo",              ID_OPTIONS_USEMEDIAINFO

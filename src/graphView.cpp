@@ -73,6 +73,28 @@ UINT PASCAL _AfxGetMouseScrollLines()
 	return uCachedScrollLines;
 }
 
+
+const TCHAR * const graphic_format_filters = 
+	_T("PNG (*.png)|*.png|JPEG (*.jpg,*.jpeg)|*.jpg;*.jpeg|GIF (*.gif)|*.gif|TIFF (*.tif,*.tiff)|*.tif;*.tiff|Bitmap (*.bmp)|*.bmp|All Files (*.*)|*.*|");
+
+const GUID * const graphic_format_guids[] = 
+{
+	&Gdiplus::ImageFormatPNG,
+	&Gdiplus::ImageFormatJPEG,
+	&Gdiplus::ImageFormatGIF,
+	&Gdiplus::ImageFormatTIFF,
+	&Gdiplus::ImageFormatBMP,
+};
+
+const TCHAR * const graphic_format_extensions[] =
+{
+	_T(".png"),
+	_T(".jpg"),
+	_T(".gif"),
+	_T(".tif"),
+	_T(".bmp"),
+};
+
 }
 
 //-----------------------------------------------------------------------------
@@ -116,6 +138,8 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
     ON_COMMAND(ID_GRAPH_INSERTFILTERFROMFILE, &CGraphView::OnGraphInsertFilterFromFile)
     ON_COMMAND(ID_FILEOPTIONS_SAVEASXMLANDGRF, &CGraphView::OnSaveAsXmlAndGrf)
 	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_SAVEASXMLANDGRF, &CGraphView::OnUpdateSaveAsXmlAndGrf)
+    ON_COMMAND(ID_FILEOPTIONS_SAVE_SCREENHSOT, &CGraphView::OnAlwaysSaveScreenshot)
+	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_SAVE_SCREENHSOT, &CGraphView::OnUpdateAlwaysSaveScreenshot)
 	ON_COMMAND(ID_VIEW_GRAPHEVENTS, &CGraphView::OnViewGraphEvents)
     ON_COMMAND(ID_VIEW_GRAPHSTATISTICS, &CGraphView::OnViewGraphStatistics)
 	ON_COMMAND(ID_LIST_MRU_CLEAR, &CGraphView::OnClearMRUClick)
@@ -541,7 +565,9 @@ void CGraphView::OnInit()
 		ShowConsole(true);				// Don't do anything on startup unless show console setting is true
 
 	CgraphstudioApp::g_useInternalGrfParser = AfxGetApp()->GetProfileInt(_T("Settings"), _T("UseInternalGrfParser"), 0) ? true : false;
-	CgraphstudioApp::g_SaveXmlAndGrf = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveXmlAndGrf"), CgraphstudioApp::g_SaveXmlAndGrf);
+	CgraphstudioApp::g_SaveXmlAndGrf        = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveXmlAndGrf"), CgraphstudioApp::g_SaveXmlAndGrf);
+	CgraphstudioApp::g_SaveScreenshot       = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveScreenshot"), CgraphstudioApp::g_SaveScreenshot);
+	CgraphstudioApp::g_ScreenshotFormat     = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ScreenshotFormat"), CgraphstudioApp::g_ScreenshotFormat);
 
 	int showGuids = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowGuidsOfKnownTypes"), 1);
     CgraphstudioApp::g_showGuidsOfKnownTypes = showGuids != 0;
@@ -909,6 +935,17 @@ afx_msg void CGraphView::OnUpdateSaveAsXmlAndGrf(CCmdUI *pCmdUI)
 	pCmdUI->SetCheck(CgraphstudioApp::g_SaveXmlAndGrf ? 1 : 0);
 }
 
+void CGraphView::OnAlwaysSaveScreenshot()
+{
+	CgraphstudioApp::g_SaveScreenshot = !CgraphstudioApp::g_SaveScreenshot;
+	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("SaveScreenshot"), CgraphstudioApp::g_SaveScreenshot);
+}
+
+afx_msg void CGraphView::OnUpdateAlwaysSaveScreenshot(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(CgraphstudioApp::g_SaveScreenshot ? 1 : 0);
+}
+
 HRESULT CGraphView::DoFileSave()
 {
 	HRESULT hr = S_OK;
@@ -941,6 +978,26 @@ HRESULT CGraphView::DoFileSave()
 		mru.NotifyEntry(document_filename);
 		UpdateMRUMenu();
 	}
+
+	if (CgraphstudioApp::g_SaveScreenshot) {
+		// check tables consistent in size
+		ASSERT(sizeof(graphic_format_guids)			/ sizeof(graphic_format_guids[0]) 
+			== sizeof(graphic_format_extensions)	/ sizeof(graphic_format_extensions[0]));
+
+		const int num_formats = min(sizeof(graphic_format_guids)		/ sizeof(graphic_format_guids[0]),
+									sizeof(graphic_format_extensions)	/ sizeof(graphic_format_extensions[0]));
+
+		// check limits before dereferencing
+		int format = max(0, CgraphstudioApp::g_ScreenshotFormat);
+		format     = min(format, num_formats - 1);
+
+		CPath image_name(document_filename);
+		image_name.RemoveExtension();
+		image_name.AddExtension(graphic_format_extensions[format]);
+
+		MakeScreenshot(image_name, *graphic_format_guids[format]);
+	}
+
 	return hr;
 }
 
@@ -1770,7 +1827,43 @@ void CGraphView::OnMRUClick(UINT nID)
 
 void CGraphView::OnGraphScreenshot()
 {
-	MakeScreenshot(document_filename);
+    // ask for file
+    const CString filter(graphic_format_filters);
+	CFileDialog dlg(FALSE, _T("png"), NULL, OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_PATHMUSTEXIST, filter);
+
+	CPath input_path(document_filename);
+	input_path.RemoveExtension();
+
+	CString input_filename = CString(input_path);
+	dlg.m_ofn.lpstrFile    = input_filename.GetBufferSetLength(MAX_PATH + 1);
+	dlg.m_ofn.nMaxFile     = MAX_PATH + 1;
+	dlg.m_ofn.nFilterIndex = CgraphstudioApp::g_ScreenshotFormat + 1;
+
+	if (dlg.DoModal() == IDOK) {
+		CgraphstudioApp::g_ScreenshotFormat = dlg.m_ofn.nFilterIndex - 1;
+		AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ScreenshotFormat"), CgraphstudioApp::g_ScreenshotFormat);
+
+		CString filename(dlg.GetPathName());
+		CPath path(filename);
+
+		GUID format = Gdiplus::ImageFormatPNG;
+		if (path.GetExtension().IsEmpty()) {
+			path.AddExtension(_T(".png"));
+			filename = CString(path);
+		} else {
+			CString ext = path.GetExtension();
+			ext.MakeLower();
+			if(ext == _T(".jpg") || ext == _T(".jpeg"))
+				format = Gdiplus::ImageFormatJPEG;
+			else if(ext == _T(".gif"))
+				format = Gdiplus::ImageFormatGIF;
+			else if(ext == _T(".bmp"))
+				format = Gdiplus::ImageFormatBMP;
+			else if(ext == _T(".tiff") || ext == _T(".tif"))
+				format = Gdiplus::ImageFormatTIFF;
+		}
+		MakeScreenshot(filename, format);
+    }
 }
 
 void CGraphView::OnConnectRemote()
