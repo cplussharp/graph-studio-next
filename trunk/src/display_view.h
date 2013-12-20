@@ -91,7 +91,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void OnChooseSourceFile();
 		void OnChooseDestinationFile();
 
-		void MakeScreenshot(const CString& base_filename);
+		void MakeScreenshot(const CString& image_filename, const GUID& gdiplus_format);
 
 		// stream selection
 		void PrepareStreamSelectMenu(CMenu &menu, IUnknown *obj);

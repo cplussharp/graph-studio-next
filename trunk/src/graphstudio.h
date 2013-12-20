@@ -34,8 +34,10 @@ public:
 
     static bool g_useInternalGrfParser;
 	static bool g_SaveXmlAndGrf; 
+	static bool g_SaveScreenshot;
     static bool g_showConsole;
     static bool g_showGuidsOfKnownTypes;
+	static int	g_ScreenshotFormat;
     
 	enum PinResolution
 	{

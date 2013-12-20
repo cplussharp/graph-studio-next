@@ -124,6 +124,7 @@ public:
 	void OnFindInFiltersWindow();
     void OnGraphInsertFilterFromFile();
 	void OnSaveAsXmlAndGrf();
+	void OnAlwaysSaveScreenshot();
 	void OnClearMRUClick();
 	void OnMRUClick(UINT nID);
 	void OnGraphScreenshot();
@@ -307,6 +308,7 @@ public:
 	afx_msg void OnUpdateSeekByFrame(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSeekByTime(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSaveAsXmlAndGrf(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateAlwaysSaveScreenshot(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in graphView.cpp
