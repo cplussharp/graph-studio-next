@@ -78,7 +78,7 @@ HRESULT CSbeSinkPage::OnActivate()
     isActiv = true;
 
 	HRESULT hr = filter->IsProfileLocked();
-    if(S_OK)
+    if(hr == S_OK)
     {
         EnableWindow(FALSE);
         return NOERROR;
