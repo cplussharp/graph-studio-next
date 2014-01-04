@@ -1041,5 +1041,5 @@ bool CFiltersForm::FilterTemplateFromCLSID(const GUID& clsid, DSUtil::FilterTemp
 {
 	bool found =false;
 	EnumerateAllFilters(cached_templates);
-	return 0 == cached_templates.FindTemplateByCLSID(clsid, &filter_template);
+	return cached_templates.FindTemplateByCLSID(clsid, &filter_template);
 }

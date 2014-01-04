@@ -13,26 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// German (Germany) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
-LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
-#pragma code_page(1252)
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDI_ADDFILTER           ICON                    "res\\addFilter.ico"
-#endif    // German (Germany) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// English (United States) resources
+// Englisch (USA) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -51,11 +32,19 @@ IDR_MAINFRAME           ICON                    "res\\graphstudionext64.ico"
 IDR_MAINFRAME           ICON                    "res\\graphstudionext.ico"
 #endif
 IDR_graphstudioTYPE     ICON                    "res\\graphstudioDoc.ico"
+IDI_ADDFILTER           ICON                    "res\\addFilter.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
+
+IDD_PROPPAGE_FILETYPES DIALOGEX 0, 0, 195, 127
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+END
 
 IDD_PROPPAGE_WMRESIZER DIALOGEX 0, 0, 272, 248
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
@@ -637,6 +626,15 @@ BEGIN
     CONTROL         "",IDC_LIST_DATA,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_OWNERDATA | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,0,21,300,129
 END
 
+IDD_DIALOG_FILETYPES DIALOGEX 0, 0, 330, 162
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Registered Filetypes and Protocols"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,330,20
+    CONTROL         "",IDC_TAB_FILETYPES,"SysTabControl32",0x0,0,24,324,132
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -646,6 +644,10 @@ END
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO
 BEGIN
+    IDD_PROPPAGE_FILETYPES, DIALOG
+    BEGIN
+    END
+
     IDD_PROPPAGE_WMRESIZER, DIALOG
     BEGIN
         VERTGUIDE, 225
@@ -913,6 +915,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 144
     END
+
+    IDD_DIALOG_FILETYPES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 323
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 155
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -1025,9 +1035,9 @@ BEGIN
         MENUITEM "Save As XML&....\tAlt+Shift+S", ID_FILE_SAVEASXML
         POPUP "File Opt&ions"
         BEGIN
-			MENUITEM "Use Internal GRF file &parser", ID_OPTIONS_USEINTERNALGRFFILEPARSER
+            MENUITEM "Use Internal GRF file &parser", ID_OPTIONS_USEINTERNALGRFFILEPARSER
             MENUITEM "Always Save GRF and &XML",    ID_FILEOPTIONS_SAVEASXMLANDGRF
-            MENUITEM "Always Save &Screenshot",		ID_FILEOPTIONS_SAVE_SCREENHSOT
+            MENUITEM "Always Save &Screenshot",     ID_FILEOPTIONS_SAVE_SCREENHSOT
             MENUITEM "Load XML Pins by &Name",      ID_FILEOPTIONS_LOADPINSBYNAME
             MENUITEM "Load XML Pins by Inde&x",     ID_FILEOPTIONS_LOADPINSBYINDEX
             MENUITEM "Load XML Pins by &ID",        ID_FILEOPTIONS_LOADPINSBYID
@@ -1156,6 +1166,8 @@ BEGIN
     BEGIN
         MENUITEM "&GUID Lookup...\tCtrl+L",     ID_HELP_GUIDLOOKUP
         MENUITEM "&HRESULT Lookup...\tCtrl+Q",  ID_HELP_HRESULTLOOKUP
+        MENUITEM SEPARATOR
+        MENUITEM "Registered Filetypes",        ID_HELP_REGISTEREDFILETYPES
         MENUITEM SEPARATOR
         MENUITEM "Help &Information...",        ID_HELP_COMMANDLINEOPTIONS
         MENUITEM SEPARATOR
@@ -1511,9 +1523,10 @@ BEGIN
     ID_SEEK_BACKWARD_2      "Seek backward 1 second"
     ID_SEEK_BACKWARD_3      "Seek backward 10 seconds"
     ID_SEEK_BACKWARD_4      "Seek backward 1 minute"
+    ID_HELP_REGISTEREDFILETYPES "Show registered filetypes and protocols"
 END
 
-#endif    // English (United States) resources
+#endif    // Englisch (USA) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -109,6 +109,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		value = (val ? _T("TRUE") : _T("FALSE"));
 	}
 
+    PropItem::PropItem(CString n, CTime time) :
+		name(n),
+		type(TYPE_TIME),
+        expand(false)
+	{
+		value = time.Format(_T("%d/%b/%Y  %H:%M:%S"));
+	}
+
 	PropItem::~PropItem()
 	{
 		Clear();
@@ -122,6 +130,18 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 		items.RemoveAll();
 	}
+
+    PropItem *PropItem::GetItemByName(const CString& name)
+    {
+        for (int i=0; i<items.GetCount(); i++) 
+        {
+            PropItem *item = items[i];
+            if (item->name.CompareNoCase(name) == 0)
+                return item;
+        }
+
+        return NULL;
+    }
 
 	// build up the tree
 	PropItem *PropItem::AddItem(PropItem *item)
@@ -230,7 +250,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 
 	PropertyTree::PropertyTree() :
-		CStatic()
+		CStatic(), dontDrawItem(false)
 	{
 		MakeFont(font_group, _T("Tahoma"), 8, true, false);
 		MakeFont(font_item, _T("Tahoma"), 8, false, false);
@@ -280,8 +300,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void PropertyTree::BuildPropertyTree(PropItem *root)
 	{
-		tree.DeleteAllItems();
-		tree.CancelEdit();
+        dontDrawItem = true;
+		
+        tree.CancelEdit();
+        tree.SelectItem(NULL);
+        tree.DeleteAllItems();
+
+        dontDrawItem = false;
+
 		BuildNode(root, tree.GetRootItem());
 	}
 
@@ -353,7 +379,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	void PropertyTree::PaintItem(HTREEITEM item, UINT state, NMCUSTOMDRAW *draw)
 	{
 		GraphStudio::PropItem	*prop = (GraphStudio::PropItem*)tree.GetItemData(item);
-		if (!prop) return ;
+		if (!prop || dontDrawItem) return ;
 
 		CRect	rc = draw->rc;
 		CDC		dc;

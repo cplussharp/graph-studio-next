@@ -214,8 +214,8 @@ namespace DSUtil
         int EnumerateDemuxer();
 
 		// vyhladavanie
-		int FindTemplateByName(CString name, FilterTemplate *filter);
-		int FindTemplateByCLSID(GUID clsid, FilterTemplate *filter); 
+		bool FindTemplateByName(CString name, FilterTemplate *filter);
+		bool FindTemplateByCLSID(GUID clsid, FilterTemplate *filter); 
 		int AddFilters(IEnumMoniker *emoniker, int enumtype=0, GUID category=GUID_NULL);
 
 		// testing
@@ -284,6 +284,9 @@ namespace DSUtil
 
     bool IsOsWin7OrLater();
     bool IsOsWinVistaOrLater();
+
+    void Tokenizer(const CString& strFields, const CString& strDelimiters, CStringArray& arFields);
+    bool SetClipboardText(HWND hwnd, CString& text);
 };
 
 

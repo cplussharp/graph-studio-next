@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by graphstudionext.rc
+// Von Microsoft Visual C++ generierte Includedatei.
+// Verwendet durch graphstudionext.rc
 //
 #define IDC_BUTTON_SET_PREROLL          3
 #define IDD_ABOUTBOX                    100
@@ -57,6 +57,8 @@
 #define IDD_PROPPAGE_ANALYZER           176
 #define IDD_DIALOG_CLIOPTIONS           177
 #define IDD_DIALOG_STATISTIC            178
+#define IDD_DIALOG_FILETYPES            179
+#define IDD_PROPPAGE_FILETYPES          180
 #define IDC_COMBO_CATEGORIES            1001
 #define IDC_LIST_FILTERS                1002
 #define IDC_COMBO_MERIT                 1003
@@ -123,11 +125,15 @@
 #define IDC_EDIT_OPTIONS                1031
 #define IDC_EDIT_PREVIEWBYTECOUNT       1031
 #define IDC_EDIT_STOP_POSITION          1031
+#define IDC_TREE_PROTOCOLS              1031
 #define IDC_EDIT_DST_TOP                1032
 #define IDC_EDIT_RATE                   1032
+#define IDC_TREE_EXTENSIONS             1032
 #define IDC_TREE                        1033
 #define IDC_EDIT_PREROLL                1033
+#define IDC_TREE_BYTES                  1033
 #define IDC_PROGRESS_POSITION           1034
+#define IDC_TREE_MEDIAPLAYER            1034
 #define IDC_CHECK_AUTOSWITCH            1035
 #define IDC_STATIC_CAPTION              1037
 #define IDC_STATIC_VOLUME               1038
@@ -231,6 +237,9 @@
 #define IDC_USE_FORMAT_BLOCK            1130
 #define IDC_CUSTOM_FORMAT               1132
 #define IDC_BUTTON_SET_RATE             1133
+#define IDC_TAB1                        1135
+#define IDC_TAB_FILETYPES               1135
+#define IDC_BUTTON1                     1136
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -268,7 +277,7 @@
 #define ID_VIEW_150                     32797
 #define ID_VIEW_200                     32798
 #define ID_BUTTON_ADD_FILTERS           32799
-#define ID_SHOW_IN_FILTERS_WINDOW		32800
+#define ID_SHOW_IN_FILTERS_WINDOW       32800
 #define ID_GRAPH_INSERTFILEWRITER       32805
 #define ID_GRAPH_INSERTVIDEORENDERER    32806
 #define ID_GRAPH_INSERTAUDIORENDERER    32807
@@ -369,17 +378,18 @@
 #define ID_SEEK_BACKWARD_2              32929
 #define ID_SEEK_BACKWARD_3              32930
 #define ID_SEEK_BACKWARD_4              32931
-#define ID_FILEOPTIONS_SAVE_SCREENHSOT	32932
+#define ID_FILEOPTIONS_SAVE_SCREENHSOT  32932
 #define ID_VIEW_RESETGRAPHLAYOUT        32935
 #define ID_FILEOPTIONS_SAVEASXMLANDGRF  32936
+#define ID_HELP_REGISTEREDFILETYPES     32937
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        179
-#define _APS_NEXT_COMMAND_VALUE         32937
-#define _APS_NEXT_CONTROL_VALUE         1135
-#define _APS_NEXT_SYMED_VALUE           104
+#define _APS_NEXT_RESOURCE_VALUE        181
+#define _APS_NEXT_COMMAND_VALUE         32938
+#define _APS_NEXT_CONTROL_VALUE         1137
+#define _APS_NEXT_SYMED_VALUE           108
 #endif
 #endif

@@ -57,11 +57,16 @@ BOOL CEventsForm::DoCreateDialog(CWnd* parent)
 
 	// create buttons
 	CRect	rc;
-	rc.SetRect(0, 0, 80, 25);
-	btn_clear.Create(_T("Clear"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_CLEAR);
-	btn_clear.SetFont(GetFont());
-	btn_copy.Create(_T("Copy"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_COPY);
+	rc.SetRect(0, 0, 60, 23);
+    btn_copy.Create(_T("Copy"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_COPY);
 	btn_copy.SetFont(GetFont());
+    btn_copy.SetWindowPos(NULL, 4, 4, rc.Width(), rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+
+	btn_clear.Create(_T("Clear"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_CLEAR);
+    btn_clear.SetWindowPos(NULL, 8 + rc.Width(), 4, rc.Width(), rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_clear.SetFont(GetFont());
+
+    OnInitialize();
 
 	return TRUE;
 }
@@ -69,6 +74,15 @@ BOOL CEventsForm::DoCreateDialog(CWnd* parent)
 CRect CEventsForm::GetDefaultRect() const 
 {
 	return CRect(50, 200, 450, 450);
+}
+
+void CEventsForm::OnInitialize()
+{
+	if(GraphStudio::HasFont(_T("Consolas")))
+        GraphStudio::MakeFont(font_list, _T("Consolas"), 10, false, false);
+    else
+        GraphStudio::MakeFont(font_list, _T("Courier New"), 10, false, false);
+	list_events.SetFont(&font_list);
 }
 
 void CEventsForm::OnSize(UINT nType, int cx, int cy)
@@ -80,15 +94,10 @@ void CEventsForm::OnSize(UINT nType, int cx, int cy)
 	if (IsWindow(list_events)) {
 		title.GetClientRect(&rc2);
 
-		btn_clear.SetWindowPos(NULL, cx - 2*(60+6), 4, 60, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
-		btn_copy.SetWindowPos(NULL, cx - 1*(60+6), 4, 60, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
-
 		list_events.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
 		title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 		title.Invalidate();
-		btn_clear.Invalidate();
-		btn_copy.Invalidate();
 	}
 }
 
@@ -369,18 +378,6 @@ void CEventsForm::OnBnClickedButtonCopy()
 			whole_text = whole_text + line + _T("\r\n");
 		}
 
-		if (OpenClipboard()) {
-			EmptyClipboard();
-
-			int size = (whole_text.GetLength()+1) * sizeof(TCHAR);
-			HGLOBAL hClipboardData = GlobalAlloc(GMEM_DDESHARE, size);
-			TCHAR *buf = (TCHAR*)GlobalLock(hClipboardData);
-			memcpy(buf, whole_text.GetBuffer(), size);
-			buf[whole_text.GetLength()] = 0;
-			GlobalUnlock(hClipboardData);
-
-			SetClipboardData(CF_UNICODETEXT, hClipboardData);
-			CloseClipboard();
-		}
+		DSUtil::SetClipboardText(this->GetSafeHwnd(),whole_text);
 	}
 }

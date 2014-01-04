@@ -125,7 +125,6 @@ void CTextInfoForm::OnSize(UINT nType, int cx, int cy)
 
         title.Invalidate();
         edit_report.Invalidate();
-
 	}
 }
 
@@ -530,19 +529,7 @@ void CTextInfoForm::OnBnClickedButtonCopytext()
 
 	edit_report.GetWindowText(text);
 
-	if (!OpenClipboard()) return ;
-
-	EmptyClipboard();
-	
-	HGLOBAL		hClipboardData  = GlobalAlloc(GMEM_DDESHARE, sizeof(TCHAR) * (text.GetLength() + 1));
-	TCHAR		*buf			= (TCHAR*)GlobalLock(hClipboardData);
-
-	memset(buf, 0, sizeof(TCHAR)*(text.GetLength() + 1));
-	memcpy(buf, text.GetBuffer(), sizeof(TCHAR)*(text.GetLength()));
-	
-	GlobalUnlock(hClipboardData);
-	SetClipboardData(CF_UNICODETEXT, hClipboardData);
-	CloseClipboard();	
+    DSUtil::SetClipboardText(this->GetSafeHwnd(),text);
 }
 
 

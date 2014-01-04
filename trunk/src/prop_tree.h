@@ -36,7 +36,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			TYPE_RECT		= 6,
             TYPE_URL        = 7,
             TYPE_DOUBLE     = 8,
-            TYPE_LARGEINT   = 9
+            TYPE_LARGEINT   = 9,
+            TYPE_TIME       = 10
 		};
 
 		int					type;
@@ -57,6 +58,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		PropItem(CString n, RECT rc);
 		PropItem(CString n, __int64 val);
         PropItem(CString n, unsigned __int64 val);
+        PropItem(CString n, CTime val);
 
 		virtual ~PropItem();
 
@@ -64,6 +66,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		int GetCount() { return (int)items.GetCount(); }
 		PropItem *GetItem(int n) { return ( n<0 || n >= items.GetCount() ? NULL : items[n]); }
+        PropItem *GetItemByName(const CString& name);
 
 		// build up the tree
 		PropItem *AddItem(PropItem *item);
@@ -137,6 +140,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		DECLARE_MESSAGE_MAP()
 
 		virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+
+        bool dontDrawItem;
 
 	public:
 		DECLARE_DYNCREATE(PropertyTree)

@@ -224,6 +224,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_VIEW_GRAPHCONSTRUCTIONREPORT, &CGraphView::OnViewGraphconstructionreport)
     ON_COMMAND(ID_HELP_GUIDLOOKUP, &CGraphView::OnHelpGuidLookup)
     ON_COMMAND(ID_HELP_HRESULTLOOKUP, &CGraphView::OnHelpHresultLookup)
+    ON_COMMAND(ID_HELP_REGISTEREDFILETYPES, &CGraphView::OnHelpRegisteredFileTypes)
     ON_COMMAND(ID_HELP_COMMANDLINEOPTIONS, &CGraphView::OnShowCliOptions)
     ON_COMMAND(ID_OPTIONS_CONFIGURESBE, &CGraphView::OnConfigureSbe)
 	ON_WM_MOUSEWHEEL()
@@ -276,6 +277,7 @@ CGraphView::CGraphView()
 	, form_dec_performance(NULL)
     , form_guidlookup(NULL)
     , form_hresultlookup(NULL)
+    , form_filetypes(NULL)
 	, document_type(NONE)
 	, last_start_time_ns(0LL)
 	, last_stop_time_ns(0LL)
@@ -303,6 +305,7 @@ CGraphView::~CGraphView()
     if (form_blacklist) { form_blacklist->DestroyWindow(); delete form_blacklist; form_blacklist = NULL; }
     if (form_guidlookup) { form_guidlookup->DestroyWindow(); delete form_guidlookup; form_guidlookup = NULL; }
     if (form_hresultlookup) { form_hresultlookup->DestroyWindow(); delete form_hresultlookup; form_hresultlookup = NULL; }
+    if (form_filetypes) { form_filetypes->DestroyWindow(); delete form_filetypes; form_filetypes = NULL; }
 }
 
 BOOL CGraphView::PreCreateWindow(CREATESTRUCT& cs)
@@ -1327,7 +1330,7 @@ void CGraphView::OnMpeg2DemuxCreatePsiPin()
             {
                 // Create PSI Filter
                 DSUtil::FilterTemplate filter;
-                if (internal_filters.FindTemplateByCLSID(__uuidof(PsiConfigFilter), &filter) >= 0)
+                if (internal_filters.FindTemplateByCLSID(__uuidof(PsiConfigFilter), &filter))
                 {
                     CComPtr<IBaseFilter> psiConfigFilter;
 	                hr = filter.CreateInstance(&psiConfigFilter);
@@ -1427,6 +1430,19 @@ void CGraphView::OnHelpHresultLookup()
 	}
 	form_hresultlookup->ShowWindow(SW_SHOW);
 	form_hresultlookup->SetActiveWindow();
+}
+
+void CGraphView::OnHelpRegisteredFileTypes()
+{
+    if (!form_filetypes) {
+        form_filetypes = new CFileTypesForm(this);
+		form_filetypes->DoCreateDialog(this);
+		form_filetypes->view = this;
+	} else {
+        form_filetypes->OnBnClickedButtonReload();
+    }
+	form_filetypes->ShowWindow(SW_SHOW);
+	form_filetypes->SetActiveWindow();
 }
 
 void CGraphView::OnShowCliOptions()
