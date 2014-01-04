@@ -197,8 +197,6 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PreBuildEvent>
@@ -242,8 +240,6 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PreBuildEvent>
@@ -270,7 +266,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
     <None Include="res\bitmap_volume.bmp" />
     <None Include="res\bitmap_volume2.bmp" />
     <None Include="res\graphstudionext.ico" />
-	<None Include="res\graphstudionext64.ico" />
+    <None Include="res\graphstudionext64.ico" />
     <None Include="res\graphstudionext.rc2" />
     <None Include="res\graphstudioDoc.ico" />
     <None Include="res\icon1.ico" />
@@ -283,11 +279,13 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\sqlite\sqlite3.h" />
+    <ClInclude Include="lib\sqlite\sqlite3_forcelib.h" />
     <ClInclude Include="src\AnalyzerPage.h" />
     <ClInclude Include="src\BlacklistForm.h" />
     <ClInclude Include="src\CliOptionsForm.h" />
     <ClInclude Include="src\Crc32.h" />
     <ClInclude Include="src\CustomToolTipCtrl.h" />
+    <ClInclude Include="src\FileTypesForm.h" />
     <ClInclude Include="src\FilterBlacklist.h" />
     <ClInclude Include="interfaces\monofilters.h" />
     <ClInclude Include="src\display_graph.h" />
@@ -384,6 +382,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
     <ClCompile Include="src\CliOptionsForm.cpp" />
     <ClCompile Include="src\Crc32.cpp" />
     <ClCompile Include="src\CustomToolTipCtrl.cpp" />
+    <ClCompile Include="src\FileTypesForm.cpp" />
     <ClCompile Include="src\FilterBlacklist.cpp" />
     <ClCompile Include="src\display_graph.cpp" />
     <ClCompile Include="src\display_view.cpp" />

@@ -354,6 +354,9 @@
     <ClInclude Include="lib\sqlite\sqlite3.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="lib\sqlite\sqlite3_forcelib.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
     <ClInclude Include="src\filters\analyzer\analyzer_pospassthru.h">
       <Filter>Filters\filter_analyzer</Filter>
     </ClInclude>
@@ -378,8 +381,8 @@
     <ClInclude Include="src\CustomToolTipCtrl.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="lib\sqlite\sqlite3_forcelib.h">
-      <Filter>Utils</Filter>
+    <ClInclude Include="src\FileTypesForm.h">
+      <Filter>Dialogs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -625,6 +628,9 @@
     </ClCompile>
     <ClCompile Include="src\CustomToolTipCtrl.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileTypesForm.cpp">
+      <Filter>Dialogs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -43,11 +43,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		find.GetCreationTime(time_cr);
 		find.GetLastWriteTime(time_mod);
 
-		CString		date;
-		date = time_cr.Format(_T("%d/%b/%Y  %H:%M:%S"));
-		filedetails->AddItem(new PropItem(_T("Created"), date));
-		date = time_mod.Format(_T("%d/%b/%Y  %H:%M:%S"));
-		filedetails->AddItem(new PropItem(_T("Modified"), date));
+		filedetails->AddItem(new PropItem(_T("Created"), time_cr));
+		filedetails->AddItem(new PropItem(_T("Modified"), time_mod));
 
 		__int64 size = find.GetLength();
 		CString	fsize;

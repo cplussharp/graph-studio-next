@@ -200,6 +200,7 @@ using namespace std;
 #include "FavoritesForm.h"
 #include "GraphConstructionForm.h"
 #include "EventsForm.h"
+#include "FileTypesForm.h"
 #include "ScheduleForm.h"
 #include "SeekForm.h"
 #include "StatisticForm.h"

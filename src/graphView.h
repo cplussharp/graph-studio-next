@@ -42,6 +42,7 @@ public:
     CStatisticForm				*form_statistic;
     CLookupForm                 *form_guidlookup;
     CLookupForm                 *form_hresultlookup;
+    CFileTypesForm              *form_filetypes;
 
     CCustomToolTipCtrl	        m_ToolTip;
     CPoint                      m_lastToolTipPoint;
@@ -266,6 +267,7 @@ public:
 	afx_msg void OnViewGraphconstructionreport();
     afx_msg void OnHelpGuidLookup();
     afx_msg void OnHelpHresultLookup();
+    afx_msg void OnHelpRegisteredFileTypes();
     afx_msg void OnShowCliOptions();
     afx_msg void OnConfigureSbe();
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);

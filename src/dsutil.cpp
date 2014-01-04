@@ -916,39 +916,39 @@ namespace DSUtil
 		}
 	}
 
-	int FilterTemplates::FindTemplateByName(CString name, FilterTemplate *filter)
+	bool FilterTemplates::FindTemplateByName(CString name, FilterTemplate *filter)
 	{
-		if (!filter) return -1;
+		if (!filter) return false;
 		for (int i=0; i<filters.GetCount(); i++) {
 			if (name == filters[i].name) {
 				*filter = filters[i];
-				return 0;
+				return true;
 			}
 		}
 
 		// nemame nic
-		return -1;
+		return false;
 	}
 
-	int FilterTemplates::FindTemplateByCLSID(GUID clsid, FilterTemplate *filter)
+	bool FilterTemplates::FindTemplateByCLSID(GUID clsid, FilterTemplate *filter)
 	{
-		if (!filter) return -1;
+		if (!filter) return false;
 		for (int i=0; i<filters.GetCount(); i++) {
 			if (clsid == filters[i].clsid) {
 				*filter = filters[i];
-				return 0;
+				return true;
 			}
 		}
 
 		// nemame nic
-		return -1;
+		return false;
 	}
 
 	// vytvaranie
 	HRESULT FilterTemplates::CreateInstance(CString name, IBaseFilter **filter)
 	{
 		FilterTemplate	ft;
-		if (FindTemplateByName(name, &ft) >= 0) {
+		if (FindTemplateByName(name, &ft)) {
 			return ft.CreateInstance(filter);
 		}
 		return E_FAIL;
@@ -957,7 +957,7 @@ namespace DSUtil
 	HRESULT FilterTemplates::CreateInstance(GUID clsid, IBaseFilter **filter)
 	{
 		FilterTemplate	ft;
-		if (FindTemplateByCLSID(clsid, &ft) >= 0) {
+		if (FindTemplateByCLSID(clsid, &ft)) {
 			return ft.CreateInstance(filter);
 		}
 		return E_FAIL;
@@ -2271,6 +2271,56 @@ namespace DSUtil
         DWORD dwMinor = HIBYTE(LOWORD(GetVersion()));
 
         return dwMajor >= 6;
+    }
+
+    // Thanks to http://www.codeproject.com/Tips/676464/How-to-Parse-Empty-Tokens-using-CString-Tokenize
+    void Tokenizer(const CString& strFields, const CString& strDelimiters, CStringArray& arFields)
+    {
+        arFields.RemoveAll();
+  
+        // Do not process empty strings.
+        if (!strFields.IsEmpty() && !strDelimiters.IsEmpty())
+        {
+            int nPosition = 0, nTotalFields = 0;
+  
+            do
+            {
+                int nOldPosition = nPosition;   // Store the previous position value.
+  
+                CString strField = strFields.Tokenize(strDelimiters, nPosition);
+                if (nPosition != -1)
+                {
+                    nTotalFields += (nPosition - nOldPosition - strField.GetLength());
+                }
+                else
+                {
+                    nTotalFields += (strFields.GetLength() + 1 - nOldPosition);
+                }
+  
+                // By using SetAtGrow(), empty strings are automatically added to the array.
+                arFields.SetAtGrow(nTotalFields - 1, strField);
+             } while (nPosition != -1 && nPosition <= strFields.GetLength());
+        }
+    }
+
+    bool SetClipboardText(HWND hwnd, CString& text)
+    {
+        if (!IsWindow(hwnd)) return false;
+        if (!OpenClipboard(hwnd)) return false;
+
+	    EmptyClipboard();
+	
+	    HGLOBAL		hClipboardData  = GlobalAlloc(GMEM_DDESHARE, sizeof(TCHAR) * (text.GetLength() + 1));
+	    TCHAR		*buf			= (TCHAR*)GlobalLock(hClipboardData);
+
+	    memset(buf, 0, sizeof(TCHAR)*(text.GetLength() + 1));
+	    memcpy(buf, text.GetBuffer(), sizeof(TCHAR)*(text.GetLength()));
+	
+	    GlobalUnlock(hClipboardData);
+	    SetClipboardData(CF_UNICODETEXT, hClipboardData);
+	    CloseClipboard();
+
+        return true;
     }
 };
 
