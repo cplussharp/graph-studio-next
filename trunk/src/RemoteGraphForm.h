@@ -13,6 +13,12 @@ struct RemoteGraph
 public:
 	CComPtr<IMoniker>	moniker;
 	CString				name;
+    INT                 pid;
+    LONGLONG            instance;
+    CString             time;
+    CString             processImageFileName;
+    CPath               processImagePath;
+    BOOL                processIsWOW64;
 };
 
 //-----------------------------------------------------------------------------
@@ -30,7 +36,7 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);
 
 	GraphStudio::TitleBar	title;
-	CListBox				list_graphs;
+	CListCtrl				list_graphs;
 	CButton					btn_refresh;
 	CButton					btn_connect;
 	CArray<RemoteGraph>		graphs;
@@ -52,6 +58,6 @@ protected:
 	void OnRefreshClick();
 	void OnConnectClick();
 
-	afx_msg void OnLbnSelchangeListGraphs();
-	afx_msg void OnDblclkListGraphs();
+	afx_msg void OnItemchangedListGraphs(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnDblclkListGraphs(NMHDR *pNMHDR, LRESULT *pResult);
 };
