@@ -45,6 +45,8 @@ typedef enum StatisticRecordKind
     SRK_IS_Read = SCF_IStream,
     SRK_IS_Write,
     SRK_IS_Seek,
+    SRK_IS_Commit,
+    SRK_IS_SetSize,
 
     // IMediaSeeking Entries
     SRK_MS_SetPositions = SCF_IMediaSeeking,

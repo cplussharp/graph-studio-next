@@ -248,6 +248,37 @@ HRESULT CAnalyzer::AddIStreamSeek(DWORD dwOrigin, const LARGE_INTEGER &liDistanc
     return S_OK;
 }
 
+HRESULT CAnalyzer::AddIStreamCommit(DWORD grfCommitFlags)
+{
+    if (!m_enabled || !m_config&SCF_IStream) return S_OK;
+
+	StatisticRecordEntry entry = { 0 };
+	InitEntry(entry);
+    entry.EntryKind = SRK_IS_Commit;
+
+    entry.SampleFlags = grfCommitFlags;
+
+    AddEntry(entry);
+
+    return S_OK;
+}
+
+
+HRESULT CAnalyzer::AddIStreamSetSize(ULARGE_INTEGER libNewSize)
+{
+    if (!m_enabled || !m_config&SCF_IStream) return S_OK;
+
+	StatisticRecordEntry entry = { 0 };
+	InitEntry(entry);
+    entry.EntryKind = SRK_IS_SetSize;
+
+    entry.StreamTimeStart = libNewSize.QuadPart;
+
+    AddEntry(entry);
+
+    return S_OK;
+}
+
 HRESULT CAnalyzer::AddMSSetPositions(HRESULT hr, __inout_opt LONGLONG * pCurrent, DWORD CurrentFlags, __inout_opt LONGLONG * pStop, DWORD StopFlags)
 {
     if (!m_enabled || !m_config&SCF_IMediaPosition) return S_OK;

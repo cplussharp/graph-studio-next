@@ -252,6 +252,7 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field, bool com
                     case SRK_IS_Write:					val = _T("IStream::Write");							break;
                     case SRK_IS_Read:					val = _T("IStream::Read");							break;
                     case SRK_IS_Seek:					val = _T("IStream::Seek");							break;
+                    case SRK_IS_Commit:					val = _T("IStream::Commit");						break;
 
 					case SRK_MS_SetPositions:			val = _T("IMediaSeeking::SetPositions");			break;
 					case SRK_MS_SetRate:				val = _T("IMediaSeeking::SetRate");					break;
@@ -417,7 +418,34 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field, bool com
             case SampleFlags:
 				if (entry.EntryKind == SRK_MS_SetPositions) {
 					val = FormatSetPositionsFlags(entry.SampleFlags);
+                } else if (entry.EntryKind == SRK_IS_Seek) {
+                    if (entry.SampleFlags == STREAM_SEEK_SET)
+                        val = _T("STREAM_SEEK_SET");
+                    else if (entry.SampleFlags == STREAM_SEEK_CUR)
+                        val = _T("STREAM_SEEK_CUR");
+                    else if (entry.SampleFlags == STREAM_SEEK_END)
+                        val = _T("STREAM_SEEK_END");
+                } else if (entry.EntryKind == SRK_IS_Commit) {
+                    if (entry.SampleFlags == STGC_DEFAULT)
+                        val = _T("STGC_DEFAULT");
+                    else
+                    {
+                        CStringArray values;
+                        if (entry.SampleFlags & STGC_OVERWRITE)
+                            values.Add(_T("STGC_OVERWRITE"));
+                        if (entry.SampleFlags & STGC_ONLYIFCURRENT)
+                            values.Add(_T("STGC_ONLYIFCURRENT"));
+                        if (entry.SampleFlags & STGC_DANGEROUSLYCOMMITMERELYTODISKCACHE)
+                            values.Add(_T("STGC_DANGEROUSLYCOMMITMERELYTODISKCACHE"));
+                        if (entry.SampleFlags & STGC_CONSOLIDATE)
+                            values.Add(_T("STGC_CONSOLIDATE"));
 
+                        for (int i=0;i<values.GetCount(); i++)
+                        {
+                            if(i > 0) val += _T(", ");
+                            val += values[i];
+                        }
+                    }
                 } else if (entry.HadIMediaSample2) {
                     CStringArray values;
 
