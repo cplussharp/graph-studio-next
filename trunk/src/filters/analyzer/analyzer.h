@@ -48,6 +48,8 @@ public:
     virtual HRESULT AddIStreamRead(const void* vp, ULONG cb, ULONG cbReaded);
     virtual HRESULT AddIStreamWrite(const void* vp, ULONG cb);
     virtual HRESULT AddIStreamSeek(DWORD dwOrigin, const LARGE_INTEGER &liDistanceToMove, const LARGE_INTEGER newPos);
+    virtual HRESULT AddIStreamCommit(DWORD grfCommitFlags);
+    virtual HRESULT AddIStreamSetSize(ULARGE_INTEGER libNewSize);
 
 	// IMediaSeeking logging
 	virtual HRESULT AddMSSetPositions(HRESULT hr, __inout_opt LONGLONG * pCurrent, DWORD CurrentFlags, __inout_opt LONGLONG * pStop, DWORD StopFlags);

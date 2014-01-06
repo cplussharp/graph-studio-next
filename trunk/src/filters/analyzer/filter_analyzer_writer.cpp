@@ -218,9 +218,38 @@ STDMETHODIMP CAnalyzerWriterInput::Write(void const* pv, ULONG cb, ULONG* pcbWri
 }
 
 
-STDMETHODIMP CAnalyzerWriterInput::SetSize(ULARGE_INTEGER)
+STDMETHODIMP CAnalyzerWriterInput::SetSize(ULARGE_INTEGER libNewSize)
 { 
-    return E_NOTIMPL;   
+    HRESULT hr = S_OK;
+
+    m_analyzer->AddIStreamSetSize(libNewSize);
+
+    if (m_pFile == NULL || *m_pFile == INVALID_HANDLE_VALUE)
+        return E_FAIL;
+
+    // get current Pointer
+    LARGE_INTEGER movePos = {0};
+    LARGE_INTEGER oldPos = {0};
+    if (!SetFilePointerEx(*m_pFile, movePos, &oldPos, FILE_CURRENT) == 0)
+        return HRESULT_FROM_WIN32(GetLastError());
+
+    // move to new file end
+    movePos.QuadPart = libNewSize.QuadPart;
+    if (!SetFilePointerEx(*m_pFile, movePos, NULL, FILE_BEGIN) == 0)
+        return HRESULT_FROM_WIN32(GetLastError());
+
+    // neues ende setzen
+    if (!SetEndOfFile(*m_pFile))
+        hr = HRESULT_FROM_WIN32(GetLastError());
+
+    // filepointer zurücksetzen
+    if (!SetFilePointerEx(*m_pFile, oldPos, NULL, FILE_BEGIN))
+    {
+        if (hr == S_OK)
+            hr = HRESULT_FROM_WIN32(GetLastError());
+    }
+
+    return hr;  
 }
 
 
@@ -230,9 +259,17 @@ STDMETHODIMP CAnalyzerWriterInput::CopyTo(IStream*, ULARGE_INTEGER, ULARGE_INTEG
 }
 
 
-STDMETHODIMP CAnalyzerWriterInput::Commit(DWORD)                                      
+STDMETHODIMP CAnalyzerWriterInput::Commit(DWORD grfCommitFlags)                                      
 { 
-    return E_NOTIMPL;   
+    m_analyzer->AddIStreamCommit(grfCommitFlags);
+
+    if (m_pFile == NULL || *m_pFile == INVALID_HANDLE_VALUE)
+        return S_OK;
+
+    if (!FlushFileBuffers(*m_pFile))
+        return HRESULT_FROM_WIN32(GetLastError());
+
+    return S_OK;
 }
 
 

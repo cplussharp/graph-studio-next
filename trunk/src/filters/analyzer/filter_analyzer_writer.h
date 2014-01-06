@@ -39,9 +39,9 @@ public:
     // IStream Methods
     STDMETHOD(Read) (void* pv, ULONG cb, ULONG* pcbRead);
 	STDMETHOD(Write) (void const* pv, ULONG cb, ULONG* pcbWritten);
-	STDMETHOD(SetSize) (ULARGE_INTEGER);
+	STDMETHOD(SetSize) (ULARGE_INTEGER libNewSize);
 	STDMETHOD(CopyTo) (IStream*, ULARGE_INTEGER, ULARGE_INTEGER*, ULARGE_INTEGER*); 
-	STDMETHOD(Commit) (DWORD);
+	STDMETHOD(Commit) (DWORD grfCommitFlags);
 	STDMETHOD(Revert) (void);
 	STDMETHOD(LockRegion) (ULARGE_INTEGER, ULARGE_INTEGER, DWORD);
 	STDMETHOD(UnlockRegion) (ULARGE_INTEGER, ULARGE_INTEGER, DWORD);
