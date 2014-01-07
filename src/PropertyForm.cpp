@@ -22,6 +22,7 @@ BEGIN_MESSAGE_MAP(CPropertyForm, CGraphStudioModelessDialog)
 	ON_WM_SIZE()
 	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_PAGES, &CPropertyForm::OnTabSelected)
 	ON_BN_CLICKED(IDC_BUTTON_APPLY, &CPropertyForm::OnBnClickedButtonApply)
+	ON_MESSAGE(PSM_PRESSBUTTON, &CPropertyForm::OnPressButton)
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -394,10 +395,32 @@ void CPropertyForm::OnBnClickedButtonApply()
 	if (container->current != -1) {
 		CPageSite *site = container->pages[container->current];
 		if (site->page) {
+			// NOTE: A property page's Apply might or otherwise the page might indicate dirtiness again, so we need to let Apply button stay enabled if needed
+			button_apply.EnableWindow(FALSE);
 			site->page->Apply();
+			return;
 		}
 	}
 	button_apply.EnableWindow(FALSE);
+}
+
+LRESULT CPropertyForm::OnPressButton(WPARAM wParam, LPARAM lParam)
+{
+	switch(wParam)
+	{
+	case PSBTN_OK:
+		if(button_ok.IsWindowEnabled())
+			PostMessage(WM_COMMAND, MAKEWPARAM(button_ok.GetDlgCtrlID(), BN_CLICKED));
+		break;
+	case PSBTN_CANCEL:
+		PostMessage(WM_COMMAND, MAKEWPARAM(button_close.GetDlgCtrlID(), BN_CLICKED));
+		break;
+	case PSBTN_APPLYNOW:
+		if(button_apply.IsWindowEnabled())
+			PostMessage(WM_COMMAND, MAKEWPARAM(button_apply.GetDlgCtrlID(), BN_CLICKED));
+		break;
+	}
+	return 0;
 }
 
 int CPropertyForm::LoadPinPage(IPin *pin)

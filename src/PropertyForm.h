@@ -135,4 +135,5 @@ public:
 	void OnOK();
 	void OnCancel();
 	afx_msg void OnBnClickedButtonApply();
+	LRESULT OnPressButton(WPARAM wParam, LPARAM lParam);
 };
