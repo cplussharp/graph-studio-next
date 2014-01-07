@@ -326,14 +326,14 @@ void CMainFrame::OnUpdatePlayRate()
     double curVal;
     if(view->graph.GetRate(&curVal) == 0)
     {
-        int val = curVal * 1000;
+        int val = (int) (curVal * 1000 + 0.5 - 1E-6);
         if(val != 1000)
         {
             int i = 0;
-            int cv = 0;
+            DWORD_PTR cv = 0;
             while((cv = m_comboRate.GetItemData(i)) != 0)
             {
-                if(cv == val)
+                if((int) cv == val)
                 {
                     sel = i;
                     break;

@@ -248,7 +248,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// registered pin details
 
-		const int pin_count = filter_template.input_pins.GetCount() + filter_template.output_pins.GetCount();
+		const SSIZE_T pin_count = filter_template.input_pins.GetCount() + filter_template.output_pins.GetCount();
 		if (pin_count > 0) {
 			PropItem * const pin_details = info->AddItem(new PropItem(_T("Registered Pins")));
 			pin_details->AddItem(new PropItem(_T("Count"), pin_count));

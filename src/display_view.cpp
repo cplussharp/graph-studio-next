@@ -1352,7 +1352,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			GraphStudio::BookmarkedFilters	* const favorites = CFavoritesForm::GetFavoriteFilters();
 			favorites->Sort();
 
-			const int	cnt = favorites->filters.GetCount() + favorites->groups.GetCount();
+			const SSIZE_T cnt = favorites->filters.GetCount() + favorites->groups.GetCount();
 
 			if (cnt > 0) {
 				const int	offset = filters_menu->GetMenuItemCount() - 2;

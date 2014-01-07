@@ -161,7 +161,7 @@ void CFilterFromFile::OnClickedButtonBrowse()
 	filter = _T("Filter-File (*.dll,*.ax)|*.dll;*.ax|All Files|*.*|");
 
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
-    int ret = dlg.DoModal();
+    INT_PTR ret = dlg.DoModal();
 
 	filename = dlg.GetPathName();
 	if (ret == IDOK) {

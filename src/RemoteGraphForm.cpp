@@ -143,12 +143,12 @@ void CRemoteGraphForm::OnRefreshClick()
                 const CAtlREMatchContext<>::RECHAR* szStart = 0;
                 const CAtlREMatchContext<>::RECHAR* szEnd = 0;
                 mc.GetMatch(0, &szStart, &szEnd);
-                ptrdiff_t nLength = szEnd - szStart;
+                int nLength = (int) (szEnd - szStart);
                 CString textInstance(szStart, nLength);
                 StrToInt64ExW(CStringW(L"0x") + textInstance, STIF_SUPPORT_HEX, &reinterpret_cast<LONGLONG&>(gr.instance));
 
                 mc.GetMatch(1, &szStart, &szEnd);
-                nLength = szEnd - szStart;
+                nLength = (int) (szEnd - szStart);
                 CString textPID(szStart, nLength);
 			    if (StrToIntExW(CStringW(L"0x") + textPID, STIF_SUPPORT_HEX, &reinterpret_cast<INT&>(gr.pid)))
                 {
@@ -170,7 +170,7 @@ void CRemoteGraphForm::OnRefreshClick()
                         {
                             // a 32Bit process can't list the modules of a 64Bit process, so try to get the processImageFileName from the ROT-Name (works only for FilterGraphSpy-Entries)
                             mc.GetMatch(2, &szStart, &szEnd);
-                            nLength = szEnd - szStart;
+                            nLength = (int) (szEnd - szStart);
                             if (nLength > 0)
                             {
                                 CString textFileName(szStart, nLength);
@@ -183,7 +183,7 @@ void CRemoteGraphForm::OnRefreshClick()
                 }
 
                 mc.GetMatch(3, &szStart, &szEnd);
-                nLength = szEnd - szStart;
+                nLength = (int) (szEnd - szStart);
                 if (nLength > 0)
                 {
                     CString textTime(szStart, nLength);

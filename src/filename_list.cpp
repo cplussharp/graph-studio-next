@@ -49,7 +49,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	{
 		CString		count_name;
 		count_name = name + _T("_count");
-		int count = GetCount();
+		int count = (int) GetCount();
 
 		if (count > max_size) count = max_size;
 

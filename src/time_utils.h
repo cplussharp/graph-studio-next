@@ -1,4 +1,4 @@
 #pragma once
 
-void MakeNiceTimeMS(int time_ms, CString &v);
+void MakeNiceTimeMS(LONGLONG time_ms, CString &v);
 CString CommaFormat(__int64 n);

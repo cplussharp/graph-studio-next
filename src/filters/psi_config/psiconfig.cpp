@@ -1106,28 +1106,28 @@ void CPayloadParserInputPin::FillParsedMediaType(void)
         switch (framerate)
         {
             case 1:
-                pInfo->hdr.AvgTimePerFrame = 10000000.0 / (24000.0 / 1001.0);
+                pInfo->hdr.AvgTimePerFrame = 10000000i64 * 1001 / 24000; // 24M = 24/1.001
                 break;
             case 2:
-                pInfo->hdr.AvgTimePerFrame = 10000000.0 / 24.0;
+                pInfo->hdr.AvgTimePerFrame = 10000000i64 / 24;
                 break;
             case 3:
-                pInfo->hdr.AvgTimePerFrame = 10000000.0 / 25.0;
+                pInfo->hdr.AvgTimePerFrame = 10000000i64 / 25;
                 break;
             case 4:
-                pInfo->hdr.AvgTimePerFrame = 10000000.0 / (30000.0 / 1001.0);
+                pInfo->hdr.AvgTimePerFrame = 10000000i64 * 1001 / 30000; // 30M = 30/1.001
                 break;
             case 5:
-                pInfo->hdr.AvgTimePerFrame = 10000000.0 / 30.0;
+                pInfo->hdr.AvgTimePerFrame = 10000000i64 / 30;
                 break;
             case 6:
-                pInfo->hdr.AvgTimePerFrame = 10000000.0 / 50.0;
+                pInfo->hdr.AvgTimePerFrame = 10000000i64 / 50;
                 break;
             case 7:
-                pInfo->hdr.AvgTimePerFrame = 10000000.0 / (60000.0 / 1001.0);
+                pInfo->hdr.AvgTimePerFrame = 10000000i64 * 1001 / 60000; // 60M = 60/1.001
                 break;
             case 8:
-                pInfo->hdr.AvgTimePerFrame = 10000000.0 / 60.0;
+                pInfo->hdr.AvgTimePerFrame = 10000000i64 / 60;
                 break;
         }
         pSeq++;

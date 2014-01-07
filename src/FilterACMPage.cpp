@@ -30,14 +30,15 @@ int ValueIndex(CArray<int> &items, int val)
 
 bool IsValueInside(CArray<int> &items, int val) { int idx = ValueIndex(items, val); return (idx >= 0); }
 int ArrayCompare(int &v1, int &v2) { return (v1 > v2 ? 1 : -1); }
-void ArraySwap(CArray<int> &items, int i, int j)
+void ArraySwap(CArray<int> &items, SSIZE_T i, SSIZE_T j)
 {
 	if (i == j) return ;	int temp = items[i];	
 	items[i] = items[j];	items[j] = temp;
 }
-void _ArraySort_(CArray<int> &items, int lo, int hi)
+void _ArraySort_(CArray<int> &items, SSIZE_T lo, SSIZE_T hi)
 {
-	int i = lo, j = hi, m;
+	SSIZE_T i = lo, j = hi;
+	int m;
 	m = items[ (lo+hi)>>1 ];
 	do {
 		while (ArrayCompare(m, items[i])>0) i++;
@@ -554,7 +555,7 @@ AudioFormatCaps *AudioCapsList::FindFromIndex(int &start_index, int format, int 
 			return cap;
 		}
 	}
-	start_index = caps.GetCount();
+	start_index = (int) caps.GetCount();
 	return NULL;
 }
 
@@ -623,8 +624,8 @@ int AudioCapsList::Refresh(IAMStreamConfig *config)
 							 samplerate += audiocaps.SampleFrequencyGranularity) {
 
 							// set the parameters
-							wfx->wBitsPerSample = bits;
-							wfx->nChannels = chans;
+							wfx->wBitsPerSample = (WORD) bits;
+							wfx->nChannels = (WORD) chans;
 							wfx->nSamplesPerSec = samplerate;
 
 							// create the capability

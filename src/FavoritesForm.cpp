@@ -401,7 +401,7 @@ void CFavoritesForm::OnNMRclickTreeFavorites(NMHDR *pNMHDR, LRESULT *pResult)
 void CFavoritesForm::OnMenuCreategroup()
 {
 	CNewGroupForm	newgroupdlg;
-	int ret = newgroupdlg.DoModal();
+	INT_PTR ret = newgroupdlg.DoModal();
 	if (ret == IDOK) {
 
 		CString	new_name = newgroupdlg.text;
@@ -541,7 +541,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return s1.Compare(s2);
 	}
 
-	void _FavoriteSwapItems(CArray<BookmarkedItem*> *ar, int i, int j)
+	void _FavoriteSwapItems(CArray<BookmarkedItem*> *ar, SSIZE_T i, SSIZE_T j)
 	{	
 		if (i == j) return ;
 		BookmarkedItem	*temp = ar->GetAt(i);
@@ -549,9 +549,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		ar->SetAt(j, temp);
 	}
 
-	void _FavoriteSort(CArray<BookmarkedItem*> *ar, int lo, int hi)
+	void _FavoriteSort(CArray<BookmarkedItem*> *ar, SSIZE_T lo, SSIZE_T hi)
 	{
-		int i = lo, j = hi;
+		SSIZE_T i = lo, j = hi;
 		BookmarkedItem *m;
 
 		// pivot

@@ -29,7 +29,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	void MRUList::Save()
 	{
 		CString		count_name = _T("MRU_count");
-		int count = list.GetCount();
+		int count = (int) list.GetCount();
 		if (count > max_count) count = max_count;
 
 		AfxGetApp()->WriteProfileInt(_T("MRU"), count_name, count);
@@ -106,7 +106,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		// add recent files
-		const int count = min(max_count, list.GetCount());
+		const int count = min(max_count, (int) list.GetCount());
 		for (int i=0; i<count; i++) {
 			CString	t;
 			t.Format(_T("&%i %s"), (i+1), list[i]);

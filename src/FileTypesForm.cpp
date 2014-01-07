@@ -96,13 +96,13 @@ CFileTypesForm::CFileTypesForm(CWnd* pParent)	:
     page_bytes(NULL),
     pageCount(3)
 {
-    for (int i=0; i<pageCount; i++)
+    for (DWORD i=0; i<pageCount; i++)
         pages[i] = NULL;
 }
 
 CFileTypesForm::~CFileTypesForm()
 {
-    for (int i=0; i<pageCount; i++)
+    for (DWORD i=0; i<pageCount; i++)
     {
         if (pages[i])
         {
@@ -151,7 +151,7 @@ BOOL CFileTypesForm::DoCreateDialog(CWnd* parent)
     tci.mask = TCIF_TEXT;
     tci.iImage = -1;
 
-    for (int i=0; i<pageCount; i++)
+    for (DWORD i=0; i<pageCount; i++)
     {
         if (pages[i])
         {
@@ -233,7 +233,7 @@ CString ByteFormatString(CString& strValue)
 
 void CFileTypesForm::OnBnClickedButtonReload()
 {
-    for (int i=0; i<pageCount; i++)
+    for (DWORD i=0; i<pageCount; i++)
     {
         if (pages[i])
         {

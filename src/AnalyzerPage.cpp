@@ -127,7 +127,7 @@ HRESULT CAnalyzerPage::OnActivate()
 
     __int64 entryCount;
     filter->get_EntryCount(&entryCount);
-    m_listCtrl.SetItemCount(entryCount);
+    m_listCtrl.SetItemCount((int) entryCount);
 
     isActiv = true;
     //set->SetCallback(this);
@@ -147,7 +147,8 @@ HRESULT CAnalyzerPage::OnApplyChanges()
 {
     UpdateData();
     filter->put_Enabled(IsDlgButtonChecked(IDC_CHECK_ENABLED) ? VARIANT_TRUE : VARIANT_FALSE);
-    filter->put_PreviewSampleByteCount(m_nPreviewByteCount);
+	ASSERT(m_nPreviewByteCount <= 0xFFFF);
+    filter->put_PreviewSampleByteCount((unsigned short) m_nPreviewByteCount);
 
     int captureConfig;
     filter->get_CaptureConfiguration(&captureConfig);
@@ -560,7 +561,7 @@ void CAnalyzerPage::OnCustomDrawListData(NMHDR *pNMHDR, LRESULT *pResult)
     *pResult = 0;
 
     LPNMLVCUSTOMDRAW  lplvcd = (LPNMLVCUSTOMDRAW)pNMHDR;
-    int iRow = lplvcd->nmcd.dwItemSpec;
+    DWORD_PTR iRow = lplvcd->nmcd.dwItemSpec;
 
     switch(lplvcd->nmcd.dwDrawStage)
     {
@@ -596,7 +597,7 @@ void CAnalyzerPage::OnBnClickedButtonRefresh()
 {
      __int64 entryCount;
     filter->get_EntryCount(&entryCount);
-    m_listCtrl.SetItemCount(entryCount);
+    m_listCtrl.SetItemCount((int) entryCount);
 }
 
 
@@ -608,7 +609,7 @@ void CAnalyzerPage::OnBnClickedButtonSave()
 	fileFilter = _T("CSV Files (*.csv)|*.csv|All Files (*.*)|*.*|");
 
 	CFileDialog dlg(FALSE,_T("analyzer"),NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_PATHMUSTEXIST,fileFilter);
-    int ret = dlg.DoModal();
+    INT_PTR ret = dlg.DoModal();
 
 	filename = dlg.GetPathName();
 	if (ret == IDOK)
@@ -641,7 +642,7 @@ void CAnalyzerPage::OnBnClickedButtonSave()
         }
         row.Append(_T("\n"));
         CT2CA outputHeaderText(row, CP_UTF8);
-        file.Write(outputHeaderText, ::strlen(outputHeaderText));
+        file.Write(outputHeaderText, (DWORD) ::strlen(outputHeaderText));
 
         // Output data
         __int64 entryCount;
@@ -658,7 +659,7 @@ void CAnalyzerPage::OnBnClickedButtonSave()
             row.Append(_T("\n"));
 
             CT2CA outputText(row, CP_UTF8);
-            file.Write(outputText, ::strlen(outputText));
+            file.Write(outputText, (DWORD) ::strlen(outputText));
         }
     }
 }

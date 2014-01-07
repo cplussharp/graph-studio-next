@@ -398,9 +398,9 @@ bool CSeekForm::ParseTimeString(const CString& time_str, LONGLONG& time)
 			}
 
 			if (parsed_ok) {
-				time =	(double)arg1	* (UNITS * 60.0 * 60.0	);		// hours
-				time += (double)arg2	* (UNITS * 60.0			);		// minutes
-				time += (double)arg3	* (UNITS				);		// seconds
+				time =	(LONGLONG) ((double) arg1 * (UNITS * 60 * 60)); // hours
+				time += (LONGLONG) ((double) arg2 * (UNITS * 60		)); // minutes
+				time += (LONGLONG) ((double) arg3 * (UNITS			)); // seconds
 			}
 		}
 
@@ -430,16 +430,16 @@ CString CSeekForm::FormatTimeString(LONGLONG time)
 	CString time_str;
 	if (TIME_FORMAT_MEDIA_TIME == time_format) {
 
-		const int hours	=	time / (UNITS * 60 * 60);
-		time -= (LONGLONG)hours * (UNITS * 60 * 60);
+		const LONGLONG hours = time / (UNITS * 60 * 60);
+		time -= hours * (UNITS * 60 * 60);
 
-		const int minutes =	time / (UNITS * 60);
-		time -= (LONGLONG)minutes * (UNITS * 60);
+		const LONGLONG minutes = time / (UNITS * 60);
+		time -= minutes * (UNITS * 60);
 
-		const int seconds =	time / (UNITS);
-		time -= (LONGLONG)seconds * UNITS;
+		const LONGLONG seconds =	time / (UNITS);
+		time -= seconds * UNITS;
 
-		time_str.Format(_T("%.2d:%.2d:%.2d.%.7I64d"), hours, minutes, seconds, time);
+		time_str.Format(_T("%.2d:%.2d:%.2d.%.7I64d"), (LONG) hours, (LONG) minutes, (LONG) seconds, time);
 
 	} else if (TIME_FORMAT_BYTE == time_format) {
 		time_str = CommaFormat(time);

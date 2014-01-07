@@ -296,7 +296,7 @@ void CVideoCompressionPage::UpdateWindowSize()
 {
 	DWORDLONG	wndsize;
 	comp->get_WindowSize(&wndsize);
-	tb_window.SetPos(wndsize);
+	tb_window.SetPos((int) wndsize);
 
 	CString		t;
 	t.Format(_T("%d"), (int)wndsize);

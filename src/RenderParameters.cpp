@@ -52,7 +52,7 @@ const int RenderParameters::def_y_gap		= 32;
 const int RenderParameters::def_wrap_width	= 100;
 
 
-RenderParameters::ConnectMode RenderParameters::connect_mode = ConnectMode::ConnectMode_Intelligent;
+RenderParameters::ConnectMode RenderParameters::connect_mode = ConnectMode_Intelligent;
 bool RenderParameters::display_file_name = true;
 bool RenderParameters::use_media_info = false;
 
@@ -63,7 +63,7 @@ RenderParameters::RenderParameters()
 	abort_timeout = true;
 
     // load connect mode
-    int connectMode = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ConnectMode"), ConnectMode::ConnectMode_Intelligent);
+    int connectMode = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ConnectMode"), ConnectMode_Intelligent);
     if(connectMode<0) connectMode = 0;
     else if(connectMode>2) connectMode = 2;
     connect_mode = (ConnectMode)connectMode;
@@ -109,9 +109,9 @@ void RenderParameters::Zoom(int z)
 	if (font_filter.m_hObject != 0) { font_filter.DeleteObject(); }
 	if (font_pin.m_hObject != 0) { font_pin.DeleteObject(); }
 
-	int size = 5 + (5.0*z / 100.0);
+	int size = 5 + (int) (5.0 * z / 100.0);
 	MakeFont(font_filter, _T("Arial"), size, false, false); 
-	size = 5 + (2.0*z / 100.0);
+	size = 5 + (int) (2.0 * z / 100.0);
 	MakeFont(font_pin, _T("Arial"), size, false, false);
 }
 

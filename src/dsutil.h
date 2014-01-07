@@ -222,8 +222,8 @@ namespace DSUtil
 		int IsVideoRenderer(FilterTemplate &filter);
 
 		void SortByName();
-		void SwapItems(int i, int j);
-		void _Sort_(int lo, int hi);
+		void SwapItems(SSIZE_T i, SSIZE_T j);
+		void _Sort_(SSIZE_T lo, SSIZE_T hi);
 
 		// vytvaranie
 		HRESULT CreateInstance(CString name, IBaseFilter **filter);
