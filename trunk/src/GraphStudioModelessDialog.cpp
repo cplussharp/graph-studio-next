@@ -21,7 +21,7 @@
    else if still not visible just position near top left of nearest monitor at default size
 */
 
-static bool IsRectOnSingleMonitor(const CRect& rect)
+static BOOL IsRectOnSingleMonitor(const CRect& rect)
 {
 	const HMONITOR monitor = MonitorFromPoint(rect.TopLeft(), MONITOR_DEFAULTTONULL);	// Find monitor from top left of rect
 	MONITORINFO info;

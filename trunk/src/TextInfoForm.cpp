@@ -541,7 +541,7 @@ void CTextInfoForm::OnClickedButtonSave()
 	filter = _T("Log Files (*.log,*.txt)|*.log;*.txt|All Files (*.*)|*.*|");
 
 	CFileDialog dlg(FALSE,_T("log"),NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_PATHMUSTEXIST,filter);
-    int ret = dlg.DoModal();
+    INT_PTR ret = dlg.DoModal();
 
 	filename = dlg.GetPathName();
 	if (ret == IDOK)
@@ -558,6 +558,6 @@ void CTextInfoForm::OnClickedButtonSave()
         CString	text;
         edit_report.GetWindowText(text);
         CT2CA outputText(text, CP_UTF8);
-        file.Write(outputText, ::strlen(outputText));
+        file.Write(outputText, (DWORD) ::strlen(outputText));
     }
 }

@@ -537,7 +537,7 @@ namespace DSUtil
 				DWORD maj_offset = ps[2];
 				DWORD min_offset = ps[3];
 
-				if ((maj_offset + 16 <= size) && (min_offset + 16 <= size)) {
+				if ((maj_offset + 16 <= (DWORD) size) && (min_offset + 16 <= (DWORD) size)) {
 					GUID	g;
 					BYTE	*m = (BYTE*)(&buf[maj_offset]);
 					if ((char*)m > (buf+size - 16)) break;
@@ -558,7 +558,7 @@ namespace DSUtil
 			
 				ps += 4;
 			}
-			pin.types = pin.major.GetCount();
+			pin.types = (int) pin.major.GetCount();
 
 			if (pin.dir == PINDIR_OUTPUT) {
 				output_pins.Add(pin);
@@ -866,7 +866,7 @@ namespace DSUtil
 		return s1.Compare(s2);
 	}
 
-	void FilterTemplates::SwapItems(int i, int j)
+	void FilterTemplates::SwapItems(SSIZE_T i, SSIZE_T j)
 	{	
 		if (i == j) return ;
 		FilterTemplate	temp = filters[i];
@@ -874,9 +874,10 @@ namespace DSUtil
 		filters[j] = temp;
 	}
 
-	void FilterTemplates::_Sort_(int lo, int hi)
+	void FilterTemplates::_Sort_(SSIZE_T lo, SSIZE_T hi)
 	{
-		int i = lo, j = hi;
+		// TODO: This should be really converted to template or otherwise reworked: the pattern is copy/pasted a few times throughout the project
+		SSIZE_T i = lo, j = hi;
 		FilterTemplate m;
 
 		// pivot
@@ -1091,7 +1092,7 @@ namespace DSUtil
         filters.Add(filter);
 #endif
 
-        return filters.GetCount();
+        return (int) filters.GetCount();
     }
 
     int FilterTemplates::EnumerateAudioDecoder()
@@ -1154,7 +1155,7 @@ namespace DSUtil
 		    filters.Add(all_filters.filters[i]);
 	    }
 
-        return filters.GetCount();
+        return (int) filters.GetCount();
     }
 
     int FilterTemplates::EnumerateVideoDecoder()
@@ -1217,7 +1218,7 @@ namespace DSUtil
 		    filters.Add(all_filters.filters[i]);
 	    }
 
-        return filters.GetCount();
+        return (int) filters.GetCount();
     }
 
     int FilterTemplates::EnumerateAudioEncoder()
@@ -1287,7 +1288,7 @@ namespace DSUtil
 		    filters.Add(all_filters.filters[i]);
 	    }
 
-        return filters.GetCount();
+        return (int) filters.GetCount();
     }
 
     int FilterTemplates::EnumerateVideoEncoder()
@@ -1357,7 +1358,7 @@ namespace DSUtil
 		    filters.Add(all_filters.filters[i]);
 	    }
 
-        return filters.GetCount();
+        return (int) filters.GetCount();
     }
 
     int FilterTemplates::EnumerateDemuxer()
@@ -1393,7 +1394,7 @@ namespace DSUtil
 		    }
 	    }
 
-        return filters.GetCount();
+        return (int) filters.GetCount();
     }
 
     int FilterTemplates::EnumerateMuxer()
@@ -1429,7 +1430,7 @@ namespace DSUtil
 		    }
 	    }
 
-        return filters.GetCount();
+        return (int) filters.GetCount();
     }
 
 	int FilterTemplates::EnumerateDMO(GUID clsid)
@@ -1525,7 +1526,7 @@ namespace DSUtil
 			if (FAILED(hr)) break;
 
 			// prepare the media type list
-			int	cnt = mtypes.GetCount();
+			SSIZE_T cnt = mtypes.GetCount();
 			inlist = (GUID*)malloc(cnt * 2 * sizeof(GUID));
 			if (!inlist) break;
 
@@ -1536,7 +1537,7 @@ namespace DSUtil
 
 			// search for the matching filters
 			hr = mapper->EnumMatchingFilters(&enum_moniker, 0, exact, min_merit,
-											 TRUE, cnt, inlist, NULL, NULL,
+											 TRUE, (DWORD) cnt, inlist, NULL, NULL,
 											 FALSE,
 											 need_output, 0, NULL, NULL, NULL
 											 );
@@ -1546,7 +1547,7 @@ namespace DSUtil
 			ret = AddFilters(enum_moniker);
 
 			// finally we kick "ACM Wrapper" and "AVI Decompressor"
-			for (int j=filters.GetCount()-1; j >= 0; j--) {
+			for (SSIZE_T j=filters.GetCount()-1; j >= 0; j--) {
 				if (filters[j].name == _T("ACM Wrapper") ||
 					filters[j].name == _T("AVI Decompressor")
 					) {
@@ -2049,7 +2050,7 @@ namespace DSUtil
             if(bmi != NULL) 
 			{
 				const int pixels = bmi->biWidth * bmi->biHeight;
-				const float averageBPP = pixels ? (8.0*bmi->biSizeImage)/pixels : 0;
+				const float averageBPP = pixels ? (8.0f * bmi->biSizeImage) / pixels : 0;
 				formatDetails.Format(_T("%4d x %4d, %3d bpp, %6.3f av"), 
 							bmi->biWidth, bmi->biHeight, bmi->biBitCount, averageBPP);
 			} 

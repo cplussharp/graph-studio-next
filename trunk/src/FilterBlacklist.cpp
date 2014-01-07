@@ -68,8 +68,8 @@ void CFilterBlacklist::SaveToRegistry(CRegKey& regkey) const
     // write new values
     CString valName;
     int nFilterCount = 0;
-    int nCount = m_aBlacklist.GetSize();
-	for (int i = 0; i < nCount; ++i)
+    SSIZE_T nCount = m_aBlacklist.GetSize();
+	for (SSIZE_T i = 0; i < nCount; ++i)
 	{
         if (!IsEqualCLSID(m_aBlacklist[i].get_CLSID(), CLSID_NULL))
         {
@@ -94,7 +94,7 @@ void CFilterBlacklist::SaveToRegistry(CRegKey& regkey) const
 
 bool CFilterBlacklist::IsEmpty() const
 {
-    return m_aBlacklist.IsEmpty();
+    return m_aBlacklist.IsEmpty() != FALSE;
 }
 
 void CFilterBlacklist::Add(const CLSID& clsid)
@@ -111,8 +111,8 @@ void CFilterBlacklist::Remove(const CLSID& clsid)
 {
     if(clsid == CLSID_NULL) return;
 
-    int nCount = m_aBlacklist.GetSize();
-	for (int i = nCount; i >= 0; --i)
+    SSIZE_T nCount = m_aBlacklist.GetSize();
+	for (SSIZE_T i = nCount; i >= 0; --i)
 	{
 		if (IsEqualCLSID(m_aBlacklist[i].get_CLSID(),clsid))
 			m_aBlacklist.RemoveAt(i);
@@ -123,8 +123,8 @@ void CFilterBlacklist::Remove(const CString& wildcard)
 {
     if(wildcard.IsEmpty()) return;
 
-    int nCount = m_aBlacklist.GetSize();
-	for (int i = nCount; i >= 0; --i)
+    SSIZE_T nCount = m_aBlacklist.GetSize();
+	for (SSIZE_T i = nCount; i >= 0; --i)
 	{
         if (m_aBlacklist[i].get_Wildcard() == wildcard)
 			m_aBlacklist.RemoveAt(i);
@@ -133,8 +133,8 @@ void CFilterBlacklist::Remove(const CString& wildcard)
 
 bool CFilterBlacklist::IsOnBlacklist(const CLSID& clsid, const CString& filtername) const
 {
-    int nCount = m_aBlacklist.GetSize();
-	for (int i = 0; i < nCount; ++i)
+    SSIZE_T nCount = m_aBlacklist.GetSize();
+	for (SSIZE_T i = 0; i < nCount; ++i)
 	{
 		if (m_aBlacklist[i].Matches(clsid, filtername))
 			return true;

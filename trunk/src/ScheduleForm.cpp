@@ -143,7 +143,7 @@ void CScheduleForm::OnBnClickedButtonAdd()
 	events.Add(ev);
 
 	// supneme ho tam
-	int item = list_schedule.InsertItem(events.GetCount(), _T("Item"));
+	int item = list_schedule.InsertItem((int) events.GetCount(), _T("Item"));
 	list_schedule.SetItemData(item, (DWORD_PTR)ev);
 }
 
@@ -164,7 +164,7 @@ void CScheduleForm::OnBnClickedButtonRemove()
 			events.RemoveAt(item);
 		}
 
-		item = min(item, events.GetCount() - 1);
+		item = min(item, (int) events.GetCount() - 1);
 		if (item >= 0) {
 			list_schedule.SetItemState(item, ODS_SELECTED | ODS_FOCUS, ODS_SELECTED | ODS_FOCUS);
 		}
@@ -254,7 +254,7 @@ void CScheduleForm::AddEvent(CString time_pattern, int action)
 	events.Add(ev);
 
 	// supneme ho tam
-	int item = list_schedule.InsertItem(events.GetCount(), _T("Item"));
+	int item = list_schedule.InsertItem((int) events.GetCount(), _T("Item"));
 	list_schedule.SetItemData(item, (DWORD_PTR)ev);
 }
 

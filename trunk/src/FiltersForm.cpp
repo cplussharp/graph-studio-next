@@ -943,7 +943,7 @@ void CFiltersForm::OnRegisterClick()
 
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_ALLOWMULTISELECT|OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
 
-    int ret = dlg.DoModal();
+    INT_PTR ret = dlg.DoModal();
     if (ret != IDOK) return;
 
     bool changed = false;

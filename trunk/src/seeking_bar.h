@@ -84,7 +84,7 @@ public:
 
 	virtual BOOL OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT *pResult);
 
-	LONG OnInitDialog(UINT wParam, LONG lParam);
+	LONG OnInitDialog(WPARAM wParam, LPARAM lParam);
 	HBRUSH OnCtlColor(CDC *pDC, CWnd *pWnd, UINT nCtlColor);
 
 	// initialize the stuff

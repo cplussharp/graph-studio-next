@@ -160,7 +160,7 @@ void CStatisticForm::OnExportClick()
 	fileFilter = _T("CSV Files (*.csv)|*.csv|All Files (*.*)|*.*|");
 
 	CFileDialog dlg(FALSE,_T("statistics"),NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_PATHMUSTEXIST,fileFilter);
-    int ret = dlg.DoModal();
+    INT_PTR ret = dlg.DoModal();
 
 	filename = dlg.GetPathName();
 	if (ret == IDOK)
@@ -193,7 +193,7 @@ void CStatisticForm::OnExportClick()
         }
         row.Append(_T("\n"));
         CT2CA outputHeaderText(row, CP_UTF8);
-        file.Write(outputHeaderText, ::strlen(outputHeaderText));
+        file.Write(outputHeaderText, (DWORD) ::strlen(outputHeaderText));
 
         // Output data
         LONG entryCount;
@@ -202,7 +202,7 @@ void CStatisticForm::OnExportClick()
             pStats->get_Count(&entryCount);
         }
         
-        for(__int64 i = 0; i<entryCount; i++)
+        for(LONG i = 0; i<entryCount; i++)
         {
             row = _T("");
             for(int field=0; field<7; field++)
@@ -214,7 +214,7 @@ void CStatisticForm::OnExportClick()
             row.Append(_T("\n"));
 
             CT2CA outputText(row, CP_UTF8);
-            file.Write(outputText, ::strlen(outputText));
+            file.Write(outputText, (DWORD) ::strlen(outputText));
         }
     }
 }

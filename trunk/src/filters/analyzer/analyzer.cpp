@@ -17,6 +17,7 @@ int hibit(unsigned int n)
     n |= (n >>   8);
     n |= (n >>  16);
 #ifdef _WIN64
+	// WARN: n is 32-bit so compiler hints that the line below makes no sense before at least n is made ULONGLONG
     n |= (n >>  32);
 #endif
     return n ^ (n >> 1);
@@ -30,7 +31,7 @@ int hibit(unsigned int n)
 
 CAnalyzer::CAnalyzer(LPUNKNOWN pUnk) :
 	CUnknown(NAME("Analyzer"), pUnk),
-    m_enabled(VARIANT_TRUE), m_config(StatisticCaptureFlags::SCF_All & ~StatisticCaptureFlags::SCF_DataCrc), m_previewSampleByteCount(16), m_callback(NULL)
+    m_enabled(VARIANT_TRUE), m_config(SCF_All & ~SCF_DataCrc), m_previewSampleByteCount(16), m_callback(NULL)
 {
 }
 
@@ -69,7 +70,7 @@ void CAnalyzer::AddEntry(const StatisticRecordEntry& entry)
     m_entries.push_back(entry);
 
     if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry(entry.EntryNr);
+        m_callback->OnStatisticNewEntry((unsigned long) entry.EntryNr);
 }
 
 HRESULT CAnalyzer::AddSample(IMediaSample *pSample)
@@ -158,7 +159,7 @@ HRESULT CAnalyzer::AddSample(IMediaSample *pSample)
 
 HRESULT CAnalyzer::StartStreaming()
 {
-    if (!m_enabled || !m_config&SCF_Streaming) return S_OK;
+    if (!m_enabled || !(m_config & SCF_Streaming)) return S_OK;
 
     StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -171,7 +172,7 @@ HRESULT CAnalyzer::StartStreaming()
 
 HRESULT CAnalyzer::StopStreaming()
 {
-    if (!m_enabled || !m_config&SCF_Streaming) return S_OK;
+    if (!m_enabled || !(m_config & SCF_Streaming)) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -185,7 +186,7 @@ HRESULT CAnalyzer::StopStreaming()
 
 HRESULT CAnalyzer::AddIStreamRead(const void* vp, ULONG cb, ULONG cbReaded)
 {
-    if (!m_enabled || !m_config&SCF_IStream) return S_OK;
+    if (!m_enabled || !(m_config & SCF_IStream)) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -210,7 +211,7 @@ HRESULT CAnalyzer::AddIStreamRead(const void* vp, ULONG cb, ULONG cbReaded)
 
 HRESULT CAnalyzer::AddIStreamWrite(const void* vp, ULONG cb)
 {
-    if (!m_enabled || !m_config&SCF_IStream) return S_OK;
+    if (!m_enabled || !(m_config & SCF_IStream)) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -234,7 +235,7 @@ HRESULT CAnalyzer::AddIStreamWrite(const void* vp, ULONG cb)
 
 HRESULT CAnalyzer::AddIStreamSeek(DWORD dwOrigin, const LARGE_INTEGER &liDistanceToMove, const LARGE_INTEGER newPos)
 {
-    if (!m_enabled || !m_config&SCF_IStream) return S_OK;
+    if (!m_enabled || !(m_config & SCF_IStream)) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -250,7 +251,7 @@ HRESULT CAnalyzer::AddIStreamSeek(DWORD dwOrigin, const LARGE_INTEGER &liDistanc
 
 HRESULT CAnalyzer::AddIStreamCommit(DWORD grfCommitFlags)
 {
-    if (!m_enabled || !m_config&SCF_IStream) return S_OK;
+    if (!m_enabled || !(m_config & SCF_IStream)) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -266,7 +267,7 @@ HRESULT CAnalyzer::AddIStreamCommit(DWORD grfCommitFlags)
 
 HRESULT CAnalyzer::AddIStreamSetSize(ULARGE_INTEGER libNewSize)
 {
-    if (!m_enabled || !m_config&SCF_IStream) return S_OK;
+    if (!m_enabled || !(m_config & SCF_IStream)) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -281,7 +282,7 @@ HRESULT CAnalyzer::AddIStreamSetSize(ULARGE_INTEGER libNewSize)
 
 HRESULT CAnalyzer::AddMSSetPositions(HRESULT hr, __inout_opt LONGLONG * pCurrent, DWORD CurrentFlags, __inout_opt LONGLONG * pStop, DWORD StopFlags)
 {
-    if (!m_enabled || !m_config&SCF_IMediaPosition) return S_OK;
+    if (!m_enabled || !(m_config & SCF_IMediaPosition)) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -306,7 +307,7 @@ HRESULT CAnalyzer::AddMSSetPositions(HRESULT hr, __inout_opt LONGLONG * pCurrent
 // TODO log rate
 HRESULT CAnalyzer::AddIPNewSegment(LONGLONG start, LONGLONG stop, double rate, HRESULT hr)
 {
-    if (!m_enabled || !m_config&SCF_IPin) return S_OK;
+    if (!m_enabled || !(m_config & SCF_IPin)) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -323,7 +324,7 @@ HRESULT CAnalyzer::AddIPNewSegment(LONGLONG start, LONGLONG stop, double rate, H
 
 HRESULT CAnalyzer::AddQCNotify(Quality q, HRESULT hr)
 {
-    if (!m_enabled || !m_config&SCF_IQualityControl) return S_OK;
+    if (!m_enabled || !(m_config & SCF_IQualityControl)) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -349,7 +350,7 @@ HRESULT CAnalyzer::AddDouble(StatisticRecordKind kind, HRESULT hr, double data)
 	entry.EntryKind = kind;
 	entry.StreamId = hr;
 
-	entry.MediaTimeStart = UNITS * data;		// convert from floating point seconds to ref time
+	entry.MediaTimeStart = (REFERENCE_TIME) (UNITS * data);		// convert from floating point seconds to ref time
 
     AddEntry(entry);
 
@@ -389,7 +390,7 @@ HRESULT CAnalyzer::AddRefTime(StatisticRecordKind kind, LONGLONG refTime, HRESUL
 
 HRESULT CAnalyzer::AddMSSetTimeFormat(HRESULT hr, const GUID * pFormat)
 {
-    if (!m_enabled || !m_config&SCF_IMediaSeeking) return S_OK;
+    if (!m_enabled || !(m_config & SCF_IMediaSeeking)) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -491,13 +492,13 @@ STDMETHODIMP CAnalyzer::get_EntryCount(__int64 *pVal)
 STDMETHODIMP CAnalyzer::GetEntry(__int64 nr, StatisticRecordEntry *pVal)
 {
     CheckPointer(pVal, E_POINTER);
-    if (nr < 0 || nr >= m_entries.size())
+    if (nr < 0 || (size_t) nr >= m_entries.size())
     {
         ZeroMemory(pVal, sizeof(StatisticRecordEntry));
         return E_INVALIDARG;
     }
 
-    const StatisticRecordEntry entry = m_entries.at(nr);
+    const StatisticRecordEntry entry = m_entries.at((size_t) nr);
     CopyMemory(pVal, &entry, sizeof(StatisticRecordEntry));
     if (entry.nDataCount > 0)
     {

@@ -66,7 +66,7 @@ void GetInterfaceInfo_IBaseFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
 		HRESULT hr = pI->QueryFilterInfo(&info);
 		if (hr == S_OK) {
 			const size_t nameMaxLength = sizeof(info.achName) / sizeof(info.achName[0]);
-            group->AddItem(new GraphStudio::PropItem(_T("Name"), CString(info.achName, wcsnlen(info.achName, nameMaxLength)), false));
+            group->AddItem(new GraphStudio::PropItem(_T("Name"), CString(info.achName, (int) wcsnlen(info.achName, nameMaxLength)), false));
 		}
         LPOLESTR strVendor = NULL;
         hr = pI->QueryVendorInfo(&strVendor);
@@ -300,7 +300,7 @@ void GetInterfaceInfo_IAMVideoAccelerator(GraphStudio::PropItem* group, IUnknown
             GUID* guidsSupported = new GUID[dwNumGuidsSupported];
             if (SUCCEEDED(pI->GetVideoAcceleratorGUIDs(&dwNumGuidsSupported, guidsSupported)))
             {
-                for (int i=0; i<dwNumGuidsSupported; i++)
+                for (DWORD i=0; i<dwNumGuidsSupported; i++)
                 {
                     if (guidsSupported[i] != GUID_NULL)
                     {
@@ -933,8 +933,7 @@ void GetInterfaceInfo_IKsTopologyInfo(GraphStudio::PropItem* group, IUnknown* pU
         HRESULT hr = pItopo->get_NumNodes(&numNodes);
         if(SUCCEEDED(hr))
         {
-
-            for(int i = 0; i<numNodes; i++)
+            for(DWORD i = 0; i<numNodes; i++)
             {
                 GUID nodeGuid;
                 pItopo->get_NodeType(i, &nodeGuid);

@@ -666,7 +666,7 @@ int CPageContainer::AddPage(IPropertyPage *page)
 	site->size = size;
 
 	// insert into tab control
-	form->tabs.InsertItem(pages.GetCount(),title); 
+	form->tabs.InsertItem((int) pages.GetCount(),title); 
 
 	// we're done
 	pages.Add(site);

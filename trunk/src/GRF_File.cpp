@@ -38,7 +38,7 @@
 
 #include "GRF_File.h"
 
-
+#undef TRACE
 #define TRACE(x) x
 #define trace_open(x,y)
 #define trace_close()
@@ -168,7 +168,7 @@ HRESULT GRF_File::Load(LPCWSTR fileName)
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
 			TRACE(trace(TEXT(">>>     name .... = L\"%.*") TRACEWSTR TEXT("\"\n"),s2-s1,s1));
-			grf_filter.name = CString(s1, s2-s1);
+			grf_filter.name = CString(s1, (int) (s2-s1));
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
@@ -176,7 +176,7 @@ HRESULT GRF_File::Load(LPCWSTR fileName)
 			TRACE(trace(TEXT(">>>     class_id  = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
 
 			GUID clsid = {0};
-			const CString clsid_str(s1, s2-s1);
+			const CString clsid_str(s1, (int) (s2-s1));
 			hr = CLSIDFromString(clsid_str, &grf_filter.clsid);
 
 			// TODO is it possible for filter to be both source and sink?
@@ -193,7 +193,7 @@ HRESULT GRF_File::Load(LPCWSTR fileName)
 					return E_NOT_SUFFICIENT_BUFFER;
 				TRACE(trace(TEXT(">>>     file_name = L\"%.*") TRACEWSTR TEXT("\"\n"),s2-s1,s1));
 
-				CStringW filename = CString(s1, s2-s1);
+				CStringW filename = CString(s1, (int) (s2-s1));
 
 				if (source_file) {
 					grf_filter.source_filename = filename;
@@ -242,7 +242,7 @@ HRESULT GRF_File::Load(LPCWSTR fileName)
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
 			TRACE(trace(TEXT(" [L\"%.*") TRACEWSTR TEXT("\"]"),s2-s1,s1));
-			grf_connection.output_pin_id = CString(s1, s2-s1);
+			grf_connection.output_pin_id = CString(s1, (int) (s2-s1));
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
@@ -254,7 +254,7 @@ HRESULT GRF_File::Load(LPCWSTR fileName)
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
 			TRACE(trace(TEXT(" [L\"%.*") TRACEWSTR TEXT("\"]\n"),s2-s1,s1));
-			grf_connection.input_pin_id = CString(s1, s2-s1);
+			grf_connection.input_pin_id = CString(s1, (int) (s2-s1));
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
@@ -266,14 +266,14 @@ HRESULT GRF_File::Load(LPCWSTR fileName)
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
 			TRACE(trace(TEXT(">>>     major_type ......... = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
-			CString guid_str(s1, s2-s1);
+			CString guid_str(s1, (int) (s2-s1));
 			hr = CLSIDFromString(guid_str, &grf_connection.media_type.majortype);
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
 			TRACE(trace(TEXT(">>>     subtype ............ = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
-			guid_str = CString(s1, s2-s1);
+			guid_str = CString(s1, (int) (s2-s1));
 			hr = CLSIDFromString(guid_str, &grf_connection.media_type.subtype);
 
 			p = token(p,end,&s1,&s2);
@@ -298,7 +298,7 @@ HRESULT GRF_File::Load(LPCWSTR fileName)
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
 			TRACE(trace(TEXT(">>>     format_type ........ = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
-			guid_str = CString(s1, s2-s1);
+			guid_str = CString(s1, (int) (s2-s1));
 			hr = CLSIDFromString(guid_str, &grf_connection.media_type.formattype);
 
 			p = token(p,end,&s1,&s2);

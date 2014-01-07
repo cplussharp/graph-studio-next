@@ -171,7 +171,7 @@ bool ChangeMeritDialog(CString name, DWORD original_merit, DWORD &new_merit)
 	dlg.old_merit = original_merit;
 	dlg.new_merit = original_merit;
 
-	int ret = dlg.DoModal();
+	INT_PTR ret = dlg.DoModal();
 	if (ret == IDOK) {
 		new_merit = dlg.new_merit;
 		return true;

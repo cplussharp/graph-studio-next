@@ -156,8 +156,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         CBitStreamReader(UINT8* buf, int size);
         inline UINT32 ByteAligned() const { return m_bitsLeft == 8 ? 1 : 0; }
         inline UINT32 IsEnd() const { return m_p >= m_end ? 1 : 0; }
-        inline int GetPos() const { return (m_p - m_start); }
-        inline void SetPos(int pos) { m_p = m_start + pos; m_bitsLeft = 8; }
+        inline SSIZE_T GetPos() const { return (m_p - m_start); }
+        inline void SetPos(SSIZE_T pos) { m_p = m_start + pos; m_bitsLeft = 8; }
         
         UINT32 ReadU(int n);
         UINT32 ReadU1();

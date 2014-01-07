@@ -568,8 +568,8 @@ void CGraphView::OnInit()
 		ShowConsole(true);				// Don't do anything on startup unless show console setting is true
 
 	CgraphstudioApp::g_useInternalGrfParser = AfxGetApp()->GetProfileInt(_T("Settings"), _T("UseInternalGrfParser"), 0) ? true : false;
-	CgraphstudioApp::g_SaveXmlAndGrf        = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveXmlAndGrf"), CgraphstudioApp::g_SaveXmlAndGrf);
-	CgraphstudioApp::g_SaveScreenshot       = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveScreenshot"), CgraphstudioApp::g_SaveScreenshot);
+	CgraphstudioApp::g_SaveXmlAndGrf        = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveXmlAndGrf"), CgraphstudioApp::g_SaveXmlAndGrf) != 0;
+	CgraphstudioApp::g_SaveScreenshot       = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveScreenshot"), CgraphstudioApp::g_SaveScreenshot) != 0;
 	CgraphstudioApp::g_ScreenshotFormat     = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ScreenshotFormat"), CgraphstudioApp::g_ScreenshotFormat);
 
 	int showGuids = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowGuidsOfKnownTypes"), 1);
@@ -1162,7 +1162,7 @@ CString CGraphView::PromptForFileToOpen(bool media_file)
 
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
     dlg.m_ofn.nFilterIndex = media_file ? current_media_index : current_file_index;
-    int ret = dlg.DoModal();
+    INT_PTR ret = dlg.DoModal();
 
 	if (media_file)
 		current_media_index = dlg.m_ofn.nFilterIndex;
@@ -1192,7 +1192,7 @@ void CGraphView::OnFileAddmediafile()
 void CGraphView::OnRenderUrlClick()
 {
 	CRenderUrlForm		dlg;
-	int ret = dlg.DoModal();
+	INT_PTR ret = dlg.DoModal();
 	if (ret == IDOK) {
 		OnNewClick();
 		ret = TryOpenFile(dlg.result_file, /* render_media_file= */ true);
@@ -1258,7 +1258,7 @@ void CGraphView::OnFindInFiltersWindow()
 void CGraphView::OnGraphInsertFilterFromFile()
 {
 	CFilterFromFile dlg(this);
-    int ret = dlg.DoModal();
+    INT_PTR ret = dlg.DoModal();
     if(IDOK == ret && dlg.filterFactory != NULL)
     {
         CComPtr<IBaseFilter> instance;
@@ -1885,7 +1885,7 @@ void CGraphView::OnGraphScreenshot()
 void CGraphView::OnConnectRemote()
 {
 	CRemoteGraphForm	remote_form;
-	const int ret = remote_form.DoModal();
+	const INT_PTR ret = remote_form.DoModal();
 	if (ret == IDOK) {
 		if (remote_form.sel_graph.moniker) {
 
@@ -2187,7 +2187,7 @@ void CGraphView::OnUpdateOptionsDisplayFileName(CCmdUI *pCmdUI)
 
 void CGraphView::OnConnectModeIntelligentClick()
 {
-    render_params.SetConnectMode(GraphStudio::RenderParameters::ConnectMode::ConnectMode_Intelligent);
+    render_params.SetConnectMode(GraphStudio::RenderParameters::ConnectMode_Intelligent);
 }
 
 void CGraphView::OnUpdateConnectModeIntelligent(CCmdUI *pCmdUI)
@@ -2197,7 +2197,7 @@ void CGraphView::OnUpdateConnectModeIntelligent(CCmdUI *pCmdUI)
 
 void CGraphView::OnConnectModeDirectClick()
 {
-	render_params.SetConnectMode(GraphStudio::RenderParameters::ConnectMode::ConnectMode_Direct);
+	render_params.SetConnectMode(GraphStudio::RenderParameters::ConnectMode_Direct);
 }
 
 void CGraphView::OnUpdateConnectModeDirect(CCmdUI *pCmdUI)
@@ -2207,7 +2207,7 @@ void CGraphView::OnUpdateConnectModeDirect(CCmdUI *pCmdUI)
 
 void CGraphView::OnConnectModeDirectWmtClick()
 {
-	render_params.SetConnectMode(GraphStudio::RenderParameters::ConnectMode::ConnectMode_DirectWithMT);
+	render_params.SetConnectMode(GraphStudio::RenderParameters::ConnectMode_DirectWithMT);
 }
 
 void CGraphView::OnUpdateConnectModeDirectWmt(CCmdUI *pCmdUI)

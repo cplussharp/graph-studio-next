@@ -92,7 +92,7 @@ BOOL CSeekSlider::OnEraseBkgnd(CDC *pDC)
     pt = pDC->OffsetWindowOrg(pt.x, pt.y);
     LRESULT lResult = pParent->SendMessage(WM_ERASEBKGND, (WPARAM)pDC->m_hDC, 0L);
     pDC->SetWindowOrg(pt.x, pt.y);
-    return lResult;
+    return lResult != 0;
 }
 
 void CSeekSlider::OnPaint()
@@ -190,12 +190,11 @@ BOOL CSeekingBar::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT *
 	return __super::OnWndMsg(message, wParam, lParam, pResult);
 }
 
-LONG CSeekingBar::OnInitDialog(UINT wParam, LONG lParam)
+LONG CSeekingBar::OnInitDialog(WPARAM wParam, LPARAM lParam)
 {
-    BOOL bRet = HandleInitDialog(wParam, lParam);
-
+    LRESULT bRet = HandleInitDialog(wParam, lParam);
     UpdateData(FALSE);
-    return bRet;
+    return (LONG) bRet;
 }
 
 BOOL CSeekingBar::OnEraseBkgnd(CDC *pDC)
@@ -208,7 +207,7 @@ BOOL CSeekingBar::OnEraseBkgnd(CDC *pDC)
     pt = pDC->OffsetWindowOrg(pt.x, pt.y);
     LRESULT lResult = pParent->SendMessage(WM_ERASEBKGND, (WPARAM)pDC->m_hDC, 0L);
     pDC->SetWindowOrg(pt.x, pt.y);
-    return lResult;
+    return lResult != 0;
 }
 
 HBRUSH CSeekingBar::OnCtlColor(CDC *pDC, CWnd *pWnd, UINT nCtlColor)

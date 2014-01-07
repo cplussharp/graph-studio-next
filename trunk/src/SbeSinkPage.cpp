@@ -113,7 +113,7 @@ void CSbeSinkPage::OnBnClickedButtonBrowse()
 	filter = _T("All Files|*.*|");
 
 	CFileDialog dlg(FALSE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING,filter);
-    int ret = dlg.DoModal();
+    INT_PTR ret = dlg.DoModal();
 
 	filename = dlg.GetPathName();
 	if (ret == IDOK) {

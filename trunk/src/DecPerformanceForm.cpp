@@ -156,7 +156,7 @@ void CDecPerformanceForm::OnBrowseClick()
 
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
     dlg.m_ofn.nFilterIndex = cb_type.GetCurSel() + 1;
-    int ret = dlg.DoModal();
+    INT_PTR ret = dlg.DoModal();
 
 	filename = dlg.GetPathName();
 	if (ret == IDOK) {
