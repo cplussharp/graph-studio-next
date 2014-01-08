@@ -131,11 +131,56 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 
 
-
-
-    CBitStreamReader::CBitStreamReader(UINT8* buf, int size)
-        : m_start(buf), m_p(buf), m_end(buf + size), m_bitsLeft(8)
+    int CBitStreamReader::StripEmulationBytes(UINT8* buf, SIZE_T bufLen)
     {
+        if (buf == NULL || bufLen < 4) return 0;
+
+        int strippedBytes = 0;
+        int lastBytesNull = 0;
+        for (SIZE_T i=0; i<bufLen; i++)
+        {
+            
+            if (buf[i] == 0x03 && lastBytesNull == 2)
+            {
+                strippedBytes++;
+                lastBytesNull = 0;
+            }
+            else
+            {
+                if (buf[i] == 0)
+                    lastBytesNull++;
+                else
+                    lastBytesNull = 0;
+
+                if (strippedBytes)
+                    buf[i-strippedBytes] = buf[i];
+            }
+        }
+
+        return strippedBytes;
+    }
+
+    CBitStreamReader::CBitStreamReader(UINT8* buf, int size, bool skipEmulationBytes)
+        : m_start(buf), m_p(buf), m_end(buf + size), m_bitsLeft(8), m_skipEmulationBytes(skipEmulationBytes)
+    {
+    }
+
+    void CBitStreamReader::GotoNextByteIfNeeded()
+    {
+        if (m_bitsLeft == 0)
+        {
+            m_p++;
+            if (GetPos() > 2 && m_skipEmulationBytes)
+            {
+                if (*(m_p-2) == 0 && *(m_p-1) == 0 && *m_p == 0x03)
+                {
+                    // skip emulation byte
+                    m_p++;
+                }
+            }
+
+            m_bitsLeft = 8;
+        }
     }
 
     UINT32 CBitStreamReader::ReadU1()
@@ -146,9 +191,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         m_bitsLeft--;
         r = ((*(m_p)) >> m_bitsLeft) & 0x01;
     
-        if (m_bitsLeft == 0) { m_p++; m_bitsLeft = 8; }
+        GotoNextByteIfNeeded();
     
         return r;
+    }
+
+    void CBitStreamReader::SkipU1()
+    {
+        if (IsEnd()) return;
+        
+        m_bitsLeft--;   
+        GotoNextByteIfNeeded();
     }
     
     UINT32 CBitStreamReader::ReadU(int n)
@@ -162,9 +215,26 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         return r;
     }
 
+    void CBitStreamReader::SkipU(int n)
+    {
+        for (int i=0; i<n; i++)
+            SkipU1();
+    }
+
     UINT16 CBitStreamReader::ReadU16()
     {
         UINT16 r = ReadU(8) << 8;
+        r |= ReadU8();
+        return r;
+    }
+
+    UINT32 CBitStreamReader::ReadU32()
+    {
+        UINT32 r = ReadU(8) << 8;
+        r |= ReadU8();
+        r <<= 8;
+        r |= ReadU8();
+        r <<= 8;
         r |= ReadU8();
         return r;
     }
@@ -195,6 +265,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	        r = -(r/2);
 	    }
 	    return r;
+    }
+
+    UINT32 CBitStreamReader::PeekU1()
+    {
+        INT32 r = 0;
+        if (IsEnd())
+        {
+            // whast is with m_skipEmulationBytes in this case?
+            r = ((*(m_p)) >> (m_bitsLeft-1)) & 0x01;
+        }
+        return r;
     }
 
 

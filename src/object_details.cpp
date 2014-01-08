@@ -697,6 +697,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				extrabuf = extrabuf.MakeUpper();
 				info->AddItem(new PropItem(_T("Length"), len));
 				info->AddItem(new PropItem(_T("Extradata"), extrabuf));
+
+                // we can also parse out decoder specific info in some cases
+                if (pmt->subtype == MEDIASUBTYPE_H264 || pmt->subtype == MEDIASUBTYPE_AVC1 || pmt->subtype == MEDIASUBTYPE_MC_H264 ) {
+				    GetExtradata_H264(pmt, mtinfo);
+                } else if(pmt->subtype == MEDIASUBTYPE_MPEG2_VIDEO || pmt->subtype == MEDIASUBTYPE_MPEG1Video) {
+                    GetExtradata_MPEGVideo(pmt, mtinfo);
+                }
 			}
 		} else
 		if (pmt->formattype == FORMAT_MPEGVideo && pmt->cbFormat >= sizeof(MPEG1VIDEOINFO)) {
@@ -1147,63 +1154,68 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
     {
         UINT8 NALType = br.ReadU8() & 0x1f;
 
-        if(NALType == 7)
+        if (NALType == 7)
         {
             PropItem *spsinfo = mtinfo->AddItem(new PropItem(_T("H264 Sequence Parameter Set")));
-            int profile = br.ReadU8();
-            spsinfo->AddItem(new PropItem(_T("Profile IDC"), profile));
-            
-            RECT constsetflags; // use rect only to save and show the 4 values
-            constsetflags.left = br.ReadU1();
-            constsetflags.top = br.ReadU1();
-            constsetflags.right = br.ReadU1();
-            constsetflags.bottom = br.ReadU1();
-            br.ReadU(4);    // Zero
-            spsinfo->AddItem(new PropItem(_T("Constraint Set Flags"), constsetflags));
 
-            spsinfo->AddItem(new PropItem(_T("Level IDC"), br.ReadU8()));
+            sps_t sps = {0};
+            CH264StructReader::ReadSPS(br, sps);
 
-            spsinfo->AddItem(new PropItem(_T("Seq Parameter Set ID"), br.ReadUE()));
+            spsinfo->AddItem(new PropItem(_T("Profile IDC"), sps.profile_idc));
+            spsinfo->AddItem(new PropItem(_T("Constraint Set 0"), sps.constraint_set0_flag));
+            spsinfo->AddItem(new PropItem(_T("Constraint Set 1"), sps.constraint_set1_flag));
+            spsinfo->AddItem(new PropItem(_T("Constraint Set 2"), sps.constraint_set2_flag));
+            spsinfo->AddItem(new PropItem(_T("Constraint Set 3"), sps.constraint_set3_flag));
+            spsinfo->AddItem(new PropItem(_T("Constraint Set 4"), sps.constraint_set4_flag));
+            spsinfo->AddItem(new PropItem(_T("Constraint Set 5"), sps.constraint_set5_flag));
 
-            if(profile == 100 || profile == 110 || profile == 122 || profile == 144)
+            spsinfo->AddItem(new PropItem(_T("Level IDC"), sps.level_idc));
+
+            spsinfo->AddItem(new PropItem(_T("Seq Parameter Set ID"), sps.seq_parameter_set_id));
+
+            if (sps.profile_idc == 100 || sps.profile_idc == 110 || sps.profile_idc == 122 || sps.profile_idc == 144)
             {
-                int chroma = br.ReadUE();
-                spsinfo->AddItem(new PropItem(_T("Chroma Format IDC"), chroma));
-                if(chroma == 3)
-                    spsinfo->AddItem(new PropItem(_T("Residual Colour Transform"), br.ReadU1()));
-
-                spsinfo->AddItem(new PropItem(_T("BitDepth Luma (-8)"), br.ReadUE()));
-                spsinfo->AddItem(new PropItem(_T("BitDepth Chroma (-8)"), br.ReadUE()));
-                spsinfo->AddItem(new PropItem(_T("QPPrime Y Zero Transform Bypass"), br.ReadU1()));
-
-                int seq_scaling_matrix = br.ReadU1();
-                spsinfo->AddItem(new PropItem(_T("Seq Scaling Matrix Present"), seq_scaling_matrix));
-                if(seq_scaling_matrix)
+                CString strChroma;
+                strChroma.Format(_T("%d"), sps.chroma_format_idc);
+                switch (sps.chroma_format_idc)
                 {
-                    // TODO 
-                    // http://h264bitstream.svn.sourceforge.net/viewvc/h264bitstream/trunk/h264bitstream/h264_stream.c?revision=24&view=markup
-                    return 0;
+                case 0: strChroma.Append(_T(" => Monochrome")); break;
+                case 1: strChroma.Append(_T(" => 4:2:0")); break;
+                case 2: strChroma.Append(_T(" => 4:2:2")); break;
+                case 3: strChroma.Append(_T(" => 4:4:4")); break;
+                }
+
+                spsinfo->AddItem(new PropItem(_T("Chroma Format IDC"), strChroma));
+                if (sps.chroma_format_idc == 3)
+                    spsinfo->AddItem(new PropItem(_T("Residual Colour Transform"), sps.residual_colour_transform_flag));
+
+                spsinfo->AddItem(new PropItem(_T("BitDepth Luma (-8)"), sps.bit_depth_luma_minus8));
+                spsinfo->AddItem(new PropItem(_T("BitDepth Chroma (-8)"), sps.bit_depth_chroma_minus8));
+                spsinfo->AddItem(new PropItem(_T("QPPrime Y Zero Transform Bypass"), sps.qpprime_y_zero_transform_bypass_flag));
+
+                spsinfo->AddItem(new PropItem(_T("Seq Scaling Matrix Present"), sps.seq_scaling_matrix_present_flag));
+                if (sps.seq_scaling_matrix_present_flag)
+                {
+                    // TODO maybe later
                 }
             }
 
-            spsinfo->AddItem(new PropItem(_T("Log2 Max Frame Num (-4)"), br.ReadUE()));
+            spsinfo->AddItem(new PropItem(_T("Log2 Max Frame Num (-4)"), sps.log2_max_frame_num_minus4));
                 
-            int pic_order = br.ReadUE();
-            spsinfo->AddItem(new PropItem(_T("Pic Order Cnt Type"), pic_order));
-            if(pic_order == 0)
-                spsinfo->AddItem(new PropItem(_T("Log2 Max Pic Order Cnt Lsb (-4)"), br.ReadUE()));
+            spsinfo->AddItem(new PropItem(_T("Pic Order Cnt Type"), sps.pic_order_cnt_type));
+            if (sps.pic_order_cnt_type == 0)
+                spsinfo->AddItem(new PropItem(_T("Log2 Max Pic Order Cnt Lsb (-4)"), sps.log2_max_pic_order_cnt_lsb_minus4));
             else
             {
-                spsinfo->AddItem(new PropItem(_T("Delta Pic Order Always Zero"), br.ReadU1()));
-                spsinfo->AddItem(new PropItem(_T("Offset For Non Ref Pic"), br.ReadSE()));
-                spsinfo->AddItem(new PropItem(_T("Offset For Top To Bottom Field"), br.ReadSE()));
+                spsinfo->AddItem(new PropItem(_T("Delta Pic Order Always Zero"),  sps.delta_pic_order_always_zero_flag));
+                spsinfo->AddItem(new PropItem(_T("Offset For Non Ref Pic"), sps.offset_for_non_ref_pic));
+                spsinfo->AddItem(new PropItem(_T("Offset For Top To Bottom Field"), sps.offset_for_top_to_bottom_field));
 
-                int num_ref_frames = br.ReadUE();
-                spsinfo->AddItem(new PropItem(_T("Num Ref Frames In Pic Order Cnt Cycle"), num_ref_frames));
-                if(num_ref_frames > 0)
+                spsinfo->AddItem(new PropItem(_T("Num Ref Frames In Pic Order Cnt Cycle"), sps.num_ref_frames_in_pic_order_cnt_cycle));
+                if (sps.num_ref_frames_in_pic_order_cnt_cycle > 0)
                 {
                     CString str = _T("");
-                    for(int i=0; i<num_ref_frames; i++)
+                    for (int i=0; i<sps.num_ref_frames_in_pic_order_cnt_cycle; i++)
                     {
                         if(!str.IsEmpty())
                             str.Append(_T(", "));
@@ -1215,66 +1227,180 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
                 }
             }
 
-            spsinfo->AddItem(new PropItem(_T("Num Ref Frames"), br.ReadUE()));
-            spsinfo->AddItem(new PropItem(_T("Gaps In Frame Num Value Allowed"), br.ReadU1()));
-            spsinfo->AddItem(new PropItem(_T("Pic Width In Mbs (-1)"), br.ReadUE()));
-            spsinfo->AddItem(new PropItem(_T("Pic Height In Map Units (-1)"), br.ReadUE()));
+            spsinfo->AddItem(new PropItem(_T("Num Ref Frames"), sps.num_ref_frames));
+            spsinfo->AddItem(new PropItem(_T("Gaps In Frame Num Value Allowed"), sps.gaps_in_frame_num_value_allowed_flag));
+            spsinfo->AddItem(new PropItem(_T("Pic Width In Mbs (-1)"), sps.pic_width_in_mbs_minus1));
+            spsinfo->AddItem(new PropItem(_T("Pic Height In Map Units (-1)"), sps.pic_height_in_map_units_minus1));
 
-            int frame_mbs_only = br.ReadU1();
-            spsinfo->AddItem(new PropItem(_T("Frame Mbs Only"), frame_mbs_only));
-            if(!frame_mbs_only)
-                spsinfo->AddItem(new PropItem(_T("Mb Adaptive Frame Field"), br.ReadU1()));
+            spsinfo->AddItem(new PropItem(_T("Frame Mbs Only"), sps.frame_mbs_only_flag));
+            if (!sps.frame_mbs_only_flag)
+                spsinfo->AddItem(new PropItem(_T("Mb Adaptive Frame Field"), sps.mb_adaptive_frame_field_flag));
 
-            spsinfo->AddItem(new PropItem(_T("Direct 8x8 Inference"), br.ReadU1()));
+            spsinfo->AddItem(new PropItem(_T("Direct 8x8 Inference"), sps.direct_8x8_inference_flag));
 
-            if(br.ReadU1())
+            spsinfo->AddItem(new PropItem(_T("Frame Cropping"), sps.frame_cropping_flag));
+            if (sps.frame_cropping_flag)
             {
                 RECT rect;
-                rect.left = br.ReadUE();
-                rect.right = br.ReadUE();
-                rect.top = br.ReadUE();
-                rect.bottom = br.ReadUE();
+                rect.left = sps.frame_crop_left_offset;
+                rect.right = sps.frame_crop_right_offset;
+                rect.top = sps.frame_crop_top_offset;
+                rect.bottom = sps.frame_crop_bottom_offset;
 
                 spsinfo->AddItem(new PropItem(_T("Frame Crop (l,r,t,b)"), rect));
             }
 
-            if(br.ReadU1())
+            spsinfo->AddItem(new PropItem(_T("VUI Parameters present"), sps.vui_parameters_present_flag));
+            if (sps.vui_parameters_present_flag)
             {
-                spsinfo->AddItem(new PropItem(_T("VUI Parameters present"), 1));
-                // TODO maybe later
+                PropItem* vui = new PropItem(_T("VUI Parameters"));
+                vui->AddItem(new PropItem(_T("Aspect Ratio Info Present"), sps.vui.aspect_ratio_info_present_flag));
+                if (sps.vui.aspect_ratio_info_present_flag)
+                {
+                    CString strAR;
+                    strAR.Format(_T("%d"), sps.vui.aspect_ratio_idc);
+                    switch (sps.vui.aspect_ratio_idc)
+                    {
+                    case 0: strAR.Append(_T(" => Unspecified")); break;
+                    case 1: strAR.Append(_T(" => 1:1")); break;
+                    case 2: strAR.Append(_T(" => 12:11")); break;
+                    case 3: strAR.Append(_T(" => 10:11")); break;
+                    case 4: strAR.Append(_T(" => 16:11")); break;
+                    case 5: strAR.Append(_T(" => 40:30")); break;
+                    case 6: strAR.Append(_T(" => 24:11")); break;
+                    case 7: strAR.Append(_T(" => 20:11")); break;
+                    case 8: strAR.Append(_T(" => 32:11")); break;
+                    case 9: strAR.Append(_T(" => 80:33")); break;
+                    case 10: strAR.Append(_T(" => 18:11")); break;
+                    case 11: strAR.Append(_T(" => 15:11")); break;
+                    case 12: strAR.Append(_T(" => 64:33")); break;
+                    case 13: strAR.Append(_T(" => 160:99")); break;
+                    case 14: strAR.Append(_T(" => 4:3")); break;
+                    case 15: strAR.Append(_T(" => 3:2")); break;
+                    case 16: strAR.Append(_T(" => 2:1")); break;
+                    case 255: strAR.Append(_T(" => Extended_SAR")); break;
+                    }
+
+                    vui->AddItem(new PropItem(_T("Aspect Ratio IDC"), strAR));
+                    if (sps.vui.aspect_ratio_idc == 255)
+                    {
+                        vui->AddItem(new PropItem(_T("SAR Width"), sps.vui.sar_width));
+                        vui->AddItem(new PropItem(_T("SAR Height"), sps.vui.sar_height));
+                    }
+                }
+
+                vui->AddItem(new PropItem(_T("Overscan Info Present"), sps.vui.overscan_info_present_flag));
+                if (sps.vui.overscan_info_present_flag)
+                    vui->AddItem(new PropItem(_T("Overscan Appropriate"), sps.vui.overscan_appropriate_flag));
+
+                vui->AddItem(new PropItem(_T("Video Signal Type Present"), sps.vui.video_signal_type_present_flag));
+                if (sps.vui.video_signal_type_present_flag)
+                {
+                    CString strVideoFormat;
+                    strVideoFormat.Format(_T("%d"), sps.vui.video_format);
+                    switch (sps.vui.video_format)
+                    {
+                    case 0: strVideoFormat.Append(_T(" => Component")); break;
+                    case 1: strVideoFormat.Append(_T(" => PAL")); break;
+                    case 2: strVideoFormat.Append(_T(" => NTSC")); break;
+                    case 3: strVideoFormat.Append(_T(" => SECAM")); break;
+                    case 4: strVideoFormat.Append(_T(" => MAC")); break;
+                    }
+
+                    vui->AddItem(new PropItem(_T("Video Format"), strVideoFormat));
+                    vui->AddItem(new PropItem(_T("Video Full Range"), sps.vui.video_full_range_flag));
+                    
+                    vui->AddItem(new PropItem(_T("Colour Description Present"), sps.vui.colour_description_present_flag));
+                    if (sps.vui.colour_description_present_flag)
+                    {
+                        vui->AddItem(new PropItem(_T("Colour Primaries"), sps.vui.colour_primaries));
+                        vui->AddItem(new PropItem(_T("Transfer Characteristics"), sps.vui.transfer_characteristics));
+                        vui->AddItem(new PropItem(_T("Matrix Coefficients"), sps.vui.matrix_coefficients));
+                    }
+                }
+                    
+                vui->AddItem(new PropItem(_T("Chroma Loc Info Present"), sps.vui.chroma_loc_info_present_flag));
+                if (sps.vui.chroma_loc_info_present_flag)
+                {
+                    vui->AddItem(new PropItem(_T("Chroma Sample Loc Type Top Field"), sps.vui.chroma_sample_loc_type_top_field));
+                    vui->AddItem(new PropItem(_T("Chroma Sample Loc Type Bottom Field"), sps.vui.chroma_sample_loc_type_bottom_field));
+                }
+
+                vui->AddItem(new PropItem(_T("Timing Info Present"), sps.vui.timing_info_present_flag));
+                if (sps.vui.timing_info_present_flag)
+                {
+                    vui->AddItem(new PropItem(_T("Num Units In Tick"), sps.vui.num_units_in_tick));
+                    vui->AddItem(new PropItem(_T("Time Scale (Hz)"), sps.vui.time_scale));
+                    vui->AddItem(new PropItem(_T("=> AvgTimePerFrame"), CH264StructReader::GetAvgTimePerFrame(sps.vui.num_units_in_tick,sps.vui.time_scale)));
+                    vui->AddItem(new PropItem(_T("Fixed Frame Rate"), sps.vui.fixed_frame_rate_flag));
+                }
+
+                vui->AddItem(new PropItem(_T("NAL HRD Parameters Present"), sps.vui.nal_hrd_parameters_present_flag));
+                if (sps.vui.nal_hrd_parameters_present_flag)
+                {
+                    // TODO maybe later
+                }
+
+                vui->AddItem(new PropItem(_T("VCL HRD Parameters Present"), sps.vui.vcl_hrd_parameters_present_flag));
+                if (sps.vui.vcl_hrd_parameters_present_flag)
+                {
+                    // TODO maybe later
+                }
+
+                if (sps.vui.nal_hrd_parameters_present_flag || sps.vui.vcl_hrd_parameters_present_flag)
+                    vui->AddItem(new PropItem(_T("Low Delay HRD"), sps.vui.low_delay_hrd_flag));
+
+                vui->AddItem(new PropItem(_T("Pic Struct Present"), sps.vui.pic_struct_present_flag));
+
+                vui->AddItem(new PropItem(_T("Bitstream Restriction"), sps.vui.bitstream_restriction_flag));
+                if (sps.vui.bitstream_restriction_flag)
+                {
+                    vui->AddItem(new PropItem(_T("Motion Vectors Over Pic Boundaries"), sps.vui.motion_vectors_over_pic_boundaries_flag));
+                    vui->AddItem(new PropItem(_T("Max Bytes per Pic Denom"), sps.vui.max_bytes_per_pic_denom));
+                    vui->AddItem(new PropItem(_T("Max Bits per MB Denom"), sps.vui.max_bits_per_mb_denom));
+                    vui->AddItem(new PropItem(_T("log2 Max Mv Length Horizontal"), sps.vui.log2_max_mv_length_horizontal));
+                    vui->AddItem(new PropItem(_T("log2 Max Mv Length Vertical"), sps.vui.log2_max_mv_length_vertical));
+                    vui->AddItem(new PropItem(_T("Num Reorder Frames"), sps.vui.num_reorder_frames));
+                    vui->AddItem(new PropItem(_T("Max Dec Frame Buffering"), sps.vui.max_dec_frame_buffering));
+                }
+
+                spsinfo->AddItem(vui);
                 return 0;
             }
-            else
-                spsinfo->AddItem(new PropItem(_T("VUI Parameters present"), 0));
         }
-        else if(NALType == 8)
+        else if (NALType == 8)
         {
-            PropItem *spsinfo = mtinfo->AddItem(new PropItem(_T("H264 Picture Parameter Set")));
-            spsinfo->AddItem(new PropItem(_T("PPS ID"), br.ReadUE()));
-            spsinfo->AddItem(new PropItem(_T("SPS ID"), br.ReadUE()));
-            spsinfo->AddItem(new PropItem(_T("Entropy Coding Mode"), br.ReadU1()));
-            spsinfo->AddItem(new PropItem(_T("Pic Order Present"), br.ReadU1()));
+            PropItem *ppsinfo = mtinfo->AddItem(new PropItem(_T("H264 Picture Parameter Set")));
+            pps_t pps = {0};
+            CH264StructReader::ReadPPS(br, pps);
 
-            int numSliceGroups = br.ReadUE();
-            spsinfo->AddItem(new PropItem(_T("Num Slice Groups (-1)"), numSliceGroups));
-            if(numSliceGroups > 0)
+            ppsinfo->AddItem(new PropItem(_T("PPS ID"), pps.pic_parameter_set_id));
+            ppsinfo->AddItem(new PropItem(_T("SPS ID"), pps.seq_parameter_set_id));
+            ppsinfo->AddItem(new PropItem(_T("Entropy Coding Mode"), pps.entropy_coding_mode_flag));
+            ppsinfo->AddItem(new PropItem(_T("Pic Order Present"), pps.pic_order_present_flag));
+
+            ppsinfo->AddItem(new PropItem(_T("Num Slice Groups (-1)"), pps.num_slice_groups_minus1));
+            if(pps.num_slice_groups_minus1 > 0)
             {
-                int mapType = br.ReadUE();
-                spsinfo->AddItem(new PropItem(_T("Slice Group Map Type"), mapType));
-
-                // TODO later
-                return 0;
+                // TODO maybe later
             }
 
-            spsinfo->AddItem(new PropItem(_T("Num Ref Idx 10 Activ (-1)"), br.ReadUE()));
-            spsinfo->AddItem(new PropItem(_T("Num Ref Idx 11 Activ (-1)"), br.ReadUE()));
-            spsinfo->AddItem(new PropItem(_T("Weighted Pred"), br.ReadU1()));
-            spsinfo->AddItem(new PropItem(_T("Weighted Bibred Idc"), br.ReadU(2)));
-            spsinfo->AddItem(new PropItem(_T("Pic Init QP (-26)"), br.ReadSE()));
-            spsinfo->AddItem(new PropItem(_T("Pic Init QS (-26)"), br.ReadSE()));
-            spsinfo->AddItem(new PropItem(_T("Deblocking Filter Ctrl Present"), br.ReadU1()));
-            spsinfo->AddItem(new PropItem(_T("Constrained Intra Pred"), br.ReadU1()));
-            spsinfo->AddItem(new PropItem(_T("Redundant Pic Count Present"), br.ReadU1()));
+            ppsinfo->AddItem(new PropItem(_T("Num Ref Idx 10 Activ (-1)"), pps.num_ref_idx_l0_active_minus1));
+            ppsinfo->AddItem(new PropItem(_T("Num Ref Idx 11 Activ (-1)"), pps.num_ref_idx_l1_active_minus1));
+            ppsinfo->AddItem(new PropItem(_T("Weighted Pred"), pps.weighted_pred_flag));
+            ppsinfo->AddItem(new PropItem(_T("Weighted Bibred Idc"), pps.weighted_bipred_idc));
+            ppsinfo->AddItem(new PropItem(_T("Pic Init QP (-26)"), pps.pic_init_qp_minus26));
+            ppsinfo->AddItem(new PropItem(_T("Pic Init QS (-26)"), pps.pic_init_qs_minus26));
+            ppsinfo->AddItem(new PropItem(_T("Chroma QP Idx Offset"), pps.chroma_qp_index_offset));
+            ppsinfo->AddItem(new PropItem(_T("Deblocking Filter Ctrl Present"), pps.deblocking_filter_control_present_flag));
+            ppsinfo->AddItem(new PropItem(_T("Constrained Intra Pred"), pps.constrained_intra_pred_flag));
+            ppsinfo->AddItem(new PropItem(_T("Redundant Pic Count Present"), pps.redundant_pic_cnt_present_flag));
+
+            if(pps.more_rbsp_data_present)
+            {
+                // TODO maybe later
+            }
+
             return 0;
         }
 
@@ -1283,14 +1409,27 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
     int GetExtradata_H264(const CMediaType *pmt, PropItem *mtinfo)
 	{
-        if (pmt->pbFormat == NULL
-				|| pmt->formattype != FORMAT_MPEG2Video
-				|| pmt->cbFormat < sizeof(MPEG2VIDEOINFO)) 
+        if (pmt->pbFormat == NULL)
 			return 0;
 
-		const MPEG2VIDEOINFO * const m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
-		int			extralen = m2vi->cbSequenceHeader;
-        uint8*      extra = (uint8*)m2vi->dwSequenceHeader;
+        int			extralen = 0;
+        uint8*      extra = NULL;
+        if (pmt->formattype == FORMAT_MPEG2Video)
+        {
+		    const MPEG2VIDEOINFO * const m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
+		    extralen = m2vi->cbSequenceHeader;
+            extra = (uint8*)m2vi->dwSequenceHeader;
+        }
+        else if (pmt->formattype == FORMAT_VIDEOINFO2)
+        {
+            extralen = pmt->cbFormat - sizeof(VIDEOINFOHEADER2);
+            extra = pmt->pbFormat + sizeof(VIDEOINFOHEADER2);
+        }
+        else if (pmt->formattype == FORMAT_VideoInfo)
+        {
+            extralen = pmt->cbFormat - sizeof(VIDEOINFOHEADER);
+            extra = pmt->pbFormat + sizeof(VIDEOINFOHEADER);
+        }
 
 		// done with
 		if (extralen <= 0) return 0;
@@ -1298,20 +1437,36 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         CBitStreamReader br(extra, extralen);
         int lastNullBytes = 0;
 
-        while(br.GetPos() < extralen-4)
+        if (pmt->subtype != MEDIASUBTYPE_AVC1)
         {
-            BYTE val = br.ReadU8();
+            // extradata uses NALU Startcode
 
-            if (val == 0) lastNullBytes++;
-            else if (val == 1 && lastNullBytes >= 3)
+            while (br.GetPos() < extralen-4)
             {
-                NALParser(br, mtinfo);
-                // zum vollen byte springen
-                br.SetPos(br.GetPos());
-                lastNullBytes = 0;
+                BYTE val = br.ReadU8();
+
+                if (val == 0) lastNullBytes++;
+                else if (val == 1 && lastNullBytes >= 3)
+                {
+                    NALParser(br, mtinfo);
+                    // zum vollen byte springen
+                    br.SetPos(br.GetPos());
+                    lastNullBytes = 0;
+                }
+                else
+                    lastNullBytes = 0;
             }
-            else
-                lastNullBytes = 0;
+        }
+        else
+        {
+            // extradata uses 2-Bytes for the length
+            while (br.GetPos() < extralen-4)
+            {
+                WORD size = br.ReadU16();
+                SSIZE_T pos = br.GetPos();
+                NALParser(br, mtinfo);
+                br.SetPos(pos + size);
+            }
         }
 
 		return 0;
@@ -1319,15 +1474,29 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
     int GetExtradata_MPEGVideo(const CMediaType *pmt, PropItem *mtinfo)
 	{
-        if (pmt->pbFormat == NULL
-				|| pmt->formattype != FORMAT_MPEG2Video
-				|| pmt->cbFormat < sizeof(MPEG2VIDEOINFO)) 
+        if (pmt->pbFormat == NULL)
 			return 0;
-        bool isMpeg1 = false;
 
-		const MPEG2VIDEOINFO	* const m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
-		int			extralen = m2vi->cbSequenceHeader;
-        uint8*      extra = (uint8*)m2vi->dwSequenceHeader;
+        int			extralen = 0;
+        uint8*      extra = NULL;
+        if (pmt->formattype == FORMAT_MPEG2Video)
+        {
+		    const MPEG2VIDEOINFO * const m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
+		    extralen = m2vi->cbSequenceHeader;
+            extra = (uint8*)m2vi->dwSequenceHeader;
+        }
+        else if (pmt->formattype == FORMAT_VIDEOINFO2)
+        {
+            extralen = pmt->cbFormat - sizeof(VIDEOINFOHEADER2);
+            extra = pmt->pbFormat + sizeof(VIDEOINFOHEADER2);
+        }
+        else if (pmt->formattype == FORMAT_VideoInfo)
+        {
+            extralen = pmt->cbFormat - sizeof(VIDEOINFOHEADER);
+            extra = pmt->pbFormat + sizeof(VIDEOINFOHEADER);
+        }
+
+        bool isMpeg1 = false;
 
 		// done with
 		if (extralen <= 0) return 0;
@@ -1336,12 +1505,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         
         // prefix lesen 0x000001b3
         UINT16 prefix = br.ReadU16();
-        if(prefix != 0) return 0;
+        if (prefix != 0) return 0;
         prefix = br.ReadU8();
-        if(prefix != 1) return 0;
+        if (prefix != 1) return 0;
         prefix = br.ReadU8();
 
-        if(prefix == 0xB3) // MPEG1Seq
+        if (prefix == 0xB3) // MPEG1Seq
         {
             // http://www.fr-an.de/projects/01/01_01_02.htm
             PropItem *shinfo = mtinfo->AddItem(new PropItem(_T("MPEG Sequence Header")));
@@ -1354,7 +1523,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
             // aspect
             UINT8 aspect = br.ReadU(4);
-            if(isMpeg1)
+            if (isMpeg1)
             {
                 static CString aspectValues[] =
                 {
@@ -1411,7 +1580,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
                 _T("60.0 => double frame rate drop-frame NTSC (8)")
             };
             CString frVal;
-            if(framerate > 8)
+            if (framerate > 8)
                 frVal.Format(_T("reserved (%d)"), framerate);
             else
                 frVal = framerateValues[framerate];
@@ -1419,7 +1588,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
             // Bitrate
             UINT32 bitrate = br.ReadU(18);
-            if(bitrate == 0x3FFFF)
+            if (bitrate == 0x3FFFF)
                 shinfo->AddItem(new PropItem(_T("Bitrate"), CString(_T("Variable (0x3FFFF)"))));
             else
             {
@@ -1429,7 +1598,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
             // Marker
             UINT8 marker = br.ReadU1();
-            if(!marker)
+            if (!marker)
                 shinfo->AddItem(new PropItem(_T("Marker"), CString(_T("0 (Error in Stream!)"))));
             else
                 shinfo->AddItem(new PropItem(_T("Marker"), 1));
@@ -1444,7 +1613,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
             // Intra Matrix
             UINT8 lim = br.ReadU1();
-            if(lim)
+            if (lim)
                 shinfo->AddItem(new PropItem(_T("Load Intra Matrix"), CString(_T("Use Standard (1)"))));
             else
             {
@@ -1460,7 +1629,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
             // Non Intra Matrix
             UINT8 lnim = br.ReadU1();
-            if(lnim)
+            if (lnim)
                 shinfo->AddItem(new PropItem(_T("Load Non Intra Matrix"), CString(_T("Use Standard (1)"))));
             else
             {
@@ -1474,24 +1643,26 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
                 shinfo->AddItem(new PropItem(_T("Non Intra Matrix"), matrix));
             }
 
-            if(!br.ByteAligned())
+            if (!br.ByteAligned())
                 br.SetPos(br.GetPos()+1);
 
-            while(!br.IsEnd())
+            while (!br.IsEnd())
             {
-                if(br.ReadU8() == 0)
+                if (br.ReadU8() == 0)
                 {
-                    if(br.ReadU8() == 0)
+                    if (br.ReadU8() == 0)
                     {
-                        if(br.ReadU8() == 1)
+                        if (br.ReadU8() == 1)
+                        {
                             prefix = br.ReadU8();
                             break;
+                        }
                     }
                 }
             }
         }
         
-        if(prefix == 0xB5) // MPEG2Seq
+        if (prefix == 0xB5) // MPEG2Seq
         {
             UINT8 id = br.ReadU(4);
             if(id == 1)
@@ -1541,19 +1712,19 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
                 shinfo->AddItem(new PropItem(_T("Framerate Extension Numerator"), br.ReadU(2)));
                 shinfo->AddItem(new PropItem(_T("Framerate Extension Denominator"), br.ReadU(5)));
             }
-            else if(id == 2)
+            else if (id == 2)
             {
                 PropItem *shinfo = mtinfo->AddItem(new PropItem(_T("MPEG Sequenz Display Extension")));
             }
-            else if(id == 3)
+            else if (id == 3)
             {
                 PropItem *shinfo = mtinfo->AddItem(new PropItem(_T("MPEG Quant Matrix Extension")));
             }
-            else if(id == 4)
+            else if (id == 4)
             {
                 PropItem *shinfo = mtinfo->AddItem(new PropItem(_T("MPEG Copyright Extension")));
             }
-            else if(id == 5)
+            else if (id == 5)
             {
                 PropItem *shinfo = mtinfo->AddItem(new PropItem(_T("MPEG Sequence Scalable Extension")));
             }
