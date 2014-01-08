@@ -119,6 +119,7 @@ using namespace std;
 #include "dsutil.h"
 
 #include "bits.h"
+#include "H264StructReader.h"
 
 #include "MediaInfoDLL.h"
 

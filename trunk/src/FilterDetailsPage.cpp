@@ -51,7 +51,7 @@ BOOL CDetailsPage::OnInitDialog()
 	ok = tree.Create(NULL, WS_CHILD | WS_VISIBLE, rc, this, IDC_TREE);
 	if (!ok) return FALSE;
 
-	tree.left_width = 90;		// make first column narrower
+	tree.left_width = 150;		// make first column narrower
 
 	info.Clear();
 	OnBuildTree();

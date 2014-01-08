@@ -153,24 +153,35 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
     class CBitStreamReader
     {
     public:
-        CBitStreamReader(UINT8* buf, int size);
+        // works direct on the buffer and returns the count of stripped bytes
+        static int StripEmulationBytes(UINT8* buf, SIZE_T bufLen);
+
+        CBitStreamReader(UINT8* buf, int size, bool skipEmulationBytes = true);
         inline UINT32 ByteAligned() const { return m_bitsLeft == 8 ? 1 : 0; }
         inline UINT32 IsEnd() const { return m_p >= m_end ? 1 : 0; }
         inline SSIZE_T GetPos() const { return (m_p - m_start); }
         inline void SetPos(SSIZE_T pos) { m_p = m_start + pos; m_bitsLeft = 8; }
         
         UINT32 ReadU(int n);
+        void SkipU(int n);
         UINT32 ReadU1();
+        void SkipU1();
         inline UINT32 ReadU8() {return ReadU(8);}
         UINT16 ReadU16();
+        UINT32 ReadU32();
         UINT32 ReadUE();
         INT32 ReadSE();
 
+        UINT32 PeekU1();
+
     private:
+        void GotoNextByteIfNeeded();
+
         UINT8* m_start;
         UINT8* m_p;
         UINT8* m_end;
         int m_bitsLeft;
+        bool m_skipEmulationBytes;
     };
 
 GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

@@ -384,6 +384,9 @@
     <ClInclude Include="src\FileTypesForm.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="src\H264StructReader.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -631,6 +634,9 @@
     </ClCompile>
     <ClCompile Include="src\FileTypesForm.cpp">
       <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\H264StructReader.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
