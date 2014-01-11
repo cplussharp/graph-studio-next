@@ -23,6 +23,9 @@ public:
     
     bool m_bShowCliHelp;
 
+    bool m_bRemoteGraph;
+    CString m_strRemoteGraph;
+
 protected:
     //Override for Base class virtual
     void ParseParam(const TCHAR *pszParam, BOOL bFlag, BOOL bLast);

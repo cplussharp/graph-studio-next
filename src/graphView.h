@@ -130,6 +130,7 @@ public:
 	void OnMRUClick(UINT nID);
 	void OnGraphScreenshot();
 	void OnConnectRemote();
+    void OnConnectRemote(CComPtr<IMoniker> moniker, CString graphName);
 	void OnDisconnectRemote();
 	void OnDummyEvent(UINT nID) { };
 	void OnGraphStreamingStarted();

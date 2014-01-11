@@ -90,6 +90,19 @@ BOOL CgraphstudioApp::InitInstance()
 	SetRegistryKey(_T("MONOGRAM"));
 	LoadStdProfileSettings(8);  // Load standard INI file options (including MRU)
 
+    // set exe location in registry
+    TCHAR strExeLocation[MAX_PATH];
+    if (GetModuleFileName(NULL, strExeLocation, MAX_PATH))
+    {
+        CPath pathExe(strExeLocation);
+        pathExe.Canonicalize();
+#ifdef _WIN64
+        BOOL t = AfxGetApp()->WriteProfileStringW(_T(""),_T("exeLocation64"), pathExe);
+#else
+        BOOL t = AfxGetApp()->WriteProfileStringW(_T(""),_T("exeLocation"), pathExe);
+#endif
+    }
+
 	bool single_doc = false;
 
 	CDocTemplate* pDocTemplate = NULL;
@@ -153,7 +166,62 @@ BOOL CgraphstudioApp::InitInstance()
 
         if (m_cmdInfo.m_bProgressView)
             view->OnViewProgressview();
-	}
+    }
+    else if (m_cmdInfo.m_bRemoteGraph)
+    {
+        view->OnNewClick();
+        CComPtr<IRunningObjectTable>	rot;
+        HRESULT hr = GetRunningObjectTable(0, &rot);
+	    if (FAILED(hr)) 
+        {
+            // TODO Show error or exit?
+        }
+        else
+        {
+            CComPtr<IEnumMoniker>	emon;
+	        CComPtr<IMoniker>		moniker;
+	        CComPtr<IBindCtx>		bindctx;
+	        ULONG					f;
+
+            hr = CreateBindCtx(0, &bindctx);
+	        if (FAILED(hr))
+            {
+		        // TODO Show error or exit?
+	        }
+            else
+            {
+                rot->EnumRunning(&emon);
+	            emon->Reset();
+	            while (emon->Next(1, &moniker, &f) == NOERROR)
+                {
+                    bool found = false;
+
+		            // is this a graph object ?
+		            LPOLESTR displayname;
+		            moniker->GetDisplayName(bindctx, NULL, &displayname);
+
+                    CString	name(displayname);
+                    if (name.Find(m_cmdInfo.m_strRemoteGraph) == 0)
+                    {
+                        view->OnConnectRemote(moniker, name);
+                        found = true;
+                    }
+
+                    if (displayname) {
+			            CComPtr<IMalloc>	alloc;
+			            if (SUCCEEDED(CoGetMalloc(0, &alloc))) {
+				            alloc->Free(displayname);
+			            }
+		            }
+
+		            moniker = NULL;
+
+                    if (found)
+                        break;
+                }
+            }
+        }
+    }
 
     // Jumplist
     TCHAR szModule[MAX_PATH];
