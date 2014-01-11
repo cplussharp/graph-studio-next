@@ -40,11 +40,29 @@ void CGraphStudioCommandLineInfo::ParseParam(const TCHAR *pszParam, BOOL bFlag, 
             m_bProgressView = true;
         else if (_tcsicmp(pszParam, TEXT("?")) == 0)
             m_bShowCliHelp = true;
-       
+        else if (_tcsicmp(pszParam, TEXT("a")) == 0)
+        {
+            m_bRemoteGraph = true;
+
+            // if the flag is set after the moniker, we need to reset the openFlile command
+            if (!m_strFileName.IsEmpty())
+            {
+                m_strRemoteGraph = m_strFileName;
+                m_strFileName.Empty();
+                m_nShellCommand = FileNew;
+            }
+        }
+        
         CCommandLineInfo::ParseParam(pszParam, bFlag, bLast );
     }
     else
     {
-        CCommandLineInfo::ParseParam(pszParam, bFlag, bLast );
+        if (m_bRemoteGraph && m_strRemoteGraph.IsEmpty())
+        {
+            m_strRemoteGraph = pszParam;
+            ParseLast(bLast);
+        }
+        else
+            CCommandLineInfo::ParseParam(pszParam, bFlag, bLast );
     }
 }

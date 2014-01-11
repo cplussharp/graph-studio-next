@@ -54,9 +54,10 @@ BOOL CCliOptionsForm::OnInitDialog()
     CString strTxt;
     strTxt =  _T("Command Line Options for the Program:\r\n");
     strTxt += _T("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n\r\n");
-    strTxt += _T("graphstudionext.exe [file] [options]\r\n");
+    strTxt += _T("graphstudionext.exe [options] [file/moniker] [options]\r\n");
     strTxt += _T("-> file (optional)      -> a graph file or a video-file to render\r\n");
     strTxt += _T("-> options (optional)   -> one or more of the following switches:\r\n");
+    strTxt += _T("    -a                      -> connect to a remote graph\r\n");
     strTxt += _T("    -run                    -> runs the graph if a file was rendered\r\n");
     strTxt += _T("    -exitafterrun           -> closes the application after the graph was stopped\r\n");
     strTxt += _T("    -noclock                -> disables the clock if a file was rendered\r\n");
@@ -66,8 +67,9 @@ BOOL CCliOptionsForm::OnInitDialog()
     strTxt += _T("    -filters                -> opens the filters dialog on startup\r\n");
     strTxt += _T("    -?                      -> opens this window on startup\r\n");
     strTxt += _T("\r\n");
-    strTxt += _T("Example:\r\n");
-    strTxt += _T("graphstudionext.exe convert.grf -run -exitonerror -exitafterrun -noclock -progressview\r\n\r\n");
+    strTxt += _T("Examples:\r\n");
+    strTxt += _T("graphstudionext.exe convert.grf -run -exitonerror -exitafterrun -noclock -progressview\r\n");
+    strTxt += _T("graphstudionext.exe -a \"!FilterGraph x y\"\r\n\r\n");
 
 	strTxt += _T("Mouse Buttons:\r\n");
     strTxt += _T("~~~~~~~~~~~~~~~\r\n\r\n");

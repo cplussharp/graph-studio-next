@@ -1884,43 +1884,44 @@ void CGraphView::OnGraphScreenshot()
 
 void CGraphView::OnConnectRemote()
 {
-	CRemoteGraphForm	remote_form;
+    CRemoteGraphForm	remote_form;
 	const INT_PTR ret = remote_form.DoModal();
-	if (ret == IDOK) {
-		if (remote_form.sel_graph.moniker) {
+	if (ret == IDOK && remote_form.sel_graph.moniker)
+        OnConnectRemote(remote_form.sel_graph.moniker, remote_form.sel_graph.name);
+}
 
-			// get a graph object
-			CComPtr<IRunningObjectTable>	rot;
-			CComPtr<IUnknown>				unk;
-			CComPtr<IFilterGraph>			fg;
-			HRESULT							hr;
+void CGraphView::OnConnectRemote(CComPtr<IMoniker> moniker, CString graphName)
+{
+	// get a graph object
+	CComPtr<IRunningObjectTable>	rot;
+	CComPtr<IUnknown>				unk;
+	CComPtr<IFilterGraph>			fg;
+	HRESULT							hr;
 
-			hr = GetRunningObjectTable(0, &rot);
+	hr = GetRunningObjectTable(0, &rot);
+	if (SUCCEEDED(hr)) {
+		hr = rot->GetObject(moniker, &unk);
+		if (SUCCEEDED(hr)) {
+			hr = unk->QueryInterface(IID_IFilterGraph, (void**)&fg);
 			if (SUCCEEDED(hr)) {
-				hr = rot->GetObject(remote_form.sel_graph.moniker, &unk);
-				if (SUCCEEDED(hr)) {
-					hr = unk->QueryInterface(IID_IFilterGraph, (void**)&fg);
-					if (SUCCEEDED(hr)) {
-						hr = graph.ConnectToRemote(fg);
-					}
-				}
+				hr = graph.ConnectToRemote(fg);
 			}
-			if (SUCCEEDED(hr)) {
-				SetTimer(CGraphView::TIMER_REMOTE_GRAPH_STATE, 200, NULL);
-				document_filename = _T("REMOTE ");
-				document_filename += remote_form.sel_graph.name;
-			} else {
-				OnNewClick();
-				document_filename = _T("");
-				DSUtil::ShowError(hr, _T("Failed to connect to remote graph. Note the error E_NOINTERFACE or REGDB_E_CLASSNOTREG can be caused by failing to register proppage.dll from the Windows SDK."));
-			}
-			// get all filters
-			graph.RefreshFilters();
-			graph.SmartPlacement();
-			Invalidate();
-			UpdateTitleBar();
 		}
 	}
+	if (SUCCEEDED(hr)) {
+		SetTimer(CGraphView::TIMER_REMOTE_GRAPH_STATE, 200, NULL);
+		document_filename = _T("REMOTE ");
+		document_filename += graphName;
+	} else {
+		OnNewClick();
+		document_filename = _T("");
+		DSUtil::ShowError(hr, _T("Failed to connect to remote graph. Note the error E_NOINTERFACE or REGDB_E_CLASSNOTREG can be caused by failing to register proppage.dll from the Windows SDK."));
+	}
+	// get all filters
+	graph.RefreshFilters();
+	graph.SmartPlacement();
+	Invalidate();
+	UpdateTitleBar();
 
     AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
 }
