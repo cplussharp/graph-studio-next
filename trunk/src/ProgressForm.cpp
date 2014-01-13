@@ -69,8 +69,9 @@ void CProgressForm::OnCancel()
 
 void CProgressForm::OnClose()
 {
+	if(!IsWindowVisible())
+		return; // SetWindowPos below might mess the active windows in case we have modeless dialog popups, so we should not do them for no reason
 	ShowWindow(SW_HIDE);
-
 	AfxGetMainWnd()->ShowWindow(SW_SHOW);
 	AfxGetMainWnd()->SetWindowPos(NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
