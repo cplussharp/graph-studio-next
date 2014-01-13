@@ -386,8 +386,12 @@ void WINAPI DbgInitGlobalSettings(bool fTakeMax)
                                  NULL);                // What really happened
         if (lReturn != ERROR_SUCCESS) {
             DbgLog((LOG_ERROR,1,TEXT("Could not access GLOBAL module key")));
+            // CPlusSharp: in the original file, this "return" was after this if statement
+            // => because HKEY_LOCAL_MACHINE is readonly since Vista, if we start without admin-rights
+            // the Log-Levels would not be loaded!
+            // I don't know if this was on purpose, but then the line above make no seens!
+            return; 
         }
-        return;
     }
 
     DbgInitKeyLevels(hGlobalKey, fTakeMax);
@@ -433,8 +437,12 @@ void WINAPI DbgInitModuleSettings(bool fTakeMax)
                                  NULL);                // What really happened
         if (lReturn != ERROR_SUCCESS) {
             DbgLog((LOG_ERROR,1,TEXT("Could not access module key")));
+            // CPlusSharp: in the original file, this "return" was after this if statement
+            // => because HKEY_LOCAL_MACHINE is readonly since Vista, if we start without admin-rights
+            // the Log-Levels would not be loaded!
+            // I don't know if this was on purpose, but then the line above make no seens!
+            return;
         }
-        return;
     }
 
     DbgInitLogTo(hModuleKey);
