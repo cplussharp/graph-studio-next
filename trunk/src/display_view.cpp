@@ -1176,7 +1176,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         CImage img;
         img.Attach(tempbitmap);
         HRESULT hr = img.Save(image_filename, gdiplus_format);
-		DSUtil::ShowError(hr, _T("Failed to save image file"));
+		DSUtil::ShowError(hr, _T("Failed to save image file of the Filter Graph screenshot"));
 
         // free resources
 		tempdc.SelectObject(old);

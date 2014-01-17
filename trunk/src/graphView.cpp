@@ -995,8 +995,7 @@ HRESULT CGraphView::DoFileSave()
 		format     = min(format, num_formats - 1);
 
 		CPath image_name(document_filename);
-		image_name.RemoveExtension();
-		image_name.AddExtension(graphic_format_extensions[format]);
+		image_name.RenameExtension(graphic_format_extensions[format]);
 
 		MakeScreenshot(image_name, *graphic_format_guids[format]);
 	}
