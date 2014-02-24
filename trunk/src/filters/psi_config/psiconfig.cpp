@@ -72,6 +72,8 @@ CPsiConfigFilter::CPsiConfigFilter(LPUNKNOWN pUnk, HRESULT *phr)
     : CBaseFilter(TEXT("CPSIConfig"), pUnk, &m_Lock, __uuidof(PsiConfigFilter)),
     m_pDemux(NULL), m_pMediaCtrl(NULL), m_countPayloadPins(0), m_payloadPins(NULL), m_bRenderPayloadParserOnNextStop(false)
 {
+    DbgLog((LOG_MEMORY,1,TEXT("PsiConfigFilter created")));
+
     // Create the single input pin
     m_pInputPin = new CPsiParserInputPin(this, GetOwner(), &m_Lock, &m_ReceiveLock, phr);
     if(m_pInputPin == NULL)
@@ -107,6 +109,8 @@ CPsiConfigFilter::~CPsiConfigFilter()
         m_pMediaCtrl->Release();
         m_pMediaCtrl = NULL;
     }
+
+    DbgLog((LOG_MEMORY,1,TEXT("PsiConfigFilter destroyed")));
 }
 
 STDMETHODIMP CPsiConfigFilter::NonDelegatingQueryInterface(REFIID riid, void **ppv)
@@ -250,6 +254,7 @@ CPsiParserInputPin::CPsiParserInputPin( CPsiConfigFilter *pFilter, LPUNKNOWN pUn
 : CRenderedInputPin(NAME("CPSIParserInputPin"), (CBaseFilter *) pFilter, pLock, phr, L"Input"),
     m_pFilter(pFilter), m_pReceiveLock(pReceiveLock), m_pPatProcessor(NULL), m_pPmtProcessor(NULL), m_bCreated(false)
 {
+    DbgLog((LOG_MEMORY,1,TEXT("PsiParserPin created")));
 }
 
 CPsiParserInputPin::~CPsiParserInputPin()
@@ -259,6 +264,8 @@ CPsiParserInputPin::~CPsiParserInputPin()
 
 	if(m_pPatProcessor != NULL)
 		delete m_pPatProcessor;
+
+    DbgLog((LOG_MEMORY,1,TEXT("PsiParserPin destroyed")));
 }
 
 HRESULT CPsiParserInputPin::GetPatProcessor(CPATProcessor ** ppPatProcessor)

@@ -23,7 +23,7 @@ private:
 
     CAnalyzerPropPageConfig(LPUNKNOWN lpunk, HRESULT *phr);
 
-    IAnalyzerFilter* m_pAnalyzer;
+    IAnalyzerCommon* m_pAnalyzer;
 
     BOOL m_bIsInitialized;
 };

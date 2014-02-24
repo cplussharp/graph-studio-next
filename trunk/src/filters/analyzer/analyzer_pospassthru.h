@@ -10,11 +10,11 @@
 
 // Class to delegate IMediaSeeking upstream and log to CAnalyzer
 
-class CAnalyzerPosPassThru : public CPosPassThru
+class CAnalyzerPosPassThru : public CRendererPosPassThru
 {
 public:
 	CAnalyzerPosPassThru(const TCHAR *pName, LPUNKNOWN pUnk, HRESULT *phr, IPin *pPin, CAnalyzer* analyzer)
-		: CPosPassThru(pName, pUnk, phr, pPin)
+		: CRendererPosPassThru(pName, pUnk, phr, pPin)
 		, m_Analyzer(analyzer)
 	{
 	}

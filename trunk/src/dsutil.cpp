@@ -1083,6 +1083,10 @@ namespace DSUtil
         filters.Add(filter);
 
 #ifdef DEBUG
+        filter.name = _T("H264 Analyzer");
+        filter.clsid = __uuidof(H264AnalyzerFilter);
+        filters.Add(filter);
+
         filter.name = _T("Video Analyzer");
         filter.clsid = __uuidof(VideoAnalyzerFilter);
         filters.Add(filter);

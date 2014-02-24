@@ -137,8 +137,9 @@ void CH264StructReader::ReadScalingList(CBitStreamReader& bs, int* scalingList, 
             *useDefaultScalingMatrixFlag = (j==0 && nextScale==0);
         }
 
-        scalingList[j] = (nextScale == 0) ? lastScale : nextScale;
-        lastScale = scalingList[j];
+        int scale = (nextScale == 0) ? lastScale : nextScale;
+        if (scalingList != NULL) scalingList[j] = scale;
+        lastScale = scale;
     }
 }
 
@@ -348,6 +349,54 @@ REFERENCE_TIME CH264StructReader::GetAvgTimePerFrame(int num_units_in_tick, int 
         val = 2 * (10000000I64*num_units_in_tick)/time_scale;
 
     return val;
+}
+
+
+void CH264StructReader::ReadSEI(CBitStreamReader& bs, sei_t& sei)
+{
+    memset(&sei,0,sizeof(sei_t));
+
+    UINT32 val = bs.ReadU8();
+    while (val == 0Xff)
+    {
+        sei.payloadType += 255;
+        val = bs.ReadU8();
+    }
+    sei.payloadType += val;
+
+    ULONG payloadSize = 0;
+    val = bs.ReadU8();
+    while (val == 0Xff)
+    {
+        sei.payloadSize += 255;
+        val = bs.ReadU8();
+    }
+    sei.payloadSize += val;
+
+    sei.payload = new BYTE[sei.payloadSize];
+    CopyMemory(sei.payload, bs.Pointer(), sei.payloadSize);
+}
+
+void CH264StructReader::ReadSliceHeader(CBitStreamReader& bs, slice_header_t& sh, sps_t& sps, bool isNonIDR)
+{
+    memset(&sh, 0, sizeof(slice_header_t));;
+
+    sh.first_mb_in_slice = bs.ReadUE();
+    sh.slice_type = bs.ReadUE();
+    sh.pic_parameter_set_id = bs.ReadUE();
+
+    sh.frame_num = bs.ReadU(sps.log2_max_frame_num_minus4 + 4 );
+    if (!sps.frame_mbs_only_flag)
+    {
+        sh.field_pic_flag = bs.ReadU1();
+        if (sh.field_pic_flag)
+            sh.bottom_field_flag = bs.ReadU1();
+    }
+
+    if (isNonIDR == 5 )
+        sh.idr_pic_id = bs.ReadUE();
+
+    // we don't need to know all
 }
 
 GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

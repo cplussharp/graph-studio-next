@@ -34,6 +34,12 @@ CUnknown* CFakeM2tsDevice::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 CFakeM2tsDevice::CFakeM2tsDevice(LPUNKNOWN pUnk, HRESULT *phr)
 : CSource(NAME("FakeM2tsDevice"), pUnk, CLSID_FakeM2tsDevice, phr)
 {	
+    DbgLog((LOG_MEMORY,1,TEXT("FakeM2tsDevice created")));
+}
+
+CFakeM2tsDevice::~CFakeM2tsDevice()
+{
+    DbgLog((LOG_MEMORY,1,TEXT("FakeM2tsDevice destroyed")));
 }
 
 STDMETHODIMP CFakeM2tsDevice::NonDelegatingQueryInterface(REFIID riid, void ** ppv)

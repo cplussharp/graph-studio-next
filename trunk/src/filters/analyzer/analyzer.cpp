@@ -31,8 +31,9 @@ int hibit(unsigned int n)
 
 CAnalyzer::CAnalyzer(LPUNKNOWN pUnk) :
 	CUnknown(NAME("Analyzer"), pUnk),
-    m_enabled(VARIANT_TRUE), m_config(SCF_All & ~SCF_DataCrc), m_previewSampleByteCount(16), m_callback(NULL)
+    m_enabled(VARIANT_TRUE), m_config(SCF_All & ~SCF_DataCrc), m_callback(NULL), m_previewSampleByteCount(16)
 {
+    DbgLog((LOG_MEMORY,1,TEXT("Analyzer created")));
 }
 
 CAnalyzer::~CAnalyzer()
@@ -44,15 +45,14 @@ CAnalyzer::~CAnalyzer()
     }
 
 	ResetStatistic();
+
+    DbgLog((LOG_MEMORY,1,TEXT("Analyzer destroyed")));
 }
 
 STDMETHODIMP CAnalyzer::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
-	if (riid == __uuidof(IAnalyzerFilter)) {
-		return GetInterface((IAnalyzerFilter*)this, ppv);
-	}
-    else if (riid == __uuidof(IDispatch)) {
-		return GetInterface((IDispatch*)this, ppv);
+	if (riid == __uuidof(IAnalyzerCommon)) {
+		return GetInterface((IAnalyzerCommon*)this, ppv);
 	}
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }
@@ -70,12 +70,12 @@ void CAnalyzer::AddEntry(const StatisticRecordEntry& entry)
     m_entries.push_back(entry);
 
     if (m_callback != NULL)
-        m_callback->OnStatisticNewEntry((unsigned long) entry.EntryNr);
+        m_callback->OnNewEntry((unsigned long) entry.EntryNr);
 }
 
-HRESULT CAnalyzer::AddSample(IMediaSample *pSample)
+HRESULT CAnalyzer::AnalyzeSample(IMediaSample *pSample)
 {
-    if (!m_enabled || !m_config&SCF_MediaSample) return S_OK;
+    if (!m_enabled || !(m_config & SCF_MediaSample)) return S_OK;
 
     // entry
     StatisticRecordEntry entry = { 0 };
@@ -343,7 +343,7 @@ HRESULT CAnalyzer::AddQCNotify(Quality q, HRESULT hr)
 
 HRESULT CAnalyzer::AddDouble(StatisticRecordKind kind, HRESULT hr, double data)
 {
-    if (!m_enabled || !m_config&hibit(kind)) return S_OK;
+    if (!m_enabled || !(m_config & hibit(kind))) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -359,7 +359,7 @@ HRESULT CAnalyzer::AddDouble(StatisticRecordKind kind, HRESULT hr, double data)
 
 HRESULT CAnalyzer::AddHRESULT(StatisticRecordKind kind, HRESULT hr)
 {
-    if (!m_enabled || !m_config&hibit(kind)) return S_OK;
+    if (!m_enabled || !(m_config & hibit(kind))) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -374,7 +374,7 @@ HRESULT CAnalyzer::AddHRESULT(StatisticRecordKind kind, HRESULT hr)
 
 HRESULT CAnalyzer::AddRefTime(StatisticRecordKind kind, LONGLONG refTime, HRESULT hr)
 {
-    if (!m_enabled || !m_config&hibit(kind)) return S_OK;
+    if (!m_enabled || !(m_config & hibit(kind))) return S_OK;
 
 	StatisticRecordEntry entry = { 0 };
 	InitEntry(entry);
@@ -410,7 +410,7 @@ HRESULT CAnalyzer::AddMSSetTimeFormat(HRESULT hr, const GUID * pFormat)
 }
 
 
-#pragma region IAnalyzerFilter Members
+#pragma region IAnalyzerCommon Members
 
 STDMETHODIMP CAnalyzer::get_Enabled(VARIANT_BOOL *pVal)
 {
@@ -438,15 +438,17 @@ STDMETHODIMP CAnalyzer::put_CaptureConfiguration(int val)
     return S_OK;
 }
 
-STDMETHODIMP CAnalyzer::get_LogFile(BSTR *pVal)
+STDMETHODIMP CAnalyzer::SetCallback(IAnalyzerCallback* pCallback)
 {
-    CheckPointer(pVal, E_POINTER);
-    return E_NOTIMPL;
-}
+    if (pCallback != NULL)
+        pCallback->AddRef();
 
-STDMETHODIMP CAnalyzer::put_LogFile(BSTR val)
-{
-    return E_NOTIMPL;
+    if (m_callback != NULL)
+        m_callback->Release();
+
+    m_callback = pCallback;
+
+    return S_OK;
 }
 
 STDMETHODIMP CAnalyzer::get_PreviewSampleByteCount(unsigned short *pVal)
@@ -477,7 +479,7 @@ STDMETHODIMP CAnalyzer::ResetStatistic(void)
     m_entries.clear();
 
     if (m_callback != NULL)
-        m_callback->OnStatisticResetted();
+        m_callback->OnResetted();
 
     return S_OK;
 }
@@ -507,75 +509,6 @@ STDMETHODIMP CAnalyzer::GetEntry(__int64 nr, StatisticRecordEntry *pVal)
     }
 
     return S_OK;
-}
-
-STDMETHODIMP CAnalyzer::SetCallback(IAnalyzerFilterCallback* pCallback)
-{
-    if (pCallback != NULL)
-        pCallback->AddRef();
-
-    if (m_callback != NULL)
-        m_callback->Release();
-
-    m_callback = pCallback;
-
-    return S_OK;
-}
-
-#pragma endregion
-
-#pragma region IDispatch Member
-/*********************************************************************************************
-* IDispatch
-*********************************************************************************************/
-STDMETHODIMP CAnalyzer::GetTypeInfoCount(__out UINT * pctinfo)
-{
-    return m_basedisp.GetTypeInfoCount(pctinfo);
-}
-
-STDMETHODIMP CAnalyzer::GetTypeInfo(UINT itinfo, LCID lcid, __deref_out ITypeInfo ** pptinfo)
-{
-    return m_basedisp.GetTypeInfo(__uuidof(IAnalyzerFilter), itinfo, lcid, pptinfo);
-}
-
-STDMETHODIMP CAnalyzer::GetIDsOfNames(REFIID riid, __in_ecount(cNames) LPOLESTR * rgszNames, UINT cNames, LCID lcid, __out_ecount(cNames) DISPID * rgdispid)
-{
-    return m_basedisp.GetIDsOfNames(__uuidof(IAnalyzerFilter), rgszNames,	cNames, lcid, rgdispid);
-}
-
-STDMETHODIMP CAnalyzer::Invoke(
-    DISPID dispidMember,
-    REFIID riid,
-    LCID lcid,
-    WORD wFlags,
-    __in DISPPARAMS * pdispparams,
-    __out_opt VARIANT * pvarResult,
-    __out_opt EXCEPINFO * pexcepinfo,
-    __out_opt UINT * puArgErr)
-{
-    // this parameter is a dead leftover from an earlier interface
-    if (IID_NULL != riid) {
-	    return DISP_E_UNKNOWNINTERFACE;
-    }
-
-    ITypeInfo * pti;
-    HRESULT hr = GetTypeInfo(0, lcid, &pti);
-
-    if (FAILED(hr)) {
-	    return hr;
-    }
-
-    hr = pti->Invoke(
-	    (IAnalyzerFilter*)this,
-	    dispidMember,
-	    wFlags,
-	    pdispparams,
-	    pvarResult,
-	    pexcepinfo,
-	    puArgErr);
-
-    pti->Release();
-    return hr;
 }
 
 #pragma endregion

@@ -995,9 +995,9 @@ void GetInterfaceInfo_ITimeMeasureFilter(GraphStudio::PropItem* group, IUnknown*
 	}
 }
 
-void GetInterfaceInfo_IAnalyzerFilter(GraphStudio::PropItem* group, IUnknown* pUnk)
+void GetInterfaceInfo_IAnalyzerCommon(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
-    CComQIPtr<IAnalyzerFilter> pI = pUnk;
+    CComQIPtr<IAnalyzerCommon> pI = pUnk;
     if(pI)
     {
         VARIANT_BOOL enabled;
@@ -1398,7 +1398,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
 
     // Internal Interfaces
     CInterfaceInfo(TEXT("{B278651D-1678-4add-941A-0EFDAD41F930}"), TEXT("ITimeMeasureFilter"), TEXT("time_measure.idl"), TEXT(""), GetInterfaceInfo_ITimeMeasureFilter),
-    CInterfaceInfo(TEXT("{51039F7F-907D-4E3F-B16F-721BC7317094}"), TEXT("IAnalyzerFilter"), TEXT("analyzer.idl"), TEXT(""), GetInterfaceInfo_IAnalyzerFilter)
+    CInterfaceInfo(TEXT("{51039F7F-907D-4E3F-B16F-721BC7317094}"), TEXT("IAnalyzerCommon"), TEXT("analyzer.idl"), TEXT(""), GetInterfaceInfo_IAnalyzerCommon)
 };
 const UINT CInterfaceScanner::m_countKnownInterfaces = sizeof(m_knownInterfaces) / sizeof(m_knownInterfaces[0]);
 

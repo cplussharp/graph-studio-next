@@ -15,12 +15,8 @@
 //
 //-----------------------------------------------------------------------------
 
-class CVideoAnalyzer : public CUnknown, public IVideoAnalyzerFilter
+class CVideoAnalyzer : public CUnknown, public IAnalyzerVideo
 {
-private:
-    VARIANT_BOOL    m_enabled;
-    IVideoAnalyzerFilterCallback* m_callback;
-
 public:
 	CVideoAnalyzer(LPUNKNOWN pUnk);
 	virtual ~CVideoAnalyzer();
@@ -36,11 +32,19 @@ public:
 	virtual HRESULT AnalyzeSample(IMediaSample *pSample);
 
 	// IVideoAnalyzerFilter
-	STDMETHODIMP get_Enabled(VARIANT_BOOL *pVal);
+    STDMETHODIMP get_Enabled(VARIANT_BOOL *pVal);
     STDMETHODIMP put_Enabled(VARIANT_BOOL val);
-    STDMETHODIMP SetCallback(IVideoAnalyzerFilterCallback* pCallback);
+    STDMETHODIMP get_CaptureConfiguration(int *pVal);
+    STDMETHODIMP put_CaptureConfiguration(int val);
+    STDMETHODIMP ResetStatistic(void);
+    STDMETHODIMP get_EntryCount(__int64 *pVal);
+    STDMETHODIMP SetCallback(IAnalyzerCallback* pCallback);
 
 private:
+    VARIANT_BOOL    m_enabled;
+    int             m_config;
+    IAnalyzerCallback* m_callback;
+
     sqlite3* m_db;
 
     // prepared statements

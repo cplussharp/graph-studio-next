@@ -15,26 +15,14 @@ class CAnalyzerPosPassThru;
 //
 //-----------------------------------------------------------------------------
 
-class CAnalyzerWriterInput : public CRenderedInputPin, public IStream, public IStreamBufferDataCounters
+class CAnalyzerWriterInput : public CRendererInputPin, public IStream
 {
 public:
-    CAnalyzerWriterInput(CBaseFilter* pFilter, CCritSec* pLock, HRESULT* phr, LPCWSTR pName, HANDLE* pFile, CAnalyzer* pAnalyzer);
+    CAnalyzerWriterInput(CBaseRenderer *pRenderer, HRESULT *phr, LPCWSTR pPinName, HANDLE* pFile, CAnalyzer* pAnalyzer);
     ~CAnalyzerWriterInput(void);
 
     DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID iid, void** ppv);
-
-    HRESULT CheckMediaType(const CMediaType* pmt);
-    HRESULT GetMediaType(int iPosition, CMediaType* pmt);
-
-    STDMETHODIMP Receive(IMediaSample *pSample);
-    STDMETHODIMP ReceiveCanBlock() { return S_OK; }
-
-    STDMETHODIMP EndOfStream(void);
-
-    // IStreamBufferDataCounters
-    STDMETHODIMP GetData(SBE_PIN_DATA *pPinData);
-    STDMETHODIMP ResetData();
 
     // IStream Methods
     STDMETHOD(Read) (void* pv, ULONG cb, ULONG* pcbRead);
@@ -52,7 +40,6 @@ public:
 protected:
     CCritSec m_lock;
     HANDLE* m_pFile;
-    SBE_PIN_DATA m_pinData;
     CAnalyzer* m_analyzer;
 };
 
@@ -63,7 +50,7 @@ protected:
 //
 //-----------------------------------------------------------------------------
 
-class CAnalyzerWriterFilter : public CBaseFilter, public IFileSinkFilter2, public IAMFilterMiscFlags, public ISpecifyPropertyPages
+class CAnalyzerWriterFilter : public CBaseRenderer, public IFileSinkFilter2, public IAMFilterMiscFlags, public ISpecifyPropertyPages
 {
 private:
     CAnalyzer*  m_analyzer;
@@ -80,8 +67,16 @@ public:
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void ** ppv);
 
 	// CBaseFilter methods
-    int GetPinCount();
     CBasePin *GetPin(int n);
+
+    // overriden
+	virtual HRESULT CheckMediaType(const CMediaType *pmt);
+	virtual HRESULT DoRenderSample(IMediaSample* pSample);
+
+	// ignore time stamps...
+	virtual HRESULT ShouldDrawSampleNow(IMediaSample *sample, REFERENCE_TIME *pStartTime, REFERENCE_TIME *pEndTime);
+
+    HRESULT GetMediaPositionInterface(REFIID riid, __deref_out void **ppv);
 
     STDMETHODIMP GetClassID(CLSID *pClsID); // Fake ClassID; show as FileWriter because some filters only work correct with the default FileWriter (like the MainConcept Mpeg2Demux! => shame on you!)
 
@@ -100,14 +95,6 @@ public:
     STDMETHODIMP GetPages(CAUUID *pPages);
 
 protected:
-
-    // filter-wide lock
-    CCritSec m_csFilter;
-    CCritSec m_csTracks;
-
-    // Pins
-    CAnalyzerWriterInput* m_pPin;
-
     WCHAR m_szFileName[MAX_PATH];
 
     // for IFileSinkFilter2
@@ -117,7 +104,7 @@ protected:
     HANDLE m_file;
 
 	// IMediaSeeking and IMediaPosition logging
-	CAnalyzerPosPassThru*	m_PassThru;
+	//CAnalyzerPosPassThru*	m_PassThru;
 
 	void CloseFile();
 };

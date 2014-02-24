@@ -19,6 +19,7 @@ BEGIN_MESSAGE_MAP(CAnalyzerPage, CDSPropertyPage)
 	ON_WM_SIZE()
     ON_COMMAND(IDC_CHECK_ENABLED, &CAnalyzerPage::OnCheckClick)
     ON_COMMAND(IDC_CHECK_CRC, &CAnalyzerPage::OnCheckClick)
+    ON_COMMAND(IDC_CHECK_ONLYSAMPLES, &CAnalyzerPage::OnCheckClick)
     ON_BN_CLICKED(IDC_BUTTON_RESET, &CAnalyzerPage::OnBnClickedButtonReset)
     ON_NOTIFY(LVN_GETDISPINFO, IDC_LIST_DATA, &CAnalyzerPage::OnLvnGetdispinfoListData)
     ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST_DATA, &CAnalyzerPage::OnCustomDrawListData)
@@ -104,7 +105,7 @@ void CAnalyzerPage::DoDataExchange(CDataExchange* pDX)
 
 HRESULT CAnalyzerPage::OnConnect(IUnknown *pUnknown)
 {
-    HRESULT hr = pUnknown->QueryInterface(__uuidof(IAnalyzerFilter), (void**)&filter);
+    HRESULT hr = pUnknown->QueryInterface(__uuidof(IAnalyzerCommon), (void**)&filter);
 	if (FAILED(hr)) return E_FAIL;
 	return NOERROR;
 }
@@ -119,6 +120,8 @@ HRESULT CAnalyzerPage::OnActivate()
     int captureConfig;
     filter->get_CaptureConfiguration(&captureConfig);
     CheckDlgButton(IDC_CHECK_CRC, captureConfig&SCF_DataCrc ? BST_CHECKED : BST_UNCHECKED);
+    CheckDlgButton(IDC_CHECK_ONLYSAMPLES, (captureConfig&~SCF_DataCrc) == SCF_MediaSample ? BST_CHECKED : BST_UNCHECKED);
+    
 
     WORD previewByteCount;
     filter->get_PreviewSampleByteCount(&previewByteCount);
@@ -150,12 +153,15 @@ HRESULT CAnalyzerPage::OnApplyChanges()
 	ASSERT(m_nPreviewByteCount <= 0xFFFF);
     filter->put_PreviewSampleByteCount((unsigned short) m_nPreviewByteCount);
 
-    int captureConfig;
-    filter->get_CaptureConfiguration(&captureConfig);
+    int captureConfig = SCF_ALL;
+    if (IsDlgButtonChecked(IDC_CHECK_ONLYSAMPLES))
+        captureConfig = SCF_MediaSample;
+
     if(IsDlgButtonChecked(IDC_CHECK_CRC))
         captureConfig |= SCF_DataCrc;
     else
         captureConfig &= ~SCF_DataCrc;
+
     filter->put_CaptureConfiguration(captureConfig);
 
 	return NOERROR;

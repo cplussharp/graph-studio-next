@@ -154,6 +154,74 @@ typedef struct
 
 typedef struct
 {
+    int first_mb_in_slice;
+    int slice_type;
+    int pic_parameter_set_id;
+    int frame_num;
+    int field_pic_flag;
+      int bottom_field_flag;
+    int idr_pic_id;
+    
+    /*int pic_order_cnt_lsb;
+    int delta_pic_order_cnt_bottom;
+    int delta_pic_order_cnt[ 2 ];
+    int redundant_pic_cnt;
+    int direct_spatial_mv_pred_flag;
+    int num_ref_idx_active_override_flag;
+    int num_ref_idx_l0_active_minus1;
+    int num_ref_idx_l1_active_minus1;
+    int cabac_init_idc;
+    int slice_qp_delta;
+    int sp_for_switch_flag;
+    int slice_qs_delta;
+    int disable_deblocking_filter_idc;
+    int slice_alpha_c0_offset_div2;
+    int slice_beta_offset_div2;
+    int slice_group_change_cycle;
+
+    struct
+    {
+        int luma_log2_weight_denom;
+        int chroma_log2_weight_denom;
+        int luma_weight_l0_flag;
+        int luma_weight_l0[64];
+        int luma_offset_l0[64];
+        int chroma_weight_l0_flag;
+        int chroma_weight_l0[64][2];
+        int chroma_offset_l0[64][2];
+        int luma_weight_l1_flag;
+        int luma_weight_l1[64];
+        int luma_offset_l1[64];
+        int chroma_weight_l1_flag;
+        int chroma_weight_l1[64][2];
+        int chroma_offset_l1[64][2];
+    } pwt; // predictive weight table
+
+    struct // FIXME stack or array
+    {
+        int ref_pic_list_reordering_flag_l0;
+        int ref_pic_list_reordering_flag_l1;
+        int reordering_of_pic_nums_idc;
+        int abs_diff_pic_num_minus1;
+        int long_term_pic_num;
+    } rplr; // ref pic list reorder
+
+    struct // FIXME stack or array
+    {
+        int no_output_of_prior_pics_flag;
+        int long_term_reference_flag;
+        int adaptive_ref_pic_marking_mode_flag;
+        int memory_management_control_operation;
+        int difference_of_pic_nums_minus1;
+        int long_term_pic_num;
+        int long_term_frame_idx;
+        int max_long_term_frame_idx_plus1;
+    } drpm; // decoded ref pic marking
+    */
+} slice_header_t;
+
+typedef struct
+{
     int payloadType;
     int payloadSize;
     BYTE* payload;
@@ -228,6 +296,9 @@ public:
     static void ReadVUI(CBitStreamReader& bs, vui_t& vui);
     static void ReadSPS(CBitStreamReader& bs, sps_t& sps);
     static void ReadPPS(CBitStreamReader& bs, pps_t& pps);
+
+    static void ReadSEI(CBitStreamReader& bs, sei_t& sei);
+    static void ReadSliceHeader(CBitStreamReader& bs, slice_header_t& sh, sps_t& sps, bool isNonIDR);
 
     static REFERENCE_TIME GetAvgTimePerFrame(int num_units_in_tick, int time_scale);
 };

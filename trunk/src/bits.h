@@ -174,6 +174,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
         UINT32 PeekU1();
 
+        inline UINT8* Pointer() { return m_p; }
+
     private:
         void GotoNextByteIfNeeded();
 

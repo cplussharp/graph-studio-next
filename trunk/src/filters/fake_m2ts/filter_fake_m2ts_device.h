@@ -22,7 +22,7 @@ class CFakeM2tsDevice : public CSource, public IFileSourceFilter, public IAMFilt
 {
 public:
     CFakeM2tsDevice(LPUNKNOWN pUnk, HRESULT *phr);
-    ~CFakeM2tsDevice(void) {}
+    ~CFakeM2tsDevice(void);
 
 	DECLARE_IUNKNOWN;
 	STDMETHODIMP NonDelegatingQueryInterface(REFIID, void**);

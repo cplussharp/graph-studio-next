@@ -17,6 +17,8 @@
 #define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
 #endif
 
+//#define _AFX_NO_MFC_CONTROLS_IN_DIALOGS // Remove MFC Controls from Static MFC lib
+
 // Modify the following defines if you have to target a platform prior to the ones specified below.
 // Refer to MSDN for the latest info on corresponding values for different platforms.
 #ifndef WINVER				// Allow use of features specific to Windows XP or later.
@@ -142,11 +144,12 @@ using namespace std;
 #include "filters\analyzer\filter_analyzer_writer.h"
 #include "filters\analyzer\analyzer_proppage_config.h"
 
-#include "..\video_analyzer_h.h"    // Interface
+#include "filters\h264_analyzer\h264_analyzer.h"
+#include "filters\h264_analyzer\filter_h264_analyzer.h"
+
 #include "filters\video_analyzer\video_analyzer.h"
 #include "filters\video_analyzer\filter_video_analyzer.h"
 
-#include "..\audio_analyzer_h.h"    // Interface
 #include "filters\audio_analyzer\audio_analyzer.h"
 #include "filters\audio_analyzer\filter_audio_analyzer.h"
 

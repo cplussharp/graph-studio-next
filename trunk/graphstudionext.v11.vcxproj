@@ -305,6 +305,8 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
     <ClInclude Include="src\filters\audio_analyzer\audio_analyzer.h" />
     <ClInclude Include="src\filters\audio_analyzer\filter_audio_analyzer.h" />
     <ClInclude Include="src\filters\fake_m2ts\filter_fake_m2ts_device.h" />
+    <ClInclude Include="src\filters\h264_analyzer\filter_h264_analyzer.h" />
+    <ClInclude Include="src\filters\h264_analyzer\h264_analyzer.h" />
     <ClInclude Include="src\filters\psi_config\psiconfig.h" />
     <ClInclude Include="src\filters\video_analyzer\filter_video_analyzer.h" />
     <ClInclude Include="src\filters\video_analyzer\video_analyzer.h" />
@@ -405,6 +407,8 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
     <ClCompile Include="src\filters\audio_analyzer\audio_analyzer.cpp" />
     <ClCompile Include="src\filters\audio_analyzer\filter_audio_analyzer.cpp" />
     <ClCompile Include="src\filters\fake_m2ts\filter_fake_m2ts_device.cpp" />
+    <ClCompile Include="src\filters\h264_analyzer\filter_h264_analyzer.cpp" />
+    <ClCompile Include="src\filters\h264_analyzer\h264_analyzer.cpp" />
     <ClCompile Include="src\filters\psi_config\psiconfig.cpp" />
     <ClCompile Include="src\filters\video_analyzer\filter_video_analyzer.cpp" />
     <ClCompile Include="src\filters\video_analyzer\video_analyzer.cpp" />
@@ -477,11 +481,9 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
   </ItemGroup>
   <ItemGroup>
     <Midl Include="src\filters\analyzer\analyzer.idl" />
-    <Midl Include="src\filters\audio_analyzer\audio_analyzer.idl" />
     <Midl Include="src\filters\dump\dump.idl" />
     <Midl Include="src\filters\psi_config\psiconfig.idl" />
     <Midl Include="src\filters\time_measure\time_measure.idl" />
-    <Midl Include="src\filters\video_analyzer\video_analyzer.idl" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="baseclasses\BaseClasses.v11.vcxproj">

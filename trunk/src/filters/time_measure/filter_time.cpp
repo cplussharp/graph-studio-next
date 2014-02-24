@@ -47,11 +47,12 @@ CMonoTimeMeasure::CMonoTimeMeasure(LPUNKNOWN pUnk, HRESULT *phr) :
 	, frames_done(0)
     , real_time(0)
 {
+    DbgLog((LOG_MEMORY,1,TEXT("TimeMeasureFilter created")));
 }
 
 CMonoTimeMeasure::~CMonoTimeMeasure()
 {
-	// nothing yet
+	DbgLog((LOG_MEMORY,1,TEXT("TimeMeasureFilter destroyed")));
 }
 
 STDMETHODIMP CMonoTimeMeasure::NonDelegatingQueryInterface(REFIID riid, void ** ppv)

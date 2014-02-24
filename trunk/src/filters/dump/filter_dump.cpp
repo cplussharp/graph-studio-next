@@ -44,11 +44,15 @@ CMonoDump::CMonoDump(LPUNKNOWN pUnk, HRESULT *phr) :
 	CBaseRenderer(__uuidof(DumpFilter), TEXT("Dump"), pUnk, phr)
 {
 	filename = _T("");
+
+    DbgLog((LOG_MEMORY,1,TEXT("DumpFilter created")));
 }
 
 CMonoDump::~CMonoDump()
 {
 	DoCloseFile();
+
+    DbgLog((LOG_MEMORY,1,TEXT("DumpFilter destroyed")));
 }
 
 STDMETHODIMP CMonoDump::NonDelegatingQueryInterface(REFIID riid, void ** ppv)

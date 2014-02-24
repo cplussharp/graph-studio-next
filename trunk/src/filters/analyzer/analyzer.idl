@@ -140,17 +140,17 @@ typedef struct StatisticRecordEntry
 } StatisticRecordEntry;
 
 [object, uuid("780E9A9E-0CC8-4EE7-9788-3637D8495C51")]
-interface IAnalyzerFilterCallback : IUnknown
+interface IAnalyzerCallback : IUnknown
 {
     [id(1), helpstring("Called after a new entry was added to the statistic")]
-    HRESULT OnStatisticNewEntry(unsigned long entryNr);
+    HRESULT OnNewEntry(unsigned long entryNr);
 
     [id(2), helpstring("Called after the statistic was resetted")]
-    HRESULT OnStatisticResetted();
+    HRESULT OnResetted();
 }
 
-[object, uuid("51039F7F-907D-4E3F-B16F-721BC7317094"), dual, oleautomation]
-interface IAnalyzerFilter : IDispatch
+[object, uuid("A0962235-1FD7-4BFD-B212-C3176A3106A1")]
+interface IAnalyzerBase : IUnknown
 {
     [propget, id(1), helpstring("Is the analyzer enabled")] HRESULT Enabled([out, retval] VARIANT_BOOL* pVal);
     [propput, id(1), helpstring("Is the analyzer enabled")] HRESULT Enabled([in] VARIANT_BOOL newVal);
@@ -158,21 +158,121 @@ interface IAnalyzerFilter : IDispatch
     [propget, id(2), helpstring("Flags which entries should be captured (see StatisticCaptureFlags)")] HRESULT CaptureConfiguration([out, retval] int* pVal);
     [propput, id(2), helpstring("Flags which entries should be captured (see StatisticCaptureFlags)")] HRESULT CaptureConfiguration([in] int newVal);
 
-    [propget, id(3), helpstring("LogFile")] HRESULT LogFile([out, retval] BSTR* pVal);
-    [propput, id(3), helpstring("LogFile")] HRESULT LogFile([in] BSTR newVal);
+    [id(3), helpstring("Reset Statistic")] HRESULT ResetStatistic();
+    [propget, id(4), helpstring("Count of statistic entries")] HRESULT EntryCount([out, retval] __int64 *pVal);
 
-    [propget, id(4), helpstring("Bytes to Capture for a Sample")] HRESULT PreviewSampleByteCount([out, retval] unsigned short* pVal);
-    [propput, id(4), helpstring("Bytes to Capture for a Sample")] HRESULT PreviewSampleByteCount([in] unsigned short newVal);
+    [id(5), helpstring("Register or remove a callback for the events of the statistic")]
+    HRESULT SetCallback(IAnalyzerCallback* pCallback);
+};
 
-    [id(5), helpstring("Reset Statistic")] HRESULT ResetStatistic();
-    [propget, id(6), helpstring("Count of statistic entries")] HRESULT EntryCount([out, retval] __int64 *pVal);
+[object, uuid("51039F7F-907D-4E3F-B16F-721BC7317094")]
+interface IAnalyzerCommon : IAnalyzerBase
+{
+    [propget, id(6), helpstring("Bytes to Capture for a Sample")] HRESULT PreviewSampleByteCount([out, retval] unsigned short* pVal);
+    [propput, id(6), helpstring("Bytes to Capture for a Sample")] HRESULT PreviewSampleByteCount([in] unsigned short newVal);
     
     [id(7), helpstring("Get an entry from the statistic (if aData != NULL you need to CoTaskMemFree it)")]
     HRESULT GetEntry([in] __int64 nr, [out, retval] StatisticRecordEntry *pVal);
-
-    /*[id(8), helpstring("Register or remove a callback for the events of the statistic")]
-    HRESULT SetCallback(IAnalyzerFilterCallback* pCallback);*/
 };
+
+
+
+
+
+[uuid("9E7E6440-2BC6-413E-8373-007C0CE47AA9")]
+[helpstring("Flags whitch entries should be logged")]
+typedef enum H264CaptureFlags
+{
+    HCF_None = 0,
+
+    HCF_SEI             = 0x0100,
+    HCF_SliceInfo       = 0x0200,
+
+    HCF_All             = -1
+} H264CaptureFlags;
+
+[uuid("9375F567-56A7-4AA7-8568-A788655BAF15")]
+typedef enum H264RecordKind
+{
+	// Core filter events
+    HRK_Empty = 0,    // Empty Record
+
+    HRK_SPS, // aData = NULL
+    HRK_PPS, // aData = NULL
+
+    // SEI Entries
+    HRK_SEI_BUFFERING_PERIOD                     = HCF_SEI + 0,
+    HRK_SEI_PIC_TIMING                           = HCF_SEI + 1,
+    HRK_SEI_PAN_SCAN_RECT                        = HCF_SEI + 2,
+    HRK_SEI_FILLER_PAYLOAD                       = HCF_SEI + 3,
+    HRK_SEI_USER_DATA_REGISTERED_ITU_T_T35       = HCF_SEI + 4,
+    HRK_SEI_USER_DATA_UNREGISTERED               = HCF_SEI + 5,
+    HRK_SEI_RECOVERY_POINT                       = HCF_SEI + 6,
+    HRK_SEI_DEC_REF_PIC_MARKING_REPETITION       = HCF_SEI + 7,
+    HRK_SEI_SPARE_PIC                            = HCF_SEI + 8,
+    HRK_SEI_SCENE_INFO                           = HCF_SEI + 9,
+    HRK_SEI_SUB_SEQ_INFO                         = HCF_SEI + 10,
+    HRK_SEI_SUB_SEQ_LAYER_CHARACTERISTICS        = HCF_SEI + 11,
+    HRK_SEI_SUB_SEQ_CHARACTERISTICS              = HCF_SEI + 12,
+    HRK_SEI_FULL_FRAME_FREEZE                    = HCF_SEI + 13,
+    HRK_SEI_FULL_FRAME_FREEZE_RELEASE            = HCF_SEI + 14,
+    HRK_SEI_FULL_FRAME_SNAPSHOT                  = HCF_SEI + 15,
+    HRK_SEI_PROGRESSIVE_REFINEMENT_SEGMENT_START = HCF_SEI + 16,
+    HRK_SEI_PROGRESSIVE_REFINEMENT_SEGMENT_END   = HCF_SEI + 17,
+    HRK_SEI_MOTION_CONSTRAINED_SLICE_GROUP_SET   = HCF_SEI + 18,
+    HRK_SEI_FILM_GRAIN_CHARACTERISTICS           = HCF_SEI + 19,
+    HRK_SEI_DEBLOCKING_FILTER_DISPLAY_PREFERENCE = HCF_SEI + 20,
+    HRK_SEI_STEREO_VIDEO_INFO                    = HCF_SEI + 21,
+
+    // SliceInfo Entries
+    HRK_Slice = HCF_SliceInfo,  // aData = SliceInfo
+} H264RecordKind;
+
+[uuid("390048FB-BD1F-45E5-8AB7-A931A376F66B")]
+typedef struct H264RecordEntry
+{ 
+    // Entry
+    __int64 EntryNr;
+    H264RecordKind EntryKind;
+
+    [helpstring("IMediaSample::GetTime")]
+    __int64 StreamTimeStart;
+
+    // First bytes of the sample
+    [helpstring("Count of Data")]
+    int nDataCount;
+
+    [unique, size_is(nDataCount), helpstring("Date for the entry kind")]
+    byte *aData;
+} H264RecordEntry;
+
+[object, uuid("3D33E3C4-AF23-4DED-9C53-6FC5FC43139B")]
+interface IAnalyzerH264 : IAnalyzerBase
+{   
+    [id(7), helpstring("Get an entry (if aData != NULL you need to CoTaskMemFree it)")]
+    HRESULT GetEntry([in] __int64 nr, [out, retval] H264RecordEntry *pVal);
+};
+
+
+
+
+
+
+
+[object, uuid("88512FA3-2AD2-4E5C-A266-E9AB6E8B1AA7")]
+interface IAnalyzerVideo : IAnalyzerBase
+{
+    // TODO
+};
+
+[object, uuid("77363364-8A9F-45EF-A524-D02C49B3FE38")]
+interface IAnalyzerAudio : IUnknown
+{
+    // TODO
+};
+
+
+
 
 [
 	uuid("CA6B3460-28B3-4A6E-A7FC-A83CF1DEEC48"), 
@@ -185,15 +285,24 @@ library AnalyzerFilterLib
     enum StatisticCaptureFlags;
     enum StatisticRecordKind;
     struct StatisticRecordEntry;
-    //interface IAnalyzerFilterCallback;
-    interface IAnalyzerFilter;
+
+    enum H264CaptureFlags;
+    enum H264RecordKind;
+    struct H264RecordEntry;
+
+    interface IAnalyzerCallback;
+    interface IAnalyzerBase;
+    interface IAnalyzerCommon;
+    interface IAnalyzerH264;
+    interface IAnalyzerAudio;
+    interface IAnalyzerVideo;
 
     [uuid("CA6B3460-28B3-4A6E-A7FC-A83CF1DEEC49")]
     coclass AnalyzerFilter
     {
         [default] interface IBaseFilter;
         interface ISpecifyPropertyPages;
-        interface IAnalyzerFilter;
+        interface IAnalyzerCommon;
     }
 
     [uuid("CA6B3460-28B3-4A6E-A7FC-A83CF1DEEC4A")]
@@ -204,7 +313,7 @@ library AnalyzerFilterLib
         interface IAMFilterMiscFlags;
         interface IMediaSeeking;
         interface ISpecifyPropertyPages;
-        interface IAnalyzerFilter;
+        interface IAnalyzerCommon;
     }
 
     [uuid("19E56670-B62F-4658-BC54-086E798EF97B")]
@@ -217,5 +326,26 @@ library AnalyzerFilterLib
     coclass AnalyzerPropPageLog
     {
         [default] interface IPropertyPage;
+    }
+
+    [uuid("ECB55F7F-F75C-4424-BA82-DA0DD8B290D9")]
+    coclass H264AnalyzerFilter
+    {
+        [default] interface IBaseFilter;
+        interface IAnalyzerH264;
+    }
+
+    [uuid("BF41C054-221E-4596-99AC-5AD555FD9548")]
+    coclass VideoAnalyzerFilter
+    {
+        interface IBaseFilter;
+        [default] interface IAnalyzerVideo;
+    }
+
+    [uuid("F896EF1A-3FE4-4D22-9B61-1288240FD39F")]
+    coclass AudioAnalyzerFilter
+    {
+        interface IBaseFilter;
+        [default] interface IAnalyzerAudio;
     }
 };

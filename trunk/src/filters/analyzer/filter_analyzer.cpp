@@ -189,12 +189,16 @@ CAnalyzerFilter::CAnalyzerFilter(LPUNKNOWN pUnk, HRESULT *phr) :
         *phr = E_OUTOFMEMORY;
     else
         m_analyzer->AddRef();
+
+    DbgLog((LOG_MEMORY,1,TEXT("AnalyzerFilter created")));
 }
 
 CAnalyzerFilter::~CAnalyzerFilter()
 {
     if (m_analyzer)
         m_analyzer->Release();
+
+    DbgLog((LOG_MEMORY,1,TEXT("AnalyzerFilter destroyed")));
 }
 
 // Modified CTransInPlaceFilter::GetPin override to create our own pin classes
@@ -245,12 +249,10 @@ CBasePin * CAnalyzerFilter::GetPin(int n)
 
 STDMETHODIMP CAnalyzerFilter::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
-	if (riid == __uuidof(IAnalyzerFilter))
-    {
+	if (riid == __uuidof(IAnalyzerCommon)) {
 		return m_analyzer->NonDelegatingQueryInterface(riid, ppv);
 	}
-    else if (riid == IID_ISpecifyPropertyPages)
-    {
+    else if (riid == IID_ISpecifyPropertyPages) {
         return GetInterface((ISpecifyPropertyPages*) this, ppv);
     }
 	return __super::NonDelegatingQueryInterface(riid, ppv);
@@ -263,7 +265,7 @@ HRESULT CAnalyzerFilter::CheckInputType(const CMediaType* mtIn)
 
 HRESULT CAnalyzerFilter::Transform(IMediaSample *pSample)
 {
-    return m_analyzer->AddSample(pSample);
+    return m_analyzer->AnalyzeSample(pSample);
 }
 
 HRESULT CAnalyzerFilter::StartStreaming()
