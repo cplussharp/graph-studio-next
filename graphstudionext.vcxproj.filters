@@ -50,6 +50,9 @@
     <Filter Include="Filters\filter_video_analyzer">
       <UniqueIdentifier>{72cfcfa2-271e-41a6-a860-6502e7d3481b}</UniqueIdentifier>
     </Filter>
+	<Filter Include="Filters\filter_h264_analyzer">
+      <UniqueIdentifier>{beb37750-0515-42b1-9f9c-643c0b54ec3a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\bitmap_clock_active_hi.bmp">
@@ -387,6 +390,12 @@
     <ClInclude Include="src\H264StructReader.h">
       <Filter>Utils</Filter>
     </ClInclude>
+	<ClInclude Include="src\filters\h264_analyzer\filter_h264_analyzer.h">
+      <Filter>Filters\filter_h264_analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filters\h264_analyzer\h264_analyzer.h">
+      <Filter>Filters\filter_h264_analyzer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -638,16 +647,16 @@
     <ClCompile Include="src\H264StructReader.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+	<ClCompile Include="src\filters\h264_analyzer\filter_h264_analyzer.cpp">
+      <Filter>Filters\filter_h264_analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filters\h264_analyzer\h264_analyzer.cpp">
+      <Filter>Filters\filter_h264_analyzer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="src\filters\analyzer\analyzer.idl">
       <Filter>Filters\filter_analyzer</Filter>
-    </Midl>
-    <Midl Include="src\filters\video_analyzer\video_analyzer.idl">
-      <Filter>Filters\filter_video_analyzer</Filter>
-    </Midl>
-    <Midl Include="src\filters\audio_analyzer\audio_analyzer.idl">
-      <Filter>Filters\filter_audio_analyzer</Filter>
     </Midl>
     <Midl Include="src\filters\time_measure\time_measure.idl">
       <Filter>Filters\filter_time</Filter>

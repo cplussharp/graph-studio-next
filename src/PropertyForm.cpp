@@ -259,7 +259,7 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
         if(sbeSink)
             AddPropertyPage(new CSbeSinkPage(NULL, &hr, _T("SbeSink")), obj);
 
-        CComQIPtr<IAnalyzerFilter> analyzer = obj;
+        CComQIPtr<IAnalyzerCommon> analyzer = obj;
         if(analyzer)
             AddPropertyPage(new CAnalyzerPage(NULL, &hr, _T("Analyzer")), obj);
 

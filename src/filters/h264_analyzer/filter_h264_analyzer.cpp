@@ -7,19 +7,19 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
-#pragma region CAudioAnalyzerFilter
+#pragma region CH264AnalyzerFilter
 
-const CFactoryTemplate CAudioAnalyzerFilter::g_Template = {
-		L"Audio Analyzer Filter",
-        &__uuidof(AudioAnalyzerFilter),
-		CAudioAnalyzerFilter::CreateInstance,
+const CFactoryTemplate CH264AnalyzerFilter::g_Template = {
+		L"H264 Analyzer Filter",
+        &__uuidof(H264AnalyzerFilter),
+		CH264AnalyzerFilter::CreateInstance,
 		NULL,
 		NULL
 	};
 
-CUnknown* CAudioAnalyzerFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
+CUnknown* CH264AnalyzerFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 {
-    CAudioAnalyzerFilter* pNewObject = new CAudioAnalyzerFilter(punk, phr);
+    CH264AnalyzerFilter* pNewObject = new CH264AnalyzerFilter(punk, phr);
     if (NULL == pNewObject) {
         *phr = E_OUTOFMEMORY;
     }
@@ -29,41 +29,41 @@ CUnknown* CAudioAnalyzerFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 
 //-----------------------------------------------------------------------------
 //
-//	CAudioAnalyzerFilter class
+//	CH264AnalyzerFilter class
 //
 //-----------------------------------------------------------------------------
 
-CAudioAnalyzerFilter::CAudioAnalyzerFilter(LPUNKNOWN pUnk, HRESULT *phr) :
-	CTransInPlaceFilter(NAME("Audio Analyzer Filter"), pUnk, __uuidof(AudioAnalyzerFilter), phr, false),
+CH264AnalyzerFilter::CH264AnalyzerFilter(LPUNKNOWN pUnk, HRESULT *phr) :
+	CTransInPlaceFilter(NAME("H264 Analyzer Filter"), pUnk, __uuidof(H264AnalyzerFilter), phr, false),
         m_analyzer(NULL)
 {
-    m_analyzer = new CAudioAnalyzer(pUnk);
+    m_analyzer = new CH264Analyzer(pUnk);
     if (m_analyzer == NULL)
         *phr = E_OUTOFMEMORY;
     else
         m_analyzer->AddRef();
 }
 
-CAudioAnalyzerFilter::~CAudioAnalyzerFilter()
+CH264AnalyzerFilter::~CH264AnalyzerFilter()
 {
     if (m_analyzer)
         m_analyzer->Release();
 }
 
-STDMETHODIMP CAudioAnalyzerFilter::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
+STDMETHODIMP CH264AnalyzerFilter::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
-	if (riid == __uuidof(IAnalyzerAudio)) {
+	if (riid == __uuidof(IAnalyzerH264)) {
 		return m_analyzer->NonDelegatingQueryInterface(riid, ppv);
 	}
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
-HRESULT CAudioAnalyzerFilter::CheckInputType(const CMediaType* mtIn)
+HRESULT CH264AnalyzerFilter::CheckInputType(const CMediaType* mtIn)
 {
     return m_analyzer->CheckInputType(mtIn);
 }
 
-HRESULT CAudioAnalyzerFilter::Transform(IMediaSample *pSample)
+HRESULT CH264AnalyzerFilter::Transform(IMediaSample *pSample)
 {
     return m_analyzer->AnalyzeSample(pSample);
 }

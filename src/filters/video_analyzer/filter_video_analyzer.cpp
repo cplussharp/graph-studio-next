@@ -37,6 +37,8 @@ CVideoAnalyzerFilter::CVideoAnalyzerFilter(LPUNKNOWN pUnk, HRESULT *phr) :
 	CTransInPlaceFilter(_T("Video Analyzer"), pUnk, __uuidof(AnalyzerFilter), phr, false),
         m_analyzer(NULL)
 {
+    DbgLog((LOG_MEMORY,1,TEXT("VideoAnalyzerFilter created")));
+
     m_analyzer = new CVideoAnalyzer(pUnk);
     if (m_analyzer == NULL)
         *phr = E_OUTOFMEMORY;
@@ -48,11 +50,13 @@ CVideoAnalyzerFilter::~CVideoAnalyzerFilter()
 {
     if (m_analyzer)
         m_analyzer->Release();
+
+    DbgLog((LOG_MEMORY,1,TEXT("VideoAnalyzerFilter destroyed")));
 }
 
 STDMETHODIMP CVideoAnalyzerFilter::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
-	if (riid == __uuidof(IVideoAnalyzerFilter)) {
+	if (riid == __uuidof(IAnalyzerVideo)) {
 		return m_analyzer->NonDelegatingQueryInterface(riid, ppv);
 	}
 	return __super::NonDelegatingQueryInterface(riid, ppv);

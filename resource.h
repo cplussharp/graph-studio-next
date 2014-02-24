@@ -227,6 +227,7 @@
 #define IDC_LIST_BLACKLIST              1118
 #define IDC_CHECK_ENABLED               1119
 #define IDC_CHECK_CRC                   1120
+#define IDC_CHECK_ONLYSAMPLES           1121
 #define IDC_LIST_DATA                   1123
 #define IDC_SPIN_PREVIEWBYTECOUNT       1124
 #define IDC_STATIC_VERINFO              1125

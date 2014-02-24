@@ -42,22 +42,25 @@ CUnknown* CAnalyzerWriterFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 /*********************************************************************************************
 * CAnalyzerWriterInput class
 *********************************************************************************************/
-CAnalyzerWriterInput::CAnalyzerWriterInput(CBaseFilter* pFilter, CCritSec* pLock, HRESULT* phr, LPCWSTR pName, HANDLE* pFile, CAnalyzer* pAnalyzer)
-    : CRenderedInputPin(NAME("Input"), pFilter, pLock, phr, pName), 
+CAnalyzerWriterInput::CAnalyzerWriterInput(CBaseRenderer *pRenderer, HRESULT *phr, LPCWSTR pPinName, HANDLE* pFile, CAnalyzer* pAnalyzer)
+    : CRendererInputPin(pRenderer, phr, pPinName), 
 	m_pFile(pFile), 
 	m_analyzer(pAnalyzer)
 {
-    ResetData();
+    DbgLog((LOG_MEMORY,1,TEXT("AnalyzerWriterInput created")));
 }
 
 
 CAnalyzerWriterInput::~CAnalyzerWriterInput(void)
 {
+    DbgLog((LOG_MEMORY,1,TEXT("AnalyzerWriterInput destroyed")));
 }
 
 
 STDMETHODIMP CAnalyzerWriterInput::NonDelegatingQueryInterface(REFIID iid, void** ppv)
 {
+    CheckPointer(ppv,E_POINTER);
+
     if (IID_IStream == iid)
 		return GetInterface((IStream*) this, ppv);
     else if (__uuidof(IStreamBufferDataCounters) == iid)
@@ -65,113 +68,8 @@ STDMETHODIMP CAnalyzerWriterInput::NonDelegatingQueryInterface(REFIID iid, void*
     else if (iid == IID_ISpecifyPropertyPages)
         return GetInterface((ISpecifyPropertyPages*) this, ppv);
 
-	return CBaseInputPin::NonDelegatingQueryInterface(iid, ppv);
+	return __super::NonDelegatingQueryInterface(iid, ppv);
 }
-
-
-HRESULT CAnalyzerWriterInput::CheckMediaType(const CMediaType* pmt)
-{
-    CheckPointer(pmt,E_POINTER);
-    return S_OK;
-}
-
-HRESULT CAnalyzerWriterInput::GetMediaType(int iPosition, CMediaType* pmt)
-{
-    return VFW_S_NO_MORE_ITEMS;
-}
-
-STDMETHODIMP CAnalyzerWriterInput::Receive(IMediaSample *pSample)
-{
-    m_analyzer->AddSample(pSample);
-
-    BYTE* pBuf;
-    HRESULT hr = pSample->GetPointer(&pBuf);
-    if(FAILED(hr)) return hr;
-
-    DWORD length = pSample->GetActualDataLength();
-    DWORD written = 0;
-
-    // Statistic
-    //CAutoLock lock(m_pLock);
-    m_pinData.cSamplesProcessed++;
-    if(pSample->IsDiscontinuity())
-        m_pinData.cDiscontinuities++;
-    if(pSample->IsSyncPoint())
-        m_pinData.cSyncPoints++;
-    
-    // write
-    if(m_mt.majortype == MEDIATYPE_Stream)
-    {
-        REFERENCE_TIME rtStartTime = 0;
-        REFERENCE_TIME rtStopTime = 0;
-
-        pSample->GetTime(&rtStartTime, &rtStopTime);
-
-        if(rtStopTime > 1)
-        {
-            // Maybe a AviMux -> FilePos as Time
-            length = DWORD(rtStopTime - rtStartTime);
-            LARGE_INTEGER lint;
-            lint.QuadPart = rtStartTime;
-            OVERLAPPED overlpd = {0};
-            overlpd.Offset = lint.LowPart;
-            overlpd.OffsetHigh = lint.HighPart;
-
-            if (m_pFile != NULL && *m_pFile != INVALID_HANDLE_VALUE)
-            {
-                if(!WriteFile(*m_pFile, pBuf, length, &written, &overlpd))
-                    return HRESULT_FROM_WIN32(GetLastError());
-            }
-            else
-                written = length;
-
-            m_pinData.cDataBytes += written;
-
-            return S_OK;
-        }
-    }
-
-    if (m_pFile != NULL && *m_pFile != INVALID_HANDLE_VALUE)
-    {
-        if(!WriteFile(*m_pFile, pBuf, length, &written, NULL))
-            return HRESULT_FROM_WIN32(GetLastError());
-    }
-    else
-        written = length;
-
-    m_pinData.cDataBytes += written;
-
-    return S_OK;
-}
-
-STDMETHODIMP CAnalyzerWriterInput::EndOfStream()
-{
-    m_pFilter->NotifyEvent(EC_COMPLETE, S_OK, (LONG_PTR)(IBaseFilter *)m_pFilter);
-    return S_OK;
-}
-
-
-#pragma region IStreamBufferDataCounters
-
-/*********************************************************************************************
-* Implementation of IStreamBufferDataCounters
-*********************************************************************************************/
-STDMETHODIMP CAnalyzerWriterInput::GetData(SBE_PIN_DATA *pPinData)
-{
-    CheckPointer(pPinData,E_POINTER);
-    //CAutoLock lock(m_pLock);
-    *pPinData = m_pinData;
-    return S_OK;
-}
-
-STDMETHODIMP CAnalyzerWriterInput::ResetData()
-{
-    //CAutoLock lock(m_pLock);
-    ZeroMemory(&m_pinData, sizeof(SBE_PIN_DATA));
-    return S_OK;
-}
-
-#pragma endregion
 
 #pragma region IStream
 
@@ -210,9 +108,6 @@ STDMETHODIMP CAnalyzerWriterInput::Write(void const* pv, ULONG cb, ULONG* pcbWri
 
     if(!WriteFile(*m_pFile, pv, cb, wr, NULL))
         return HRESULT_FROM_WIN32(GetLastError());
-
-    //CAutoLock lock(m_pLock);
-    m_pinData.cDataBytes += *wr;
 
     return S_OK;
 }
@@ -352,12 +247,12 @@ STDMETHODIMP CAnalyzerWriterInput::Stat(STATSTG* pStatstg, DWORD grfStatFlag)
 #pragma region CAnalyzerWriterFilter
 
 CAnalyzerWriterFilter::CAnalyzerWriterFilter(LPUNKNOWN pUnk, HRESULT *phr)
-    : CBaseFilter(NAME("Analyzer Writer"), pUnk, &m_csFilter, __uuidof(AnalyzerWriterFilter), phr),
+    : CBaseRenderer(__uuidof(AnalyzerWriterFilter), NAME("Analyzer Writer"), pUnk, phr),
     m_dwFlags(AM_FILE_OVERWRITE), 
-	m_file(INVALID_HANDLE_VALUE), 
-	m_pPin(NULL),
-	m_PassThru(NULL)
+	m_file(INVALID_HANDLE_VALUE)
 {	
+    DbgLog((LOG_MEMORY,1,TEXT("AnalyzerWriterFilter created")));
+
     ZeroMemory(m_szFileName, sizeof(WCHAR) * MAX_PATH);
 
     m_analyzer = new CAnalyzer(pUnk);
@@ -365,72 +260,132 @@ CAnalyzerWriterFilter::CAnalyzerWriterFilter(LPUNKNOWN pUnk, HRESULT *phr)
         *phr = E_OUTOFMEMORY;
     else
         m_analyzer->AddRef();
-
-    // create Pin
-	m_pPin = new CAnalyzerWriterInput(this, &m_csFilter, phr, L"Input", &m_file, m_analyzer);
-	if(m_pPin == NULL)
-		*phr = E_OUTOFMEMORY;
 }
 
 
 CAnalyzerWriterFilter::~CAnalyzerWriterFilter(void)
 {
-	delete m_PassThru;
-	delete m_pPin;
-
     if (m_analyzer)
         m_analyzer->Release();
 
 	CloseFile();
+
+    DbgLog((LOG_MEMORY,1,TEXT("AnalyzerWriterFilter destroyed")));
 }
 
 STDMETHODIMP CAnalyzerWriterFilter::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
     CheckPointer(ppv,E_POINTER);
-    CAutoLock lock(&m_csFilter);
 
-	if (__uuidof(IMediaSeeking)==riid || __uuidof(IMediaPosition)==riid) {
-		if (!m_PassThru) {
-			HRESULT hr = S_OK;
-			// we should have an input pin by now
-			IPin* const inputPin = GetPin(0);
-			if (!inputPin)
-				return E_NOTIMPL;		// we don't have an input pin until the output file is opened
-
-			m_PassThru = new CAnalyzerPosPassThru(_T("Analzyer seeking pass thur"), GetOwner(), &hr, inputPin, m_analyzer);
-			if (FAILED(hr)) {
-				delete m_PassThru;
-				m_PassThru = NULL;
-                return hr;
-            }
-        }
-		return m_PassThru->NonDelegatingQueryInterface(riid, ppv);
-	} else if (IID_IFileSinkFilter == riid)
+	if (IID_IFileSinkFilter == riid)
         return GetInterface((IFileSinkFilter*) this, ppv);
     else if (IID_IFileSinkFilter2 == riid)
         return GetInterface((IFileSinkFilter2*) this, ppv);
 	else if (IID_IAMFilterMiscFlags == riid)
         return GetInterface((IAMFilterMiscFlags*) this, ppv);
-    else if (__uuidof(IAnalyzerFilter) == riid)
+    else if (__uuidof(IAnalyzerCommon) == riid)
 		return m_analyzer->NonDelegatingQueryInterface(riid, ppv);
 
-    return CBaseFilter::NonDelegatingQueryInterface(riid, ppv);
-}
-
-int CAnalyzerWriterFilter::GetPinCount()
-{
-    if(m_pPin == NULL)
-        return 0;
-
-    return 1;
+    return __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
 CBasePin* CAnalyzerWriterFilter::GetPin(int n)
 {
-    if(n == 0 && m_pPin != NULL)
-        return m_pPin;
+    CAutoLock cObjectCreationLock(&m_ObjectCreationLock);
 
-    return NULL;
+    // Should only ever be called with zero
+    ASSERT(n == 0);
+
+    if (n != 0) {
+        return NULL;
+    }
+
+    // Create the input pin if not already done so
+
+    if (m_pInputPin == NULL) {
+
+        // hr must be initialized to NOERROR because
+        // CRendererInputPin's constructor only changes
+        // hr's value if an error occurs.
+        HRESULT hr = NOERROR;
+
+        m_pInputPin = new CAnalyzerWriterInput(this, &hr, L"In", &m_file, m_analyzer);
+        if (NULL == m_pInputPin) {
+            return NULL;
+        }
+
+        if (FAILED(hr)) {
+            delete m_pInputPin;
+            m_pInputPin = NULL;
+            return NULL;
+        }
+    }
+    return m_pInputPin;
+}
+
+HRESULT CAnalyzerWriterFilter::CheckMediaType(const CMediaType *pmt)
+{
+	// accept any type
+	return NOERROR;
+}
+
+HRESULT CAnalyzerWriterFilter::ShouldDrawSampleNow(IMediaSample *sample, REFERENCE_TIME *pStartTime, REFERENCE_TIME *pEndTime)
+{
+	// ignore timestamps
+	return NOERROR;
+}
+
+HRESULT CAnalyzerWriterFilter::DoRenderSample(IMediaSample* pSample)
+{
+    m_analyzer->AnalyzeSample(pSample);
+
+    BYTE* pBuf;
+    HRESULT hr = pSample->GetPointer(&pBuf);
+    if(FAILED(hr)) return hr;
+
+    DWORD length = pSample->GetActualDataLength();
+    DWORD written = 0;
+    
+    // write
+    CMediaType mt;
+    if (m_pInputPin != NULL && m_pInputPin->ConnectionMediaType(&mt) == S_OK && mt.majortype == MEDIATYPE_Stream)
+    {
+        REFERENCE_TIME rtStartTime = 0;
+        REFERENCE_TIME rtStopTime = 0;
+
+        pSample->GetTime(&rtStartTime, &rtStopTime);
+
+        if(rtStopTime > 1)
+        {
+            // Maybe a AviMux -> FilePos as Time
+            length = DWORD(rtStopTime - rtStartTime);
+            LARGE_INTEGER lint;
+            lint.QuadPart = rtStartTime;
+            OVERLAPPED overlpd = {0};
+            overlpd.Offset = lint.LowPart;
+            overlpd.OffsetHigh = lint.HighPart;
+
+            if (m_file != INVALID_HANDLE_VALUE)
+            {
+                if(!WriteFile(m_file, pBuf, length, &written, &overlpd))
+                    return HRESULT_FROM_WIN32(GetLastError());
+            }
+            else
+                written = length;
+
+            return S_OK;
+        }
+    }
+
+    if (m_file != INVALID_HANDLE_VALUE)
+    {
+        if(!WriteFile(m_file, pBuf, length, &written, NULL))
+            return HRESULT_FROM_WIN32(GetLastError());
+    }
+    else
+        written = length;
+
+    return S_OK;
 }
 
 STDMETHODIMP CAnalyzerWriterFilter::GetClassID(CLSID *pClsID)
@@ -441,6 +396,42 @@ STDMETHODIMP CAnalyzerWriterFilter::GetClassID(CLSID *pClsID)
     return NOERROR;
 }
 
+HRESULT CAnalyzerWriterFilter::GetMediaPositionInterface(REFIID riid, __deref_out void **ppv)
+{
+    CAutoLock cObjectCreationLock(&m_ObjectCreationLock);
+    if (m_pPosition) {
+        return m_pPosition->NonDelegatingQueryInterface(riid,ppv);
+    }
+
+    CBasePin *pPin = GetPin(0);
+    if (NULL == pPin) {
+        return E_OUTOFMEMORY;
+    }
+
+    HRESULT hr = NOERROR;
+
+    // Create implementation of this dynamically since sometimes we may
+    // never try and do a seek. The helper object implements a position
+    // control interface (IMediaPosition) which in fact simply takes the
+    // calls normally from the filter graph and passes them upstream
+
+    m_pPosition = new CAnalyzerPosPassThru(NAME("Renderer CPosPassThru"),
+                                           CBaseFilter::GetOwner(),
+                                           (HRESULT *) &hr,
+                                           pPin,
+                                           m_analyzer);
+    if (m_pPosition == NULL) {
+        return E_OUTOFMEMORY;
+    }
+
+    if (FAILED(hr)) {
+        delete m_pPosition;
+        m_pPosition = NULL;
+        return E_NOINTERFACE;
+    }
+    return GetMediaPositionInterface(riid,ppv);
+}
+
 #pragma region IFileSinkFilter
 
 /*********************************************************************************************
@@ -448,8 +439,6 @@ STDMETHODIMP CAnalyzerWriterFilter::GetClassID(CLSID *pClsID)
 *********************************************************************************************/
 STDMETHODIMP CAnalyzerWriterFilter::SetFileName(LPCOLESTR pszFileName, const AM_MEDIA_TYPE *pmt)
 {
-    CAutoLock lock(&m_csFilter);
-
 	CloseFile();
 
 	if (pszFileName == NULL || *pszFileName == L'\0')
@@ -499,8 +488,8 @@ STDMETHODIMP CAnalyzerWriterFilter::GetCurFile(LPOLESTR *ppszFileName, AM_MEDIA_
             CopyMemory(*ppszFileName, m_szFileName, n);
     }
 
-    if (pmt!=NULL && m_pPin != NULL) {
-        m_pPin->ConnectionMediaType(pmt);
+    if (pmt!=NULL && m_pInputPin != NULL) {
+        m_pInputPin->ConnectionMediaType(pmt);
     }
 
     return S_OK;

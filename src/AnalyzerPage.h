@@ -48,7 +48,7 @@ protected:
 public:
 	GraphStudio::TitleBar				title;
 
-	CComPtr<IAnalyzerFilter>   	        filter;
+	CComPtr<IAnalyzerCommon>   	        filter;
     bool                                isActiv;
     CListCtrl                           m_listCtrl;
     CSpinButtonCtrl                     m_spinPreviewByteCount;
