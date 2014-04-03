@@ -1781,6 +1781,7 @@ void CGraphView::OnDisplayPropertyPage(IUnknown *object, IUnknown *filter, CStri
 	int ret = page->DisplayPages(object, filter, title, this);
 	if (current_filter) {
 		CPoint filter_pos(current_filter->posx, current_filter->posy);
+		filter_pos -= GetScrollPosition();
 		ClientToScreen(&filter_pos);
 		// position the dialog below current_filter
 		page->SetWindowPos(NULL, filter_pos.x, filter_pos.y + 200, 0, 0, SWP_NOSIZE);
