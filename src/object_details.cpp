@@ -113,7 +113,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		LPOLESTR	ostr = NULL;
 		StringFromCLSID(clsid, &ostr);
 		if (ostr) {
-			str = CString(ostr);
+			str = ostr;
 			CoTaskMemFree(ostr);
 		}
 	}
