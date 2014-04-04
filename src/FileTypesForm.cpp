@@ -168,6 +168,32 @@ BOOL CFileTypesForm::DoCreateDialog(CWnd* parent)
 	return TRUE;
 }
 
+BOOL CFileTypesForm::PreTranslateMessage(MSG *pMsg)
+{
+	if (pMsg && pMsg->message == WM_KEYDOWN) {
+		if (pMsg->wParam == VK_TAB) {
+			if ((0x8000 & GetKeyState(VK_CONTROL)) && !(0x8000 & GetKeyState(VK_MENU))) {	// control-tab to change page
+				const int numPages = tab.GetItemCount();
+				if (numPages > 1) {
+					const int increment = (0x8000 & GetKeyState(VK_SHIFT)) ? -1 : 1;		// added shift iterates backwards
+					int newPage = tab.GetCurSel() + increment;
+
+					if (newPage < 0)
+						newPage = numPages - 1;
+					else if (newPage >= numPages)
+						newPage = 0;
+					HideCurrentPage();
+					tab.SetCurSel(newPage);
+					ShowPage(newPage);
+				}
+				return TRUE;
+			}
+		}
+	}
+
+	return __super::PreTranslateMessage(pMsg);
+}
+
 CRect CFileTypesForm::GetDefaultRect() const 
 {
 	return CRect(50, 200, 450, 450);
@@ -178,29 +204,39 @@ void CFileTypesForm::OnInitialize()
 	OnBnClickedButtonReload();
 }
 
-void CFileTypesForm::OnTabChanged(NMHDR *pNMHDR, LRESULT *pResult)
+void CFileTypesForm::ShowPage(int nIndex)
 {
     CRect rc;
     tab.GetClientRect(&rc);
     tab.AdjustRect(FALSE, &rc);
     //tab.GetItemRect(0,&rc);
-    int nIndex = tab.GetCurSel();
 
-    if (pages[nIndex])
+    if (nIndex >= 0 && pages[nIndex])
     {
         pages[nIndex]->SetWindowPos( NULL, rc.left, rc.top, rc.Width(), rc.Height(), SWP_NOZORDER | SWP_SHOWWINDOW);
         pages[nIndex]->SetFocus();
     }
 }
 
+void CFileTypesForm::OnTabChanged(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	ShowPage(tab.GetCurSel());
+    if (pResult)
+		*pResult = 0;
+}
+
+void CFileTypesForm::HideCurrentPage()
+{
+    const int nIndex = tab.GetCurSel();
+    if (nIndex >= 0 && pages[nIndex])
+        pages[nIndex]->ShowWindow(SW_HIDE);
+}
+
 void CFileTypesForm::OnTabChanging(NMHDR *pNMHDR, LRESULT *pResult)
 {
-    int nIndex = tab.GetCurSel();
-
-    if (pages[nIndex])
-        pages[nIndex]->ShowWindow(SW_HIDE);
-
-    *pResult = 0;
+	HideCurrentPage();
+    if (pResult)
+		*pResult = 0;
 }
 
 void CFileTypesForm::OnSize(UINT nType, int cx, int cy)

@@ -80,6 +80,10 @@ public:
     void OnInitialize();
 
 	void OnSize(UINT nType, int cx, int cy);
+	BOOL PreTranslateMessage(MSG *pMsg);
+
+	void HideCurrentPage();
+	void ShowPage(int n);
 
 	afx_msg void OnBnClickedButtonReload();
 	afx_msg void OnBnClickedButtonCopy();
