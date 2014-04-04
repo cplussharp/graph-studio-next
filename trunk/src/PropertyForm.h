@@ -128,9 +128,7 @@ public:
 	void OnClose();
 	afx_msg void OnTabSelected(NMHDR *pNMHDR, LRESULT *pResult);
 
-	virtual BOOL PreTranslateMessage(MSG *pMsg) {
-		return __super::PreTranslateMessage(pMsg);
-	}
+	virtual BOOL PreTranslateMessage(MSG *pMsg);
 
 	void OnOK();
 	void OnCancel();
