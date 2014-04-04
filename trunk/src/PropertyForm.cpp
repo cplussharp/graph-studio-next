@@ -566,7 +566,29 @@ void CPropertyForm::AddPropertyPage(CDSPropertyPage *prop_page, IUnknown *obj)
 	}
 }
 
+BOOL CPropertyForm::PreTranslateMessage(MSG *pMsg)
+{
+	if (pMsg && pMsg->message == WM_KEYDOWN) {
+		if (pMsg->wParam == VK_TAB && container) {
+			if ((0x8000 & GetKeyState(VK_CONTROL)) && !(0x8000 & GetKeyState(VK_MENU))) {	// control-tab to change page
+				const int numPages = container->pages.GetCount();
+				if (numPages > 1) {
+					const int increment = (0x8000 & GetKeyState(VK_SHIFT)) ? -1 : 1;		// added shift iterates backwards
+					int newPage = tabs.GetCurSel() + increment;
 
+					if (newPage < 0)
+						newPage = numPages - 1;
+					else if (newPage >= numPages)
+						newPage = 0;
+					container->ActivatePage(newPage);
+				}
+				return TRUE;
+			}
+		}
+	}
+
+	return __super::PreTranslateMessage(pMsg);
+}
 
 //-----------------------------------------------------------------------------
 //
@@ -766,28 +788,4 @@ int CPageSite::Activate(HWND owner, CRect &rc)
 		active = true;
 	}
 	return 0;
-}
-
-BOOL CPropertyForm::PreTranslateMessage(MSG *pMsg)
-{
-	if (pMsg && pMsg->message == WM_KEYDOWN) {
-		if (pMsg->wParam == VK_TAB && container) {
-			if ((0x8000 & GetKeyState(VK_CONTROL)) && !(0x8000 & GetKeyState(VK_MENU))) {	// control-tab to change page
-				const int numPages = container->pages.GetCount();
-				if (numPages > 1) {
-					const int increment = (0x8000 & GetKeyState(VK_SHIFT)) ? -1 : 1;		// added shift iterates backwards
-					int newPage = tabs.GetCurSel() + increment;
-
-					if (newPage < 0)
-						newPage = numPages - 1;
-					else if (newPage >= numPages)
-						newPage = 0;
-					container->ActivatePage(newPage);
-				}
-				return TRUE;
-			}
-		}
-	}
-
-	return __super::PreTranslateMessage(pMsg);
 }
