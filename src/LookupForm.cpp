@@ -169,47 +169,61 @@ void CLookupForm::OnBnClickedButtonSearch()
     CString searchText;
     m_editSearch.GetWindowText(searchText);
 
-    if(searchText.GetLength() <= 0) return;
+    if(searchText.GetLength() <= 0) 
+		return;
     searchText.MakeLower(); // itemData is also lower
+	CString guidSearchText;
+
+	if (!m_isHR) {
+		guidSearchText = searchText;
+		guidSearchText.Replace(_T("0x"), _T(""));
+		const TCHAR delimiters[] = _T(" \t-,{}()=/;ul");			// remove commonly used GUID delimiters and match by remaining hex digits
+		for (int n=0; n<sizeof(delimiters)/sizeof(delimiters[0]) - 1; n++) 
+			guidSearchText.Remove(delimiters[n]);
+	}
 
     int selItem = -1, selCol = -1;
-    int start = m_listCtrl.GetSelectionMark();
-    start++;
+    const int start = m_listCtrl.GetSelectionMark() + 1;
+	CString item_text;
 
-    int count = m_listCtrl.GetItemCount();
-    for(int i=start;i<count;i++)
+    const int count = m_listCtrl.GetItemCount();
+	bool allowWrap = true;
+    for(int i=start; ;i++)
     {
-        CStringArray* arData = (CStringArray*)m_listCtrl.GetItemData(i);
+		if (i >= count) {			//  beyond end of list
+			if (start > 0 && allowWrap) {
+				allowWrap = false;
+				i = 0;				// restart at beginning
+			}
+			else
+				break;				// started at beginning or already wrapped so stop looping now
+		}
+
+        const CStringArray * const arData = (const CStringArray*)m_listCtrl.GetItemData(i);
         for(int j=0; j<arData->GetCount(); j++)
         {
-            int find = arData->GetAt(j).Find(searchText);
+			int find;
+			if (!m_isHR && j==1)	// GUID column - strip out hyphens for easier hex matching
+			{
+				item_text = arData->GetAt(j);
+				item_text.Remove(_T('-'));
+				find = item_text.Find(guidSearchText);
+			} else 
+			{
+				find = arData->GetAt(j).Find(searchText);
+			}
             if(find >= 0)
             {
                 selItem = i;
                 selCol = j;
-                i=count;
+                i=count;			// terminate looping without wrapping
+				allowWrap = false;
                 break;
             }
         }
-    }
 
-    if(selItem == -1 && start > 0)
-    {
-        for(int i=0;i<start;i++)
-        {
-            CStringArray* arData = (CStringArray*)m_listCtrl.GetItemData(i);
-            for(int j=0; j<arData->GetCount(); j++)
-            {
-                int find = arData->GetAt(j).Find(searchText);
-                if(find >= 0)
-                {
-                    selItem = i;
-                    selCol = j;
-                    i=count;
-                    break;
-                }
-            }
-        }
+		if (i == start-1)		// about to hit start for second time round - stop looping
+			break;
     }
 
     if(selItem != -1)

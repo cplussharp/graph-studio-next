@@ -219,7 +219,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		CString clsid_str;
 		CString guid_search_str(search_str);
 		guid_search_str.Replace(_T("0X"), _T(""));
-		const TCHAR delimiters[] = _T(" \t-,{}()=/;");			// remove commonly used GUID delimiters and match by remaining hex digits
+		const TCHAR delimiters[] = _T(" \t-,{}()=/;UL");			// remove commonly used C++ GUID delimiters and match by remaining hex digits
 		for (int n=0; n<sizeof(delimiters)/sizeof(delimiters[0]); n++) 
 			guid_search_str.Remove(delimiters[n]);
 
