@@ -109,6 +109,15 @@ void CPropertyForm::OnSize(UINT nType, int cx, int cy)
 	if (IsWindow(tabs)) {
 		tabs.SetWindowPos(NULL, tab_x, tab_y, cx-tab_cx, cy-tab_cy, SWP_SHOWWINDOW | SWP_NOZORDER);
 
+		// now resize the page
+		CRect	rc_client;
+		tabs.GetClientRect(&rc_client);
+		tabs.AdjustRect(FALSE, &rc_client);
+
+		if (container && container->current>=0) {
+			container->pages[container->current]->page->Move(rc_client);
+		}
+
 		button_ok.SetWindowPos(NULL, cx-bok_cx, cy-button_bottom_offset, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 		button_close.SetWindowPos(NULL, cx-bcancel_cx, cy-button_bottom_offset, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 		button_apply.SetWindowPos(NULL, cx-bapply_cx, cy-button_bottom_offset, 0, 0, SWP_NOSIZE | SWP_NOZORDER);

@@ -84,6 +84,12 @@ BOOL CAnalyzerPage::OnInitDialog()
 
     m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP );
 
+	m_listCtrl.GetWindowRect(&m_listCtrlBorder);
+	ScreenToClient(&m_listCtrlBorder);
+	CRect client;
+	GetClientRect(&client);
+	m_listCtrlBorder -= client;
+
     m_spinPreviewByteCount.SetRange32(0,64);
 
 	return TRUE;
@@ -91,8 +97,15 @@ BOOL CAnalyzerPage::OnInitDialog()
 
 void CAnalyzerPage::OnSize(UINT nType, int cx, int cy)
 {
-}
+	if (m_hWnd && m_listCtrlBorder.top > 0) {			// don't resize list control until we've worked out the list control border
+		CRect client;
+		GetClientRect(&client);
+		m_listCtrl.MoveWindow(m_listCtrlBorder + client, TRUE);
 
+		title.GetClientRect(&client);
+		title.SetWindowPos(NULL, 0, 0, cx, client.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+	}
+}
 
 void CAnalyzerPage::DoDataExchange(CDataExchange* pDX)
 {

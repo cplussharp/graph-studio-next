@@ -532,8 +532,8 @@ STDMETHODIMP CAnalyzerWriterFilter::GetPages(CAUUID *pPages)
         return E_OUTOFMEMORY;
     }
 
-    pPages->pElems[0] = __uuidof(AnalyzerPropPageConfig);
-    pPages->pElems[1] = __uuidof(AnalyzerPropPageLog);
+    pPages->pElems[0] = __uuidof(AnalyzerPropPageLog);
+    pPages->pElems[1] = __uuidof(AnalyzerPropPageConfig);
     return NOERROR;
 }
 

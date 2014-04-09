@@ -51,6 +51,7 @@ public:
 	CComPtr<IAnalyzerCommon>   	        filter;
     bool                                isActiv;
     CListCtrl                           m_listCtrl;
+	CRect								m_listCtrlBorder;
     CSpinButtonCtrl                     m_spinPreviewByteCount;
     DWORD                               m_nPreviewByteCount;
     __int64                             m_firstTimeStamp;
