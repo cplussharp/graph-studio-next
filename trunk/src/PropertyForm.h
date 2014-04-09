@@ -123,7 +123,7 @@ public:
 	int AnalyzeDMO(IUnknown *obj);
 
 	void OnDestroy();
-	void ResizeToFit(CSize size);
+	CSize GetFormSizeToFitPage(CSize size);
 	void OnSize(UINT nType, int cx, int cy);
 	void OnClose();
 	afx_msg void OnTabSelected(NMHDR *pNMHDR, LRESULT *pResult);
@@ -134,4 +134,5 @@ public:
 	void OnCancel();
 	afx_msg void OnBnClickedButtonApply();
 	LRESULT OnPressButton(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
 };
