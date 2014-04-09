@@ -23,6 +23,7 @@ BEGIN_MESSAGE_MAP(CPropertyForm, CGraphStudioModelessDialog)
 	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_PAGES, &CPropertyForm::OnTabSelected)
 	ON_BN_CLICKED(IDC_BUTTON_APPLY, &CPropertyForm::OnBnClickedButtonApply)
 	ON_MESSAGE(PSM_PRESSBUTTON, &CPropertyForm::OnPressButton)
+	ON_WM_GETMINMAXINFO()
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -87,7 +88,22 @@ void CPropertyForm::OnDestroy()
 	__super::OnDestroy();
 }
 
-void CPropertyForm::ResizeToFit(CSize size)
+void CPropertyForm::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
+{
+	if (tabs.m_hWnd) {
+		const int i = tabs.GetCurSel();
+		if (container && i>=0 && i<container->pages.GetSize()) {
+
+			const CSize page_size = GetFormSizeToFitPage(container->pages[i]->size);
+			lpMMI->ptMinTrackSize.x = page_size.cx;
+			lpMMI->ptMinTrackSize.y = page_size.cy;
+			return;
+		}
+	}
+	CGraphStudioModelessDialog::OnGetMinMaxInfo(lpMMI);
+}
+
+CSize CPropertyForm::GetFormSizeToFitPage(CSize size)
 {
 	// compute alignment helpers
 	CRect	rc_client;
@@ -100,8 +116,7 @@ void CPropertyForm::ResizeToFit(CSize size)
 	int	dx = rc_client.Width() - rc_display.Width();
 	int	dy = rc_client.Height()- rc_display.Height();
 
-	// resize the parent window
-	SetWindowPos(NULL, 0, 0, (size.cx + dx), (size.cy + dy), SWP_NOMOVE);
+	return CSize(size.cx + dx, size.cy + dy);
 }
 
 void CPropertyForm::OnSize(UINT nType, int cx, int cy)
@@ -651,7 +666,8 @@ void CPageContainer::ActivatePage(int i)
 	form->tabs.SetCurSel(i);
 
 	// resize parent
-	form->ResizeToFit(site->size);
+	const CSize formSize = form->GetFormSizeToFitPage(site->size);
+	form->SetWindowPos(NULL, 0, 0, formSize.cx, formSize.cy, SWP_NOMOVE | SWP_NOZORDER);
 
 	// now display the page
 	CRect	rc_client;
