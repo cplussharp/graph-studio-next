@@ -61,6 +61,8 @@ RenderParameters::RenderParameters()
 	display_file_name = AfxGetApp()->GetProfileInt(_T("Settings"), _T("DisplayFileName"), 1) ? true : false;
 	exact_match_mode = false;
 	abort_timeout = true;
+	auto_arrange = AfxGetApp()->GetProfileInt(_T("Settings"), _T("AutoArrange"), false);
+	resize_to_graph = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ResizeToGraph"), true);
 
     // load connect mode
     int connectMode = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ConnectMode"), ConnectMode_Intelligent);

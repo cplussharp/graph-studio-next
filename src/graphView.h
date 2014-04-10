@@ -265,6 +265,10 @@ public:
 	afx_msg void OnViewDecoderPerformance();
 	afx_msg void OnUpdateOptionsAbortrender(CCmdUI *pCmdUI);
 	afx_msg void OnOptionsAbortrender();
+	afx_msg void OnUpdateOptionsAutoArrangeFilters(CCmdUI *pCmdUI);
+	afx_msg void OnOptionsAutoArrangeFilters();
+	afx_msg void OnUpdateOptionsResizeToFitGraph(CCmdUI *pCmdUI);
+	afx_msg void OnOptionsResizeToFitGraph();
 	afx_msg void OnViewGraphconstructionreport();
     afx_msg void OnHelpGuidLookup();
     afx_msg void OnHelpHresultLookup();

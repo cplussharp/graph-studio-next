@@ -769,9 +769,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void DisplayView::RepaintBackbuffer()
 	{
-		CSize	size = graph.GetGraphSize();
+		const CRect rect = graph.GetGraphSize();
 
-		if (size.cx != back_width || size.cy != back_height) {
+		if (rect.right != back_width || rect.bottom != back_height) {
 
 			CDC		*dc = GetDC();
 
@@ -782,10 +782,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 
 			memDC.CreateCompatibleDC(dc);
-			backbuffer.CreateCompatibleBitmap(dc, size.cx, size.cy);
+			backbuffer.CreateCompatibleBitmap(dc, rect.right, rect.bottom);
 			memDC.SelectObject(&backbuffer);
-			back_width = size.cx;
-			back_height = size.cy;
+			back_width = rect.right;
+			back_height = rect.bottom;
 
 			ReleaseDC(dc);
 
@@ -1024,7 +1024,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		    if (SUCCEEDED(hr)) {
 			    graph.RefreshFilters();
-			    graph.SmartPlacement();
+				if (graph.params->auto_arrange)
+					graph.SmartPlacement();
 			    graph.Dirty();
 			    Invalidate();
 			} else {
@@ -1053,7 +1054,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				CFileSrcForm form(current_filter->display_name);
 				HRESULT hr = form.ChooseSourceFile(source);
 				graph.RefreshFilters();
-				graph.SmartPlacement();
+				if (graph.params->auto_arrange)
+					graph.SmartPlacement();
 				graph.Dirty();
 				Invalidate();
 			}
@@ -1068,7 +1070,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				CFileSinkForm form(current_filter->display_name);
 				HRESULT hr = form.ChooseSinkFile(sink);
 				graph.RefreshFilters();
-				graph.SmartPlacement();
+				if (graph.params->auto_arrange)
+					graph.SmartPlacement();
 				graph.Dirty();
 				Invalidate();
 			}
@@ -1112,51 +1115,26 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	{
 	}
 
+	void DisplayView::OnSmartPlacement()
+	{
+		if (graph.params->resize_to_graph) {
+			CRect graph_size = graph.GetGraphSize();
+			graph_size.right = max(graph_size.right, 650);
+			GetParentFrame()->SetWindowPos(NULL, 0, 0, graph_size.right + 50, graph_size.bottom+200, SWP_NOMOVE | SWP_NOZORDER);
+		}
+	}
+
 	// scrolling aid
 	void DisplayView::UpdateScrolling()
 	{
-		CSize	size = graph.GetGraphSize();
+		const CRect rect = graph.GetGraphSize();
+		const CSize	size(rect.right, rect.bottom);
 		SetScrollSizes(MM_TEXT, size);
 	}
 
 	void DisplayView::MakeScreenshot(const CString& image_filename, const GUID& gdiplus_format)
 	{
-		// find out the rectangle
-		int	minx = 10000000;
-		int	miny = 10000000;
-		int maxx = 0;
-		int maxy = 0;
-
-		for (int i=0; i<graph.filters.GetCount(); i++) {
-			Filter	*filter = graph.filters[i];
-			if (filter->posx < minx) minx = filter->posx;
-			if (filter->posy < miny) miny = filter->posy;
-			if (filter->posx + filter->width > maxx) maxx = filter->posx+filter->width;
-			if (filter->posy + filter->height > maxy) maxy = filter->posy+filter->height;
-		}
-
-		// Round outwards and add an extra grid of border
-		minx = DisplayGraph::PrevGridPos(minx) - DisplayGraph::GRID_SIZE;
-		minx = max(minx, 0);
-
-		miny = DisplayGraph::PrevGridPos(miny) - DisplayGraph::GRID_SIZE;
-		miny = max(miny, 0);
-
-		maxx = DisplayGraph::NextGridPos(maxx) + DisplayGraph::GRID_SIZE;
-		maxy = DisplayGraph::NextGridPos(maxy) + DisplayGraph::GRID_SIZE;
-
-		// now copy the bitmap
-		const int	cx = (maxx-minx);
-		const int cy = (maxy-miny);
-
-		if (cx == 0 || cy == 0) {
-			OpenClipboard();
-			EmptyClipboard();
-			CloseClipboard();
-			return ;
-		}
-
-		const CRect		imgrect(minx, miny, maxx, maxy);
+		const CRect		imgrect(graph.GetGraphSize());
 		const CRect		bufrect(0, 0, back_width, back_height);
 		CDC				tempdc;
 		CBitmap			tempbitmap;

@@ -116,6 +116,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		virtual void OnOverlayIconClick(OverlayIcon *icon, CPoint point);
 		virtual void OnRenderFinished();
 		virtual void OnDeleteSelection();
+		virtual void OnSmartPlacement();
 
         virtual void OnMpeg2DemuxCreatePsiPin();
 		afx_msg void OnFileSetlogfile();

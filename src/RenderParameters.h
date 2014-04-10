@@ -114,8 +114,24 @@ public:
         AfxGetApp()->WriteProfileInt(_T("Settings"), _T("DisplayFileName"), display_file_name);
     }
 
+	void SetAutoArrange(bool b)
+	{
+		auto_arrange = b;
+		AfxGetApp()->WriteProfileInt(_T("Settings"), _T("AutoArrange"), auto_arrange);
+	}
+
+	void SetResizeToGraph(bool b)
+	{
+		resize_to_graph = b;
+		AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ResizeToGraph"), resize_to_graph);
+	}
+
 	bool			exact_match_mode;
 	bool			abort_timeout;								// abort rendering operation after 10 seconds
+
+	// arrange options
+	bool			auto_arrange;
+	bool			resize_to_graph;
 
 	// render operation state
 	DWORD					render_start_time;
