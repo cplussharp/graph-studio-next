@@ -1040,7 +1040,7 @@ BEGIN
             MENUITEM "Always Save GRF and &XML",    ID_FILEOPTIONS_SAVEASXMLANDGRF
             MENUITEM "Always Save &Screenshot",     ID_FILEOPTIONS_SAVE_SCREENHSOT
             MENUITEM "Load XML Pins by &Name",      ID_FILEOPTIONS_LOADPINSBYNAME
-            MENUITEM "Load XML Pins by Inde&x",     ID_FILEOPTIONS_LOADPINSBYINDEX
+            MENUITEM "Load XML Pins by In&dex",     ID_FILEOPTIONS_LOADPINSBYINDEX
             MENUITEM "Load XML Pins by &ID",        ID_FILEOPTIONS_LOADPINSBYID
         END
         MENUITEM "Save Graph Scr&eenshot...\tCtrl+F12", ID_GRAPH_MAKEGRAPHSCREENSHOT
@@ -1150,7 +1150,10 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Configure SBE ...",          ID_OPTIONS_CONFIGURESBE
         MENUITEM SEPARATOR
-        MENUITEM "&Abort Render After 10 Seconds", ID_OPTIONS_ABORTRENDER
+        MENUITEM "&AutoArrange Filters",        ID_OPTIONS_AUTO_ARRANGE_FILTERS
+        MENUITEM "Auto&Resize Window To Fit Graph", ID_OPTIONS_AUTO_RESIZE_WINDOW_TO_FIT_GRAPH
+        MENUITEM SEPARATOR
+        MENUITEM "A&bort Render After 10 Seconds", ID_OPTIONS_ABORTRENDER
         MENUITEM "Show Console &Window",        ID_OPTIONS_SHOWCONSOLEWINDOW
         MENUITEM "Display As &File Name",       ID_OPTIONS_DISPLAYASFILENAME
         MENUITEM "Show &GUID of Known Types",   ID_OPTIONS_SHOWGUIDOFKNOWNTYPES

@@ -208,6 +208,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	public:
 		virtual void OnFilterRemoved(DisplayGraph *sender, Filter *filter) = 0;
 		virtual void OnRenderFinished() = 0;
+		virtual void OnSmartPlacement() = 0;
 	};
 
 	class GraphCallbackImpl : public CUnknown, protected IAMGraphBuilderCallback, protected IAMFilterGraphCallback 
@@ -367,7 +368,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		HRESULT DoPause();
 
 		// scrolling aid
-		CSize GetGraphSize();
+		CRect GetGraphSize();
 
 		inline void Dirty() { dirty = true; }
 

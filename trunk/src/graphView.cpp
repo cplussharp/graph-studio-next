@@ -221,6 +221,10 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_VIEW_DECODERPERFORMANCE, &CGraphView::OnViewDecoderPerformance)
 	ON_UPDATE_COMMAND_UI(ID_OPTIONS_ABORTRENDER, &CGraphView::OnUpdateOptionsAbortrender)
 	ON_COMMAND(ID_OPTIONS_ABORTRENDER, &CGraphView::OnOptionsAbortrender)
+	ON_UPDATE_COMMAND_UI(ID_OPTIONS_AUTO_ARRANGE_FILTERS, &CGraphView::OnUpdateOptionsAutoArrangeFilters)
+	ON_COMMAND(ID_OPTIONS_AUTO_ARRANGE_FILTERS, &CGraphView::OnOptionsAutoArrangeFilters)
+	ON_UPDATE_COMMAND_UI(ID_OPTIONS_AUTO_RESIZE_WINDOW_TO_FIT_GRAPH, &CGraphView::OnUpdateOptionsResizeToFitGraph)
+	ON_COMMAND(ID_OPTIONS_AUTO_RESIZE_WINDOW_TO_FIT_GRAPH, &CGraphView::OnOptionsResizeToFitGraph)
 	ON_COMMAND(ID_VIEW_GRAPHCONSTRUCTIONREPORT, &CGraphView::OnViewGraphconstructionreport)
     ON_COMMAND(ID_HELP_GUIDLOOKUP, &CGraphView::OnHelpGuidLookup)
     ON_COMMAND(ID_HELP_HRESULTLOOKUP, &CGraphView::OnHelpHresultLookup)
@@ -2227,6 +2231,16 @@ void CGraphView::OnOptionsAbortrender()
 	render_params.abort_timeout = !render_params.abort_timeout;
 }
 
+void CGraphView::OnOptionsAutoArrangeFilters()
+{
+	render_params.SetAutoArrange(!render_params.auto_arrange);
+}
+
+void CGraphView::OnOptionsResizeToFitGraph()
+{
+	render_params.SetResizeToGraph(!render_params.resize_to_graph);
+}
+
 void CGraphView::OnUpdateOptionsExactMatch(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(render_params.exact_match_mode);
@@ -2235,6 +2249,16 @@ void CGraphView::OnUpdateOptionsExactMatch(CCmdUI *pCmdUI)
 void CGraphView::OnUpdateOptionsAbortrender(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(render_params.abort_timeout);
+}
+
+void CGraphView::OnUpdateOptionsAutoArrangeFilters(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(render_params.auto_arrange);
+}
+
+void CGraphView::OnUpdateOptionsResizeToFitGraph(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(render_params.resize_to_graph);
 }
 
 void CGraphView::OnUpdateOptionsUseMediaInfo(CCmdUI *pCmdUI)

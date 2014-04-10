@@ -447,22 +447,30 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 	}
 
-	CSize DisplayGraph::GetGraphSize()
+	CRect DisplayGraph::GetGraphSize()
 	{
 		// find out the rectangle
-		int maxx = 0;
-		int maxy = 0;
+		CRect rect(10000000, 10000000, 0, 0);
 
 		for (int i=0; i<filters.GetCount(); i++) {
 			Filter	*filter = filters[i];
-			if (filter->posx + filter->width > maxx) maxx = filter->posx+filter->width;
-			if (filter->posy + filter->height > maxy) maxy = filter->posy+filter->height;
+			if (filter->posx < rect.left)						rect.left	= filter->posx;
+			if (filter->posy < rect.top)						rect.top	= filter->posy;
+			if (filter->posx + filter->width  > rect.right)		rect.right	= filter->posx+filter->width;
+			if (filter->posy + filter->height > rect.bottom)	rect.bottom = filter->posy+filter->height;
 		}
 
-		maxx = NextGridPos(maxx) + GRID_SIZE;
-		maxy = NextGridPos(maxy) + GRID_SIZE;
+		// Round outwards and add an extra grid of border
+		rect.left = DisplayGraph::PrevGridPos(rect.left) - DisplayGraph::GRID_SIZE;
+		rect.left = max(rect.left, 0);
 
-		return CSize(maxx, maxy);
+		rect.top = DisplayGraph::PrevGridPos(rect.top) - DisplayGraph::GRID_SIZE;
+		rect.top = max(rect.top, 0);
+
+		rect.right = DisplayGraph::NextGridPos(rect.right) + DisplayGraph::GRID_SIZE;
+		rect.bottom = DisplayGraph::NextGridPos(rect.bottom) + DisplayGraph::GRID_SIZE;
+
+		return rect;
 	}
 
 	int DisplayGraph::GetState(FILTER_STATE &state, DWORD timeout)
@@ -779,6 +787,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 		}
 		RefreshFilters();
+		if (params && params->auto_arrange)
+			SmartPlacement();
 	}
 
 	HRESULT DisplayGraph::AddFilter(IBaseFilter *filter, CString proposed_name)
@@ -2044,7 +2054,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		
         if (hr == S_OK) {
 		    RefreshFilters();
-		    SmartPlacement();
+			if (params->auto_arrange)
+				SmartPlacement();
         }
 
 		DSUtil::ShowError(hr, _T("Connecting Pins"));
@@ -2455,6 +2466,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			CPoint	&pt     = columns[filter->column];
 			filter->posx = pt.x;
 		}
+
+		if (callback)
+			callback->OnSmartPlacement();
 	}
 
 	void DisplayGraph::PositionRowOfUnconnectedFilters(const CArray<Filter*> & unconnected, int max_row_length)

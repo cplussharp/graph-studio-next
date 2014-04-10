@@ -241,7 +241,7 @@
 #define IDC_TAB1                        1135
 #define IDC_TAB_FILETYPES               1135
 #define IDC_BUTTON1                     1136
-#define IDC_CHECK_PROPERTY_PAGE_AUTO_SIZE     1137
+#define IDC_CHECK_PROPERTY_PAGE_AUTO_SIZE 1137
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -384,13 +384,15 @@
 #define ID_VIEW_RESETGRAPHLAYOUT        32935
 #define ID_FILEOPTIONS_SAVEASXMLANDGRF  32936
 #define ID_HELP_REGISTEREDFILETYPES     32937
+#define ID_OPTIONS_AUTO_ARRANGE_FILTERS 32938
+#define ID_OPTIONS_AUTO_RESIZE_WINDOW_TO_FIT_GRAPH 32939
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        181
-#define _APS_NEXT_COMMAND_VALUE         32941
+#define _APS_NEXT_COMMAND_VALUE         32940
 #define _APS_NEXT_CONTROL_VALUE         1138
 #define _APS_NEXT_SYMED_VALUE           108
 #endif
