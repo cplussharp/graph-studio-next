@@ -100,10 +100,13 @@ void CAnalyzerPage::OnSize(UINT nType, int cx, int cy)
 	if (m_hWnd && m_listCtrlBorder.top > 0) {			// don't resize list control until we've worked out the list control border
 		CRect client;
 		GetClientRect(&client);
-		m_listCtrl.MoveWindow(m_listCtrlBorder + client, TRUE);
+		if (m_listCtrl.m_hWnd)
+			m_listCtrl.MoveWindow(m_listCtrlBorder + client, TRUE);
 
-		title.GetClientRect(&client);
-		title.SetWindowPos(NULL, 0, 0, cx, client.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+		if (title.m_hWnd) {
+			title.GetClientRect(&client);
+			title.SetWindowPos(NULL, 0, 0, cx, client.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+		}
 	}
 }
 

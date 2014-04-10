@@ -31,6 +31,7 @@ public:
 	void ActivatePage(int i);
 	void DeactivatePage(int i);
 	int AddPage(IPropertyPage *page);
+	void ResizeToFitPage(int i);
 };
 
 
@@ -91,11 +92,13 @@ public:
 	CButton					button_apply;
 	CButton					button_ok;
 	CButton					button_close;
+	CButton					button_auto_size;
 
 	// control alignment helpers
 	int						tab_x, tab_y, tab_cx, tab_cy;
 	int						button_bottom_offset;
 	int						bok_cx, bcancel_cx, bapply_cx;
+	static CSize			previous_size;
 
 	// we're associated with this object (filter/pin)
 	IUnknown				*object;
@@ -135,4 +138,5 @@ public:
 	afx_msg void OnBnClickedButtonApply();
 	LRESULT OnPressButton(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
+	afx_msg void OnBnClickedAutoSize();
 };

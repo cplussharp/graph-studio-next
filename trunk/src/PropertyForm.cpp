@@ -24,7 +24,10 @@ BEGIN_MESSAGE_MAP(CPropertyForm, CGraphStudioModelessDialog)
 	ON_BN_CLICKED(IDC_BUTTON_APPLY, &CPropertyForm::OnBnClickedButtonApply)
 	ON_MESSAGE(PSM_PRESSBUTTON, &CPropertyForm::OnPressButton)
 	ON_WM_GETMINMAXINFO()
+	ON_BN_CLICKED(IDC_CHECK_PROPERTY_PAGE_AUTO_SIZE, &CPropertyForm::OnBnClickedAutoSize)
 END_MESSAGE_MAP()
+
+CSize CPropertyForm::previous_size;
 
 //-----------------------------------------------------------------------------
 //
@@ -52,6 +55,7 @@ void CPropertyForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_APPLY, button_apply);
 	DDX_Control(pDX, IDOK, button_ok);
 	DDX_Control(pDX, IDCANCEL, button_close);
+	DDX_Control(pDX, IDC_CHECK_PROPERTY_PAGE_AUTO_SIZE, button_auto_size);
 }
 
 void CPropertyForm::OnClose()
@@ -59,6 +63,10 @@ void CPropertyForm::OnClose()
     view->graph.RefreshFilters();
     view->graph.Dirty();
     view->Invalidate();
+
+	CRect rect;
+	GetWindowRect(rect);
+	previous_size = CSize(rect.Width(), rect.Height());
 
     // report that we're being closed
     view->ClosePropertyPage(filter);
@@ -133,10 +141,12 @@ void CPropertyForm::OnSize(UINT nType, int cx, int cy)
 			container->pages[container->current]->page->Move(rc_client);
 		}
 
+		button_auto_size.SetWindowPos(NULL, tab_x, cy-button_bottom_offset, 0, 0, SWP_NOSIZE | SWP_NOZORDER);	// align with bottom left
 		button_ok.SetWindowPos(NULL, cx-bok_cx, cy-button_bottom_offset, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 		button_close.SetWindowPos(NULL, cx-bcancel_cx, cy-button_bottom_offset, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 		button_apply.SetWindowPos(NULL, cx-bapply_cx, cy-button_bottom_offset, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 
+		button_auto_size.Invalidate();
 		button_ok.Invalidate();
 		button_close.Invalidate();
 		button_apply.Invalidate();
@@ -147,6 +157,7 @@ int CPropertyForm::DisplayPages(IUnknown *obj, IUnknown *filt, CString title, CG
 {
 	// create a new window
 	BOOL bret = Create(IDD_DIALOG_PROPERTYPAGE, view);
+
 	if (!bret) return -1;
 	SetWindowText(title);
 
@@ -193,6 +204,10 @@ int CPropertyForm::DisplayPages(IUnknown *obj, IUnknown *filt, CString title, CG
 	button_apply.ClientToScreen(&p2);
 	bapply_cx = p1.x + rc_client.Width() - p2.x;
 
+	int auto_size = AfxGetApp()->GetProfileInt(_T("PropertyPage"), _T("AutoSize"), 0);
+	button_auto_size.SetCheck(auto_size);
+	if (!auto_size && previous_size.cx > 0)
+		SetWindowPos(NULL, 0, 0, previous_size.cx, previous_size.cy, SWP_NOZORDER | SWP_NOMOVE);
 
 	// let's create a new container
 	container = new CPageContainer(this);
@@ -614,6 +629,18 @@ BOOL CPropertyForm::PreTranslateMessage(MSG *pMsg)
 	return __super::PreTranslateMessage(pMsg);
 }
 
+void CPropertyForm::OnBnClickedAutoSize()
+{
+	const int checked = button_auto_size.GetCheck();
+	AfxGetApp()->WriteProfileInt(_T("PropertyPage"), _T("AutoSize"), checked);
+
+	if (checked) {
+		const int i = tabs.GetCurSel();
+		if (i >= 0)
+			container->ResizeToFitPage(i);
+	}
+}
+
 //-----------------------------------------------------------------------------
 //
 //	CPageContainer class
@@ -653,11 +680,38 @@ void CPageContainer::Clear()
 	form->tabs.DeleteAllItems();
 }
 
+void CPageContainer::ResizeToFitPage(int i)
+{
+	CPageSite * const site = pages[i];
+
+	// resize parent if auto size enabled or dialog too small for page
+	CRect form_rect;
+	form->GetWindowRect(&form_rect);
+	CSize new_form_size = form->GetFormSizeToFitPage(site->size);
+
+	bool resize = 0 != form->IsDlgButtonChecked(IDC_CHECK_PROPERTY_PAGE_AUTO_SIZE);
+	if (!resize) 
+	{
+		// Make sure both dimensions are large enough for page
+		if (new_form_size.cx > form_rect.Width())
+			resize = true;
+		else
+			new_form_size.cx = form_rect.Width();
+
+		if (new_form_size.cy > form_rect.Height())
+			resize = true;
+		else
+			new_form_size.cy = form_rect.Height();
+	}
+	if (resize) 
+		form->SetWindowPos(NULL, 0, 0, new_form_size.cx, new_form_size.cy, SWP_NOMOVE | SWP_NOZORDER);
+}
+
 void CPageContainer::ActivatePage(int i)
 {
 	if (i == current) return ;
 
-	CPageSite	*site = pages[i];
+	CPageSite * const site = pages[i];
 
 	if (current != -1) DeactivatePage(current);
 	current = i;
@@ -665,9 +719,7 @@ void CPageContainer::ActivatePage(int i)
 	// select specified tab
 	form->tabs.SetCurSel(i);
 
-	// resize parent
-	const CSize formSize = form->GetFormSizeToFitPage(site->size);
-	form->SetWindowPos(NULL, 0, 0, formSize.cx, formSize.cy, SWP_NOMOVE | SWP_NOZORDER);
+	ResizeToFitPage(i);
 
 	// now display the page
 	CRect	rc_client;
@@ -814,3 +866,4 @@ int CPageSite::Activate(HWND owner, CRect &rc)
 	}
 	return 0;
 }
+
