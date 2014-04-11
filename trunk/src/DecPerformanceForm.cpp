@@ -239,7 +239,8 @@ void CDecPerformanceForm::StartTiming()
 
 	// reset the clock 
 	// if this was done before the filters were refreshed, the graph was not reset for some reason :-/
-	view->graph.SetClock(false, NULL);
+	// NB this may not be necessary after recent bug fixes to clock management
+	view->graph.SetClock(0 != IsDlgButtonChecked(IDC_CHECK_USE_CLOCK), NULL);
 
 	// update the display again
 	view->graph.RefreshFilters();
@@ -569,11 +570,3 @@ void CDecPerformanceForm::OnBnClickedButtonPropertypage()
 	}
 
 }
-
-
-
-
-
-
-
-
