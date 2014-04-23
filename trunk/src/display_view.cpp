@@ -213,17 +213,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_DELETE_FILTER, _T("D&elete Selected"));
 
-			bool favorite = false;
-			bool blacklisted = false;
-
 			DSUtil::FilterTemplate filter_template;
-			if (CFiltersForm::FilterTemplateFromCLSID(current_filter->clsid, filter_template)) {
-				favorite = CFavoritesForm::GetFavoriteFilters()->ContainsMoniker(filter_template.moniker_name);
-				blacklisted = CFavoritesForm::GetBlacklistedFilters()->ContainsMoniker(filter_template.moniker_name);
-			}
+			// Don't enable favorite item or blacklist for DMO as we have a wrapper filter and can't access the filter template for the actual wrapped device or DMO
+			if (CLSID_Proxy != current_filter->clsid && 
+					CFiltersForm::FilterTemplateFromCLSID(current_filter->clsid, filter_template)) {
 
-			menu.InsertMenu(p++, (favorite ? MF_CHECKED : MF_UNCHECKED) | MF_DISABLED | MF_BYPOSITION | MF_STRING, ID_FILTER_FAVORITE, _T("&Favorite"));
-			menu.InsertMenu(p++, (blacklisted ? MF_CHECKED : MF_UNCHECKED) | MF_DISABLED | MF_BYPOSITION | MF_STRING, ID_FILTER_BLACKLIST, _T("&Blacklist"));
+				const bool favorite = CFavoritesForm::GetFavoriteFilters()->ContainsMoniker(filter_template.moniker_name);
+				const bool blacklisted = CFavoritesForm::GetBlacklistedFilters()->ContainsMoniker(filter_template.moniker_name);
+
+				menu.InsertMenu(p++, (favorite		? MF_CHECKED : MF_UNCHECKED) | MF_BYPOSITION | MF_STRING, ID_FILTER_FAVORITE,	_T("&Favorite"));
+				menu.InsertMenu(p++, (blacklisted	? MF_CHECKED : MF_UNCHECKED) | MF_BYPOSITION | MF_STRING, ID_FILTER_BLACKLIST,	_T("&Blacklist"));
+			}
 		}
 
 		/////////////////////// Inserting new filters
