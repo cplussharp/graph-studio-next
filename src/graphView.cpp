@@ -904,6 +904,7 @@ void CGraphView::OnNewClick()
 
 	ClosePropertyPages();
 	graph.MakeNew();
+	graph.SmartPlacement();		// allow auto resize to empty graph
 
 	document_filename.Empty();
 	document_type = NONE;
