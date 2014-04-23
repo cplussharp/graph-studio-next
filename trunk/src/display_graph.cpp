@@ -2389,82 +2389,84 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// Reset all columns and placement information cached in Filters
 		columns.RemoveAll();
 
-		for (int i=0; i<filters.GetCount(); i++) {
-			Filter	* const filter = filters[i];
-			filter->Refresh();
+		if (filters.GetCount() > 0) {
+			for (int i=0; i<filters.GetCount(); i++) {
+				Filter	* const filter = filters[i];
+				filter->Refresh();
 
-			// reset placement helpers
-			filter->column = -1;	// flag not placed in column
-			filter->posy = 0;
-			filter->posx = 0;
-		}
-
-		// Load connections between filters
-		for (int i=0; i<filters.GetCount(); i++) {
-			filters[i]->LoadPeers();
-		}
-
-		// Deal with filters that have multiple inputs to prevent crossing input lines
-		// Find upstream inputs from filters with multiple connected inputs in depth-first, first input pin order 
-		CArray<Filter*> input_filters;
-		FindInputFilters(filters, input_filters);
-
-		// Position these filters first
-		for (int i=0; i<input_filters.GetCount(); i++) {
-			Filter	* const filter = input_filters[i];
-			if (filter->column < 0) {
-				filter->CalculatePlacementChain(0, GRID_SIZE, CalcDownstreamYPosition(filter));
+				// reset placement helpers
+				filter->column = -1;	// flag not placed in column
+				filter->posy = 0;
+				filter->posx = 0;
 			}
-		}
 
-		// Next position remaining filters that have no connected inputs, and some connected outputs
-		for (int i=0; i<filters.GetCount(); i++) {
-			Filter	* const filter = filters[i];
-			if (filter->column < 0
-					&& filter->NumOfConnectedPins(PINDIR_INPUT) == 0
-					&& filter->NumOfConnectedPins(PINDIR_OUTPUT) > 0) {
-				filter->CalculatePlacementChain(0, GRID_SIZE, CalcDownstreamYPosition(filter));
+			// Load connections between filters
+			for (int i=0; i<filters.GetCount(); i++) {
+				filters[i]->LoadPeers();
 			}
-		}
 
-		const int NUM_GROUPS = 3;
-		typedef CArray<Filter*> FilterList;
-		FilterList groups[NUM_GROUPS];
+			// Deal with filters that have multiple inputs to prevent crossing input lines
+			// Find upstream inputs from filters with multiple connected inputs in depth-first, first input pin order 
+			CArray<Filter*> input_filters;
+			FindInputFilters(filters, input_filters);
 
-		// Divide unconnected filters into groups
-		for (int i=0; i<filters.GetCount(); i++) {
-			Filter	* const filter = filters[i];
-			if (filter->column < 0) {
-				int group;
-				switch (filter->filter_purpose) {
-					case Filter::FILTER_SOURCE:		group = 0;	break;
-					case Filter::FILTER_RENDERER:	group = 2;	break;
-					default:
-						group = filter->input_pins.GetCount() == 0 ? 0 : 1;
-						break;
+			// Position these filters first
+			for (int i=0; i<input_filters.GetCount(); i++) {
+				Filter	* const filter = input_filters[i];
+				if (filter->column < 0) {
+					filter->CalculatePlacementChain(0, GRID_SIZE, CalcDownstreamYPosition(filter));
 				}
-				groups[group].Add(filter);
 			}
-		}
 
-		// number of columns to layout unconnected filters
-		const int MIN_ROW_LENGTH = 5;
-		int row_length = columns.GetCount() - 1;
-		if (row_length < MIN_ROW_LENGTH)
-			row_length = MIN_ROW_LENGTH;
+			// Next position remaining filters that have no connected inputs, and some connected outputs
+			for (int i=0; i<filters.GetCount(); i++) {
+				Filter	* const filter = filters[i];
+				if (filter->column < 0
+						&& filter->NumOfConnectedPins(PINDIR_INPUT) == 0
+						&& filter->NumOfConnectedPins(PINDIR_OUTPUT) > 0) {
+					filter->CalculatePlacementChain(0, GRID_SIZE, CalcDownstreamYPosition(filter));
+				}
+			}
 
-		// Position groups
-		for (int i=0; i<NUM_GROUPS; i++) {
-			PositionRowOfUnconnectedFilters(groups[i], row_length);
-		}
+			const int NUM_GROUPS = 3;
+			typedef CArray<Filter*> FilterList;
+			FilterList groups[NUM_GROUPS];
 
-		// then set final x values for every filter
-		for (int i=0; i<filters.GetCount(); i++) {
-			Filter	* const filter = filters[i];
-			ASSERT(filter->column >= 0);
-			filter->column = max(0, filter->column);		// sanity check on depth
-			CPoint	&pt     = columns[filter->column];
-			filter->posx = pt.x;
+			// Divide unconnected filters into groups
+			for (int i=0; i<filters.GetCount(); i++) {
+				Filter	* const filter = filters[i];
+				if (filter->column < 0) {
+					int group;
+					switch (filter->filter_purpose) {
+						case Filter::FILTER_SOURCE:		group = 0;	break;
+						case Filter::FILTER_RENDERER:	group = 2;	break;
+						default:
+							group = filter->input_pins.GetCount() == 0 ? 0 : 1;
+							break;
+					}
+					groups[group].Add(filter);
+				}
+			}
+
+			// number of columns to layout unconnected filters
+			const int MIN_ROW_LENGTH = 5;
+			int row_length = columns.GetCount() - 1;
+			if (row_length < MIN_ROW_LENGTH)
+				row_length = MIN_ROW_LENGTH;
+
+			// Position groups
+			for (int i=0; i<NUM_GROUPS; i++) {
+				PositionRowOfUnconnectedFilters(groups[i], row_length);
+			}
+
+			// then set final x values for every filter
+			for (int i=0; i<filters.GetCount(); i++) {
+				Filter	* const filter = filters[i];
+				ASSERT(filter->column >= 0);
+				filter->column = max(0, filter->column);		// sanity check on depth
+				CPoint	&pt     = columns[filter->column];
+				filter->posx = pt.x;
+			}
 		}
 
 		if (callback)

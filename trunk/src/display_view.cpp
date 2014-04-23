@@ -1120,6 +1120,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (graph.params->resize_to_graph) {
 			CRect graph_size = graph.GetGraphSize();
 			graph_size.right = max(graph_size.right, 650);
+			graph_size.bottom = max(graph_size.bottom, 50);
 			GetParentFrame()->SetWindowPos(NULL, 0, 0, graph_size.right + 50, graph_size.bottom+200, SWP_NOMOVE | SWP_NOZORDER);
 		}
 	}
