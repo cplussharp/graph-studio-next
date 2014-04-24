@@ -215,8 +215,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 			DSUtil::FilterTemplate filter_template;
 			// Don't enable favorite item or blacklist for DMO as we have a wrapper filter and can't access the filter template for the actual wrapped device or DMO
-			if (CLSID_Proxy != current_filter->clsid && 
-					CFiltersForm::FilterTemplateFromCLSID(current_filter->clsid, filter_template)) {
+			if (current_filter->clsid	!= CLSID_Proxy 		&&
+				current_filter->clsid	!= CLSID_AVICo		&& 
+				current_filter->clsid	!= CLSID_ACMWrapper	&&
+				CFiltersForm::FilterTemplateFromCLSID(current_filter->clsid, filter_template)) {
 
 				const bool favorite = CFavoritesForm::GetFavoriteFilters()->ContainsMoniker(filter_template.moniker_name);
 				const bool blacklisted = CFavoritesForm::GetBlacklistedFilters()->ContainsMoniker(filter_template.moniker_name);
