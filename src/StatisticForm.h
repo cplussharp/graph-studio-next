@@ -35,6 +35,7 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
     const CString CStatisticForm::GetEntryString(LONG entryNr, int field);
     GraphStatisticEntry* GetEntry(LONG entryNr);
+	LONG GetEntryCount(bool reset);
 
     void FreeCachedStatisticEntry();
     GraphStatisticEntry m_cachedEntry;
@@ -43,7 +44,9 @@ public:
 	GraphStudio::TitleBar	title;
     CButton					btn_reset;
 	CButton					btn_export;
+	CButton					btn_filter_mapper;
     CListCtrl               m_listCtrl;
+	bool					show_filter_mapper;
 
 public:
 	CStatisticForm(CWnd* pParent = NULL);   // standard constructor
@@ -59,6 +62,7 @@ public:
 	afx_msg void OnTimer(UINT_PTR id);
 	afx_msg void OnResetClick();
     afx_msg void OnExportClick();
+    afx_msg void OnFilterMapperClick();
     afx_msg void OnLvnGetdispinfoListData(NMHDR *pNMHDR, LRESULT *pResult);
 
     static CString GetCsvSeparator();
