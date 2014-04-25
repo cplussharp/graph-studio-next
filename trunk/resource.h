@@ -238,9 +238,8 @@
 #define IDC_USE_FORMAT_BLOCK            1130
 #define IDC_CUSTOM_FORMAT               1132
 #define IDC_BUTTON_SET_RATE             1133
-#define IDC_TAB1                        1135
 #define IDC_TAB_FILETYPES               1135
-#define IDC_BUTTON1                     1136
+#define IDC_FILTER_MAPPER_STATISTICS    1136
 #define IDC_CHECK_PROPERTY_PAGE_AUTO_SIZE 1137
 #define IDC_CHECK_USE_CLOCK             1138
 #define ID_LIST_MRU_CLEAR               4999
