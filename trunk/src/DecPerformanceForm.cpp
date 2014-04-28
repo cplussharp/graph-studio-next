@@ -363,7 +363,6 @@ void CDecPerformanceForm::InsertListItem(const Timings& timings, int index, cons
 HRESULT CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
 {
 	HRESULT					hr;
-	int						ret = 0;
 	CComPtr<IBaseFilter>	src;
 	CComPtr<IBaseFilter>	time;
 	CComPtr<IBaseFilter>	renderer;
@@ -390,23 +389,22 @@ HRESULT CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
 		int		idx = cb_decoders.GetCurSel();
 		if (idx < 0) {
             hr = E_FAIL;
-            DSUtil::ShowError(hr, _T("No decoder selcted"));
+            DSUtil::ShowError(_T("No decoder selcted"));
             break;
         }
         
-		DSUtil::FilterTemplate		*filter_template_decoder = (DSUtil::FilterTemplate*)cb_decoders.GetItemDataPtr(idx);
+		DSUtil::FilterTemplate * const filter_template_decoder = (DSUtil::FilterTemplate*)cb_decoders.GetItemDataPtr(idx);
 		if (!filter_template_decoder) {
             hr = E_FAIL;
-            DSUtil::ShowError(hr, _T("Can't find decoder"));
+            DSUtil::ShowError(_T("Can't find decoder"));
             break;
         }
 
-        if(!cur_decoder)
+        if (!cur_decoder)
         {
-		    ret = filter_template_decoder->CreateInstance(&cur_decoder);
-		    if (ret < 0) {
-                hr = E_FAIL;
-                DSUtil::ShowError(ret, _T("Can't create decoder"));
+		    hr = filter_template_decoder->CreateInstance(&cur_decoder);
+		    if (FAILED(hr)) {
+                DSUtil::ShowError(hr, _T("Can't create decoder"));
                 break;
             }
         }
@@ -425,11 +423,9 @@ HRESULT CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
         }
 
 		// 4. Insert the time measure filter
-		hr = NOERROR;
         hr = time_filter_template.CreateInstance(&time);
 		if (FAILED(hr)) {
             DSUtil::ShowError(hr, _T("Can't create time filter"));
-            hr = E_FAIL;
             break;
         }
         hr = gb->AddFilter(time, time_filter_template.name);
@@ -447,21 +443,20 @@ HRESULT CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
 		idx = cb_renderers.GetCurSel();
 		if (idx < 0) {
             hr = E_FAIL;
-            DSUtil::ShowError(hr, _T("No renderer selected"));
+            DSUtil::ShowError(_T("No renderer selected"));
             break;
         }
 
-		DSUtil::FilterTemplate		*filter_template_renderer = (DSUtil::FilterTemplate*)cb_renderers.GetItemDataPtr(idx);
+		DSUtil::FilterTemplate * const filter_template_renderer = (DSUtil::FilterTemplate*)cb_renderers.GetItemDataPtr(idx);
 		if (!filter_template_renderer) {
             hr = E_FAIL;
-            DSUtil::ShowError(hr, _T("Can't find renderer"));
+            DSUtil::ShowError(_T("Can't find renderer"));
             break;
         }
 
 		// and insert it into the graph
-		ret = filter_template_renderer->CreateInstance(&renderer);
-		if (ret < 0) {
-            hr = E_FAIL; 
+		hr = filter_template_renderer->CreateInstance(&renderer);
+		if (FAILED(hr)) {
             DSUtil::ShowError(hr, _T("Can't create renderer"));
             break;
         }
