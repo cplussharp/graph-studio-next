@@ -386,13 +386,23 @@
 #define ID_HELP_REGISTEREDFILETYPES     32937
 #define ID_OPTIONS_AUTO_ARRANGE_FILTERS 32938
 #define ID_OPTIONS_AUTO_RESIZE_WINDOW_TO_FIT_GRAPH 32939
+#define ID_FILTER_LEFT                  32940
+#define ID_FILTER_RIGHT                 32941
+#define ID_PIN_LEFT                     32942
+#define ID_PIN_RIGHT                    32943
+#define ID_FILTER_UP                    32944
+#define ID_FILTER_DOWN                  32945
+#define ID_PIN_UP                       32946
+#define ID_PIN_DOWN                     32947
+#define ID_CONTEXT_MENU                 32948
+#define ID_GRAPH_NAVIGATE_FILTERS       32949
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        181
-#define _APS_NEXT_COMMAND_VALUE         32940
+#define _APS_NEXT_COMMAND_VALUE         32952
 #define _APS_NEXT_CONTROL_VALUE         1139
 #define _APS_NEXT_SYMED_VALUE           108
 #endif

@@ -51,6 +51,15 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		ON_COMMAND(ID_FILE_SETLOGFILE, &DisplayView::OnFileSetlogfile)
 		ON_UPDATE_COMMAND_UI(ID_FILE_SETLOGFILE, &DisplayView::OnUpdateFileSetlogfile)
 		ON_COMMAND(ID_VIEW_MAINWINDOW, &DisplayView::OnViewMainwindow)
+		ON_COMMAND(ID_FILTER_LEFT, &DisplayView::OnFilterLeft)
+		ON_COMMAND(ID_FILTER_RIGHT, &DisplayView::OnFilterRight)
+		ON_COMMAND(ID_FILTER_UP, &DisplayView::OnFilterUp)
+		ON_COMMAND(ID_FILTER_DOWN, &DisplayView::OnFilterDown)
+		ON_COMMAND(ID_PIN_LEFT, &DisplayView::OnPinLeft)
+		ON_COMMAND(ID_PIN_RIGHT, &DisplayView::OnPinRight)
+		ON_COMMAND(ID_PIN_UP, &DisplayView::OnPinUp)
+		ON_COMMAND(ID_PIN_DOWN, &DisplayView::OnPinDown)
+		ON_COMMAND(ID_CONTEXT_MENU, &DisplayView::OnContextMenu)
 	END_MESSAGE_MAP()
 
 	DisplayView::DisplayView()
@@ -106,14 +115,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	{
 		point += GetScrollPosition();
 
-		CMenu	menu;
-		if (!menu.CreatePopupMenu()) return ;
-
-		FILTER_STATE	state = State_Running;
-		if (graph.GetState(state, 0) != 0) {
-			state = State_Running;
-		}
-
 		// find out if there is any filter being selected
 		current_filter = graph.FindFilterByPos(point);
 
@@ -129,6 +130,21 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				current_pin = graph.filters[i]->FindConnectionLineByPos(point);
 			if (current_pin)
 				current_filter = current_pin->filter;
+		}
+		
+		GetCursorPos(&point);
+		ShowContextMenu(point);
+	}
+
+	void DisplayView::ShowContextMenu(CPoint point)
+	{
+		CMenu	menu;
+		if (!menu.CreatePopupMenu()) 
+			return;
+
+		FILTER_STATE	state = State_Running;
+		if (graph.GetState(state, 0) != 0) {
+			state = State_Running;
 		}
 
 		// make rendering inactive for connected pins
@@ -284,11 +300,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_ANALYZE_STREAM, _T("&Analyzer Filter"));
 		}
 
-		CPoint	pt;
-		GetCursorPos(&pt);
-
 		// display menu
-		menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, AfxGetMainWnd());
+		menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this /*AfxGetMainWnd()*/);
 	}
 
 	// Select the single thing we've clicked on - pin/filter/connection - and delete it
@@ -1404,6 +1417,163 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	void DisplayView::OnViewMainwindow()
 	{
 		this->SetFocus();
+	}
+
+	static Filter * FindNextFilterByDirection(CArray<Filter*>& filters, Filter* prev_filter, bool vertical, bool positive)
+	{
+		Filter * next_filter = NULL;
+		const int filter_count = filters.GetCount();
+		int min_delta = -1;
+		int min_perp = -1;
+
+		for (int i=0; i<filter_count; i++) {
+			Filter * const filter = filters[i];
+
+			const int x_delta = filter->posx - prev_filter->posx;
+			const int y_delta = filter->posy - prev_filter->posy;
+
+			int delta = vertical ? y_delta : x_delta;	// delta in the direction of movement
+			delta *= positive ? 1 : -1;
+
+			int perp = vertical ? x_delta : y_delta;	// delta perpendicular to direction of movement
+			perp = abs(perp);
+
+			if (delta > 0 && delta >= perp) {			// filter is in the right direction
+				
+				if (min_delta < 0						// if nearer than previous nearest filter
+						|| delta < min_delta
+						|| (delta == min_delta && perp < min_perp)) {
+					min_perp	= perp;
+					min_delta	= delta;
+					next_filter = filter;
+				}
+			}
+		}
+		return next_filter;
+	}
+
+	void DisplayView::NavigateFilterGraph(bool pin, bool vertical, bool positive)
+	{
+		CArray<Filter*>& filters = graph.filters;
+		const int filter_count = graph.filters.GetCount();
+		if (filter_count <= 0)
+			return;				// empty graph - nothing to do
+
+		Filter * next_filter = NULL;
+		Filter * prev_filter = NULL;
+
+		// Find currently selected filter
+		for (int i=0; i<filter_count; i++) {
+			if (filters[i]->selected) {
+				prev_filter = filters[i];
+				break;
+			}
+		}
+
+		if (!prev_filter) {
+			// If no filters selected then select left and top-most filter
+			for (int i=0; i<filter_count; i++) {
+				Filter * const filter = filters[i];
+				if (!next_filter 
+						|| filter->posx < next_filter->posx
+						|| (filter->posx == next_filter->posx && filter->posy < next_filter->posy))
+					next_filter = filter;
+			}
+		} else {
+
+			// if horizontal - first try navigating to first connected filter
+			if (!vertical) {
+				CArray<Pin*> & prev_pins = positive ? prev_filter->output_pins : prev_filter->input_pins;
+
+				for (int i=0; i<prev_pins.GetCount(); i++) {
+					Pin * const peer = prev_pins[i]->peer;
+					if (peer) {
+						next_filter = peer->filter;
+						break;
+					}
+				}
+			}
+
+			// if that fails try navigating to filters by direction
+			if (!next_filter) {
+				next_filter = FindNextFilterByDirection(filters, prev_filter, vertical, positive);
+			}
+		}
+
+		// if selection has changed
+		if (next_filter && next_filter != prev_filter) {
+			// deselect all
+			for (int i=0; i<filter_count; i++) {
+				filters[i]->Select(false);
+			}
+			if (next_filter)
+				next_filter->selected = true;
+			graph.RefreshFilters();
+
+			current_filter = next_filter;
+		}
+	}
+
+	void DisplayView::OnFilterLeft()
+	{
+		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ false	,	/*positive=*/ false	);
+		Invalidate();
+	}
+
+	void DisplayView::OnFilterRight()
+	{
+		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ false	,	/*positive=*/ true	);
+		Invalidate();
+	}
+
+	void DisplayView::OnFilterUp()
+	{
+		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ true	,	/*positive=*/ false	);
+		Invalidate();
+	}
+
+	void DisplayView::OnFilterDown()
+	{
+		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ true	,	/*positive=*/ true	);
+		Invalidate();
+	}
+
+	void DisplayView::OnPinLeft()
+	{
+		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ false	,	/*positive=*/ false	);
+		Invalidate();
+	}
+
+	void DisplayView::OnPinRight()
+	{
+		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ false	,	/*positive=*/ true	);
+		Invalidate();
+	}
+
+	void DisplayView::OnPinUp()
+	{
+		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ true ,	/*positive=*/ false	);
+		Invalidate();
+	}
+
+	void DisplayView::OnPinDown()
+	{
+		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ true ,	/*positive=*/ true	);
+		Invalidate();
+	}
+
+	void DisplayView::OnContextMenu()
+	{
+		CPoint point;
+
+		if (current_pin)
+			current_pin->GetCenterPoint(&point);
+		else if (current_filter) {
+			point = CPoint(current_filter->posx + (current_filter->width/2), current_filter->posy + (current_filter->height/2));
+		}
+
+		ClientToScreen(&point);
+		ShowContextMenu(point);
 	}
 
 GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
