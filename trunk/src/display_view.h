@@ -102,6 +102,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         void PrepareFavoriteFiltersMenu(CMenu &menu);
 		void OnSelectStream(UINT id);
 		void OnCompatibleFilterClick(UINT id);
+		void NavigateFilterGraph(bool pin, bool vertical, bool positive);
+		void ShowContextMenu(CPoint pt);
 
 		// scrolling aid
 		void UpdateScrolling();
@@ -122,7 +124,16 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		afx_msg void OnFileSetlogfile();
 		afx_msg void OnUpdateFileSetlogfile(CCmdUI *pCmdUI);
 		afx_msg void OnViewMainwindow();
-	};
+		afx_msg void OnFilterLeft();
+		afx_msg void OnFilterRight();
+		afx_msg void OnFilterUp();
+		afx_msg void OnFilterDown();
+		afx_msg void OnPinLeft();
+		afx_msg void OnPinRight();
+		afx_msg void OnPinUp();
+		afx_msg void OnPinDown();
+		afx_msg void OnContextMenu();
+};
 
 
 GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
