@@ -1859,7 +1859,7 @@ namespace DSUtil
 
 		opins.RemoveAll();
 		ipins.RemoveAll();
-		return E_FAIL;
+		return hr;
 	}
 
 	// pin1 and pin2 can be in either order.

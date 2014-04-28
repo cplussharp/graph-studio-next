@@ -886,6 +886,10 @@ void CGraphView::OnSeekClick()
 
 void CGraphView::OnNewClick()
 {
+	graph.params->MarkRender(true);		// clear graph construction report
+	graph.params->MarkRender(false);
+	OnRenderFinished();
+
 	if (form_schedule) {
 		// reset schedule events for new graphs
 		form_schedule->ClearEvents();
@@ -1897,6 +1901,8 @@ void CGraphView::OnConnectRemote()
 
 void CGraphView::OnConnectRemote(CComPtr<IMoniker> moniker, CString graphName)
 {
+	OnNewClick();
+
 	// get a graph object
 	CComPtr<IRunningObjectTable>	rot;
 	CComPtr<IUnknown>				unk;

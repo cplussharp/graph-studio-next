@@ -360,7 +360,7 @@ void CDecPerformanceForm::InsertListItem(const Timings& timings, int index, cons
 	}
 }
 
-int CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
+HRESULT CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
 {
 	HRESULT					hr;
 	int						ret = 0;
@@ -478,7 +478,7 @@ int CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
             break;
         }
 
-		hr = NOERROR;
+		hr = S_OK;
 	} while (0);
 
 	// done with the filters
@@ -486,7 +486,7 @@ int CDecPerformanceForm::BuildPerformanceGraph(IGraphBuilder *gb)
 	src = NULL;
 	time = NULL;
 
-	return 0;
+	return hr;
 }
 
 void CDecPerformanceForm::OnBuildGraphClick()
@@ -497,11 +497,13 @@ void CDecPerformanceForm::OnBuildGraphClick()
 	// just to be sure
 	StopTiming();
 
-	// try to build the graph.
-	if (BuildPerformanceGraph(view->graph.gb) < 0) {
-		// some message
-		DSUtil::ShowError(_T("Can't build performance graph"));
-	}
+	view->graph.params->MarkRender(true);
+	HRESULT hr = BuildPerformanceGraph(view->graph.gb);		// errors displayed in here with context
+	view->graph.params->MarkRender(false);
+	view->OnRenderFinished();
+
+	view->graph.RefreshFilters();
+	view->graph.SmartPlacement();
 }
 
 void CDecPerformanceForm::OnStartClick()
