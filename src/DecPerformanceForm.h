@@ -91,7 +91,7 @@ private:
     void OnComboDecoderSelChange();
     void OnBnClickedButtonPropertypage();
 
-	int BuildPerformanceGraph(IGraphBuilder *gb);
+	HRESULT BuildPerformanceGraph(IGraphBuilder *gb);
 	void OnStartClick();
 	void OnStopClick();
 	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT *pResult);
