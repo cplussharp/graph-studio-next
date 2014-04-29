@@ -63,17 +63,16 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	END_MESSAGE_MAP()
 
 	DisplayView::DisplayView()
+		: current_filter(NULL)
+		, current_pin(NULL)
+		, back_width(0)
+		, back_height(0)
+		, overlay_filter(NULL)
 	{
-		back_width = 0;
-		back_height = 0;
-		overlay_filter = NULL;
-
 		// nastavime DC
 		graph.params = &render_params;
 		graph.callback = this;
 		graph.dc = &memDC;
-
-        current_pin = NULL;
 	}
 
 	DisplayView::~DisplayView()
@@ -337,6 +336,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (pin) {
 			if (pin->connected) {
 				pin->Select(true);
+				current_pin = pin;
 			}
 		} else if (filter) {
 			filter->Select(true);
@@ -449,6 +449,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			} else {
 				if (nFlags & MK_CONTROL) {
 					current->Select(true);
+					current_filter = current;
 					graph.Dirty();
 					Invalidate();
 				} else {
@@ -457,6 +458,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 						graph.filters[i]->Select(false);
 					}
 					current->Select(true);
+					current_filter = current;
 					graph.Dirty();
 					Invalidate();
 				}
@@ -689,6 +691,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 					end_drag_point = point;
 					CRect	rc(minx, miny, maxx, maxy);
 
+					current_filter = NULL;
 					for (int i=0; i<graph.filters.GetCount(); i++) {
 						Filter *filter = graph.filters[i];
 
@@ -702,6 +705,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 						if (sel != filter->selected) {
 							filter->Select(sel);
+							if (sel)
+								current_filter = filter;	// one may end up selected
 							need_invalidate = true;
 						}
 					}
@@ -1456,8 +1461,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	{
 		CArray<Filter*>& filters = graph.filters;
 		const int filter_count = graph.filters.GetCount();
-		if (filter_count <= 0)
+		if (filter_count <= 0) {
+			current_filter = NULL;
+			current_pin = NULL;
 			return;				// empty graph - nothing to do
+		}
 
 		Filter * next_filter = NULL;
 		Filter * prev_filter = NULL;
@@ -1500,17 +1508,18 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 		}
 
+		if (!next_filter)
+			next_filter = prev_filter;
+
 		// if selection has changed
 		if (next_filter && next_filter != prev_filter) {
 			// deselect all
 			for (int i=0; i<filter_count; i++) {
 				filters[i]->Select(false);
 			}
-			if (next_filter)
-				next_filter->selected = true;
-			graph.RefreshFilters();
-
+			next_filter->selected = true;
 			current_filter = next_filter;
+			graph.RefreshFilters();
 		}
 	}
 
