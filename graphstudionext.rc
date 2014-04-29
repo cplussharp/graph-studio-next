@@ -1127,6 +1127,7 @@ BEGIN
         MENUITEM "Properties...\tReturn, Alt+Return", ID_PROPERTYPAGE
         MENUITEM "Conte&xt Menu...\tMenu, Shift+F10", ID_CONTEXT_MENU
         MENUITEM "Navigate Filters\tArrow keys", ID_GRAPH_NAVIGATE_FILTERS, GRAYED
+        MENUITEM "Navigate Pins\tShift+Arrow keys", ID_GRAPH_NAVIGATE_PINS, GRAYED
         MENUITEM SEPARATOR
         MENUITEM "Insert &Internal Filter",     ID_GRAPH_INSERTINTERNALFILTER
         MENUITEM SEPARATOR

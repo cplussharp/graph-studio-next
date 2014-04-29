@@ -3635,9 +3635,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void Pin::Draw(CDC *dc, bool input, int x, int y)
 	{
-		CPen	pen_light(PS_SOLID, 1,	params->color_filter_border_light);
-		CPen	pen_dark(PS_SOLID,	1,	params->color_filter_border_dark);
-		CPen	pen_back(PS_SOLID,	1,	params->color_filter_type[0]);
+		const bool highlight = (!input || !connected) && selected;
+
+		CPen	pen_light(PS_SOLID, 1,	highlight ? params->color_select : params->color_filter_border_light);
+		CPen	pen_dark(PS_SOLID,	1,	highlight ? params->color_select : params->color_filter_border_dark);
+		CPen	pen_back(PS_SOLID,	1,	highlight ? params->color_select : params->color_filter_type[0]);
 		CBrush	brush_back(params->color_filter_type[0]);
 
 		const int		pinsize = 5;
