@@ -1457,7 +1457,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return next_filter;
 	}
 
-	void DisplayView::NavigateFilterGraph(bool pin, bool vertical, bool positive)
+	void DisplayView::NavigateFilterGraph(bool pin_navigation, bool vertical, bool positive)
 	{
 		CArray<Filter*>& filters = graph.filters;
 		const int filter_count = graph.filters.GetCount();
@@ -1469,11 +1469,23 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		Filter * next_filter = NULL;
 		Filter * prev_filter = NULL;
+		Pin * next_pin = NULL;
+		Pin * prev_pin = NULL;
 
 		// Find currently selected filter
 		for (int i=0; i<filter_count; i++) {
 			if (filters[i]->selected) {
 				prev_filter = filters[i];
+				for (int j=0; !prev_pin && j<prev_filter->input_pins.GetCount(); j++) {
+					Pin * const pin = prev_filter->input_pins[j];
+					if (pin->selected)
+						prev_pin = pin;
+				}
+				for (int j=0; !prev_pin && j<prev_filter->output_pins.GetCount(); j++) {
+					Pin * const pin = prev_filter->output_pins[j];
+					if (pin->selected)
+						prev_pin = pin;
+				}
 				break;
 			}
 		}
@@ -1487,8 +1499,47 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 						|| (filter->posx == next_filter->posx && filter->posy < next_filter->posy))
 					next_filter = filter;
 			}
-		} else {
 
+		} else if (pin_navigation && prev_pin) {		// pin navigation from pin already selected
+
+			next_pin = prev_pin;
+			
+			if (vertical) {
+				CArray<Pin*> & pins = prev_pin->dir == PINDIR_OUTPUT ? prev_filter->output_pins : prev_filter->input_pins;
+				for (int i=0; i<pins.GetCount(); i++) {
+					if (pins[i] == prev_pin) {
+						i += positive ? 1 : -1;
+						if (i >= 0 && i < pins.GetCount()) {
+							next_pin = pins[i];
+						}
+						break;
+					}
+				}
+			} else {
+
+				if (positive == (prev_pin->dir == PINDIR_OUTPUT)) {			// navigate to connected pin and filter if available
+					if (prev_pin->peer) {
+						next_pin = prev_pin->peer;
+						next_filter = next_pin->filter;
+					}
+				} else {													// switch to top of other pin list if available
+					CArray<Pin*> & pins = positive ? prev_filter->output_pins : prev_filter->input_pins;
+					if (pins.GetCount() > 0) {
+						next_pin = pins[0];
+					}
+				}
+			}
+
+		} else if (pin_navigation) {
+
+			// no existing selected pin - jumps to top of output pins if present (or input if left pressed)
+			CArray<Pin*> & pins = vertical || positive ? prev_filter->output_pins : prev_filter->input_pins;
+			if (pins.GetCount() > 0) {
+				next_pin = pins[0];
+			}
+
+		} else {
+			// filter navigation
 			// if horizontal - first try navigating to first connected filter
 			if (!vertical) {
 				CArray<Pin*> & prev_pins = positive ? prev_filter->output_pins : prev_filter->input_pins;
@@ -1502,7 +1553,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				}
 			}
 
-			// if that fails try navigating to filters by direction
+			// otherwise try navigating to filters by direction
 			if (!next_filter) {
 				next_filter = FindNextFilterByDirection(filters, prev_filter, vertical, positive);
 			}
@@ -1511,16 +1562,16 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (!next_filter)
 			next_filter = prev_filter;
 
-		// if selection has changed
-		if (next_filter && next_filter != prev_filter) {
-			// deselect all
-			for (int i=0; i<filter_count; i++) {
-				filters[i]->Select(false);
-			}
-			next_filter->selected = true;
-			current_filter = next_filter;
-			graph.RefreshFilters();
+		for (int i=0; i<filter_count; i++) {
+			filters[i]->Select(false);				// deselect all
 		}
+		if (next_filter)
+			next_filter->selected = true;
+		if (next_pin)
+			next_pin->Select(true);
+		current_filter = next_filter;
+		current_pin = next_pin;
+		graph.Dirty();
 	}
 
 	void DisplayView::OnFilterLeft()
