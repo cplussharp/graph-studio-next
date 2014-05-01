@@ -1254,6 +1254,7 @@ void CGraphView::OnGraphInsertFilter()
 
 void CGraphView::OnFindInFiltersWindow()
 {
+	GraphStudio::Filter * const current_filter = graph.GetSelectedFilter();
 	if (current_filter) {
 		OnGraphInsertFilter();
 		ASSERT(form_filters);
@@ -1311,7 +1312,9 @@ void CGraphView::OnDeleteSelection()
 
 void CGraphView::OnMpeg2DemuxCreatePsiPin()
 {
-    if(!current_filter) return;
+	GraphStudio::Filter * const current_filter = graph.GetSelectedFilter();
+    if(!current_filter) 
+		return;
 
     CComQIPtr<IMpeg2Demultiplexer> mp2demux = current_filter->filter;
     if(!mp2demux) return;
@@ -1347,7 +1350,7 @@ void CGraphView::OnMpeg2DemuxCreatePsiPin()
                         // Set PSI Pin as current Pin
                         GraphStudio::Pin pin(NULL);
                         pin.Load(psiPin);
-                        current_pin = &pin;
+						graph.SetSelection(NULL, &pin);
 
                         // Insert and connect PSI Config Filter
 		                hr = InsertNewFilter(psiConfigFilter, filter.name);
@@ -1768,13 +1771,9 @@ void CGraphView::OnFilterRemoved(GraphStudio::DisplayGraph *sender, GraphStudio:
 	// Prevent any dangling references to Filters or Pins that are about to be deleted
 	if (overlay_filter == filter)
 		overlay_filter = NULL;
-	if (current_filter == filter)
-		current_filter = NULL;
-	if (current_pin && filter->FindPin(current_pin->pin))
-		current_pin = NULL;
 }
 
-void CGraphView::OnDisplayPropertyPage(IUnknown *object, IUnknown *filter, CString title)
+void CGraphView::OnDisplayPropertyPage(IUnknown *object, GraphStudio::Filter *filter, CString title)
 {
 	// scan through our objects...
 	for (int i=0; i<property_pages.GetCount(); i++) {
@@ -1787,12 +1786,12 @@ void CGraphView::OnDisplayPropertyPage(IUnknown *object, IUnknown *filter, CStri
 	}
 
 	CPropertyForm	*page = new CPropertyForm(this);
-	int ret = page->DisplayPages(object, filter, title, this);
-	if (current_filter) {
-		CPoint filter_pos(current_filter->posx, current_filter->posy);
+	int ret = page->DisplayPages(object, filter->filter, title, this);
+	if (filter) {
+		CPoint filter_pos(filter->posx, filter->posy);
 		filter_pos -= GetScrollPosition();
 		ClientToScreen(&filter_pos);
-		// position the dialog below current_filter
+		// position the dialog below filter
 		page->SetWindowPos(NULL, filter_pos.x, filter_pos.y + 200, 0, 0, SWP_NOSIZE);
 	}
 	if (ret < 0) {
@@ -2151,6 +2150,7 @@ static HTREEITEM ToggleFilterClassBookmark(GraphStudio::BookmarkedFilters* bookm
 
 afx_msg void CGraphView::OnFilterFavorite()
 {
+	GraphStudio::Filter * const current_filter = graph.GetSelectedFilter();
 	const HTREEITEM removed_item = ToggleFilterClassBookmark(CFavoritesForm::GetFavoriteFilters(), current_filter);
 	if (form_favorites) {
 		if (removed_item) {
@@ -2163,6 +2163,7 @@ afx_msg void CGraphView::OnFilterFavorite()
 
 afx_msg void CGraphView::OnFilterBlacklist()
 {
+	GraphStudio::Filter * const current_filter = graph.GetSelectedFilter();
 	ToggleFilterClassBookmark(CFavoritesForm::GetBlacklistedFilters(), current_filter);
 }
 
