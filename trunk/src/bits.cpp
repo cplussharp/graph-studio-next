@@ -196,12 +196,46 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         return r;
     }
 
+    UINT32 CBitStreamReader::ReadU8()
+    {
+        UINT32 r = 0;
+        if (IsEnd()) return 0;
+        
+        if (m_bitsLeft == 8)
+        {
+            // optimized reading when byte aligned
+            r = *(m_p);
+            m_bitsLeft = 0;
+
+            GotoNextByteIfNeeded();
+        }
+        else
+            r = ReadU(8);
+    
+        return r;
+    }
+
     void CBitStreamReader::SkipU1()
     {
         if (IsEnd()) return;
         
         m_bitsLeft--;   
         GotoNextByteIfNeeded();
+    }
+
+    void CBitStreamReader::SkipU8(int n=1)
+    {
+        if (IsEnd()) return;
+
+        int bitsLeft = m_bitsLeft;
+
+        for (int i=0; i<n; i++)
+        {
+            m_bitsLeft = 0;
+            GotoNextByteIfNeeded();
+        }
+
+        m_bitsLeft = bitsLeft;
     }
     
     UINT32 CBitStreamReader::ReadU(int n)

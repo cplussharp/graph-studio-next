@@ -49,6 +49,8 @@ CDecPerformanceForm::CDecPerformanceForm(CGraphView* parent_view) :
 	perf_operation = false;
     null_renderer.clsid = DSUtil::CLSID_NullRenderer;
     null_renderer.name = _T("Null Renderer");
+    null_renderer_dxva.clsid = __uuidof(DxvaNullRenderer);
+    null_renderer_dxva.name = _T("DXVA Null Renderer");
     time_filter_template.clsid = __uuidof(TimeMeasureFilter);
     time_filter_template.name = _T("Time Measure Filter");
 }
@@ -193,6 +195,8 @@ void CDecPerformanceForm::OnCbnSelChange()
 
     int index = cb_renderers.AddString(_T("Null Renderer"));
     cb_renderers.SetItemDataPtr(index, (void*)&null_renderer);
+    index = cb_renderers.AddString(_T("DXVA Null Renderer"));
+    cb_renderers.SetItemDataPtr(index, (void*)&null_renderer_dxva);
     for (int i=0; i<renderers->filters.GetCount(); i++) {
 		index = cb_renderers.AddString(renderers->filters[i].name);
         cb_renderers.SetItemDataPtr(index, (void*)&renderers->filters[i]);

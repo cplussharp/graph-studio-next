@@ -32,6 +32,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		ON_COMMAND(ID_PIN_RENDER, &DisplayView::OnRenderPin)
         ON_COMMAND(ID_PIN_REMOVE, &DisplayView::OnRemovePin)
 		ON_COMMAND(ID_PIN_NULL_STREAM, &DisplayView::OnRenderNullStream)
+        ON_COMMAND(ID_PIN_DXVA_NULL_STREAM, &DisplayView::OnRenderDxvaNullStream)
 		ON_COMMAND(ID_PIN_DUMP_STREAM, &DisplayView::OnDumpStream)
 		ON_COMMAND(ID_PIN_TIME_MEASURE_STREAM, &DisplayView::OnTimeMeasureStream)
 		ON_COMMAND(ID_PIN_ANALYZE_STREAM, &DisplayView::OnAnalyzeStream)
@@ -285,6 +286,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 			if (!current_pin || !current_pin->connected) {
 				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_NULL_STREAM, _T("&Null Renderer"));
+                if (current_pin && current_pin->connectionType == Pin::PIN_CONNECTION_TYPE_VIDEO)
+                    menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_DXVA_NULL_STREAM, _T("&DXVA Null Renderer"));
 				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_DUMP_STREAM, _T("D&ump Filter"));
 				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_ANALYZE_WRITER_STREAM, _T("Analyzer &Writer Filter"));
 			}
@@ -921,6 +924,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		} else {
 			hr = InsertNewFilter(instance, _T("Null Renderer"));
 		}
+	}
+
+    void DisplayView::OnRenderDxvaNullStream()
+	{
+        CComPtr<IBaseFilter>	instance;
+        HRESULT hr;
+		CDxvaNullRenderer* const nullRenderer = new CDxvaNullRenderer(NULL, &hr);
+	    hr = nullRenderer->NonDelegatingQueryInterface(IID_IBaseFilter, (void**)&instance);
+		
+		if (SUCCEEDED(hr))
+			hr = InsertNewFilter(instance, _T("DXVA Null Renderer"));
 	}
 
 	HRESULT DisplayView::InsertNewFilter(IBaseFilter* newFilter, const CString& filterName, bool connectToCurrentPin /*= true */ )

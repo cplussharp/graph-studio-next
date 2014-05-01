@@ -41,6 +41,7 @@ private:
 	// view to work with
 	DSUtil::FilterTemplates        	decoders;
     DSUtil::FilterTemplate          null_renderer;
+    DSUtil::FilterTemplate          null_renderer_dxva;
     DSUtil::FilterTemplate          time_filter_template;
 	GraphStudio::FilenameList		file_list;
 

@@ -1066,6 +1066,10 @@ namespace DSUtil
         filter.clsid = __uuidof(TimeMeasureFilter);
         filters.Add(filter);
 
+        filter.name = _T("DXVA Null Renderer");
+        filter.clsid = __uuidof(DxvaNullRenderer);
+        filters.Add(filter);
+
         filter.name = _T("Fake M2TS Device Filter");
         filter.clsid = CLSID_FakeM2tsDevice;
         filters.Add(filter);

@@ -166,7 +166,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         void SkipU(int n);
         UINT32 ReadU1();
         void SkipU1();
-        inline UINT32 ReadU8() {return ReadU(8);}
+        void SkipU8(int n);
+        UINT32 ReadU8();
         UINT16 ReadU16();
         UINT32 ReadU32();
         UINT32 ReadUE();
@@ -175,6 +176,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         UINT32 PeekU1();
 
         inline UINT8* Pointer() { return m_p; }
+        inline void SkipToEnd() { m_p = m_end; }
+        inline void ByteAlign() { if (m_bitsLeft != 8) m_bitsLeft = 0; GotoNextByteIfNeeded(); }
 
     private:
         void GotoNextByteIfNeeded();
