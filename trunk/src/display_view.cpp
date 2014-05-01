@@ -63,9 +63,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	END_MESSAGE_MAP()
 
 	DisplayView::DisplayView()
-		: current_filter(NULL)
-		, current_pin(NULL)
-		, back_width(0)
+		: back_width(0)
 		, back_height(0)
 		, overlay_filter(NULL)
 	{
@@ -88,37 +86,16 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return TRUE;
 	}
 
-	void DisplayView::OnLButtonDblClk(UINT nFlags, CPoint point)
+	// return true if any selection made
+	bool DisplayView::SetSelectionFromClick(UINT nFlags, CPoint point, GraphStudio::Filter ** selected_filter, GraphStudio::Pin** selected_pin)
 	{
 		point += GetScrollPosition();
 
 		// find out if there is any filter being selected
-		current_filter = graph.FindFilterByPos(point);
+		Filter * current_filter = graph.FindFilterByPos(point);
 
 		// check for a pin - will have different menu
-		current_pin = current_filter ? current_filter->FindPinByPos(point, false) : NULL;
-
-		// if no filter or pin under cursor so check for connection line under cursor
-		if (!current_filter && !current_pin) {
-			for (int i=0; !current_pin && i<graph.filters.GetCount(); i++) 
-				current_pin = graph.filters[i]->FindConnectionLineByPos(point);
-			if (current_pin)
-				current_filter = current_pin->filter;
-		}
-
-		if (current_filter || current_pin)
-			OnPropertyPage();
-	}
-
-	void DisplayView::OnRButtonDown(UINT nFlags, CPoint point)
-	{
-		point += GetScrollPosition();
-
-		// find out if there is any filter being selected
-		current_filter = graph.FindFilterByPos(point);
-
-		// check for a pin - will have different menu
-		current_pin = current_filter ? current_filter->FindPinByPos(point, false) : NULL;
+		Pin * current_pin = current_filter ? current_filter->FindPinByPos(point, false) : NULL;
 
 		if (!current_pin)
 			current_pin = GetPinFromFilterClick(current_filter, nFlags, /* findConnectedPin = */ false);
@@ -130,12 +107,34 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			if (current_pin)
 				current_filter = current_pin->filter;
 		}
-		
-		GetCursorPos(&point);
-		ShowContextMenu(point);
+
+		graph.SetSelection(current_pin ? NULL : current_filter, current_pin);
+		Invalidate();
+
+		if (selected_filter)
+			*selected_filter = current_filter;
+		if (selected_pin)
+			*selected_pin = current_pin;
+
+		return current_filter || current_pin;
 	}
 
-	void DisplayView::ShowContextMenu(CPoint point)
+	void DisplayView::OnLButtonDblClk(UINT nFlags, CPoint point)
+	{
+		if (SetSelectionFromClick(nFlags, point))
+			OnPropertyPage();
+	}
+
+	void DisplayView::OnRButtonDown(UINT nFlags, CPoint point)
+	{
+		Filter * filter = NULL;
+		Pin * pin = NULL;
+		SetSelectionFromClick(nFlags, point, &filter, &pin);
+		GetCursorPos(&point);
+		ShowContextMenu(point, filter, pin);
+	}
+
+	void DisplayView::ShowContextMenu(CPoint point, GraphStudio::Filter * current_filter, GraphStudio::Pin* current_pin)
 	{
 		CMenu	menu;
 		if (!menu.CreatePopupMenu()) 
@@ -294,55 +293,20 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_FILE_WRITER, _T("F&ile Writer"));
 			}
 
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_TEE_STREAM, _T("&Tee Filter"));
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_TIME_MEASURE_STREAM, _T("Time &Measure Filter"));
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_ANALYZE_STREAM, _T("&Analyzer Filter"));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_PIN_TEE_STREAM, _T("&Tee Filter"));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_PIN_TIME_MEASURE_STREAM, _T("Time &Measure Filter"));
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_PIN_ANALYZE_STREAM, _T("&Analyzer Filter"));
 		}
 
 		// display menu
-		menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this /*AfxGetMainWnd()*/);
+		menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, AfxGetMainWnd());
 	}
 
 	// Select the single thing we've clicked on - pin/filter/connection - and delete it
 	void DisplayView::OnMButtonDown(UINT nFlags, CPoint point)
 	{
-		point += GetScrollPosition();
-
-		current_pin = NULL;
-		current_filter = NULL;
-
-		// deselect all filters but select any connections we've clicked on
-		for (int i=0; i<graph.filters.GetCount(); i++) {
-			if (graph.filters[i]->selected) {
-				graph.filters[i]->Select(false);
-			}
-			graph.filters[i]->SelectConnection(nFlags, point);
-		}
-
-		// find out if there is any filter being selected
-		Filter * const filter = graph.FindFilterByPos(point);
-
-		// check for a pin - will have different menu
-		Pin * pin = filter ? filter->FindPinByPos(point, false) : NULL;
-
-		if (filter && !pin) {
-			pin = GetPinFromFilterClick(filter, nFlags, /* findConnectedPin = */ true);
-			if (!pin && (nFlags & (MK_SHIFT | MK_CONTROL) )) {
-				// Used pressed shift or control but no pin found so return to prevent unexpected destructive side effects
-				return;			
-			}
-		}
-
-		if (pin) {
-			if (pin->connected) {
-				pin->Select(true);
-				current_pin = pin;
-			}
-		} else if (filter) {
-			filter->Select(true);
-		}
-
-		OnDeleteSelection();
+		if (SetSelectionFromClick(nFlags, point))
+			OnDeleteSelection();
 	}
 
 	Pin * DisplayView::GetPinFromFilterClick(Filter* filter, int clickFlags, bool findConnectedPin)
@@ -387,6 +351,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		SetCapture();	
 		start_drag_point = point;
 		end_drag_point = point;
+		Filter * current_filter = NULL;
+		Pin * current_pin = NULL;
 
 		Filter	*current = graph.FindFilterByPos(point);
 		if (!current) {
@@ -422,6 +388,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				graph.filters[i]->Select(false);
 			}
 
+			current_pin = hitpin;
+			hitpin->selected = true;
+
 			// remember the start point
 			hitpin->GetCenterPoint(&new_connection_start);
 			new_connection_end = new_connection_start;
@@ -430,6 +399,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			new_connection_end_connected = false;
 			drag_mode = DisplayView::DRAG_CONNECTION;
 
+			graph.Dirty();
+			Invalidate();
 		} else {
 
 			int icon = current->CheckIcons(point);
@@ -448,17 +419,20 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				}
 			} else {
 				if (nFlags & MK_CONTROL) {
-					current->Select(true);
+					current->selected = true;
 					current_filter = current;
 					graph.Dirty();
 					Invalidate();
 				} else {
+					current_filter = current;
 					// deselect all filters but this
 					for (int i=0; i<graph.filters.GetCount(); i++) {
 						graph.filters[i]->Select(false);
 					}
-					current->Select(true);
-					current_filter = current;
+					if (current_pin)
+						current_pin->selected = true;
+					else if (current_filter)
+						current_filter->selected = true;
 					graph.Dirty();
 					Invalidate();
 				}
@@ -691,7 +665,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 					end_drag_point = point;
 					CRect	rc(minx, miny, maxx, maxy);
 
-					current_filter = NULL;
 					for (int i=0; i<graph.filters.GetCount(); i++) {
 						Filter *filter = graph.filters[i];
 
@@ -705,8 +678,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 						if (sel != filter->selected) {
 							filter->Select(sel);
-							if (sel)
-								current_filter = filter;	// one may end up selected
 							need_invalidate = true;
 						}
 					}
@@ -723,8 +694,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				Invalidate();
 			}
 		} else {
-            current_pin = NULL;
-
 			/*
 				No buttons are pressed. We only check for overlay icons
 			*/
@@ -970,6 +939,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 		}
 
+		Pin * const current_pin = graph.GetSelectedPin();
+
 		// has selected pin, then get IPin interface now, because graph.AddFilter will release current_pin
 		CComPtr<IPin> outpin(connectToCurrentPin && current_pin ? current_pin->pin : NULL);
 		hr = graph.AddFilter(newFilter, filterName);
@@ -1004,15 +975,22 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			graph.Dirty();
 			Invalidate();
 		}
-		outpin = NULL;
-		current_pin = NULL;
+		for (int i=0; i<graph.filters.GetCount(); i++) {
+			if (newFilter == graph.filters[i]->filter) {
+				graph.SetSelection(graph.filters[i], NULL);
+			}
+		}
+
+		Invalidate();
 
 		return hr;
 	}
 
 	void DisplayView::OnRenderPin()
 	{
-		if (!current_pin) return ;
+		Pin * const current_pin = graph.GetSelectedPin();
+		if (!current_pin) 
+			return ;
 
 		render_params.MarkRender(true);	
 		HRESULT	hr = graph.gb->Render(current_pin->pin);
@@ -1027,12 +1005,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		} else {
             DSUtil::ShowError(hr,_T("Can't render pin"));
 		}
-		current_pin = NULL;
 	}
 
     void DisplayView::OnRemovePin()
 	{
-		if (!current_pin) return;
+		Pin * const current_pin = graph.GetSelectedPin();
+		if (!current_pin) 
+			return;
 
         CComQIPtr<IMPEG2PIDMap> pPIDMap = current_pin->pin;
         CComQIPtr<IMpeg2Demultiplexer> pMpeg2Demux = current_pin->filter->filter;
@@ -1052,7 +1031,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				DSUtil::ShowError(hr,_T("Can't remove pin"));
 		    }
         }
-		current_pin = NULL;
 	}
 
 	void DisplayView::OnDeleteFilter()
@@ -1068,6 +1046,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void DisplayView::OnChooseSourceFile()
 	{
+		Filter * const current_filter = graph.GetSelectedFilter();
 		if (current_filter && current_filter->filter) {
 			CComQIPtr<IFileSourceFilter> source(current_filter->filter);
 			if (source) {
@@ -1084,6 +1063,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void DisplayView::OnChooseDestinationFile()
 	{
+		Filter * const current_filter = graph.GetSelectedFilter();
 		if (current_filter && current_filter->filter) {
 			CComQIPtr<IFileSinkFilter> sink(current_filter->filter);
 			if (sink) {
@@ -1100,16 +1080,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void DisplayView::OnPropertyPage()
 	{
+		Pin * const current_pin = graph.GetSelectedPin();
 		CString	title;
 		if (current_pin) {
 			title = current_pin->filter->name + _T("/") + current_pin->name + _T(" Properties");
-			OnDisplayPropertyPage(current_pin->pin, current_filter->filter, title);
-			return ;
-		}
-		if (current_filter) {
-			title = current_filter->name + _T(" Properties");
-			OnDisplayPropertyPage(current_filter->filter, current_filter->filter, title);
-			return ;
+			OnDisplayPropertyPage(current_pin->pin, current_pin->filter, title);
+		} else {
+			Filter * const current_filter = graph.GetSelectedFilter();
+			if (current_filter) {
+				title = current_filter->name + _T(" Properties");
+				OnDisplayPropertyPage(current_filter->filter, current_filter, title);
+			}
 		}
 	}
 
@@ -1123,7 +1104,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// to be overriden
 	}
 
-	void DisplayView::OnDisplayPropertyPage(IUnknown *object, IUnknown *filter, CString title)
+	void DisplayView::OnDisplayPropertyPage(IUnknown *object, Filter *filter, CString title)
 	{
 	}
 
@@ -1188,17 +1169,22 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		CComPtr<IAMStreamSelect>	select;
 		select = NULL;
 
-		if (!current_filter) return ;
-		if (current_pin && current_pin->pin) current_pin->pin->QueryInterface(IID_IAMStreamSelect, (void**)&select);
-		if (!select) current_filter->filter->QueryInterface(IID_IAMStreamSelect, (void**)&select);
-		if (!select) return ;
+		Pin * const current_pin = graph.GetSelectedPin();
+		Filter * const current_filter = current_pin ? current_pin->filter : graph.GetSelectedFilter();
+
+		if (!current_filter) 
+			return ;
+		if (current_pin && current_pin->pin) 
+			current_pin->pin->QueryInterface(IID_IAMStreamSelect, (void**)&select);
+		if (!select) 
+			current_filter->filter->QueryInterface(IID_IAMStreamSelect, (void**)&select);
+		if (!select) 
+			return ;
 
 		id -= ID_STREAM_SELECT;
 
 		// enable the stream
 		select->Enable(id, AMSTREAMSELECTENABLE_ENABLE);
-
-		select = NULL;
 	}
 
 	void DisplayView::OnCompatibleFilterClick(UINT id)
@@ -1462,8 +1448,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		CArray<Filter*>& filters = graph.filters;
 		const int filter_count = graph.filters.GetCount();
 		if (filter_count <= 0) {
-			current_filter = NULL;
-			current_pin = NULL;
 			return;				// empty graph - nothing to do
 		}
 
@@ -1473,24 +1457,26 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		Pin * prev_pin = NULL;
 
 		// Find currently selected filter
-		for (int i=0; i<filter_count; i++) {
-			if (filters[i]->selected) {
-				prev_filter = filters[i];
-				for (int j=0; !prev_pin && j<prev_filter->input_pins.GetCount(); j++) {
-					Pin * const pin = prev_filter->input_pins[j];
+		for (int i=0; i<filter_count && !prev_filter && !prev_pin; i++) {
+			Filter * const filter = filters[i];
+			if (filter->selected) {
+				prev_filter = filter;
+			} else { 
+				for (int j=0; j<filter->input_pins.GetCount() && !prev_pin; j++) {
+					Pin * const pin = filter->input_pins[j];
+					if (pin->selected) {
+						prev_pin = pin;
+					}
+				}
+				for (int j=0; j<filter->output_pins.GetCount() && !prev_pin ; j++) {
+					Pin * const pin = filter->output_pins[j];
 					if (pin->selected)
 						prev_pin = pin;
 				}
-				for (int j=0; !prev_pin && j<prev_filter->output_pins.GetCount(); j++) {
-					Pin * const pin = prev_filter->output_pins[j];
-					if (pin->selected)
-						prev_pin = pin;
-				}
-				break;
 			}
 		}
 
-		if (!prev_filter) {
+		if (!prev_filter && !prev_pin) {
 			// If no filters selected then select left and top-most filter
 			for (int i=0; i<filter_count; i++) {
 				Filter * const filter = filters[i];
@@ -1505,7 +1491,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			next_pin = prev_pin;
 			
 			if (vertical) {
-				CArray<Pin*> & pins = prev_pin->dir == PINDIR_OUTPUT ? prev_filter->output_pins : prev_filter->input_pins;
+				CArray<Pin*> & pins = prev_pin->dir == PINDIR_OUTPUT ? prev_pin->filter->output_pins : prev_pin->filter->input_pins;
 				for (int i=0; i<pins.GetCount(); i++) {
 					if (pins[i] == prev_pin) {
 						i += positive ? 1 : -1;
@@ -1523,7 +1509,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 						next_filter = next_pin->filter;
 					}
 				} else {													// switch to top of other pin list if available
-					CArray<Pin*> & pins = positive ? prev_filter->output_pins : prev_filter->input_pins;
+					CArray<Pin*> & pins = positive ? prev_pin->filter->output_pins : prev_pin->filter->input_pins;
 					if (pins.GetCount() > 0) {
 						next_pin = pins[0];
 					}
@@ -1535,26 +1521,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			// no existing selected pin - jumps to top of output pins if present (or input if left pressed)
 			CArray<Pin*> & pins = vertical || positive ? prev_filter->output_pins : prev_filter->input_pins;
 			if (pins.GetCount() > 0) {
-				next_pin = pins[0];
+				next_pin = vertical && !positive ? pins[pins.GetCount()-1]: pins[0];		// up goes to bottom of output pins list, otherwise we got to top of list
 			}
 
 		} else {
-			// filter navigation
-			// if horizontal - first try navigating to first connected filter
-			if (!vertical) {
-				CArray<Pin*> & prev_pins = positive ? prev_filter->output_pins : prev_filter->input_pins;
-
-				for (int i=0; i<prev_pins.GetCount(); i++) {
-					Pin * const peer = prev_pins[i]->peer;
-					if (peer) {
-						next_filter = peer->filter;
-						break;
-					}
-				}
-			}
-
-			// otherwise try navigating to filters by direction
-			if (!next_filter) {
+			if (prev_pin && !prev_filter) {
+				prev_filter = prev_pin->filter;		// if only pin selected, start navigation from its filter
+			} else {
 				next_filter = FindNextFilterByDirection(filters, prev_filter, vertical, positive);
 			}
 		}
@@ -1562,16 +1535,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (!next_filter)
 			next_filter = prev_filter;
 
-		for (int i=0; i<filter_count; i++) {
-			filters[i]->Select(false);				// deselect all
-		}
-		if (next_filter)
-			next_filter->selected = true;
-		if (next_pin)
-			next_pin->Select(true);
-		current_filter = next_filter;
-		current_pin = next_pin;
-		graph.Dirty();
+		graph.SetSelection(next_pin ? NULL : next_filter, next_pin);		// Select pin or filter, not both
 	}
 
 	void DisplayView::OnFilterLeft()
@@ -1626,14 +1590,20 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	{
 		CPoint point;
 
+		Pin * const current_pin = graph.GetSelectedPin();
+		Filter * current_filter = current_pin ? current_pin->filter : NULL;
+
 		if (current_pin)
 			current_pin->GetCenterPoint(&point);
-		else if (current_filter) {
-			point = CPoint(current_filter->posx + (current_filter->width/2), current_filter->posy + (current_filter->height/2));
+		else {
+			current_filter = graph.GetSelectedFilter();
+			if (current_filter) {
+				point = CPoint(current_filter->posx + (current_filter->width/2), current_filter->posy + (current_filter->height/2));
+			}
 		}
-
+		point -= GetScrollPosition();
 		ClientToScreen(&point);
-		ShowContextMenu(point);
+		ShowContextMenu(point, current_filter, current_pin);
 	}
 
 GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

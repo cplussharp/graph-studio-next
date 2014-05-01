@@ -192,7 +192,7 @@ public:
 	virtual LRESULT OnWmCommand(WPARAM wParam, LPARAM lParam);
 
 	// property pages
-	virtual void OnDisplayPropertyPage(IUnknown *object, IUnknown *filter, CString title);
+	virtual void OnDisplayPropertyPage(IUnknown *object, GraphStudio::Filter *filter, CString title);
 	virtual void OnFilterRemoved(GraphStudio::DisplayGraph *sender, GraphStudio::Filter *filter);
 	virtual void OnPropertyPageClosed(CPropertyForm *page);
 	virtual void OnRenderFinished();

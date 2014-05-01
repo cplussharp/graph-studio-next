@@ -2515,6 +2515,69 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 	}
 
+	// filter and/or pin can be NULL
+	// Usually best to set selection of pin OR filter than both
+	void DisplayGraph::SetSelection(Filter * filter, Pin * pin)
+	{
+		const int filter_count = filters.GetCount();
+		for (int i=0; i<filter_count; i++) {
+			filters[i]->Select(false);				// deselect all
+		}
+		if (pin)
+			pin->selected = true;
+		if (filter)
+			filter->selected = true;
+
+		ASSERT(!pin || !filter);
+
+		Dirty();		// allow redrawing of selection change
+	}
+
+	Pin * DisplayGraph::GetSelectedPin(bool allow_multi_selection)
+	{
+		Pin * selected = NULL;
+		const int filter_count = filters.GetCount();
+
+		for (int i=0; i<filter_count; i++) {
+			for (int j=0; j<2; j++) {
+				CArray<Pin*> & pins = j==0 ? filters[i]->input_pins : filters[i]->output_pins;
+				const int pin_count = pins.GetCount();
+				for (int k=0; k<pin_count; k++) {
+					if (pins[k]->selected) {
+						if (selected)
+							return NULL;				// no multiple selection allowed
+						else {
+							selected = pins[k];
+							if (allow_multi_selection)
+								return selected;		// return first selected filter found
+						}
+					}
+				}
+			}
+		}
+		return selected;
+	}
+
+	// if allow_multi_selection is true return first selected filter, if false return NULL if more than one filter selected
+	Filter * DisplayGraph::GetSelectedFilter(bool allow_multi_selection)
+	{
+		Filter * selected = NULL;
+		const int filter_count = filters.GetCount();
+
+		for (int i=0; i<filter_count; i++) {
+			if (filters[i]->selected) {
+				if (selected)
+					return NULL;				// no multiple selection allowed
+				else {
+					selected = filters[i];
+					if (allow_multi_selection)
+						return selected;		// return first selected filter found
+				}
+			}
+		}
+		return selected;
+	}
+
 	//-------------------------------------------------------------------------
 	//
 	//	Filter class
@@ -2622,7 +2685,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		int i;
 		for (i=0; i<output_pins.GetCount(); i++) {
 			Pin *pin = output_pins[i];
-			if (pin->selected) {
+			if (pin->selected || (pin->peer && pin->peer->selected)) {
 				pin->Disconnect();
 			}
 		}
@@ -2788,6 +2851,21 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		overlay_icon_active = -1;
 		UpdateClock();
 
+		// Before we remove existing Pins, record IPin of all selected Pins
+		// so that new Pin objects wrapping IPin that were previously selected will still be selected
+		// There could theoretically be chance matches of IPin pointers but the effects would only be
+		// incorrectly selected Pins as we never dereference members of selected_pins;
+		std::set<IPin*> previously_selected_ipins;		// NB do not dereference stored pointers as they may be invalid
+		for (int i=0; i<2; i++) {
+			CArray<Pin*> & pins = (i==0) ? input_pins : output_pins;
+			const int pin_count = pins.GetCount();
+			for (int j=0; j<pin_count; j++) {
+				Pin * const pin = pins[j];
+				if (pin->selected)
+					previously_selected_ipins.insert(pin->pin);
+			}
+		}
+
 		// now scan for pins
 		IEnumPins	*epins;
 		IPin		*pin;
@@ -2798,7 +2876,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		while (epins->Next(1, &pin, &ff) == NOERROR) {
 			PIN_DIRECTION	dir;
 			pin->QueryDirection(&dir);
-			LoadPin(pin, dir);
+			Pin * const new_pin = LoadPin(pin, dir);
+			if (new_pin && previously_selected_ipins.find(pin) != previously_selected_ipins.end())
+				new_pin->selected = true;
 			pin->Release();
 
 #if 0
@@ -2825,6 +2905,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 #endif
 		}
 		epins->Release();
+		previously_selected_ipins.clear();
 
 		connected = false;
 		int i;
@@ -2939,17 +3020,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return NULL;
 	}
 
-	void Filter::LoadPin(IPin *pin, PIN_DIRECTION dir)
+	// Return the new Pin generated - could be in input_pins or output_pins list
+	Pin * Filter::LoadPin(IPin *pin, PIN_DIRECTION dir)
 	{
 		Pin	*npin = new Pin(this);
 		if (npin->Load(pin) < 0) {
 			delete npin;
-			return ;
+			return NULL;
 		}
-	
-		// to the proper pool
-		if (dir == PINDIR_INPUT) input_pins.Add(npin); else 
-		if (dir == PINDIR_OUTPUT) output_pins.Add(npin);
+		// add to the correct list
+		(dir == PINDIR_INPUT ? input_pins : output_pins).Add(npin);
+		return npin;
 	}
 
 	void Filter::LoadPeers()
@@ -2988,21 +3069,25 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		// vector length
-		double	vs = sqrt(vx*vx + vy*vy); vx /= vs;	vy /= vs;
-		double	arrow_size = 8;
+		const double	arrow_size = 8;
+		const double	vs = sqrt(vx*vx + vy*vy); vx /= vs;	vy /= vs;
+		const double	arrow_x = (arrow_size * vx) / 2.0;
+		const double	arrow_y = (arrow_size * vy) / 2.0;
+
+		CPoint mid_point( (p1.x+p2.x)/2, (p1.y+p2.y)/2 );
 
 		// find the midpoint
-		double	mx, my;
-		mx = p2.x - arrow_size * vx;
-		my = p2.y - arrow_size * vy;
+		const double mx = mid_point.x - arrow_x;
+		const double my = mid_point.y - arrow_y;
+		mid_point.x += arrow_x;
+		mid_point.y += arrow_y;
 
 		// find the arrow points
-		double	tx, ty;
-		tx = vy;
-		ty = -vx;
+		const double tx = vy;
+		const double ty = -vx;
 
-		CPoint	a1(mx + (tx*arrow_size/2.4), my + (ty*arrow_size/2.4));
-		CPoint	a2(mx - (tx*arrow_size/2.4), my - (ty*arrow_size/2.4));
+		const CPoint a1(mx + (tx*arrow_size/2.4), my + (ty*arrow_size/2.4));
+		const CPoint a2(mx - (tx*arrow_size/2.4), my - (ty*arrow_size/2.4));
 
         dc->SetBkMode(TRANSPARENT);
         dc->SelectObject(&pen);
@@ -3011,7 +3096,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
         dc->SelectObject(&brush);
 		dc->SelectObject(&penArrow);
-        POINT	pts[3] = { a1, a2, p2 };
+        POINT	pts[3] = { a1, a2, mid_point };
 		dc->Polygon((const POINT*)&pts, 3);
 	}
 
@@ -3027,7 +3112,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				CPoint	pt1, pt2;
 				pin->GetCenterPoint(&pt1);
 				peer->GetCenterPoint(&pt2);
-				if (pin->selected) color = params->color_select;
+				if (pin->selected || pin->peer->selected) 
+					color = params->color_select;
 			
 				DoDrawArrow(dc, pt1, pt2, color);
 			}
@@ -3257,7 +3343,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// Select pin clicked on
 		Pin * const pin = FindConnectionLineByPos(pt);
 		if (pin)
-			pin->Select(true);
+			pin->selected = true;
 	}
 
 	void Filter::BeginDrag()
@@ -3474,11 +3560,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// clear variables
 		peer->peer = NULL;
-		peer->selected = false;
 		peer->connected = false;
 		peer = NULL;
 		connected = false;
-		selected = false;
 
 		// we're okay
 		return S_OK;
@@ -3635,11 +3719,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void Pin::Draw(CDC *dc, bool input, int x, int y)
 	{
-		const bool highlight = (!input || !connected) && selected;
-
-		CPen	pen_light(PS_SOLID, 1,	highlight ? params->color_select : params->color_filter_border_light);
-		CPen	pen_dark(PS_SOLID,	1,	highlight ? params->color_select : params->color_filter_border_dark);
-		CPen	pen_back(PS_SOLID,	1,	highlight ? params->color_select : params->color_filter_type[0]);
+		CPen	pen_light(PS_SOLID, 1,	selected ? params->color_select : params->color_filter_border_light);
+		CPen	pen_dark(PS_SOLID,	1,	selected ? params->color_select : params->color_filter_border_dark);
+		CPen	pen_back(PS_SOLID,	1,	selected ? params->color_select : params->color_filter_type[0]);
 		CBrush	brush_back(params->color_filter_type[0]);
 
 		const int		pinsize = 5;

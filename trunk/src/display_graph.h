@@ -41,7 +41,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		PIN_DIRECTION			dir;
 		bool					connected;
         PIN_CONNECTION_TYPE     connectionType;
-		bool					selected;		// selected connection pin->peer (only valid for output pins)
+		bool					selected;
 
 	public:
 		Pin(Filter *parent);
@@ -155,7 +155,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void RemovePins();
 		void LoadFromFilter(IBaseFilter *f);
 		void Refresh();
-		void LoadPin(IPin *pin, PIN_DIRECTION dir);
+		Pin *LoadPin(IPin *pin, PIN_DIRECTION dir);
 		Pin *FindPin(IPin *pin);
 		Pin *FindPinByPos(CPoint p, bool not_connected = true);
 		Pin *FindPinByID(CString id);
@@ -329,9 +329,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		void RefreshFilters();
 		void DeleteAllFilters();
-		void SelectAllFilters(bool select);
 		void LoadPeers();
 		void RemoveSelectionFromGraph();
+
+		// selection processing
+		void SelectAllFilters(bool select);
+		Filter * GetSelectedFilter(bool allow_multi_selection = false);
+		Pin * GetSelectedPin(bool allow_multi_selection = false);
+		void SetSelection(Filter * filter, Pin * pin);
 
 		int CalcDownstreamYPosition(Filter* const start_filter) const;
 		void SmartPlacement();

@@ -56,8 +56,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// helpers for rightclick menu
 		Filter						*overlay_filter;
-		Filter						*current_filter;
-		Pin							*current_pin;
 		DSUtil::FilterTemplates		compatible_filters;
 
 
@@ -92,6 +90,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void OnChooseDestinationFile();
 
 		void MakeScreenshot(const CString& image_filename, const GUID& gdiplus_format);
+		bool SetSelectionFromClick(UINT nFlags, CPoint point, GraphStudio::Filter ** selected_filter = NULL, GraphStudio::Pin** selected_pin = NULL);
 
 		// stream selection
 		void PrepareStreamSelectMenu(CMenu &menu, IUnknown *obj);
@@ -103,7 +102,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void OnSelectStream(UINT id);
 		void OnCompatibleFilterClick(UINT id);
 		void NavigateFilterGraph(bool pin, bool vertical, bool positive);
-		void ShowContextMenu(CPoint pt);
+		void ShowContextMenu(CPoint pt, GraphStudio::Filter *, GraphStudio::Pin *);
 
 		// scrolling aid
 		void UpdateScrolling();
@@ -113,7 +112,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         virtual ULONG GetGestureStatus(CPoint ptTouch);
 
 		// to be overriden
-		virtual void OnDisplayPropertyPage(IUnknown *object, IUnknown *filter, CString title);
+		virtual void OnDisplayPropertyPage(IUnknown *object, GraphStudio::Filter *filter, CString title);
 		virtual void OnFilterRemoved(DisplayGraph *sender, Filter *filter);
 		virtual void OnOverlayIconClick(OverlayIcon *icon, CPoint point);
 		virtual void OnRenderFinished();
