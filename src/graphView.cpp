@@ -2113,6 +2113,9 @@ HRESULT CGraphView::InsertFilterFromTemplate(DSUtil::FilterTemplate &filter)
 	HRESULT hr = filter.CreateInstance(&instance);
 	if (SUCCEEDED(hr))
 		hr = InsertNewFilter(instance, filter.name);
+    else
+        DSUtil::ShowError(hr, _T("Create filter failure"));
+
 	return hr;
 }
 

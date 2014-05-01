@@ -78,6 +78,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void OnRenderPin();
         void OnRemovePin();
 		void OnRenderNullStream();
+        void OnRenderDxvaNullStream();
 		void OnDumpStream();
 		void OnTimeMeasureStream();
 		void OnAnalyzeStream();

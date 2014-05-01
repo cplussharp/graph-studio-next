@@ -1,0 +1,20 @@
+import "unknwn.idl";
+import "oaidl.idl";
+import "ocidl.idl";
+import "objidl.idl";
+import "strmif.idl";
+
+[
+	uuid("3EE14319-6C87-44C3-A4D3-91EFAD275D5F"), 
+    helpstring("Dxva-Null-Renderer Filter Type Library"),
+	//lcid(0x0409), // EN-US
+    version(1.0)
+] 
+library DxvaNullRendererFilterLib
+{
+    [uuid("00294869-D436-4C27-A177-DA50781067C7")]
+    coclass DxvaNullRenderer
+    {
+        [default] interface IBaseFilter;
+    }
+};

@@ -84,13 +84,13 @@ BOOL CAnalyzerPage::OnInitDialog()
 
     m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP );
 
+    m_spinPreviewByteCount.SetRange32(0,128);
+
 	m_listCtrl.GetWindowRect(&m_listCtrlBorder);
 	ScreenToClient(&m_listCtrlBorder);
 	CRect client;
 	GetClientRect(&client);
 	m_listCtrlBorder -= client;
-
-    m_spinPreviewByteCount.SetRange32(0,64);
 
 	return TRUE;
 }

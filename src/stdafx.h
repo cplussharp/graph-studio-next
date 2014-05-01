@@ -87,12 +87,15 @@
 #include <ksproxy.h>
 #include <ksmedia.h>
 #include <mfidl.h>
+#include <d3d9.h>
 #include <evr.h>
+#include <evr9.h>
+#include <mfapi.h>      // API Media Foundation
+#include <Mferror.h>
 #include <dmo.h>
 #include <Sbe.h>
 #include <wmcodecdsp.h>
 #pragma comment(lib, "wmcodecdspuuid.lib")
-#include "moreuuids.h"
 #include <propsys.h>
 #include "comdef.h"
 #include <Bdaiface.h>
@@ -100,7 +103,9 @@
 #include <bdamedia.h>
 #include <tuner.h>
 #include <dxva.h>
+#include <dxva2api.h>   // DXVA2
 #include <Vidcap.h>
+#include "moreuuids.h"
 
 #include "HiResTimer.h"
 
@@ -129,6 +134,9 @@ using namespace std;
 
 #include "..\dump_h.h"    // Interface
 #include "filters\dump\filter_dump.h"
+
+#include "..\dxva_null_h.h"    // Interface
+#include "filters\dxva_null\filter_dxva_null.h"
 
 #include "..\time_measure_h.h"    // Interface
 #include "filters\time_measure\filter_time.h"

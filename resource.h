@@ -302,6 +302,7 @@
 #define ID_BUTTON_PLAYPAUSE             32841
 #define ID_BUTTON_REFRESH               32843
 #define ID_VIEW_PROGRESSVIEW            32845
+#define ID_PIN_DXVA_NULL_STREAM         32846
 #define ID_PIN_NULL_STREAM              32847
 #define ID_PIN_DUMP_STREAM              32848
 #define ID_GRAPH_USECLOCK               32849

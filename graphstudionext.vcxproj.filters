@@ -53,6 +53,9 @@
 	<Filter Include="Filters\filter_h264_analyzer">
       <UniqueIdentifier>{beb37750-0515-42b1-9f9c-643c0b54ec3a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Filters\filter_dxva_null">
+      <UniqueIdentifier>{cd5c7e70-5bfb-458c-86da-9a338cb20f5f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\bitmap_clock_active_hi.bmp">
@@ -396,6 +399,9 @@
     <ClInclude Include="src\filters\h264_analyzer\h264_analyzer.h">
       <Filter>Filters\filter_h264_analyzer</Filter>
     </ClInclude>
+    <ClInclude Include="src\filters\dxva_null\filter_dxva_null.h">
+      <Filter>Filters\filter_dxva_null</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -653,6 +659,9 @@
     <ClCompile Include="src\filters\h264_analyzer\h264_analyzer.cpp">
       <Filter>Filters\filter_h264_analyzer</Filter>
     </ClCompile>
+    <ClCompile Include="src\filters\dxva_null\filter_dxva_null.cpp">
+      <Filter>Filters\filter_dxva_null</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="src\filters\analyzer\analyzer.idl">
@@ -666,6 +675,9 @@
     </Midl>
     <Midl Include="src\filters\dump\dump.idl">
       <Filter>Filters\filter_dump</Filter>
+    </Midl>
+	<Midl Include="src\filters\dxva_null\dxva_null.idl">
+      <Filter>Filters\filter_dxva_null</Filter>
     </Midl>
   </ItemGroup>
 </Project>
