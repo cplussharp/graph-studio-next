@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by graphstudionext.rc
+// Von Microsoft Visual C++ generierte Includedatei.
+// Verwendet durch graphstudionext.rc
 //
 #define IDC_BUTTON_SET_PREROLL          3
 #define IDD_ABOUTBOX                    100
@@ -242,6 +242,8 @@
 #define IDC_FILTER_MAPPER_STATISTICS    1136
 #define IDC_CHECK_PROPERTY_PAGE_AUTO_SIZE 1137
 #define IDC_CHECK_USE_CLOCK             1138
+#define IDC_BUTTON1                     1139
+#define IDC_BUTTON_ASSOCIATE            1139
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -405,7 +407,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        181
 #define _APS_NEXT_COMMAND_VALUE         32953
-#define _APS_NEXT_CONTROL_VALUE         1139
+#define _APS_NEXT_CONTROL_VALUE         1140
 #define _APS_NEXT_SYMED_VALUE           108
 #endif
 #endif

@@ -284,6 +284,7 @@ namespace DSUtil
 
     bool IsOsWin7OrLater();
     bool IsOsWinVistaOrLater();
+	BOOL IsUserAdmin();
 
     void Tokenizer(const CString& strFields, const CString& strDelimiters, CStringArray& arFields);
     bool SetClipboardText(HWND hwnd, CString& text);

@@ -101,6 +101,12 @@ BOOL CgraphstudioApp::InitInstance()
 #else
         BOOL t = AfxGetApp()->WriteProfileStringW(_T(""),_T("exeLocation"), pathExe);
 #endif
+
+		// if grfx filetype is not registered jet, do it now
+		ATL::CRegKey regKey;
+		CString strRegFileType = _T(".grfx");
+		if (ERROR_SUCCESS != regKey.Open(HKEY_CLASSES_ROOT, strRegFileType, KEY_READ))
+			CCliOptionsForm::AssociateFileType();
     }
 
 	bool single_doc = false;

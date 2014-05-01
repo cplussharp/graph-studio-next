@@ -15,6 +15,7 @@
 //-----------------------------------------------------------------------------
 IMPLEMENT_DYNAMIC(CCliOptionsForm, CDialog)
 BEGIN_MESSAGE_MAP(CCliOptionsForm, CDialog)
+	ON_BN_CLICKED(IDC_BUTTON_ASSOCIATE, &CCliOptionsForm::OnAssociateFileType)
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -84,7 +85,7 @@ BOOL CCliOptionsForm::OnInitDialog()
 
     strTxt += _T("Drag and Drop of File(s):\r\n");
     strTxt += _T("~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n\r\n");
-    strTxt += _T("Drop files                  -> Open .GRF/.XML graph file or render other media file(s)\r\n");
+    strTxt += _T("Drop files                  -> Open .GRF/.GRFX/.XML graph file or render other media file(s)\r\n");
     strTxt += _T("Shift + drop files          -> Open file(s) with Async File Reader filter\r\n");
     strTxt += _T("Alt + drop files            -> Create source filter for file(s) with IGraphBuilder::AddSourceFilter\r\n");
     strTxt += _T("Control + any above         -> Do not clear existing graph before adding file(s)\r\n");
@@ -114,4 +115,58 @@ void CCliOptionsForm::OnOK()
 {
     UpdateData(TRUE);
 	EndDialog(IDOK);
+}
+
+void CCliOptionsForm::OnAssociateFileType()
+{
+	AssociateFileType();
+}
+
+void CCliOptionsForm::AssociateFileType()
+{
+	TCHAR strExeLocation[MAX_PATH];
+	if (GetModuleFileName(NULL, strExeLocation, MAX_PATH))
+	{
+		CPath pathExe(strExeLocation);
+		pathExe.Canonicalize();
+
+		HKEY hKeyBase = HKEY_CURRENT_USER;
+		if (DSUtil::IsUserAdmin())
+			hKeyBase = HKEY_LOCAL_MACHINE;
+
+		// extension
+		ATL::CRegKey regKey;
+		CString strReg = _T("Software\\Classes\\.grfx");
+		if (ERROR_SUCCESS != regKey.Create(hKeyBase, strReg))
+		{
+			DSUtil::ShowError(_T("Can't register file extension"));
+			return;
+		}
+		regKey.SetStringValue(NULL, _T("GraphStudioNext.GraphFile.v1"));
+		regKey.Close();
+
+		// FileType description
+		strReg = _T("Software\\Classes\\GraphStudioNext.GraphFile.v1");
+		if (ERROR_SUCCESS != regKey.Create(hKeyBase, strReg))
+		{
+			DSUtil::ShowError(_T("Can't register filetype"));
+			return;
+		}
+		regKey.SetStringValue(NULL, _T("GraphStudioNext Filter Graph File"));
+		regKey.Close();
+
+		// Open command
+		strReg = _T("Software\\Classes\\GraphStudioNext.GraphFile.v1\\shell\\open\\command");
+		if (ERROR_SUCCESS != regKey.Create(hKeyBase, strReg))
+		{
+			DSUtil::ShowError(_T("Can't register filetype open command"));
+			return;
+		}
+		CString strOpen = pathExe;
+		strOpen.Append(_T(" \"%1\""));
+		regKey.SetStringValue(NULL, strOpen);
+		regKey.Close();
+
+		DSUtil::ShowInfo(_T("FileType .grfx successfully registered."));
+	}
 }
