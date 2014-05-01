@@ -961,7 +961,7 @@ afx_msg void CGraphView::OnUpdateAlwaysSaveScreenshot(CCmdUI *pCmdUI)
 HRESULT CGraphView::DoFileSave()
 {
 	HRESULT hr = S_OK;
-	if (CgraphstudioApp::g_SaveXmlAndGrf) {				// Save both GRF and XML, modify extension where needed
+	if (CgraphstudioApp::g_SaveXmlAndGrf) {				// Save both GRF and GRFX, modify extension where needed
 		CPath grf_name = document_filename;
 		if (document_type != GRF)
 			grf_name.RenameExtension(_T(".grf"));
@@ -970,9 +970,9 @@ HRESULT CGraphView::DoFileSave()
 
 		CPath xml_name = document_filename;
 		if (document_type != XML)
-			xml_name.RenameExtension(_T(".xml"));
+			xml_name.RenameExtension(_T(".grfx"));
 		hr = graph.SaveXML(xml_name);
-		DSUtil::ShowError(hr, _T("Can't save XML file"));
+		DSUtil::ShowError(hr, _T("Can't save GRFX file"));
 
 	} else {
 		switch (document_type) {
@@ -1037,9 +1037,9 @@ HRESULT CGraphView::FileSaveAs(DocumentType input_type)
 	// nabrowsujeme subor
 	// NB references to indices below
 	CString		filter;
-	filter =	_T("GraphStudio XML Files (xml)|*.xml|");
+	filter =    _T("GraphStudio XML Files|*.grfx|");
 	filter +=	_T("GraphEdit Files|*.grf|");
-	filter +=	_T("All Graph Files|*.grf;*.xml|");
+	filter +=	_T("All Graph Files|*.grf;*.grfx|");
 	filter +=	_T("All Files|*.*|");
 
 	CFileDialog dlg(FALSE,NULL,NULL,OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_PATHMUSTEXIST,filter);
@@ -1067,7 +1067,8 @@ HRESULT CGraphView::FileSaveAs(DocumentType input_type)
 		if (output_extension.CompareNoCase(_T(".grf")) == 0) {
 			// If GRF extension, save as GRF
 			document_type = GRF;
-		} else if (output_extension.CompareNoCase(_T(".xml")) == 0) {
+		}
+		else if (output_extension.CompareNoCase(_T(".xml")) == 0 || output_extension.CompareNoCase(_T(".grfx")) == 0) {
 			// If XML extension, save as XML
 			document_type = XML;
 		} else if (output_extension.IsEmpty()) {
@@ -1081,7 +1082,7 @@ HRESULT CGraphView::FileSaveAs(DocumentType input_type)
 		// add file exension if none
 		if (output_extension.IsEmpty()) {
 			if (XML == document_type)
-				output_path.AddExtension(_T(".xml"));
+				output_path.AddExtension(_T(".grfx"));
 			else
 				output_path.AddExtension(_T(".grf"));
 		}
@@ -1112,7 +1113,8 @@ HRESULT CGraphView::TryOpenFile(CString fn, bool render_media_file)
 		save_as = GRF;
 		hr = graph.LoadGRF(fn);
 		
-	} else if (ext == _T(".xml") && !render_media_file) {
+	}
+	else if ((ext == _T(".grfx") || ext == _T(".xml")) && !render_media_file) {
 		save_as = XML;
 		hr = graph.LoadXML(fn);
 
@@ -1160,9 +1162,9 @@ CString CGraphView::PromptForFileToOpen(bool media_file)
 	filter +=	_T("All Files|*.*|");
 
 	if (!media_file) {
-		filter +=	_T("All Graph Files|*.grf;*.xml|");
+		filter +=	_T("All Graph Files|*.grf;*.grfx;*.xml|");
 		filter +=	_T("GraphEdit Files (grf)|*.grf|");
-		filter +=	_T("GraphStudio XML Files (xml)|*.xml|");
+		filter +=	_T("GraphStudio XML Files|*.grfx;*.xml|");
 	}
 
 	filter +=	_T("Video Files |*.avi;*.mp4;*.mpg;*.mpeg;*.m2ts;*.mts;*.ts;*.mkv;*.ogg;*.ogm;*.pva;*.evo;*.flv;*.mov;*.hdmov;*.ifo;*.vob;*.rm;*.rmvb;*.wmv;*.asf|");

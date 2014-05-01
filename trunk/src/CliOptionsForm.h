@@ -34,6 +34,8 @@ public:
 
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
+	void OnAssociateFileType();
+	static void AssociateFileType();
 
     CFont			font_options;
     CEdit			edit_options;
