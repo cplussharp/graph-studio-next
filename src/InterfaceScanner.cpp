@@ -974,8 +974,107 @@ void GetInterfaceInfo_IMemInputPin(GraphStudio::PropItem* group, IUnknown* pUnk)
 	}
 }
 
+void GetInterfaceInfo_IMFGetService(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IMFGetService> pI = pUnk;
+    if(pI)
+    {
+        CComPtr<IUnknown> pServiceUnk;
+        HRESULT hr = pI->GetService(MR_VIDEO_ACCELERATION_SERVICE, __uuidof(IDirect3DDeviceManager9), (void**)&pServiceUnk);
+        if (SUCCEEDED(hr))
+        {
+            group->AddItem(new GraphStudio::PropItem(_T("MR_VIDEO_ACCELERATION_SERVICE"),_T("IDirect3DDeviceManager9"), false));
+            pServiceUnk.Release();
+        }
+
+        hr = pI->GetService(MR_VIDEO_ACCELERATION_SERVICE, __uuidof(IDirectXVideoAccelerationService), (void**)&pServiceUnk);
+        if (SUCCEEDED(hr))
+        {
+            group->AddItem(new GraphStudio::PropItem(_T("MR_VIDEO_ACCELERATION_SERVICE"), _T("IDirectXVideoAccelerationService"), false));
+            pServiceUnk.Release();
+        }
+
+        hr = pI->GetService(MR_VIDEO_ACCELERATION_SERVICE, __uuidof(IDirectXVideoDecoderService), (void**)&pServiceUnk);
+        if (SUCCEEDED(hr))
+        {
+            group->AddItem(new GraphStudio::PropItem(_T("MR_VIDEO_ACCELERATION_SERVICE"), _T("IDirectXVideoDecoderService"), false));
+            pServiceUnk.Release();
+        }
+
+        hr = pI->GetService(MR_VIDEO_ACCELERATION_SERVICE, __uuidof(IDirectXVideoProcessorService), (void**)&pServiceUnk);
+        if (SUCCEEDED(hr))
+        {
+            group->AddItem(new GraphStudio::PropItem(_T("MR_VIDEO_ACCELERATION_SERVICE"), _T("IDirectXVideoProcessorService"), false));
+            pServiceUnk.Release();
+        }
+
+        hr = pI->GetService(MR_VIDEO_ACCELERATION_SERVICE, __uuidof(IDirectXVideoMemoryConfiguration), (void**)&pServiceUnk);
+        if (SUCCEEDED(hr))
+        {
+            group->AddItem(new GraphStudio::PropItem(_T("MR_VIDEO_ACCELERATION_SERVICE"), _T("IDirectXVideoMemoryConfiguration"), false));
+            pServiceUnk.Release();
+        }
+
+        hr = pI->GetService(MR_VIDEO_ACCELERATION_SERVICE, __uuidof(IMFVideoSampleAllocator), (void**)&pServiceUnk);
+        if (SUCCEEDED(hr))
+        {
+            group->AddItem(new GraphStudio::PropItem(_T("MR_VIDEO_ACCELERATION_SERVICE"), _T("IMFVideoSampleAllocator"), false));
+            pServiceUnk.Release();
+        }
 
 
+        hr = pI->GetService(MR_VIDEO_MIXER_SERVICE, __uuidof(IMFVideoMixerBitmap), (void**)&pServiceUnk);
+        if (SUCCEEDED(hr))
+        {
+            group->AddItem(new GraphStudio::PropItem(_T("MR_VIDEO_MIXER_SERVICE"), _T("IMFVideoMixerBitmap"), false));
+            pServiceUnk.Release();
+        }
+
+        hr = pI->GetService(MR_VIDEO_MIXER_SERVICE, __uuidof(IMFVideoMixerControl), (void**)&pServiceUnk);
+        if (SUCCEEDED(hr))
+        {
+            group->AddItem(new GraphStudio::PropItem(_T("MR_VIDEO_MIXER_SERVICE"), _T("IMFVideoMixerControl"), false));
+            pServiceUnk.Release();
+        }
+
+        hr = pI->GetService(MR_VIDEO_MIXER_SERVICE, __uuidof(IMFVideoProcessor), (void**)&pServiceUnk);
+        if (SUCCEEDED(hr))
+        {
+            group->AddItem(new GraphStudio::PropItem(_T("MR_VIDEO_MIXER_SERVICE"), _T("IMFVideoProcessor"), false));
+            pServiceUnk.Release();
+        }
+
+
+        hr = pI->GetService(MR_VIDEO_RENDER_SERVICE, __uuidof(IMFVideoDisplayControl), (void**)&pServiceUnk);
+        if (SUCCEEDED(hr))
+        {
+            group->AddItem(new GraphStudio::PropItem(_T("MR_VIDEO_RENDER_SERVICE"), _T("IMFVideoDisplayControl"), false));
+            pServiceUnk.Release();
+        }
+
+
+        hr = pI->GetService(MR_AUDIO_POLICY_SERVICE, __uuidof(IMFAudioPolicy), (void**)&pServiceUnk);
+        if (SUCCEEDED(hr))
+        {
+            group->AddItem(new GraphStudio::PropItem(_T("MR_AUDIO_POLICY_SERVICE"), _T("IMFAudioPolicy"), false));
+            pServiceUnk.Release();
+        }
+
+        hr = pI->GetService(MR_POLICY_VOLUME_SERVICE, __uuidof(IMFSimpleAudioVolume), (void**)&pServiceUnk);
+        if (SUCCEEDED(hr))
+        {
+            group->AddItem(new GraphStudio::PropItem(_T("MR_POLICY_VOLUME_SERVICE"), _T("IMFSimpleAudioVolume"), false));
+            pServiceUnk.Release();
+        }
+
+        hr = pI->GetService(MR_STREAM_VOLUME_SERVICE, __uuidof(IMFAudioStreamVolume), (void**)&pServiceUnk);
+        if (SUCCEEDED(hr))
+        {
+            group->AddItem(new GraphStudio::PropItem(_T("MR_STREAM_VOLUME_SERVICE"), _T("IMFAudioStreamVolume"), false));
+            pServiceUnk.Release();
+        }
+    }
+}
 
 
 /*****************************************************************************************
@@ -1394,7 +1493,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{919F24C5-7B14-42ac-A4B0-2AE08DAF00AC}"), TEXT("IPSITables"), TEXT("mpeg2psiparser.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd694840.aspx")),
     
     CInterfaceInfo(TEXT("{2BA1785D-4D1B-44EF-85E8-C7F1D3F20184}"), TEXT("ICameraControl"), TEXT("vidcap.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376298.aspx"), GetInterfaceInfo_ICameraControl),
-
+    CInterfaceInfo(TEXT("{fa993888-4383-415a-a930-dd472a8cf6f7}"), TEXT("IMFGetService"), TEXT("mfidl.h"), TEXT("http://msdn.microsoft.com/en-US/library/windows/desktop/ms694261.aspx"), GetInterfaceInfo_IMFGetService),
 
     // Internal Interfaces
     CInterfaceInfo(TEXT("{B278651D-1678-4add-941A-0EFDAD41F930}"), TEXT("ITimeMeasureFilter"), TEXT("time_measure.idl"), TEXT(""), GetInterfaceInfo_ITimeMeasureFilter),
