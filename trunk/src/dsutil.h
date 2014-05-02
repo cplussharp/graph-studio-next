@@ -288,6 +288,9 @@ namespace DSUtil
 
     void Tokenizer(const CString& strFields, const CString& strDelimiters, CStringArray& arFields);
     bool SetClipboardText(HWND hwnd, CString& text);
+
+	HANDLE Execute(const CString& strFile, const CString& strParams, bool bAsAdministrator = true);
+	DWORD ExecuteWait(const CString& strFile, const CString& strParams, bool bAsAdministrator = true);
 };
 
 
