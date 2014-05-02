@@ -718,12 +718,6 @@ void CFiltersForm::OnLocateClick()
 
 void CFiltersForm::OnUnregisterClick()
 {
-    if(!DSUtil::IsUserAdmin())
-    {
-        DSUtil::ShowInfo(_T("Admin rights required to unregister a filter.\nPlease restart the program as admin."));
-        return;
-    }
-
 	POSITION pos = list_filters.GetFirstSelectedItemPosition();
     int sel = list_filters.GetSelectionMark();
     bool changed = false;
@@ -737,7 +731,15 @@ void CFiltersForm::OnUnregisterClick()
 		    HRESULT				hr;
 
 		    // DMOs do it differently
-		    if (filter->type == DSUtil::FilterTemplate::FT_DMO) {
+		    if (filter->type == DSUtil::FilterTemplate::FT_DMO)
+			{
+				if (!DSUtil::IsUserAdmin())
+				{
+					CString msg;
+					msg.Format(_T("Admin rights required to unregister DMO '%s'.\nPlease restart the program as admin."), filter->name);
+					DSUtil::ShowInfo(msg);
+					continue;
+				}
 
 			    hr = DMOUnregister(filter->clsid, filter->category);
 			    if (SUCCEEDED(hr)) {
@@ -749,11 +751,11 @@ void CFiltersForm::OnUnregisterClick()
 				    DSUtil::ShowError(hr, msg);
 			    }
 
-		    } else
-		    if (filter->type == DSUtil::FilterTemplate::FT_FILTER) {
-
+		    }
+			else if (filter->type == DSUtil::FilterTemplate::FT_FILTER)
+			{
 			    /*
-				    We either call DllUnregisterServer in the file.
+				    We either call regsvr32 -u with the file.
 				    Or simply delete the entries if the file is no longer 
 				    available.
 			    */
@@ -776,37 +778,34 @@ void CFiltersForm::OnUnregisterClick()
 				    continue;
 			    }
 
+check_unregister:
 			    // ask the user for confirmation
                 BOOL unregisterAll;
-			    if (!ConfirmUnregisterFilter(filter->name, &unregisterAll)) {
+			    if (!ConfirmUnregisterFilter(filter->name, &unregisterAll))
 				    continue;
+
+				BOOL fileExist = PathFileExists(fn);
+				if (fileExist && unregisterAll)
+				{
+					CString strParams;
+					strParams.Format(_T("-u \"%s\""), fn);
+					DWORD code = DSUtil::ExecuteWait(_T("regsvr32.exe"), strParams);
+					changed = !code;
 			    }
+				else
+				{
+					if (!DSUtil::IsUserAdmin())
+					{
+						CString msg;
+						if (fileExist)
+							msg.Format(_T("Admin rights required to unregister only the filter '%s'.\nPlease check 'unregister file' or restart the program as admin."), filter->name);
+						else
+							msg.Format(_T("Admin rights required to unregister non existent filter '%s'.\nPlease restart the program as admin."), filter->name);
+						DSUtil::ShowInfo(msg);
 
-                // prepare dll search path
-                CString libPath = fn;
-                PathRemoveFileSpec (libPath.GetBuffer()); 
-                libPath.ReleaseBuffer(); 
-                SetDllDirectory(libPath);
-
-			    HMODULE		library = LoadLibrary(fn);
-			    if (library && unregisterAll) {
-				    DllUnregisterServerProc		unreg = (DllUnregisterServerProc)GetProcAddress(library, "DllUnregisterServer");
-				    if (unreg) {
-					    hr = unreg();
-					    if (SUCCEEDED(hr)) {
-                            changed = true;
-                            CString		msg;
-                            msg.Format(_T("Unregister '%s' succeeded."), PathFindFileName(fn));
-						    DSUtil::ShowInfo(msg);
-					    } else {
-						    CString		msg;
-                            msg.Format(_T("Unregister '%s' failed: 0x%08x"), PathFindFileName(fn), hr);
-						    DSUtil::ShowError(hr, msg);
-					    }
-				    }
-				    FreeLibrary(library);
-
-			    } else {
+						if (fileExist)
+							goto check_unregister;
+					}
 
 				    // dirty removing...
 				    hr = DSUtil::UnregisterFilter(filter->clsid, filter->category);
@@ -899,11 +898,11 @@ void CFiltersForm::OnMeritClick()
 
 void CFiltersForm::OnRegisterClick()
 {
-    if(!DSUtil::IsUserAdmin())
+    /*if(!DSUtil::IsUserAdmin())
     {
         DSUtil::ShowInfo(_T("Admin rights required to register a filter.\nPlease restart the program as admin."));
         return;
-    }
+    }*/
 
     CString	filter = _T("Filter Files (*.dll,*.ocx,*.ax)|*.dll;*.ocx;*.ax|All Files|*.*|");
 
@@ -922,8 +921,11 @@ void CFiltersForm::OnRegisterClick()
         CString filename = dlg.GetNextPathName(pos);
         firstFilterFile = filename;
 
+		DWORD code = DSUtil::ExecuteWait(_T("regsvr32.exe"), filename);
+		changed = !code;
+
         // prepare dll search path
-        CString libPath = filename;
+        /*CString libPath = filename;
         PathRemoveFileSpec (libPath.GetBuffer()); 
         libPath.ReleaseBuffer(); 
         SetDllDirectory(libPath);
@@ -948,11 +950,11 @@ void CFiltersForm::OnRegisterClick()
 				}
 			}
 			FreeLibrary(library);
-		} 
+		}*/
     }
 
     // reload the filters
-    if(changed)
+    if (changed)
     {
 	    OnComboCategoriesChange();
 

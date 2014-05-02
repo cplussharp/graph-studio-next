@@ -2365,6 +2365,45 @@ namespace DSUtil
 
         return true;
     }
+
+	HANDLE Execute(const CString& strFile, const CString& strParams, bool bAsAdministrator)
+	{
+		SHELLEXECUTEINFO Information;
+		ZeroMemory(&Information, sizeof Information);
+		Information.cbSize = sizeof Information;
+		Information.fMask = SEE_MASK_NOCLOSEPROCESS;
+		if (bAsAdministrator && IsOsWinVistaOrLater())
+			Information.lpVerb = _T("runas");
+		Information.lpFile = strFile;
+		Information.nShow = SW_SHOWNORMAL;
+		Information.lpParameters = strParams;
+
+		BOOL bRet = ShellExecuteEx(&Information);
+		if (!bRet)
+			ShowError(_T("Can't start '") + strFile + _T("'"));
+
+		DbgLog((LOG_TRACE, 0, TEXT("Execute '%s' (%s) -> Information.hInstApp 0x%p, .hProcess 0x%p"), strFile, strParams, Information.hInstApp, Information.hProcess));
+
+		return Information.hProcess;
+	}
+
+	DWORD ExecuteWait(const CString& strFile, const CString& strParams, bool bAsAdministrator)
+	{
+		CHandle process;
+		process.Attach(Execute(strFile, strParams, bAsAdministrator));
+		if (!process)
+			return -1;
+
+		const DWORD nWaitResult = WaitForSingleObject(process, INFINITE);
+		DbgLog((LOG_TRACE, 0, TEXT("ExecuteWait '%s' (%s) -> WaitResult 0x%x"), strFile, strParams, nWaitResult));
+		ATLASSERT(nWaitResult == WAIT_OBJECT_0);
+
+		DWORD nExitCode = 0;
+		GetExitCodeProcess(process, &nExitCode);
+		DbgLog((LOG_TRACE, 0, TEXT("ExecuteWait '%s' (%s) -> ExitCode %d (0x%x)"), strFile, strParams, nExitCode, nExitCode));
+
+		return nExitCode;
+	}
 };
 
 
