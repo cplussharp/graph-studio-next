@@ -92,6 +92,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		void MakeScreenshot(const CString& image_filename, const GUID& gdiplus_format);
 		bool SetSelectionFromClick(UINT nFlags, CPoint point, GraphStudio::Filter ** selected_filter = NULL, GraphStudio::Pin** selected_pin = NULL);
+		void ScrollToMakeFilterVisible(Filter * filter);
 
 		// stream selection
 		void PrepareStreamSelectMenu(CMenu &menu, IUnknown *obj);
