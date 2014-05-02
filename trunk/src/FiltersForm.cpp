@@ -839,12 +839,6 @@ check_unregister:
 
 void CFiltersForm::OnMeritClick()
 {
-    if(!DSUtil::IsUserAdmin())
-    {
-        DSUtil::ShowInfo(_T("Admin rights required to change the merit of a filter.\nPlease restart the program as admin."));
-        return;
-    }
-
 	DSUtil::FilterTemplate *filter = GetSelected();
 	if (filter) {
 
@@ -860,7 +854,7 @@ void CFiltersForm::OnMeritClick()
 				// try to change the merit
 				filter->merit = newmerit;
 				int ret = filter->WriteMerit();
-				if (ret < 0) {
+				if (ret != 0) {
 					DSUtil::ShowError(_T("Failed to update merit value"));
 					filter->merit = oldmerit;
 				} else {

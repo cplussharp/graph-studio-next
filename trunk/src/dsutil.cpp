@@ -445,32 +445,45 @@ namespace DSUtil
 		CString		key_name;
 		if (str) CoTaskMemFree(str);
 
-		if (type == FilterTemplate::FT_DMO) {
-
-			key_name.Format(_T("CLSID\\%s"), str_clsid);
-			CRegKey		key;
-			if (key.Open(HKEY_CLASSES_ROOT, key_name, KEY_READ | KEY_WRITE) == ERROR_SUCCESS) { 
-				// simply write the new merit.
-				key.SetDWORDValue(_T("Merit"), merit);
-			} else {
-				// cannot update merit
-				return -1;
+		if (type == FilterTemplate::FT_DMO)
+		{
+			if (DSUtil::IsUserAdmin())
+			{
+				key_name.Format(_T("CLSID\\%s"), str_clsid);
+				CRegKey		key;
+				if (key.Open(HKEY_CLASSES_ROOT, key_name, KEY_READ | KEY_WRITE) == ERROR_SUCCESS) {
+					// simply write the new merit.
+					key.SetDWORDValue(_T("Merit"), merit);
+				}
+				else {
+					// cannot update merit
+					return -1;
+				}
+				key.Close();
+				return 0;
 			}
-			key.Close();
-			return 0;
-
-		} else
-		if (type == FilterTemplate::FT_FILTER) {
-
+			else
+			{
+				CString strRegText;
+				strRegText.Format(_T("[HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\CLSID\\%s]\n"), str_clsid);
+				strRegText.AppendFormat(_T("\"Merit\"=dword:%08x\n\n"), merit);
+				return DSUtil::WriteToRegistryAsAdmin(strRegText);
+			}
+		}
+		else if (type == FilterTemplate::FT_FILTER)
+		{
 			/*
 				Load the FilterData buffer, then change the merit value and
 				write it back.
 			*/
 
+			REGSAM keyRegSam = KEY_READ;
+			if (DSUtil::IsUserAdmin()) keyRegSam |= KEY_WRITE;
+
 			key_name.Format(_T("CLSID\\{083863F1-70DE-11d0-BD40-00A0C911CE86}\\Instance\\%s"), str_clsid);
 			CRegKey		key;
-			if (key.Open(HKEY_CLASSES_ROOT, key_name, KEY_READ | KEY_WRITE) == ERROR_SUCCESS) { 
-
+			if (key.Open(HKEY_CLASSES_ROOT, key_name, keyRegSam) == ERROR_SUCCESS)
+			{
 				ULONG		size = 256*1024;
 				BYTE		*largebuf = (BYTE*)malloc(size);
 				LONG		lret;
@@ -485,8 +498,32 @@ namespace DSUtil
 				dwbuf[1] = merit;
 
 				// and write the buffer back
-				lret = key.SetBinaryValue(_T("FilterData"), largebuf, size);
-				if (lret != ERROR_SUCCESS) { free(largebuf); key.Close(); return -1; }
+				if (DSUtil::IsUserAdmin())
+				{
+					lret = key.SetBinaryValue(_T("FilterData"), largebuf, size);
+					if (lret != ERROR_SUCCESS) { free(largebuf); key.Close(); return -1; }
+				}
+				else
+				{
+					CString strRegText;
+					strRegText.Format(_T("[HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\%s]\n"), key_name);
+					strRegText.Append(_T("\"FilterData\"=hex:"));
+
+					for (int i = 0; i < size; i++)
+					{
+						if (i > 0)
+							strRegText.AppendFormat(_T(",%02x"), largebuf[i]);
+						else
+							strRegText.AppendFormat(_T("%02x"), largebuf[i]);
+					}
+					strRegText.Append(_T("\n\n"));
+
+					if (0 != DSUtil::WriteToRegistryAsAdmin(strRegText))
+					{
+						free(largebuf);
+						return -1;
+					}
+				}
 
 				free(largebuf);
 				
@@ -494,9 +531,9 @@ namespace DSUtil
 				// cannot update merit
 				return -1;
 			}
+
 			key.Close();
 			return 0;
-
 		}
 
 		return -1;
@@ -2403,6 +2440,39 @@ namespace DSUtil
 		DbgLog((LOG_TRACE, 0, TEXT("ExecuteWait '%s' (%s) -> ExitCode %d (0x%x)"), strFile, strParams, nExitCode, nExitCode));
 
 		return nExitCode;
+	}
+
+	DWORD WriteToRegistryAsAdmin(const CString& strRegText)
+	{
+		// create tmp-file
+		TCHAR lpTempPathBuffer[MAX_PATH];
+		GetTempPath(MAX_PATH, lpTempPathBuffer);
+
+		TCHAR szTempFileName[MAX_PATH];
+		GetTempFileName(lpTempPathBuffer, _T("gsnReg"), 0, szTempFileName);
+		//PathRemoveExtension(szTempFileName);
+		//PathAddExtension(szTempFileName, _T(".reg"));
+
+		// write tmp-file
+		CStdioFile tmpFile(szTempFileName, CFile::modeWrite | CFile::modeCreate);
+		tmpFile.WriteString(_T("Windows Registry Editor Version 5.00\n\n"));
+		tmpFile.WriteString(strRegText);
+		tmpFile.Close();
+
+		// execute tmpf-file
+#ifdef _WIN64
+		int bits = 64;
+#else
+		int bits = 32;
+#endif
+		CString strParams;
+		strParams.Format(_T("IMPORT \"%s\" /reg:%d"), szTempFileName, bits);
+		DWORD retCode = ExecuteWait(_T("reg.exe"), strParams);
+
+		// delete tmp-file
+		DeleteFile(szTempFileName);
+
+		return retCode;
 	}
 };
 
