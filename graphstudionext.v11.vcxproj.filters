@@ -91,9 +91,6 @@
     <None Include="res\graphstudioDoc.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\icon1.ico">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="res\addFilter.ico">
       <Filter>Resource Files</Filter>
     </None>
@@ -679,5 +676,13 @@
     <Midl Include="src\filters\dxva_null\dxva_null.idl">
       <Filter>Filters\filter_dxva_null</Filter>
     </Midl>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\graphxml.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\graphxml64.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

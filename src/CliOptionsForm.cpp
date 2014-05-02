@@ -167,6 +167,21 @@ void CCliOptionsForm::AssociateFileType()
 		regKey.SetStringValue(NULL, strOpen);
 		regKey.Close();
 
+
+		// Register Icon for the filetype
+		strReg = _T("Software\\Classes\\GraphStudioNext.GraphFile.v1\\DefaultIcon");
+		if (ERROR_SUCCESS != regKey.Create(hKeyBase, strReg))
+		{
+			DSUtil::ShowError(_T("Can't set the icon for the filetype"));
+			return;
+		}
+		CString strIcon = pathExe;
+		strIcon.Append(_T(",-129"));
+		regKey.SetStringValue(NULL, strIcon);
+
+		// Reload Shell with the new Icon
+		SHChangeNotify(SHCNE_ASSOCCHANGED,NULL,NULL,NULL);
+
 		DSUtil::ShowInfo(_T("FileType .grfx successfully registered."));
 	}
 }
