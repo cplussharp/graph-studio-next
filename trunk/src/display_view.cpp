@@ -87,6 +87,41 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return TRUE;
 	}
 
+	// Make sure either filter is visible, scrolling view if necessary
+	void DisplayView::ScrollToMakeFilterVisible(Filter * filter)
+	{
+		if (!filter)
+			return;			// nothing to do
+		BOOL vert_scroll=FALSE, horz_scroll=FALSE;
+		CheckScrollBars(horz_scroll, vert_scroll);
+		if (!vert_scroll && !horz_scroll)
+			return;			// nothing to do
+
+		CRect client_rect;
+		this->GetClientRect(client_rect);
+
+		CPoint scroll_pos(GetScrollPosition());
+		client_rect += scroll_pos;
+
+		const int border = DisplayGraph::GRID_SIZE;
+		const int filter_left	= filter->posx - border; 
+		const int filter_top	= filter->posy - border; 
+		const int filter_right	= filter->posx + filter->width	+ border; 
+		const int filter_bottom	= filter->posy + filter->height + border;
+
+		if (filter_left < client_rect.left)
+			scroll_pos.x = filter_left - 2 * border;
+		else if (filter_right > client_rect.right)
+			scroll_pos.x += filter_right - client_rect.right + 2 * border;
+
+		if (filter_top < client_rect.top)
+			scroll_pos.y = filter_top - 2 * border;
+		else if (filter_bottom > client_rect.bottom)
+			scroll_pos.y += filter_bottom - client_rect.bottom + 2 * border;
+
+		ScrollToPosition(scroll_pos);
+	}
+
 	// return true if any selection made
 	bool DisplayView::SetSelectionFromClick(UINT nFlags, CPoint point, GraphStudio::Filter ** selected_filter, GraphStudio::Pin** selected_pin)
 	{
@@ -986,17 +1021,18 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 			graph.RefreshFilters();
 			graph.SmartPlacement();
-			graph.Dirty();
-			Invalidate();
 		}
+		
 		for (int i=0; i<graph.filters.GetCount(); i++) {
-			if (newFilter == graph.filters[i]->filter) {
-				graph.SetSelection(graph.filters[i], NULL);
+			Filter * const filter = graph.filters[i];
+			if (newFilter == filter->filter) {
+				graph.SetSelection(filter, NULL);
+				ScrollToMakeFilterVisible(filter);
+				break;
 			}
 		}
 
 		Invalidate();
-
 		return hr;
 	}
 
@@ -1550,6 +1586,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			next_filter = prev_filter;
 
 		graph.SetSelection(next_pin ? NULL : next_filter, next_pin);		// Select pin or filter, not both
+		ScrollToMakeFilterVisible(next_pin ? next_pin->filter : next_filter);
 	}
 
 	void DisplayView::OnFilterLeft()
