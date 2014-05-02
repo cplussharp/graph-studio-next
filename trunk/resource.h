@@ -13,7 +13,7 @@
 #define IDS_SEARCH_FOR_ERROR            111
 #define IDS_SHOW_GRAPH_CONSTRUCTION_REPORT 112
 #define IDR_MAINFRAME                   128
-#define IDR_graphstudioTYPE             129
+#define IDI_GRAPHSTUDIO_GRAPHTYPE       129
 #define IDB_BITMAP_LOGO                 130
 #define IDD_DIALOG_FILTERS              134
 #define IDD_DIALOG_EVENTS               135

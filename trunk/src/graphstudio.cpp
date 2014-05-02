@@ -237,7 +237,7 @@ BOOL CgraphstudioApp::InitInstance()
     m_jumpList.InitializeList();
     m_jumpList.AddKnownCategory(KDC_FREQUENT);
     m_jumpList.AddKnownCategory(KDC_RECENT);
-    m_jumpList.AddTask(szModule, L"/filters", L"Filters Dialog", szModule, 2);
+    m_jumpList.AddTask(szModule, L"/filters", L"Filters Dialog", szModule, -170);
     m_jumpList.CommitList();
 
     if (m_cmdInfo.m_bShowFilters)
