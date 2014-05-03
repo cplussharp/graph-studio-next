@@ -36,7 +36,7 @@ CAudioAnalyzer::~CAudioAnalyzer()
 STDMETHODIMP CAudioAnalyzer::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
 	if (riid == __uuidof(IAnalyzerAudio)) {
-		return GetInterface((IAnalyzerAudio*)this, ppv);
+		return GetInterface(static_cast<IAnalyzerAudio*>(this), ppv);
 	}
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }

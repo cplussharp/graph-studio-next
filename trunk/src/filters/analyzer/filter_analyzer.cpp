@@ -253,7 +253,7 @@ STDMETHODIMP CAnalyzerFilter::NonDelegatingQueryInterface(REFIID riid, void ** p
 		return m_analyzer->NonDelegatingQueryInterface(riid, ppv);
 	}
     else if (riid == IID_ISpecifyPropertyPages) {
-        return GetInterface((ISpecifyPropertyPages*) this, ppv);
+        return GetInterface(static_cast<ISpecifyPropertyPages*>(this), ppv);
     }
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }

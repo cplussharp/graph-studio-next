@@ -118,7 +118,7 @@ STDMETHODIMP CPsiConfigFilter::NonDelegatingQueryInterface(REFIID riid, void **p
     CheckPointer(ppv,E_POINTER);
 
     if (IID_IAMFilterMiscFlags == riid)
-        return GetInterface((IAMFilterMiscFlags*) this, ppv);
+        return GetInterface(static_cast<IAMFilterMiscFlags*>(this), ppv);
 
     return CBaseFilter::NonDelegatingQueryInterface(riid, ppv);
 }

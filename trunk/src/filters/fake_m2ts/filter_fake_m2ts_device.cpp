@@ -48,9 +48,9 @@ STDMETHODIMP CFakeM2tsDevice::NonDelegatingQueryInterface(REFIID riid, void ** p
 
     // Do we have this interface
     if (IID_IFileSourceFilter == riid)
-        return GetInterface((IFileSourceFilter*) this, ppv);
+        return GetInterface(static_cast<IFileSourceFilter*>(this), ppv);
     else if (IID_IAMFilterMiscFlags == riid)
-        return GetInterface((IAMFilterMiscFlags*) this, ppv);
+        return GetInterface(static_cast<IAMFilterMiscFlags*>(this), ppv);
     
     return CSource::NonDelegatingQueryInterface(riid, ppv);
 }

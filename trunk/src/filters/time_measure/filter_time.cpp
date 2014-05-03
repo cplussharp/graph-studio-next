@@ -58,10 +58,10 @@ CMonoTimeMeasure::~CMonoTimeMeasure()
 STDMETHODIMP CMonoTimeMeasure::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
 	if (riid == __uuidof(ITimeMeasureFilter)) {
-		return GetInterface((ITimeMeasureFilter*)this, ppv);
+		return GetInterface(static_cast<ITimeMeasureFilter*>(this), ppv);
 	}
     else if (riid == __uuidof(IDispatch)) {
-		return GetInterface((IDispatch*)this, ppv);
+		return GetInterface(static_cast<IDispatch*>(this), ppv);
 	}
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }

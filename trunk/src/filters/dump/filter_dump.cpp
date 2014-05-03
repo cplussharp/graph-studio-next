@@ -58,7 +58,7 @@ CMonoDump::~CMonoDump()
 STDMETHODIMP CMonoDump::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
 	if (riid == IID_IFileSinkFilter) {
-		return GetInterface((IFileSinkFilter*)this, ppv);
+		return GetInterface(static_cast<IFileSinkFilter*>(this), ppv);
 	}
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }
