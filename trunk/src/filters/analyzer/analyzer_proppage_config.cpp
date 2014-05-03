@@ -60,7 +60,7 @@ HRESULT CAnalyzerPropPageConfig::OnConnect(IUnknown *pUnknown)
     CheckPointer(pUnknown,E_POINTER);
     ASSERT(m_pAnalyzer == NULL);
 
-    HRESULT hr = pUnknown->QueryInterface(__uuidof(IAnalyzerFilter), (void **) &m_pAnalyzer);
+    HRESULT hr = pUnknown->QueryInterface(__uuidof(IAnalyzerCommon), (void **) &m_pAnalyzer);
     if (FAILED(hr)) {
         return E_NOINTERFACE;
     }
