@@ -817,7 +817,7 @@ int CPageSite::AssignPage(IPropertyPage *page)
 STDMETHODIMP CPageSite::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
 	if (riid == IID_IPropertyPageSite) {
-		return GetInterface((IPropertyPageSite*)this, ppv);
+		return GetInterface(static_cast<IPropertyPageSite*>(this), ppv);
 	} else
 		return __super::NonDelegatingQueryInterface(riid, ppv);
 }

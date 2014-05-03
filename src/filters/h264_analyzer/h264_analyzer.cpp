@@ -38,7 +38,7 @@ CH264Analyzer::~CH264Analyzer()
 STDMETHODIMP CH264Analyzer::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
 	if (riid == __uuidof(IAnalyzerH264)) {
-		return GetInterface((IAnalyzerH264*)this, ppv);
+		return GetInterface(static_cast<IAnalyzerH264*>(this), ppv);
 	}
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }

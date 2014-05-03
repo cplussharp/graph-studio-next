@@ -52,7 +52,7 @@ CAnalyzer::~CAnalyzer()
 STDMETHODIMP CAnalyzer::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
 	if (riid == __uuidof(IAnalyzerCommon)) {
-		return GetInterface((IAnalyzerCommon*)this, ppv);
+		return GetInterface(static_cast<IAnalyzerCommon*>(this), ppv);
 	}
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }

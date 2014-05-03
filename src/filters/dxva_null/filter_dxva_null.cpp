@@ -275,7 +275,7 @@ STDMETHODIMP CDxvaNullRendererInputPin::NonDelegatingQueryInterface(REFIID riid,
     CheckPointer(ppv, E_POINTER);
 
     if (riid == __uuidof(IMFGetService))
-        return GetInterface((IMFGetService*)this, ppv);
+        return GetInterface(static_cast<IMFGetService*>(this), ppv);
 
     return __super::NonDelegatingQueryInterface(riid, ppv);
 }
@@ -291,12 +291,12 @@ STDMETHODIMP CDxvaNullRendererInputPin::GetService(REFGUID guidService, REFIID r
         else if (riid == __uuidof(IDirectXVideoAccelerationService))
             return pfDXVA2CreateVideoService(m_pD3DDev, riid, ppvObject);
         else if (riid == __uuidof(IDirectXVideoMemoryConfiguration))
-            return GetInterface((IDirectXVideoMemoryConfiguration*)this, ppvObject);
+            return GetInterface(static_cast<IDirectXVideoMemoryConfiguration*>(this), ppvObject);
     }
     else if (guidService == MR_VIDEO_RENDER_SERVICE)
     {
         if (riid == __uuidof(IMFVideoDisplayControl))
-            return GetInterface((IMFVideoDisplayControl*)this, ppvObject);
+            return GetInterface(static_cast<IMFVideoDisplayControl*>(this), ppvObject);
     }
 
     return E_NOINTERFACE;

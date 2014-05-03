@@ -64,7 +64,7 @@ STDMETHODIMP_(ULONG) CDSPropertyPage::NonDelegatingRelease()
 STDMETHODIMP CDSPropertyPage::NonDelegatingQueryInterface(REFIID riid, void **ppv)
 {
     if (riid == IID_IPropertyPage) {
-		return ::GetInterface((IPropertyPage *)this,ppv);
+		return ::GetInterface(static_cast<IPropertyPage *>(this),ppv);
     } else {
         return CUnknown::NonDelegatingQueryInterface(riid,ppv);
     }

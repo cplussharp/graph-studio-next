@@ -53,7 +53,7 @@ CVideoAnalyzer::~CVideoAnalyzer()
 STDMETHODIMP CVideoAnalyzer::NonDelegatingQueryInterface(REFIID riid, void ** ppv)
 {
 	if (riid == __uuidof(IAnalyzerVideo)) {
-		return GetInterface((IAnalyzerVideo*)this, ppv);
+		return GetInterface(static_cast<IAnalyzerVideo*>(this), ppv);
 	}
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }
