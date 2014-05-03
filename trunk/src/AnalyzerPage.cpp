@@ -15,6 +15,26 @@
 //
 //-----------------------------------------------------------------------------
 
+const CFactoryTemplate CAnalyzerPage::g_Template = {
+		L"Analyzer Log",
+        &__uuidof(AnalyzerPropPageLog),
+		CAnalyzerPage::CreateInstance,
+		NULL,
+		NULL
+};
+
+CUnknown* CAnalyzerPage::CreateInstance(LPUNKNOWN lpunk, HRESULT *phr)
+{
+    ASSERT(phr);
+    CUnknown *punk = new CAnalyzerPage(lpunk, phr, _T("Analyzer Log"));
+    if (punk == NULL) {
+        if (phr)
+        	*phr = E_OUTOFMEMORY;
+    }
+
+    return punk;
+}
+
 BEGIN_MESSAGE_MAP(CAnalyzerPage, CDSPropertyPage)
 	ON_WM_SIZE()
     ON_COMMAND(IDC_CHECK_ENABLED, &CAnalyzerPage::OnCheckClick)
