@@ -1463,7 +1463,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	static Filter * FindNextFilterByDirection(CArray<Filter*>& filters, Filter* prev_filter, bool vertical, bool positive)
 	{
 		Filter * next_filter = NULL;
-		const int filter_count = filters.GetCount();
+		const INT_PTR filter_count = filters.GetCount();
 		int min_delta = -1;
 		int min_perp = -1;
 
@@ -1496,7 +1496,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	void DisplayView::NavigateFilterGraph(bool pin_navigation, bool vertical, bool positive)
 	{
 		CArray<Filter*>& filters = graph.filters;
-		const int filter_count = graph.filters.GetCount();
+		const INT_PTR filter_count = graph.filters.GetCount();
 		if (filter_count <= 0) {
 			return;				// empty graph - nothing to do
 		}
@@ -1587,54 +1587,47 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		graph.SetSelection(next_pin ? NULL : next_filter, next_pin);		// Select pin or filter, not both
 		ScrollToMakeFilterVisible(next_pin ? next_pin->filter : next_filter);
+		Invalidate();
 	}
 
 	void DisplayView::OnFilterLeft()
 	{
 		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ false	,	/*positive=*/ false	);
-		Invalidate();
 	}
 
 	void DisplayView::OnFilterRight()
 	{
 		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ false	,	/*positive=*/ true	);
-		Invalidate();
 	}
 
 	void DisplayView::OnFilterUp()
 	{
 		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ true	,	/*positive=*/ false	);
-		Invalidate();
 	}
 
 	void DisplayView::OnFilterDown()
 	{
 		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ true	,	/*positive=*/ true	);
-		Invalidate();
 	}
 
 	void DisplayView::OnPinLeft()
 	{
 		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ false	,	/*positive=*/ false	);
-		Invalidate();
 	}
 
 	void DisplayView::OnPinRight()
 	{
 		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ false	,	/*positive=*/ true	);
-		Invalidate();
 	}
 
 	void DisplayView::OnPinUp()
 	{
 		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ true ,	/*positive=*/ false	);
-		Invalidate();
 	}
 
 	void DisplayView::OnPinDown()
 	{
 		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ true ,	/*positive=*/ true	);
-		Invalidate();
 	}
 
 	void DisplayView::OnContextMenu()
