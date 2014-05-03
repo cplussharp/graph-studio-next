@@ -62,11 +62,11 @@ STDMETHODIMP CAnalyzerWriterInput::NonDelegatingQueryInterface(REFIID iid, void*
     CheckPointer(ppv,E_POINTER);
 
     if (IID_IStream == iid)
-		return GetInterface((IStream*) this, ppv);
-    else if (__uuidof(IStreamBufferDataCounters) == iid)
-		return GetInterface((IStreamBufferDataCounters*) this, ppv);
-    else if (iid == IID_ISpecifyPropertyPages)
-        return GetInterface((ISpecifyPropertyPages*) this, ppv);
+		return GetInterface(static_cast<IStream*>(this), ppv);
+  //  else if (__uuidof(IStreamBufferDataCounters) == iid)
+		//return GetInterface(static_cast<IStreamBufferDataCounters*>(this), ppv);
+    //else if (iid == IID_ISpecifyPropertyPages)
+    //    return GetInterface(static_cast<ISpecifyPropertyPages*>(this), ppv);
 
 	return __super::NonDelegatingQueryInterface(iid, ppv);
 }
@@ -278,11 +278,11 @@ STDMETHODIMP CAnalyzerWriterFilter::NonDelegatingQueryInterface(REFIID riid, voi
     CheckPointer(ppv,E_POINTER);
 
 	if (IID_IFileSinkFilter == riid)
-        return GetInterface((IFileSinkFilter*) this, ppv);
+        return GetInterface(static_cast<IFileSinkFilter*>(this), ppv);
     else if (IID_IFileSinkFilter2 == riid)
-        return GetInterface((IFileSinkFilter2*) this, ppv);
+        return GetInterface(static_cast<IFileSinkFilter2*>(this), ppv);
 	else if (IID_IAMFilterMiscFlags == riid)
-        return GetInterface((IAMFilterMiscFlags*) this, ppv);
+        return GetInterface(static_cast<IAMFilterMiscFlags*>(this), ppv);
     else if (__uuidof(IAnalyzerCommon) == riid)
 		return m_analyzer->NonDelegatingQueryInterface(riid, ppv);
 
