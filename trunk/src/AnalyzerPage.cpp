@@ -37,15 +37,15 @@ CUnknown* CAnalyzerPage::CreateInstance(LPUNKNOWN lpunk, HRESULT *phr)
 
 BEGIN_MESSAGE_MAP(CAnalyzerPage, CDSPropertyPage)
 	ON_WM_SIZE()
-    ON_COMMAND(IDC_CHECK_ENABLED, &CAnalyzerPage::OnCheckClick)
+    ON_COMMAND(IDC_ANALYZER_ENABLED, &CAnalyzerPage::OnCheckClick)
     ON_COMMAND(IDC_CHECK_CRC, &CAnalyzerPage::OnCheckClick)
     ON_COMMAND(IDC_CHECK_ONLYSAMPLES, &CAnalyzerPage::OnCheckClick)
-    ON_BN_CLICKED(IDC_BUTTON_RESET, &CAnalyzerPage::OnBnClickedButtonReset)
-    ON_NOTIFY(LVN_GETDISPINFO, IDC_LIST_DATA, &CAnalyzerPage::OnLvnGetdispinfoListData)
-    ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST_DATA, &CAnalyzerPage::OnCustomDrawListData)
+    ON_BN_CLICKED(IDC_ANALYZER_RESET, &CAnalyzerPage::OnBnClickedButtonReset)
+    ON_NOTIFY(LVN_GETDISPINFO, IDC_ANALYZER_DATA, &CAnalyzerPage::OnLvnGetdispinfoListData)
+    ON_NOTIFY(NM_CUSTOMDRAW, IDC_ANALYZER_DATA, &CAnalyzerPage::OnCustomDrawListData)
     ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_PREVIEWBYTECOUNT, OnSpinDeltaByteCount)
-    ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CAnalyzerPage::OnBnClickedButtonRefresh)
-    ON_BN_CLICKED(IDC_BUTTON_SAVE, &CAnalyzerPage::OnBnClickedButtonSave)
+    ON_BN_CLICKED(IDC_ANALYZER_REFRESH, &CAnalyzerPage::OnBnClickedButtonRefresh)
+    ON_BN_CLICKED(IDC_ANALYZER_SAVE, &CAnalyzerPage::OnBnClickedButtonSave)
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -133,8 +133,8 @@ void CAnalyzerPage::OnSize(UINT nType, int cx, int cy)
 void CAnalyzerPage::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
-    DDX_Control(pDX, IDC_TITLEBAR, title);
-    DDX_Control(pDX, IDC_LIST_DATA, m_listCtrl);
+    DDX_Control(pDX, IDC_ANALYZER_TITLEBAR, title);
+    DDX_Control(pDX, IDC_ANALYZER_DATA, m_listCtrl);
     DDX_Text(pDX, IDC_EDIT_PREVIEWBYTECOUNT, m_nPreviewByteCount);
     DDX_Control(pDX, IDC_SPIN_PREVIEWBYTECOUNT, m_spinPreviewByteCount);
 }
@@ -151,7 +151,7 @@ HRESULT CAnalyzerPage::OnActivate()
 	// Read values
     VARIANT_BOOL isEnabled;
     filter->get_Enabled(&isEnabled);
-    CheckDlgButton(IDC_CHECK_ENABLED, isEnabled ? BST_CHECKED : BST_UNCHECKED);
+    CheckDlgButton(IDC_ANALYZER_ENABLED, isEnabled ? BST_CHECKED : BST_UNCHECKED);
 
     int captureConfig;
     filter->get_CaptureConfiguration(&captureConfig);
@@ -185,7 +185,7 @@ HRESULT CAnalyzerPage::OnDisconnect()
 HRESULT CAnalyzerPage::OnApplyChanges()
 {
     UpdateData();
-    filter->put_Enabled(IsDlgButtonChecked(IDC_CHECK_ENABLED) ? VARIANT_TRUE : VARIANT_FALSE);
+    filter->put_Enabled(IsDlgButtonChecked(IDC_ANALYZER_ENABLED) ? VARIANT_TRUE : VARIANT_FALSE);
 	ASSERT(m_nPreviewByteCount <= 0xFFFF);
     filter->put_PreviewSampleByteCount((unsigned short) m_nPreviewByteCount);
 
@@ -664,7 +664,7 @@ void CAnalyzerPage::OnBnClickedButtonSave()
 		}
 
         CFile file(filename, CFile::modeCreate|CFile::modeWrite);
-        CString csvSep = CStatisticForm::GetCsvSeparator();
+        CString csvSep = GetCsvSeparator();
 
         // Output header
         CString row = _T("");

@@ -7,6 +7,8 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
+#include "time_utils.h"
+
 GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	IMPLEMENT_DYNCREATE(FilterListCtrl, CListCtrl)

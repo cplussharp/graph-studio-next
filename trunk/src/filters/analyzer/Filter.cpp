@@ -7,7 +7,7 @@ CFactoryTemplate g_Templates[] =
 {
     CAnalyzerFilter::g_Template,
     CAnalyzerWriterFilter::g_Template,
-    CAnalyzerPropPageConfig::g_Template
+    CAnalyzerPage::g_Template
 };
 int g_cTemplates = sizeof(g_Templates) / sizeof(g_Templates[0]);
 
@@ -16,10 +16,22 @@ int g_cTemplates = sizeof(g_Templates) / sizeof(g_Templates[0]);
 // correctly
 extern "C" BOOL WINAPI DllEntryPoint(HINSTANCE, ULONG, LPVOID);
 
-BOOL WINAPI DllMain(HANDLE hDllHandle, DWORD dwReason, LPVOID lpReserved)
+// Because we're using MFC for the property page, initialise baseclasses from MFC app entry points and leave MFC to handle DllMain
+// baseclass entry point does not process the thread attach/detach entry points
+class AnalyzerFilterApp : public CWinApp
 {
-   return DllEntryPoint(reinterpret_cast<HINSTANCE>(hDllHandle), dwReason, lpReserved);
-}
+	virtual BOOL InitInstance()
+	{
+		return DllEntryPoint(m_hInstance, DLL_PROCESS_ATTACH, NULL);	// reserved param not used
+	}
+
+    virtual int ExitInstance()
+	{
+		return DllEntryPoint(m_hInstance, DLL_PROCESS_DETACH, NULL);	// reserved param not used
+	}
+};
+AnalyzerFilterApp theApp;		// the singleton application object
+
 
 STDAPI DllRegisterServer()
 {

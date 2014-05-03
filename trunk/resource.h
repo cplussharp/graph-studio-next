@@ -54,7 +54,6 @@
 #define IDD_DIALOG_SBECONFIG            173
 #define IDD_DIALOG_BLACKLIST            174
 #define IDD_DIALOG_MEDIA_TYPE_SELECT    175
-#define IDD_PROPPAGE_ANALYZER           176
 #define IDD_DIALOG_CLIOPTIONS           177
 #define IDD_DIALOG_STATISTIC            178
 #define IDD_DIALOG_FILETYPES            179
@@ -95,7 +94,6 @@
 #define IDC_BUTTON_CONFIG               1018
 #define IDC_BUTTON_DEF_IRATE            1018
 #define IDC_BUTTON_SET                  1018
-#define IDC_BUTTON_RESET                1018
 #define IDC_EDIT_DETAILS                1019
 #define IDC_BUTTON_DEF_PRATE            1019
 #define IDC_COMBO_REPORTTYPE            1020
@@ -123,7 +121,6 @@
 #define IDC_EDIT_DIR                    1031
 #define IDC_EDIT_BLACKLIST_ENTRY        1031
 #define IDC_EDIT_OPTIONS                1031
-#define IDC_EDIT_PREVIEWBYTECOUNT       1031
 #define IDC_EDIT_STOP_POSITION          1031
 #define IDC_TREE_PROTOCOLS              1031
 #define IDC_EDIT_DST_TOP                1032
@@ -225,11 +222,7 @@
 #define IDC_SPIN_FILECOUNT_MAX          1116
 #define IDC_LIST_MEDIATYPES             1117
 #define IDC_LIST_BLACKLIST              1118
-#define IDC_CHECK_ENABLED               1119
-#define IDC_CHECK_CRC                   1120
-#define IDC_CHECK_ONLYSAMPLES           1121
 #define IDC_LIST_DATA                   1123
-#define IDC_SPIN_PREVIEWBYTECOUNT       1124
 #define IDC_STATIC_VERINFO              1125
 #define IDC_SEARCH_STRING               1126
 #define IDC_USE_MAJOR_TYPE              1127

@@ -7,6 +7,7 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
+#include "time_utils.h"
 
 //-----------------------------------------------------------------------------
 //
@@ -220,15 +221,6 @@ void CStatisticForm::OnExportClick()
             file.Write(outputText, (DWORD) ::strlen(outputText));
         }
     }
-}
-
-CString CStatisticForm::GetCsvSeparator()
-{
-    TCHAR szSep[8];
-    GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, szSep, 8);
-    if (szSep[0] == _T(','))
-        return _T(";");
-    return _T(",");
 }
 
 const CString CStatisticForm::GetEntryString(LONG entryNr, int field)

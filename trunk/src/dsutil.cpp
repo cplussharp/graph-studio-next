@@ -509,7 +509,7 @@ namespace DSUtil
 					strRegText.Format(_T("[HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\%s]\n"), key_name);
 					strRegText.Append(_T("\"FilterData\"=hex:"));
 
-					for (int i = 0; i < size; i++)
+					for (int i = 0; i < (int)size; i++)
 					{
 						if (i > 0)
 							strRegText.AppendFormat(_T(",%02x"), largebuf[i]);
