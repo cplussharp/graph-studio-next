@@ -46,3 +46,51 @@ CString CommaFormat(__int64 n)
 	return ret;
 }
 
+// Moved from StatisticsForm
+CString GetCsvSeparator()
+{
+	TCHAR szSep[8];
+	GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, szSep, 8);
+	if (szSep[0] == _T(','))
+		return _T(";");
+	return _T(",");
+}
+
+int GetFourCC(DWORD fcc, CString &str)
+{
+	BYTE		*b = (BYTE*)&fcc;
+	int			i;
+
+	// first check that the characters are reasonable
+	for (i=0; i<4; i++) {
+		if (b[i] >= 32 &&			// space
+			b[i] <= 126)			// ~
+		{
+			// continue
+		} else {
+			// we can't make nice fourcc string
+			return -1;
+		}
+	}
+
+	CStringA	ansi_str;
+
+	ansi_str = "";
+	for (i=0; i<4; i++) {
+		char	c = b[i];
+		ansi_str += c;
+	}
+
+	str = ansi_str;
+	return 0;
+}
+
+void CLSIDToString(const CLSID& clsid, CString &str)
+{
+	LPOLESTR	ostr = NULL;
+	StringFromCLSID(clsid, &ostr);
+	if (ostr) {
+		str = ostr;
+		CoTaskMemFree(ostr);
+	}
+}

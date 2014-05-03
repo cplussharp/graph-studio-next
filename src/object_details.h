@@ -21,8 +21,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	int GetFilterInformationFromTemplate(const DSUtil::FilterTemplate &, PropItem *info);
 	int GetFilterInformationFromCLSID(const DSUtil::FilterCategories & categories, const GUID & clsid, PropItem * info);
 
-	void CLSIDToString(const CLSID& clsid, CString &str);
-
 	int GetObjectName(GUID clsid, CString &name);
 	int GetObjectFile(GUID clsid, CString &filename);
 
@@ -41,9 +39,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	int GetMpeg2VideoInfoDetails(const MPEG2VIDEOINFO *mvi, PropItem *mviinfo);
 	int GetMpegLayer3InfoDetails(const MPEGLAYER3WAVEFORMAT *mp3, PropItem *mp3info);
 	int GetMpeg1WaveFormatDetails(const MPEG1WAVEFORMAT *wfx, PropItem *mpinfo);
-
-	// Four-CC
-	int GetFourCC(DWORD fcc, CString &str);
 
 	// Decoder Specific Information
 	int GetExtradata_AAC(const CMediaType *pmt, PropItem *mtinfo);

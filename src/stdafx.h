@@ -110,6 +110,7 @@
 #include "HiResTimer.h"
 
 #include "..\resource.h"
+#include "filters\analyzer\analyzer_proppage_resource.h"
 
 #include <list>
 #include <vector>

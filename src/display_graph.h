@@ -392,14 +392,60 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	bool LineHit(CPoint p1, CPoint p2, CPoint hit); 
 	void DoDrawArrow(CDC *dc, CPoint p1, CPoint p2, DWORD color, int nPenStyle = PS_SOLID);
 
-	// GUID helpers
+	#ifndef GUID_LIST_SUPRESS_GUIDS
+
+	// GUID helpers - can be excluded from filter builds
 	bool NameGuid(GUID guid, CString &str, bool alsoAddGuid);
     bool InsertGuidLookup(int i, CListCtrl* pListCtrl);
 	int GetFormatName(int wFormatTag, CString &str);
+
+	#endif
+
     bool NameHResult(HRESULT hr, CString &str);
     bool InsertHresultLookup(int i, CListCtrl* pListCtrl);
 
 	void MakeFont(CFont &f, CString name, int size, bool bold, bool italic);
     bool HasFont(CString fontName);
+
+	// These should be moved to a separate utility module, really
+	inline void MakeFont(CFont &f, CString name, int size, bool bold, bool italic)
+	{
+		HDC dc = CreateCompatibleDC(NULL);
+		int nHeight    = -MulDiv(size, (int)(GetDeviceCaps(dc, LOGPIXELSY)), 72 );
+		DeleteDC(dc);
+
+		DWORD dwBold   = (bold ? FW_BOLD : 0);
+		DWORD dwItalic = (italic ? TRUE : FALSE);
+
+		f.CreateFont(nHeight, 0, 0, 0, dwBold, dwItalic, FALSE, FALSE, DEFAULT_CHARSET,
+					  OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 5, VARIABLE_PITCH, name);
+	}
+
+    inline int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* /*lpelfe*/, NEWTEXTMETRICEX* /*lpntme*/, int /*FontType*/, LPARAM lParam)
+    {
+        LPARAM* l = (LPARAM*)lParam;
+        *l = TRUE;
+        return TRUE;
+    }
+
+
+    inline bool HasFont(CString fontName)
+    {
+        // Get the screen DC
+        CDC dc;
+        if (!dc.CreateCompatibleDC(NULL))
+        {
+    	    return false;
+        }
+        LOGFONT lf = { 0 };
+        // Any character set will do
+        lf.lfCharSet = DEFAULT_CHARSET;
+        // Set the facename to check for
+        _tcscpy(lf.lfFaceName, fontName);
+        LPARAM lParam = 0;
+        // Enumerate fonts
+        ::EnumFontFamiliesEx(dc.GetSafeHdc(), &lf,  (FONTENUMPROC)EnumFontFamExProc, (LPARAM)&lParam, 0);
+        return lParam ? true : false;
+    }
 
 GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

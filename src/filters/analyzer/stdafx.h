@@ -35,8 +35,15 @@
 #define _WIN32_IE 0x0600	// Change this to the appropriate value to target other versions of IE.
 #endif
 
+// MFC inclusion to support analyzer property page
+#include <afxwin.h>
+#include <afxcmn.h>
+#include <afxdlgs.h>
+
 #include <atlbase.h>
 #include <atlstr.h>
+#include <atlpath.h>
+#include <afxtaskdialog.h>
 
 #include <streams.h>
 #include <sbe.h>
@@ -52,3 +59,40 @@
 #include "filter_analyzer_writer.h"
 
 #include "analyzer_proppage_config.h"
+
+// GraphStudio Dependencies of AnalyzerPage
+
+#include <initguid.h>
+#include <comdef.h>
+
+#include <dvdmedia.h>
+
+#pragma comment(lib, "Quartz.lib")
+
+#include <vector>
+using namespace std;
+
+#define GUID_LIST_SUPRESS_GUIDS		// leave out all the guid processing stuff
+
+// Copied from GraphStudio sfdafx.h
+#define GRAPHSTUDIO_NAMESPACE_START		namespace GraphStudio { 
+#define GRAPHSTUDIO_NAMESPACE_END		}
+
+class EVR_VideoWindow;
+
+namespace XML
+{
+	class XMLNode;
+}
+
+#include "..\..\dsutil.h"
+#include "..\..\renderparameters.h"
+#include "..\..\display_graph.h"
+
+#include "..\..\title_bar.h"
+#include "..\..\CustomPage.h"
+
+#include "analyzer_proppage_resource.h"
+#include "..\..\AnalyzerPage.h"
+
+#define GUID_LIST_SUPRESS_GUIDS		// leave out all the guid processing stuff, which should be in separate module really

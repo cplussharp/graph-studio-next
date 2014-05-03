@@ -64,6 +64,4 @@ public:
     afx_msg void OnExportClick();
     afx_msg void OnFilterMapperClick();
     afx_msg void OnLvnGetdispinfoListData(NMHDR *pNMHDR, LRESULT *pResult);
-
-    static CString GetCsvSeparator();
 };

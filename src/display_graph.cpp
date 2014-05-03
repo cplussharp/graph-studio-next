@@ -21,13 +21,6 @@
 
 GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
-    static int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX* /*lpelfe*/, NEWTEXTMETRICEX* /*lpntme*/, int /*FontType*/, LPARAM lParam)
-    {
-        LPARAM* l = (LPARAM*)lParam;
-        *l = TRUE;
-        return TRUE;
-    }
-
 	static bool CanSeekByTimeFormat(IMediaSeeking * ims, const GUID & time_format)
 	{
 		bool enable = false;
@@ -46,38 +39,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 		}
 		return enable;
-	}
-
-    bool HasFont(CString fontName)
-    {
-        // Get the screen DC
-        CDC dc;
-        if (!dc.CreateCompatibleDC(NULL))
-        {
-    	    return false;
-        }
-        LOGFONT lf = { 0 };
-        // Any character set will do
-        lf.lfCharSet = DEFAULT_CHARSET;
-        // Set the facename to check for
-        _tcscpy(lf.lfFaceName, fontName);
-        LPARAM lParam = 0;
-        // Enumerate fonts
-        ::EnumFontFamiliesEx(dc.GetSafeHdc(), &lf,  (FONTENUMPROC)EnumFontFamExProc, (LPARAM)&lParam, 0);
-        return lParam ? true : false;
-    }
-
-	void MakeFont(CFont &f, CString name, int size, bool bold, bool italic)
-	{
-		HDC dc = CreateCompatibleDC(NULL);
-		int nHeight    = -MulDiv(size, (int)(GetDeviceCaps(dc, LOGPIXELSY)), 72 );
-		DeleteDC(dc);
-
-		DWORD dwBold   = (bold ? FW_BOLD : 0);
-		DWORD dwItalic = (italic ? TRUE : FALSE);
-
-		f.CreateFont(nHeight, 0, 0, 0, dwBold, dwItalic, FALSE, FALSE, DEFAULT_CHARSET,
-					  OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 5, VARIABLE_PITCH, name);
 	}
 
 	// attempt to determine whether a filter is a source or renderer

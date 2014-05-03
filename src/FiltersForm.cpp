@@ -8,6 +8,7 @@
 #include "stdafx.h"
 #include "FiltersForm.h"
 
+#include "time_utils.h"
 
 typedef HRESULT (_stdcall *DllUnregisterServerProc)(); 
 typedef HRESULT (_stdcall *DllRegisterServerProc)(); 
@@ -258,7 +259,7 @@ void CFiltersForm::RefreshFilterList(const DSUtil::FilterTemplates &filters)
 void CFiltersForm::FindFilterWithCLSID(const CLSID & filter_clsid)
 {
 	CString clsid_str;
-	GraphStudio::CLSIDToString(filter_clsid, clsid_str);
+	CLSIDToString(filter_clsid, clsid_str);
 
 	edit_search.SetWindowText(clsid_str);
 	list_filters.SetSearchString(clsid_str);

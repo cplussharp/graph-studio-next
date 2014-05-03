@@ -7,6 +7,8 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 
+#include "time_utils.h"
+
 GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	//-------------------------------------------------------------------------
@@ -106,16 +108,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		
 		free(vi);
 		return 0;
-	}
-
-	void CLSIDToString(const CLSID& clsid, CString &str)
-	{
-		LPOLESTR	ostr = NULL;
-		StringFromCLSID(clsid, &ostr);
-		if (ostr) {
-			str = ostr;
-			CoTaskMemFree(ostr);
-		}
 	}
 
 	int GetObjectFile(GUID clsid, CString &filename)

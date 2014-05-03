@@ -10,6 +10,8 @@
 #include <nserror.h>
 #include <uuids.h>
 
+#include "time_utils.h"
+
 // from dxva2api.h
 #ifndef DXVA2_API_DEFINED
 #define DXVA2_E_NOT_INITIALIZED     ((HRESULT)0x80041000L)
@@ -19,6 +21,9 @@
 #endif
 
 GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
+
+// For filter DLL building, allow GUID functionality and its dependencies to be suppressed
+#ifndef GUID_LIST_SUPRESS_GUIDS
 
 #define	KNOWN(x)			{ x, _T( # x ) }
 	struct GuidPair {
@@ -777,11 +782,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 1;
 	}
 
-
-
-
-
-
+#endif	// #ifndef GUID_LIST_SUPRESS_GUIDS
 
     #define	KNOWNHR(x)			{ x, _T( # x ) }
 	struct HResultPair {
