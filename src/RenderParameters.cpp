@@ -57,12 +57,12 @@ bool RenderParameters::display_file_name = true;
 bool RenderParameters::use_media_info = false;
 
 RenderParameters::RenderParameters()
+	: exact_match_mode(false)
+	, abort_timeout(true)
 {
-	display_file_name = AfxGetApp()->GetProfileInt(_T("Settings"), _T("DisplayFileName"), 1) ? true : false;
-	exact_match_mode = false;
-	abort_timeout = true;
-	auto_arrange = AfxGetApp()->GetProfileInt(_T("Settings"), _T("AutoArrange"), false);
-	resize_to_graph = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ResizeToGraph"), true);
+	display_file_name = (0 != AfxGetApp()->GetProfileInt(_T("Settings"), _T("DisplayFileName"), true));
+	auto_arrange	  = (0 != AfxGetApp()->GetProfileInt(_T("Settings"), _T("AutoArrange"),		false));
+	resize_to_graph   = (0 != AfxGetApp()->GetProfileInt(_T("Settings"), _T("ResizeToGraph"),	true));
 
     // load connect mode
     int connectMode = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ConnectMode"), ConnectMode_Intelligent);
@@ -83,7 +83,7 @@ RenderParameters::RenderParameters()
 	preferred_video_renderer = _T("");
 	video_renderers = NULL;
 
-    use_media_info = AfxGetApp()->GetProfileInt(_T("Settings"), _T("UseMediaInfo"), 1) ? true : false;
+    use_media_info = (0 != AfxGetApp()->GetProfileInt(_T("Settings"), _T("UseMediaInfo"), true));
     is_remote = false;
 
 	// load bitmaps
