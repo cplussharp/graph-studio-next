@@ -1126,14 +1126,14 @@ BEGIN
         MENUITEM "S&eek...\tCtrl+K",            ID_BUTTON_SEEK
         MENUITEM "Use &Clock",                  ID_GRAPH_USECLOCK
         MENUITEM SEPARATOR
-        MENUITEM "Back 1 minute\tAlt Ctrl Shift Left", ID_SEEK_BACKWARD_4
-        MENUITEM "Back 10 seconds\tAlt Ctrl Left", ID_SEEK_BACKWARD_3
-        MENUITEM "Back 1 second\tAlt Shift Left", ID_SEEK_BACKWARD_2
-        MENUITEM "Back 1 frame/field\tAlt Left", ID_SEEK_BACKWARD_1
-        MENUITEM "Forward 1 frame/field\tAlt Right", ID_SEEK_FORWARD_1
-        MENUITEM "Forward 1 second\tAlt Shift Right", ID_SEEK_FORWARD_2
-        MENUITEM "Forward 10 seconds\tAlt Ctrl Right", ID_SEEK_FORWARD_3
-        MENUITEM "Forward 1 minute\tAlt Ctrl Shift Right", ID_SEEK_FORWARD_4
+        MENUITEM "Back 1 &minute\tAlt Ctrl Shift Left", ID_SEEK_BACKWARD_4
+        MENUITEM "Back 10 seco&nds\tAlt Ctrl Left", ID_SEEK_BACKWARD_3
+        MENUITEM "Bac&k 1 second\tAlt Shift Left", ID_SEEK_BACKWARD_2
+        MENUITEM "&Back 1 frame/field\tAlt Left", ID_SEEK_BACKWARD_1
+        MENUITEM "F&orward 1 frame/field\tAlt Right", ID_SEEK_FORWARD_1
+        MENUITEM "Fo&rward 1 second\tAlt Shift Right", ID_SEEK_FORWARD_2
+        MENUITEM "For&ward 10 seconds\tAlt Ctrl Right", ID_SEEK_FORWARD_3
+        MENUITEM "Forwar&d 1 minute\tAlt Ctrl Shift Right", ID_SEEK_FORWARD_4
     END
     POPUP "&Graph"
     BEGIN
@@ -1143,7 +1143,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Duplicate Selected Filters\tCtrl+D", ID_FILTERS_DOUBLESELECTEDFILTERS
         MENUITEM "Delete Selectio&n\tDel",      ID_DELETE_FILTER
-        MENUITEM "Properties...\tReturn, Alt+Return", ID_PROPERTYPAGE
+        MENUITEM "&Properties...\tReturn, Alt+Return", ID_PROPERTYPAGE
         MENUITEM "Conte&xt Menu...\tMenu, Shift+F10", ID_CONTEXT_MENU
         MENUITEM "Navigate Filters\tArrow keys", ID_GRAPH_NAVIGATE_FILTERS, GRAYED
         MENUITEM "Navigate Pins\tShift+Arrow keys", ID_GRAPH_NAVIGATE_PINS, GRAYED

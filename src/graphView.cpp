@@ -756,7 +756,7 @@ void CGraphView::UpdateRenderersMenu()
 	}
 
 	graphmenu->ModifyMenu(ID_GRAPH_INSERTAUDIOSOURCE, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
-						  (UINT_PTR)audio_source_menu.m_hMenu, _T("Insert Audio Source"));
+						  (UINT_PTR)audio_source_menu.m_hMenu, _T("Insert A&udio Source"));
 
 	audio_source_menu.Detach();
 
@@ -770,7 +770,7 @@ void CGraphView::UpdateRenderersMenu()
 	}
 
 	graphmenu->ModifyMenu(ID_GRAPH_INSERTVIDEOSOURCE, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
-						  (UINT_PTR)video_source_menu.m_hMenu, _T("Insert Video Source"));
+						  (UINT_PTR)video_source_menu.m_hMenu, _T("Insert &Video Source"));
 
 	video_source_menu.Detach();
 
@@ -778,7 +778,7 @@ void CGraphView::UpdateRenderersMenu()
 	audio_render_menu.CreatePopupMenu();
 	PopulateAudioRenderersMenu(audio_render_menu);
 	graphmenu->ModifyMenu(ID_GRAPH_INSERTAUDIORENDERER, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
-						  (UINT_PTR)audio_render_menu.m_hMenu, _T("Insert Audio Renderer"));
+						  (UINT_PTR)audio_render_menu.m_hMenu, _T("Insert Audi&o Renderer"));
 
 	audio_render_menu.Detach();
 
@@ -786,7 +786,7 @@ void CGraphView::UpdateRenderersMenu()
 	video_render_menu.CreatePopupMenu();
 	PopulateVideoRenderersMenu(video_render_menu);
 	graphmenu->ModifyMenu(ID_GRAPH_INSERTVIDEORENDERER, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
-						  (UINT_PTR)video_render_menu.m_hMenu, _T("Insert Video Renderer"));
+						  (UINT_PTR)video_render_menu.m_hMenu, _T("Insert Vid&eo Renderer"));
 
 	video_render_menu.Detach();
 
@@ -799,7 +799,7 @@ void CGraphView::UpdateRenderersMenu()
 	}
 
 	graphmenu->ModifyMenu(ID_GRAPH_INSERTINTERNALFILTER, MF_BYCOMMAND | MF_POPUP | MF_STRING, 
-						  (UINT_PTR)internal_filter_menu.m_hMenu, _T("Insert Internal Filter"));
+						  (UINT_PTR)internal_filter_menu.m_hMenu, _T("Insert &Internal Filter"));
 
 	internal_filter_menu.Detach();
 
