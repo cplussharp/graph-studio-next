@@ -22,6 +22,8 @@ protected:
     const CString GetEntryString(__int64 entryNr, int field, bool commaFormattedTimestamps) const;
 	static CString FormatSetPositionsFlags(DWORD flags);
 
+    static CUnknown * WINAPI CreateInstance(LPUNKNOWN lpunk, HRESULT *phr);
+
 	enum Columns
 	{
 		Number = 0,				
@@ -59,6 +61,9 @@ public:
 
     enum { IDD = /*IDD_DIALOG_WMADECODER*/ IDD_PROPPAGE_ANALYZER };
 public:
+
+    static const CFactoryTemplate g_Template;
+
 	CAnalyzerPage(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR strTitle);
 	virtual ~CAnalyzerPage();
 	

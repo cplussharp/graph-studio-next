@@ -53,7 +53,7 @@ static void RegisterInternalFiltersForCurrentApartment(void)
     (new DSUtil::CClassFactory(&CVideoAnalyzerFilter::g_Template))->Register();
     (new DSUtil::CClassFactory(&CAudioAnalyzerFilter::g_Template))->Register();
 
-    //(new DSUtil::CClassFactory(&CAnalyzerPropPageConfig::g_Template))->Register();
+    (new DSUtil::CClassFactory(&CAnalyzerPage::g_Template))->Register();
 }
 
 DWORD WINAPI RegisterInternalFiltersForMTAThreadProc(_In_  LPVOID /*lpParameter*/ )
