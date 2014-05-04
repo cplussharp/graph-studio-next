@@ -736,17 +736,28 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void DisplayGraph::RemoveSelectionFromGraph()
 	{
+		Pin * selected_pin = NULL;
+
 		// first delete connections and then filters
 		for (int i=0; i<filters.GetCount(); i++) {
 			filters[i]->RemoveSelectedConnections();
 		}
 		for (int i=0; i<filters.GetCount(); i++) {
 			if (filters[i]->selected) {
+				// select the output pin the deleted filter was connected to
+				CArray<Pin*> & pins(filters[i]->input_pins);
+				const int pin_count = pins.GetCount();
+				for (int k=0; k<pin_count && !selected_pin; k++) {
+					if (pins[k]->peer && !pins[k]->peer->filter->selected)
+						selected_pin = pins[k]->peer;
+				}
 				if (callback) 
 					callback->OnFilterRemoved(this, filters[i]);
 				filters[i]->RemoveFromGraph();
 			}
 		}
+		if (selected_pin)
+			selected_pin->selected = true;
 		RefreshFilters();
 		if (params && params->auto_arrange)
 			SmartPlacement();
