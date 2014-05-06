@@ -226,6 +226,7 @@ using namespace std;
 #include "PropertyForm.h"
 #include "NewGroupForm.h"
 #include "SbeConfigForm.h"
+#include "DbgLogConfigForm.h"
 #include "CliOptionsForm.h"
 #include "graphView.h"
 

@@ -35,6 +35,7 @@ BEGIN_MESSAGE_MAP(CFiltersForm, CGraphStudioModelessDialog)
 	ON_BN_CLICKED(IDC_BUTTON_UNREGISTER, &CFiltersForm::OnUnregisterClick)
     ON_BN_CLICKED(IDC_BUTTON_REGISTER, &CFiltersForm::OnRegisterClick)
 	ON_BN_CLICKED(IDC_BUTTON_MERIT, &CFiltersForm::OnMeritClick)
+	ON_BN_CLICKED(IDC_BUTTON_DBGLOGSETTINGS, &CFiltersForm::OnDbgLogClick)
 	ON_WM_CTLCOLOR()
 	ON_BN_CLICKED(IDC_CHECK_BLACKLIST, &CFiltersForm::OnBnClickedCheckBlacklist)
 END_MESSAGE_MAP()
@@ -74,6 +75,7 @@ void CFiltersForm::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_BUTTON_INSERT, btn_insert);
     DDX_Control(pDX, IDC_BUTTON_LOCATE, btn_locate);
     DDX_Control(pDX, IDC_BUTTON_MERIT, btn_merit);
+	DDX_Control(pDX, IDC_BUTTON_DBGLOGSETTINGS, btn_dbglog);
     DDX_Control(pDX, IDC_BUTTON_PROPERTYPAGE, btn_propertypage);
     DDX_Control(pDX, IDC_BUTTON_UNREGISTER, btn_unregister);
     DDX_Control(pDX, IDC_CHECK_FAVORITE, check_favorite);
@@ -199,6 +201,7 @@ void CFiltersForm::OnInitialize()
     btn_register.SetShield(TRUE);
     btn_unregister.SetShield(TRUE);
     btn_merit.SetShield(TRUE);
+	btn_dbglog.SetShield(TRUE);
 
     //Set up the tooltip
     m_pToolTip = new CToolTipCtrl;
@@ -393,6 +396,8 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 	btn_locate.SetWindowPos(NULL, rc.Width() - gap - rc2.Width(), rc.Height() - 2*(gap+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
 	btn_unregister.SetWindowPos(NULL, rc.Width() - gap - rc2.Width(), rc.Height() - 1*(gap+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
 
+	btn_dbglog.SetWindowPos(NULL, right_x + right_width / 2 - rc2.Width() / 2, rc.Height() - 1 * (gap + btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
+
     check_blacklist.GetWindowRect(&rc2);
     check_blacklist.SetWindowPos(NULL, right_x + right_width / 2 - rc2.Width() / 2, rc.Height()- 100 +gap, rc2.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
@@ -409,11 +414,14 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 	btn_locate.Invalidate();
 	btn_merit.Invalidate();
 	btn_unregister.Invalidate();
+	btn_dbglog.Invalidate();
 
 	list_filters.Invalidate();
 	tree_details.Invalidate();
 
     m_search_online.Invalidate();
+	check_blacklist.Invalidate();
+	check_favorite.Invalidate();
 }
 
 void CFiltersForm::OnMeasureItem(int nIDCtl, LPMEASUREITEMSTRUCT item)
@@ -572,6 +580,8 @@ void CFiltersForm::UpdateFilterDetails(const DSUtil::FilterTemplate &filter)
 	m_search_online.SetURL(url);
 	if (str) 
 		CoTaskMemFree(str);
+
+	btn_dbglog.EnableWindow(filter.uses_dbglog);
 }
 
 void CFiltersForm::OnBnClickedCheckBlacklist()
@@ -891,14 +901,19 @@ void CFiltersForm::OnMeritClick()
 	}
 }
 
+void CFiltersForm::OnDbgLogClick()
+{
+	DSUtil::FilterTemplate *filter = GetSelected();
+	if (filter && filter->uses_dbglog)
+	{
+		CString strFileName = PathFindFileName(filter->file);
+		CDbgLogConfigForm dlg(strFileName, this);
+		dlg.DoModal();
+	}
+}
+
 void CFiltersForm::OnRegisterClick()
 {
-    /*if(!DSUtil::IsUserAdmin())
-    {
-        DSUtil::ShowInfo(_T("Admin rights required to register a filter.\nPlease restart the program as admin."));
-        return;
-    }*/
-
     CString	filter = _T("Filter Files (*.dll,*.ocx,*.ax)|*.dll;*.ocx;*.ax|All Files|*.*|");
 
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_ALLOWMULTISELECT|OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_FILEMUSTEXIST,filter);
@@ -918,34 +933,6 @@ void CFiltersForm::OnRegisterClick()
 
 		DWORD code = DSUtil::ExecuteWait(_T("regsvr32.exe"), filename);
 		changed = !code;
-
-        // prepare dll search path
-        /*CString libPath = filename;
-        PathRemoveFileSpec (libPath.GetBuffer()); 
-        libPath.ReleaseBuffer(); 
-        SetDllDirectory(libPath);
-
-        HMODULE	library = LoadLibrary(filename);
-		if (library)
-        {
-			DllRegisterServerProc reg = (DllUnregisterServerProc)GetProcAddress(library, "DllRegisterServer");
-			if (reg)
-            {
-				HRESULT hr = reg();
-				if (SUCCEEDED(hr))
-                {
-                    changed = true;
-                    CString	msg;
-                    msg.Format(_T("Register '%s' succeeded."), PathFindFileName(filename));
-					DSUtil::ShowInfo(msg);
-				} else {
-					CString	msg;
-					msg.Format(_T("Register '%s' failed: 0x%08x"), PathFindFileName(filename), hr);
-					DSUtil::ShowError(hr, msg);
-				}
-			}
-			FreeLibrary(library);
-		}*/
     }
 
     // reload the filters

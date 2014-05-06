@@ -123,6 +123,7 @@ namespace DSUtil
 		CString		file;
 		int			wave_in_id;		// negative if not set
 		bool		file_exists;
+		bool		uses_dbglog;
 
 		CArray<PinTemplate>		input_pins;
 		CArray<PinTemplate>		output_pins;
@@ -145,6 +146,7 @@ namespace DSUtil
 		// vytvorenie instancie
 		HRESULT CreateInstance(IBaseFilter **filter);
 		HRESULT FindFilename();
+		void FindDbgLog();
 
 		int LoadFromMonikerName(CString displayname);
 		int LoadFilterData(char *buf, int size);

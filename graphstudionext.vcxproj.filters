@@ -399,6 +399,9 @@
     <ClInclude Include="src\filters\dxva_null\filter_dxva_null.h">
       <Filter>Filters\filter_dxva_null</Filter>
     </ClInclude>
+	<ClInclude Include="src\DbgLogConfigForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -658,6 +661,9 @@
     </ClCompile>
     <ClCompile Include="src\filters\dxva_null\filter_dxva_null.cpp">
       <Filter>Filters\filter_dxva_null</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DbgLogConfigForm.cpp">
+      <Filter>Dialogs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
