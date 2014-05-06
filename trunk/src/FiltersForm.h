@@ -39,6 +39,7 @@ private:
 	CButton						btn_unregister;
 	CButton						btn_locate;
 	CButton						btn_merit;
+	CButton						btn_dbglog;
 	CButton						check_favorite;
 	CButton						check_blacklist;
 	GraphStudio::FilterListCtrl	list_filters;
@@ -115,6 +116,7 @@ private:
 	afx_msg void OnUnregisterClick();
 	afx_msg void OnRegisterClick();
 	afx_msg void OnMeritClick();
+	afx_msg void OnDbgLogClick();
 	afx_msg void OnEnUpdateSearchString();
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	afx_msg void OnBnClickedCheckBlacklist();

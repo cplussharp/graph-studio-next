@@ -302,6 +302,7 @@ namespace DSUtil
 		type(FilterTemplate::FT_FILTER),
 		wave_in_id(-1),
 		file_exists(false),
+		uses_dbglog(false),
 		clsid(GUID_NULL),
 		category(GUID_NULL),
 		moniker(NULL),
@@ -319,6 +320,7 @@ namespace DSUtil
 		file(ft.file),
 		wave_in_id(ft.wave_in_id),
 		file_exists(ft.file_exists),
+		uses_dbglog(ft.uses_dbglog),
 		clsid(ft.clsid),
 		category(ft.category),
 		version(ft.version),
@@ -360,6 +362,7 @@ namespace DSUtil
 		description = ft.description;
 		device_path = ft.device_path;
 		file = ft.file;
+		uses_dbglog = ft.uses_dbglog;
 		wave_in_id = ft.wave_in_id;
 		file_exists = ft.file_exists;
 		clsid = ft.clsid;
@@ -431,6 +434,33 @@ namespace DSUtil
 			}
 		}
 		return NOERROR;
+	}
+
+	void FilterTemplate::FindDbgLog()
+	{
+		if (!file_exists) return;
+
+		CString filename = PathFindFileName(file);
+
+		CString regKeyNew;
+		regKeyNew.Format(_T("SOFTWARE\\Microsoft\\DirectShow\\Debug\\%s"), filename);
+		CRegKey	keyNew;
+		if (keyNew.Open(HKEY_LOCAL_MACHINE, regKeyNew, KEY_READ) == ERROR_SUCCESS)
+		{
+			uses_dbglog = true;
+			keyNew.Close();
+		}
+		keyNew.Close();
+
+		CString regKeyOld;
+		regKeyOld.Format(_T("SOFTWARE\\Debug\\%s"), filename);
+		CRegKey	keyOld;
+		if (keyOld.Open(HKEY_LOCAL_MACHINE, regKeyOld, KEY_READ) == ERROR_SUCCESS)
+		{
+			uses_dbglog = true;
+			keyOld.Close();
+		}
+		keyOld.Close();
 	}
 
 	int FilterTemplate::WriteMerit()
@@ -758,6 +788,7 @@ namespace DSUtil
 		hr = ReadFromMoniker(loc_moniker);
 		if (SUCCEEDED(hr)) {
 			FindFilename();
+			FindDbgLog();
 			moniker_name = displayname;
 			ParseMonikerName();
 		}
@@ -1516,6 +1547,7 @@ namespace DSUtil
 				filter.moniker_name = display_name;
 				filter.version = 2;
 				filter.FindFilename();
+				filter.FindDbgLog();
 
 				// find out merit
 
@@ -1671,6 +1703,7 @@ namespace DSUtil
 			hr = filter.ReadFromMoniker(moniker);
 			if (SUCCEEDED(hr)) {
 				filter.FindFilename();
+				filter.FindDbgLog();
 
 				// mame novy filter
 				filter.moniker = moniker;

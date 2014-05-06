@@ -58,6 +58,8 @@
 #define IDD_DIALOG_STATISTIC            178
 #define IDD_DIALOG_FILETYPES            179
 #define IDD_PROPPAGE_FILETYPES          180
+#define IDD_DIALOG_DBGLOG               181
+#define IDD_DIALOG_DBGLOGCONFIG         181
 #define IDC_COMBO_CATEGORIES            1001
 #define IDC_LIST_FILTERS                1002
 #define IDC_COMBO_MERIT                 1003
@@ -76,6 +78,8 @@
 #define IDC_STATIC_SEPARATOR            1012
 #define IDC_CHECK_BLACKLIST             1012
 #define IDC_BUTTON_CLEAR                1013
+#define IDC_BUTTON_PROPERTYPAGE2        1013
+#define IDC_BUTTON_DBGLOGSETTINGS       1013
 #define IDC_LIST_EVENTS                 1014
 #define IDC_BUTTON_COPY                 1015
 #define IDC_BUTTON_REFRESH              1015
@@ -237,6 +241,29 @@
 #define IDC_CHECK_USE_CLOCK             1138
 #define IDC_BUTTON1                     1139
 #define IDC_BUTTON_ASSOCIATE            1139
+#define IDC_EDIT_TRACE                  1140
+#define IDC_SPIN_TRACE                  1141
+#define IDC_EDIT_ERROR                  1142
+#define IDC_SPIN_ERROR                  1143
+#define IDC_EDIT_MEMORY                 1144
+#define IDC_SPIN_MEMORY                 1145
+#define IDC_EDIT_LOCKING                1146
+#define IDC_SPIN_LOCKING                1147
+#define IDC_EDIT_TIMING                 1148
+#define IDC_SPIN_TIMING                 1149
+#define IDC_EDIT_TIMEOUT                1150
+#define IDC_SPIN_TIMEOUT                1151
+#define IDC_EDIT_CUSTOM1                1152
+#define IDC_SPIN_CUSTOM1                1153
+#define IDC_EDIT_CUSTOM2                1154
+#define IDC_SPIN_CUSTOM2                1155
+#define IDC_EDIT_CUSTOM3                1156
+#define IDC_SPIN_CUSTOM3                1157
+#define IDC_EDIT_CUSTOM4                1158
+#define IDC_SPIN_CUSTOM4                1159
+#define IDC_EDIT_CUSTOM5                1160
+#define IDC_SPIN_CUSTOM5                1161
+#define IDC_EDIT_LOGFILE                1162
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -398,9 +425,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        181
+#define _APS_NEXT_RESOURCE_VALUE        182
 #define _APS_NEXT_COMMAND_VALUE         32953
-#define _APS_NEXT_CONTROL_VALUE         1140
+#define _APS_NEXT_CONTROL_VALUE         1163
 #define _APS_NEXT_SYMED_VALUE           108
 #endif
 #endif
