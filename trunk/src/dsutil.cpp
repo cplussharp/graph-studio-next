@@ -321,6 +321,7 @@ namespace DSUtil
 		wave_in_id(ft.wave_in_id),
 		file_exists(ft.file_exists),
 		uses_dbglog(ft.uses_dbglog),
+		logFile(ft.logFile),
 		clsid(ft.clsid),
 		category(ft.category),
 		version(ft.version),
@@ -363,6 +364,7 @@ namespace DSUtil
 		device_path = ft.device_path;
 		file = ft.file;
 		uses_dbglog = ft.uses_dbglog;
+		logFile = ft.logFile;
 		wave_in_id = ft.wave_in_id;
 		file_exists = ft.file_exists;
 		clsid = ft.clsid;
@@ -448,6 +450,15 @@ namespace DSUtil
 		if (keyNew.Open(HKEY_LOCAL_MACHINE, regKeyNew, KEY_READ) == ERROR_SUCCESS)
 		{
 			uses_dbglog = true;
+
+			TCHAR val[MAX_PATH];
+			DWORD len = MAX_PATH;
+			if (keyNew.QueryStringValue(_T("LogToFile"), val, &len) == ERROR_SUCCESS)
+			{
+				if (len > 1)
+					logFile = val;
+			}
+
 			keyNew.Close();
 		}
 		keyNew.Close();
@@ -458,6 +469,16 @@ namespace DSUtil
 		if (keyOld.Open(HKEY_LOCAL_MACHINE, regKeyOld, KEY_READ) == ERROR_SUCCESS)
 		{
 			uses_dbglog = true;
+
+			TCHAR val[MAX_PATH];
+			DWORD len = MAX_PATH;
+			if (keyNew.QueryStringValue(_T("LogToFile"), val, &len) == ERROR_SUCCESS)
+			{
+				// set only if logging to file like "C:\..."
+				if (len > 1)
+					logFile = val;
+			}
+
 			keyOld.Close();
 		}
 		keyOld.Close();

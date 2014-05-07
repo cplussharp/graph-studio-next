@@ -309,6 +309,8 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
 		// check for DMO pages
 		AnalyzeDMO(obj);
 
+		LoadDbgLogPage(obj, TEXT("DbgLog"));
+
         // Interfaces
         LoadInterfacePage(obj, TEXT("Interfaces"));
 
@@ -548,6 +550,31 @@ int CPropertyForm::LoadInterfacePage(IUnknown *obj, const CString& strTitle)
 	AddPropertyPage(new CInterfaceDetailsPage(NULL, &hr, strTitle), obj);
 
     return 0;
+}
+
+int CPropertyForm::LoadDbgLogPage(IUnknown *obj, const CString& strTitle)
+{
+	CComPtr<IBaseFilter> filter;
+	HRESULT hr = obj->QueryInterface(IID_IBaseFilter, (void**)&filter);
+	GraphStudio::Filter gf(NULL);
+	gf.LoadFromFilter(filter);
+
+	CString strFilterFile = gf.GetDllFileName();
+	if (strFilterFile.IsEmpty()) return 0;
+
+	DSUtil::FilterTemplate uf;
+	uf.file = strFilterFile;
+	uf.file_exists = true;
+	uf.FindDbgLog();
+
+	if (uf.uses_dbglog)
+	{
+		// display the details page
+		CString strFilterFileName = PathFindFileName(strFilterFile);
+		AddPropertyPage(new CDbgLogPage(NULL, &hr, strTitle, strFilterFile, uf.logFile), obj);
+	}
+
+	return 0;
 }
 
 int CPropertyForm::LoadMediaInfoPage(IUnknown *obj)

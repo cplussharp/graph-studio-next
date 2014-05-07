@@ -17,7 +17,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	int GetVersionInfo(CString filename, PropItem *info);
 	int GetFileDetails(CString filename, PropItem *filedetails);
-	int GetFilterDetails(const CLSID & clsid, PropItem *info);
+	int GetFilterDetails(GraphStudio::Filter& filter, PropItem *info); 
+	int GetFilterDetails(const CLSID& clsid, PropItem *info);
 	int GetFilterInformationFromTemplate(const DSUtil::FilterTemplate &, PropItem *info);
 	int GetFilterInformationFromCLSID(const DSUtil::FilterCategories & categories, const GUID & clsid, PropItem * info);
 

@@ -119,6 +119,7 @@ public:
     void AddPropertyPage(CDSPropertyPage *prop_page, IUnknown *obj);
 	int LoadPinPage(IPin *pin);
     int LoadInterfacePage(IUnknown *obj, const CString& strTitle);
+	int LoadDbgLogPage(IUnknown *obj, const CString& strTitle);
     int LoadMediaInfoPage(IUnknown *obj);
     void LoadCustomInterfacePropertyPages(IUnknown *obj);
 

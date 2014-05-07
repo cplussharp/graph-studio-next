@@ -16,6 +16,8 @@
 #include <atlenc.h>
 #include <set>
 
+#include "Psapi.h"
+
 #pragma warning(disable: 4244)			// DWORD -> BYTE warning
 
 
@@ -3493,6 +3495,38 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		overlay_icon_active = -1;
 		return overlay_icon_active;
+	}
+
+
+	CString Filter::GetDllFileName()
+	{
+		if (!dll_file.IsEmpty()) return dll_file;
+
+		// find the filter dll file
+		char* vtbl = *reinterpret_cast<char**>(filter.p);
+
+		HMODULE hMods[1024];
+		HANDLE hProcess = GetCurrentProcess();
+		DWORD cbNeeded;
+		if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
+		{
+			for (int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+			{
+				MODULEINFO mi;
+				GetModuleInformation(hProcess, hMods[i], &mi, sizeof(mi));
+				if (vtbl >= reinterpret_cast<char*>(mi.lpBaseOfDll) && vtbl < reinterpret_cast<char*>(mi.lpBaseOfDll) + mi.SizeOfImage)
+				{
+					TCHAR szModName[MAX_PATH];
+					if (GetModuleFileNameEx(hProcess, hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR)))
+					{
+						dll_file = szModName;
+						break;
+					}
+				}
+			}
+		}
+
+		return dll_file;
 	}
 
 

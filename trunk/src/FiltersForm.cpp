@@ -551,7 +551,15 @@ void CFiltersForm::UpdateFilterDetails(const DSUtil::FilterTemplate &filter)
 		if (!filter.name.IsEmpty())
 			group->AddItem(new GraphStudio::PropItem(_T("Object Name"), filter.name));
 		if (!filter.file.IsEmpty())
-			group->AddItem(new GraphStudio::PropItem(_T("File"), filter.file));
+		{
+			GraphStudio::PropItem	* const fileinfo = new GraphStudio::PropItem(_T("File"));
+			if (GraphStudio::GetFileDetails(filter.file, fileinfo) < 0) {
+				delete fileinfo;
+			}
+			else {
+				group->AddItem(fileinfo);
+			}
+		}
 	}
 	GraphStudio::PropItem * const template_info = info.AddItem(new GraphStudio::PropItem(_T("Filter Data")));
 	{

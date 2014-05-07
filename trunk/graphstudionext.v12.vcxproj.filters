@@ -402,6 +402,9 @@
     <ClInclude Include="src\DbgLogConfigForm.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="src\DbgLogPage.h">
+      <Filter>Property Pages</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -664,6 +667,9 @@
     </ClCompile>
     <ClCompile Include="src\DbgLogConfigForm.cpp">
       <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DbgLogPage.cpp">
+      <Filter>Property Pages</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

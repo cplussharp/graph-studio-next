@@ -157,9 +157,9 @@ void CDbgLogConfigForm::OnBnClickedButtonBrowse()
 {
 	UpdateData(TRUE);
 
-	CString strFilter = _T("All Files|*.*|");
+	CString strFilter = _T("Log Files|*.log|All Files|*.*|");
 
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_OVERWRITEPROMPT | OFN_ENABLESIZING, strFilter);
+	CFileDialog dlg(TRUE, _T(".log"), m_strLogFile, OFN_OVERWRITEPROMPT | OFN_ENABLESIZING, strFilter, this);
 	INT_PTR ret = dlg.DoModal();
 
 	CString filename = dlg.GetPathName();
@@ -222,7 +222,11 @@ void CDbgLogConfigForm::OnOK()
 			strRegText.AppendFormat(_T("\"CUSTOM3\"=dword:%08x\n"), m_nCustom3);
 			strRegText.AppendFormat(_T("\"CUSTOM4\"=dword:%08x\n"), m_nCustom4);
 			strRegText.AppendFormat(_T("\"CUSTOM5\"=dword:%08x\n"), m_nCustom5);
-			strRegText.AppendFormat(_T("\"LogToFile\"=\"%s\"\n\n"), m_strLogFile);
+
+			CString logFile = m_strLogFile;
+			logFile.Replace(_T("\\"), _T("\\\\"));
+			strRegText.AppendFormat(_T("\"LogToFile\"=\"%s\"\n\n"), logFile);
+
 			DWORD ret = DSUtil::WriteToRegistryAsAdmin(strRegText);
 			if (!ret)
 				DSUtil::ShowInfo(_T("DbgLog settings changed.\nPlease restart the application."));

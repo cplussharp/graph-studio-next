@@ -60,6 +60,7 @@
 #define IDD_PROPPAGE_FILETYPES          180
 #define IDD_DIALOG_DBGLOG               181
 #define IDD_DIALOG_DBGLOGCONFIG         181
+#define IDD_PROPPAGE_DBGLOG             182
 #define IDC_COMBO_CATEGORIES            1001
 #define IDC_LIST_FILTERS                1002
 #define IDC_COMBO_MERIT                 1003
