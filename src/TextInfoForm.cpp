@@ -197,7 +197,7 @@ void CTextInfoForm::DoFilterList(int level)
             if(level > 3)
             {
                 GraphStudio::PropItem group(_T("Filter Details"));
-				GraphStudio::GetFilterDetails(filter->clsid, &group);
+				GraphStudio::GetFilterDetails(*filter, &group);
 
                 for(int i=0;i<group.GetCount();i++)
                 {

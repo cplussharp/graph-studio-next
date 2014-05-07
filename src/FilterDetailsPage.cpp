@@ -110,7 +110,6 @@ void CFilterDetailsPage::OnBuildTree()
 {
 	GraphStudio::PropItem	*group;
 	GraphStudio::Filter		gfilter(NULL);
-
 	gfilter.LoadFromFilter(filter);
 
 	group = info.AddItem(new GraphStudio::PropItem(_T("Filter Details")));
@@ -122,7 +121,7 @@ void CFilterDetailsPage::OnBuildTree()
 		case GraphStudio::Filter::FILTER_UNKNOWN:	type = _T("Unknown"); break;
 		}	
 		group->AddItem(new GraphStudio::PropItem(_T("Type"), type));
-		GraphStudio::GetFilterDetails(gfilter.clsid, group);
+		GraphStudio::GetFilterDetails(gfilter, group);
 
 	GraphStudio::PropItem * const categories_item = new GraphStudio::PropItem(_T("Categories"));
 	GraphStudio::PropItem * const categories_count = categories_item->AddItem(new GraphStudio::PropItem(_T("Count"), 0));

@@ -293,6 +293,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
     <ClInclude Include="src\Crc32.h" />
     <ClInclude Include="src\CustomToolTipCtrl.h" />
     <ClInclude Include="src\DbgLogConfigForm.h" />
+    <ClInclude Include="src\DbgLogPage.h" />
     <ClInclude Include="src\FileTypesForm.h" />
     <ClInclude Include="src\FilterBlacklist.h" />
     <ClInclude Include="interfaces\monofilters.h" />
@@ -395,6 +396,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
     <ClCompile Include="src\Crc32.cpp" />
     <ClCompile Include="src\CustomToolTipCtrl.cpp" />
     <ClCompile Include="src\DbgLogConfigForm.cpp" />
+    <ClCompile Include="src\DbgLogPage.cpp" />
     <ClCompile Include="src\FileTypesForm.cpp" />
     <ClCompile Include="src\FilterBlacklist.cpp" />
     <ClCompile Include="src\display_graph.cpp" />

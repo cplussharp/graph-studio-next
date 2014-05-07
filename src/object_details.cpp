@@ -159,7 +159,31 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	}
 
 	// Only usable for filters, not DMOs
-	int GetFilterDetails(const CLSID & clsid, PropItem *info)
+	int GetFilterDetails(GraphStudio::Filter& filter, PropItem *info)
+	{
+		info->AddItem(new PropItem(_T("CLSID"), filter.clsid));
+
+		CString name = _T("Unknown");
+		GetObjectName(filter.clsid, name);
+		info->AddItem(new PropItem(_T("Object Name"), name));
+
+		// get Dll file
+		CString		filename = filter.GetDllFileName();
+		if (filename.IsEmpty())
+			GetObjectFile(filter.clsid, filename);
+
+		// file details
+		PropItem	* const fileinfo = new PropItem(_T("File"));
+		if (GetFileDetails(filename, fileinfo) < 0) {
+			delete fileinfo;
+		} else {
+			info->AddItem(fileinfo);
+		}
+
+		return 0;
+	}
+
+	int GetFilterDetails(const CLSID& clsid, PropItem *info)
 	{
 		info->AddItem(new PropItem(_T("CLSID"), clsid));
 
@@ -168,10 +192,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		info->AddItem(new PropItem(_T("Object Name"), name));
 
 		// file details
-		CString		filename;
+		CString filename;
 		GetObjectFile(clsid, filename);
 		PropItem	* const fileinfo = new PropItem(_T("File"));
-
 		if (GetFileDetails(filename, fileinfo) < 0) {
 			delete fileinfo;
 		} else {

@@ -99,6 +99,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		CString					display_name;		// name as it appears
 		CLSID					clsid;				// it's CLASS_ID
 		CString					clsid_str;			// string version
+		CString					dll_file;			// file name of the filter dll file
 
 		CComPtr<IBaseFilter>	filter;
 		CArray<Pin*>			input_pins;
@@ -167,6 +168,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void RemoveSelectedConnections();
 		void RemoveFromGraph();
 		void UpdateClock();
+		CString GetDllFileName();
 
 		// Helpers
 		bool IsSource();

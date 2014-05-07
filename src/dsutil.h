@@ -124,6 +124,7 @@ namespace DSUtil
 		int			wave_in_id;		// negative if not set
 		bool		file_exists;
 		bool		uses_dbglog;
+		CString		logFile;
 
 		CArray<PinTemplate>		input_pins;
 		CArray<PinTemplate>		output_pins;

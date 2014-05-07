@@ -204,6 +204,7 @@ using namespace std;
 #include "DMOQualCtrlPage.h"
 #include "SbeSinkPage.h"
 #include "AnalyzerPage.h"
+#include "DbgLogPage.h"
 
 #include "BrowserControl.h"
 
