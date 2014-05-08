@@ -35,8 +35,15 @@ BOOL CDSPropertyPage::PreTranslateMessage(MSG *pMsg)
 		if (pMsg->wParam == VK_ESCAPE) {
 			// block ESC keypresses
 			return TRUE;
+		} else if (pMsg->wParam == VK_TAB						
+				&& (0x8000 & GetKeyState(VK_CONTROL))			
+				&& !(0x8000 & GetKeyState(VK_MENU))) {
+			// Process Ctrl+Tab and Ctrl+Shift+Tab in parent property form for tab switching
+			CWnd * const parent = GetParent();
+			if (parent)
+				return parent->PreTranslateMessage(pMsg);
 		}
-	}
+	} 
 	return __super::PreTranslateMessage(pMsg);
 }
 
