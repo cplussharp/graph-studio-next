@@ -52,11 +52,11 @@ BOOL CDbgLogPage::OnInitDialog()
 
 	CRect	rc;
 	rc.SetRect(0, 0, 60, 23);
-	btn_refresh.Create(_T("Refresh"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_REFRESH);
+	btn_refresh.Create(_T("&Refresh"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_REFRESH);
 	btn_refresh.SetFont(GetFont());
 	btn_refresh.SetWindowPos(NULL, 4, 4, rc.Width(), rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
-	btn_settings.Create(_T("Settings"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_DBGLOGSETTINGS);
+	btn_settings.Create(_T("&Settings"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_DBGLOGSETTINGS);
 	btn_settings.SetWindowPos(NULL, 8 + rc.Width(), 4, rc.Width() + 20, rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 	btn_settings.SetFont(GetFont());
 	btn_settings.SetShield(TRUE);
