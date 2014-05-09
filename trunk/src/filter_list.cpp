@@ -242,7 +242,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void FilterListCtrl::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
-		if (nChar == VK_DELETE && search_str.GetLength())
+		if (nChar == VK_DELETE && search_str.GetLength()
+			&& !GetKeyState(VK_CONTROL) && !GetKeyState(VK_MENU))
 		{
 			search_str.Delete(0, search_str.GetLength());
 			if (callback)
@@ -263,6 +264,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void FilterListCtrl::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
+		// Don't process ctrl or alt keyboard combos 
+		if (GetKeyState(VK_CONTROL) || GetKeyState(VK_MENU))
+			return CListCtrl::OnChar(nChar, nRepCnt, nFlags);
+
 		if (nChar == VK_BACK && search_str.GetLength()) 
 		{
 			search_str.Delete(search_str.GetLength()-1);

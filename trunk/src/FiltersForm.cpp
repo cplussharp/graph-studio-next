@@ -471,12 +471,14 @@ void CFiltersForm::OnComboMeritChange()
 BOOL CFiltersForm::PreTranslateMessage(MSG *pmsg)
 {
 	if (pmsg->message == WM_KEYDOWN) {
-		if (pmsg->wParam == VK_RETURN) {
-			OnBnClickedButtonInsert();
-			return TRUE;
-		} else if (pmsg->wParam == VK_F5) {
-			OnComboCategoriesChange();				// Refresh filter list on F5
-			cached_templates.filters.RemoveAll();	// Refresh cache for lookup of CLSID
+		if (!GetKeyState(VK_SHIFT) && !GetKeyState(VK_CONTROL) && !GetKeyState(VK_MENU)) {
+			if (pmsg->wParam == VK_RETURN) {
+				OnBnClickedButtonInsert();
+				return TRUE;
+			} else if (pmsg->wParam == VK_F5) {
+				OnComboCategoriesChange();				// Refresh filter list on F5
+				cached_templates.filters.RemoveAll();	// Refresh cache for lookup of CLSID
+			}
 		}
 	}
 

@@ -197,6 +197,7 @@ public:
 	virtual void OnPropertyPageClosed(CPropertyForm *page);
 	virtual void OnRenderFinished();
 	virtual void OnDeleteSelection();
+	void ShowPropertyPage(int increment) const;
 
     virtual void OnMpeg2DemuxCreatePsiPin();
 
@@ -316,6 +317,9 @@ public:
 	afx_msg void OnUpdateSeekByTime(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSaveAsXmlAndGrf(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateAlwaysSaveScreenshot(CCmdUI *pCmdUI);
+	afx_msg void OnNextPropertyPage();
+	afx_msg void OnPreviousPropertyPage	();
+	afx_msg void OnUpdateNextOrPreviousPropertyPage(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in graphView.cpp

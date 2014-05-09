@@ -459,10 +459,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	BOOL ScheduleListEdit::PreTranslateMessage(MSG* pMsg) 
 	{
 		if (pMsg->message == WM_KEYDOWN) {
-			if (pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE) {
-				::TranslateMessage(pMsg);
-				::DispatchMessage(pMsg);
-				return TRUE;				// koncime
+			if (!GetKeyState(VK_CONTROL) && !GetKeyState(VK_MENU)) {
+				if (pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE) {
+					::TranslateMessage(pMsg);
+					::DispatchMessage(pMsg);
+					return TRUE;				// koncime
+				}
 			}
 		}
 		return __super::PreTranslateMessage(pMsg);
@@ -476,21 +478,23 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void ScheduleListEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) 
 	{
-		if (nChar == VK_ESCAPE || nChar == VK_RETURN) {
+		if (!GetKeyState(VK_CONTROL) && !GetKeyState(VK_MENU)) {
+			if (nChar == VK_ESCAPE || nChar == VK_RETURN) {
 
-			// iba pri stlaceni ENTER sa prepise
-			if (nChar == VK_RETURN) {
-				CString	val;
-				GetWindowText(val);
-				if (item) {
-					if (VerifyTextPattern(val)) {
-						item->time_pattern = val;
+				// iba pri stlaceni ENTER sa prepise
+				if (nChar == VK_RETURN) {
+					CString	val;
+					GetWindowText(val);
+					if (item) {
+						if (VerifyTextPattern(val)) {
+							item->time_pattern = val;
+						}
 					}
 				}
-			}
 
-			GetParent()->SetFocus();
-			return;
+				GetParent()->SetFocus();
+				return;
+			}
 		}
 		CEdit::OnChar(nChar, nRepCnt, nFlags);
 	}
@@ -548,10 +552,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	BOOL ScheduleListCombo::PreTranslateMessage(MSG* pMsg)
 	{
 		if (pMsg->message == WM_KEYDOWN) {
-			if (pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE) {
-				::TranslateMessage(pMsg);
-				::DispatchMessage(pMsg);
-				return TRUE;				// koncime
+			if (!GetKeyState(VK_CONTROL) && !GetKeyState(VK_MENU)) {
+				if (pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE) {
+					::TranslateMessage(pMsg);
+					::DispatchMessage(pMsg);
+					return TRUE;				// koncime
+				}
 			}
 		}
 		return CComboBox::PreTranslateMessage(pMsg);
@@ -576,10 +582,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void ScheduleListCombo::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) 
 	{
-		if (nChar == VK_ESCAPE || nChar == VK_RETURN) {
-			esc = (nChar == VK_ESCAPE);
-			GetParent()->SetFocus();
-			return;
+		if (!GetKeyState(VK_CONTROL) && !GetKeyState(VK_MENU)) {
+			if (nChar == VK_ESCAPE || nChar == VK_RETURN) {
+				esc = (nChar == VK_ESCAPE);
+				GetParent()->SetFocus();
+				return;
+			}
 		}
 		CComboBox::OnChar(nChar, nRepCnt, nFlags);
 	}

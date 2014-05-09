@@ -607,10 +607,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	BOOL PropTreeEdit::PreTranslateMessage(MSG* pMsg) 
 	{
 		if (pMsg->message == WM_KEYDOWN) {
-			if (pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE) {
-				::TranslateMessage(pMsg);
-				::DispatchMessage(pMsg);
-				return TRUE;				// koncime
+			if (!GetKeyState(VK_CONTROL) && !GetKeyState(VK_MENU)) {
+				if (pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE) {
+					::TranslateMessage(pMsg);
+					::DispatchMessage(pMsg);
+					return TRUE;				// koncime
+				}
 			}
 		}
 		return __super::PreTranslateMessage(pMsg);
