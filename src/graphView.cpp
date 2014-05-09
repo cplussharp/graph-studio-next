@@ -258,6 +258,10 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_UPDATE_COMMAND_UI(ID_CLSID_FILTERGRAPH, &CGraphView::OnUpdateClsidFiltergraph)
 	ON_UPDATE_COMMAND_UI(ID_CLSID_FILTERGRAPH_NO_THREAD, &CGraphView::OnUpdateClsidFiltergraphNoThread)
 	ON_UPDATE_COMMAND_UI(ID_CLSID_FILTERGRAPH_PRIVATE_THREAD, &CGraphView::OnUpdateClsidFiltergraphPrivateThread)
+	ON_COMMAND(ID_NEXT_PROPERTY_PAGE, &CGraphView::OnNextPropertyPage)
+	ON_COMMAND(ID_PREVIOUS_PROPERTY_PAGE, &CGraphView::OnPreviousPropertyPage)
+	ON_UPDATE_COMMAND_UI(ID_NEXT_PROPERTY_PAGE, &CGraphView::OnUpdateNextOrPreviousPropertyPage)
+	ON_UPDATE_COMMAND_UI(ID_PREVIOUS_PROPERTY_PAGE, &CGraphView::OnUpdateNextOrPreviousPropertyPage)
 	END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -2814,3 +2818,45 @@ afx_msg void CGraphView::OnUpdateSeekByTime(CCmdUI *pCmdUI)
 	pCmdUI->Enable(graph.supports_time_seeking);
 }
 
+/// Show the currently focussed property page + the increment passed in (can be zero potentially)
+/// If no property page has the focus, show the first page
+void CGraphView::ShowPropertyPage(int increment) const
+{
+	const int num_pages = property_pages.GetCount();
+	if (num_pages <= 0)
+		return;
+
+	int current_page = -1;
+	for (int i=0; i<num_pages; i++) {
+		if (property_pages[i] == GetActiveWindow()) {
+			current_page = i;
+			break;
+		}
+	}
+
+	if (current_page < 0) {
+		current_page = 0;
+	} else {
+		current_page += increment;
+		if (current_page >= num_pages)		// wrap around property pages
+			current_page = 0;
+		else if (current_page < 0)
+			current_page = num_pages - 1;
+	}
+	property_pages[current_page]->SetActiveWindow();
+}
+
+afx_msg void CGraphView::OnNextPropertyPage()
+{
+	ShowPropertyPage(1);
+}
+
+afx_msg void CGraphView::OnPreviousPropertyPage()
+{
+	ShowPropertyPage(-1);
+}
+
+afx_msg void CGraphView::OnUpdateNextOrPreviousPropertyPage(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(property_pages.GetCount() > 0);
+}

@@ -25,7 +25,7 @@ IDI_GRAPHSTUDIO_GRAPHTYPE     ICON              "res\\graphxml.ico"
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Englisch (USA) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -1143,6 +1143,8 @@ BEGIN
         MENUITEM "Te&xt Information...\tCtrl+T", ID_VIEW_TEXTINFORMATION
         MENUITEM "&Performance Test...\tCtrl+M", ID_VIEW_DECODERPERFORMANCE
         MENUITEM "Main Window\tCtrl+Backspace", ID_VIEW_MAINWINDOW
+        MENUITEM "Next Property Page...\tCtrl+Return", ID_NEXT_PROPERTY_PAGE
+        MENUITEM "Previous Property Page...\tCtrl+Shift+Return", ID_PREVIOUS_PROPERTY_PAGE
         MENUITEM SEPARATOR
         MENUITEM "&50%\tCtrl+2",                ID_VIEW_50
         MENUITEM "&75%\tCtrl+3",                ID_VIEW_75
@@ -1323,8 +1325,10 @@ BEGIN
     VK_OEM_PLUS,    ID_VIEW_INCREASEFILTERWRAPWIDTH, VIRTKEY, CONTROL, ALT, NOINVERT
     VK_OEM_PLUS,    ID_VIEW_INCREASEVERTICALSPACING, VIRTKEY, SHIFT, CONTROL, NOINVERT
     VK_OEM_PLUS,    ID_VIEW_INCREASEHORIZONTALSPACING, VIRTKEY, SHIFT, ALT, NOINVERT
+    VK_RETURN,      ID_NEXT_PROPERTY_PAGE, VIRTKEY, CONTROL, NOINVERT
     VK_RETURN,      ID_PROPERTYPAGE,        VIRTKEY, NOINVERT
     VK_RETURN,      ID_PROPERTYPAGE,        VIRTKEY, ALT, NOINVERT
+    VK_RETURN,      ID_PREVIOUS_PROPERTY_PAGE, VIRTKEY, SHIFT, CONTROL, NOINVERT
     VK_RIGHT,       ID_FILTER_RIGHT,        VIRTKEY, NOINVERT
     VK_RIGHT,       ID_SEEK_FORWARD_1,      VIRTKEY, ALT, NOINVERT
     VK_RIGHT,       ID_SEEK_FORWARD_3,      VIRTKEY, CONTROL, ALT, NOINVERT
@@ -1606,7 +1610,7 @@ BEGIN
     ID_HELP_REGISTEREDFILETYPES "Show registered filetypes and protocols"
 END
 
-#endif    // Englisch (USA) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

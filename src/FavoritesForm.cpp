@@ -449,7 +449,8 @@ void CFavoritesForm::OnDblclkTreeFavorites(NMHDR *pNMHDR, LRESULT *pResult)
 }
 void CFavoritesForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
-	if (nChar == VK_DELETE) {
+	if (nChar == VK_DELETE 
+			&& !GetKeyState(VK_SHIFT) && !GetKeyState(VK_CONTROL) && !GetKeyState(VK_MENU)) {
 		DeleteSelected();
 	}
 }

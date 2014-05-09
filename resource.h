@@ -421,13 +421,15 @@
 #define ID_CONTEXT_MENU                 32948
 #define ID_GRAPH_NAVIGATE_FILTERS       32949
 #define ID_GRAPH_NAVIGATE_PINS          32952
+#define ID_NEXT_PROPERTY_PAGE         32954
+#define ID_PREVIOUS_PROPERTY_PAGE     32955
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        182
-#define _APS_NEXT_COMMAND_VALUE         32953
+#define _APS_NEXT_COMMAND_VALUE         32956
 #define _APS_NEXT_CONTROL_VALUE         1163
 #define _APS_NEXT_SYMED_VALUE           108
 #endif
