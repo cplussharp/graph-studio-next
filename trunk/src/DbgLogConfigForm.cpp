@@ -15,6 +15,9 @@
 IMPLEMENT_DYNAMIC(CDbgLogConfigForm, CDialog)
 BEGIN_MESSAGE_MAP(CDbgLogConfigForm, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_BROWSE, &CDbgLogConfigForm::OnBnClickedButtonBrowse)
+	ON_BN_CLICKED(IDC_RADIO_LOGFILE_DEBUGGER, &CDbgLogConfigForm::OnRadioLogFileClickedDebuggerOrConsole)
+	ON_BN_CLICKED(IDC_RADIO_LOGFILE_CONSOLE, &CDbgLogConfigForm::OnRadioLogFileClickedDebuggerOrConsole)
+	ON_BN_CLICKED(IDC_RADIO_LOGFILE_FILE, &CDbgLogConfigForm::OnRadioLogFileClickedFile)
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -37,10 +40,11 @@ CDbgLogConfigForm::CDbgLogConfigForm(const CString& strFileName, CWnd* pParent) 
 		m_nCustom3(0),
 		m_nCustom4(0),
 		m_nCustom5(0),
-		m_strFileName(strFileName),
-		m_strRegKey(_T(""))
+		m_nLogFileType(0),
+		m_strFileName(strFileName.IsEmpty() ? _T("GLOBAL") : strFileName),
+		m_strRegKey(_T("")),
+		m_bGlobal(strFileName.IsEmpty())
 {
-
 }
 
 CDbgLogConfigForm::~CDbgLogConfigForm()
@@ -64,6 +68,7 @@ void CDbgLogConfigForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_CUSTOM3, m_nCustom3);
 	DDX_Text(pDX, IDC_EDIT_CUSTOM4, m_nCustom4);
 	DDX_Text(pDX, IDC_EDIT_CUSTOM5, m_nCustom5);
+	DDX_Radio(pDX, IDC_RADIO_LOGFILE_DEBUGGER, m_nLogFileType);
 	
 	DDX_Control(pDX, IDC_SPIN_TRACE, m_spinTrace);
 	DDX_Control(pDX, IDC_SPIN_ERROR, m_spinError);
@@ -77,6 +82,9 @@ void CDbgLogConfigForm::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SPIN_CUSTOM4, m_spinCustom4);
 	DDX_Control(pDX, IDC_SPIN_CUSTOM5, m_spinCustom5);
 
+	DDX_Control(pDX, IDC_EDIT_LOGFILE, m_editLogFile);
+	DDX_Control(pDX, IDC_BUTTON_BROWSE, m_btnBrowse);
+
 	DDX_Control(pDX, IDOK, m_btnOK);
 }
 
@@ -88,7 +96,10 @@ BOOL CDbgLogConfigForm::OnInitDialog()
 	// set filename in title
 	CString strTitle;
 	GetWindowText(strTitle);
-	strTitle.AppendFormat(_T(" of '%s'"), (LPCTSTR)m_strFileName);
+	if (m_bGlobal)
+		strTitle.Append(_T(" (GLOBAL)"));
+	else
+		strTitle.AppendFormat(_T(" of '%s'"), (LPCTSTR)m_strFileName);
 	SetWindowText(strTitle);
 
 	// open reg key with the current values
@@ -125,10 +136,26 @@ BOOL CDbgLogConfigForm::OnInitDialog()
 	regKey.QueryDWORDValue(_T("CUSTOM4"), m_nCustom4);
 	regKey.QueryDWORDValue(_T("CUSTOM5"), m_nCustom5);
 
-	TCHAR val[MAX_PATH];
-	DWORD len = MAX_PATH;
-	if (regKey.QueryStringValue(_T("LogToFile"), val, &len) == ERROR_SUCCESS)
-		m_strLogFile = val;
+	if (!m_bGlobal)
+	{
+		TCHAR val[MAX_PATH];
+		DWORD len = MAX_PATH;
+		if (regKey.QueryStringValue(_T("LogToFile"), val, &len) == ERROR_SUCCESS)
+		{
+			m_strLogFile = val;
+			if (m_strLogFile.IsEmpty() ||
+				m_strLogFile.CompareNoCase(_T("Deb")) == 0 ||
+				m_strLogFile.CompareNoCase(_T("Debug")) == 0 ||
+				m_strLogFile.CompareNoCase(_T("Debugger")) == 0)
+			{
+				m_nLogFileType = 0;
+			}
+			else if (m_strLogFile.CompareNoCase(_T("Console")) == 0)
+				m_nLogFileType = 1;
+			else
+				m_nLogFileType = 2;
+		}
+	}
 
     UpdateData(FALSE);
 
@@ -147,11 +174,46 @@ BOOL CDbgLogConfigForm::OnInitDialog()
 	m_spinCustom5.SetRange(min, max);
 	m_spinCustom5.GetRange(min, max);
 
+	m_editLogFile.EnableWindow(m_nLogFileType == 2 && !m_bGlobal ? TRUE : FALSE);
+	m_btnBrowse.EnableWindow(m_nLogFileType == 2 && !m_bGlobal ? TRUE : FALSE);
+
+	if (m_bGlobal)
+	{
+		GetDlgItem(IDC_RADIO_LOGFILE_DEBUGGER)->EnableWindow(FALSE);
+		GetDlgItem(IDC_RADIO_LOGFILE_CONSOLE)->EnableWindow(FALSE);
+		GetDlgItem(IDC_RADIO_LOGFILE_FILE)->EnableWindow(FALSE);
+	}
+
 	m_btnOK.SetShield(TRUE);
 	m_btnOK.EnableWindow(TRUE);
 
 	return TRUE;
 }
+
+void CDbgLogConfigForm::OnRadioLogFileClickedDebuggerOrConsole()
+{
+	UpdateData(TRUE);
+
+	m_editLogFile.EnableWindow(FALSE);
+	m_btnBrowse.EnableWindow(FALSE);
+
+	m_strLogFile = m_nLogFileType == 1 ? _T("Console") : _T("");
+	UpdateData(FALSE);
+}
+
+void CDbgLogConfigForm::OnRadioLogFileClickedFile()
+{
+	UpdateData(TRUE);
+
+	m_editLogFile.EnableWindow(TRUE);
+	m_btnBrowse.EnableWindow(TRUE);
+
+	m_strLogFile = _T("");
+	UpdateData(FALSE);
+
+	m_editLogFile.SetFocus();
+}
+
 
 void CDbgLogConfigForm::OnBnClickedButtonBrowse()
 {
@@ -196,7 +258,8 @@ void CDbgLogConfigForm::OnOK()
 				regKey.SetDWORDValue(_T("CUSTOM3"), m_nCustom3);
 				regKey.SetDWORDValue(_T("CUSTOM4"), m_nCustom4);
 				regKey.SetDWORDValue(_T("CUSTOM5"), m_nCustom5);
-				regKey.SetStringValue(_T("LogToFile"), m_strLogFile);
+				if (!m_bGlobal)
+					regKey.SetStringValue(_T("LogToFile"), m_strLogFile);
 
 				DSUtil::ShowInfo(_T("DbgLog settings changed.\nPlease restart the application."));
 
@@ -223,9 +286,12 @@ void CDbgLogConfigForm::OnOK()
 			strRegText.AppendFormat(_T("\"CUSTOM4\"=dword:%08x\n"), m_nCustom4);
 			strRegText.AppendFormat(_T("\"CUSTOM5\"=dword:%08x\n"), m_nCustom5);
 
-			CString logFile = m_strLogFile;
-			logFile.Replace(_T("\\"), _T("\\\\"));
-			strRegText.AppendFormat(_T("\"LogToFile\"=\"%s\"\n\n"), (LPCTSTR)logFile);
+			if (!m_bGlobal)
+			{
+				CString logFile = m_strLogFile;
+				logFile.Replace(_T("\\"), _T("\\\\"));
+				strRegText.AppendFormat(_T("\"LogToFile\"=\"%s\"\n\n"), (LPCTSTR)logFile);
+			}
 
 			DWORD ret = DSUtil::WriteToRegistryAsAdmin(strRegText);
 			if (!ret)

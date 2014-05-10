@@ -34,6 +34,8 @@ public:
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 	afx_msg void OnBnClickedButtonBrowse();
+	afx_msg void OnRadioLogFileClickedDebuggerOrConsole();
+	afx_msg void OnRadioLogFileClickedFile();
     CString m_strLogFile;
 	DWORD m_nTrace;
 	DWORD m_nError;
@@ -46,6 +48,7 @@ public:
 	DWORD m_nCustom3;
 	DWORD m_nCustom4;
 	DWORD m_nCustom5;
+	int m_nLogFileType;
     CSpinButtonCtrl m_spinTrace;
 	CSpinButtonCtrl m_spinError;
 	CSpinButtonCtrl m_spinMemory;
@@ -57,8 +60,11 @@ public:
 	CSpinButtonCtrl m_spinCustom3;
 	CSpinButtonCtrl m_spinCustom4;
 	CSpinButtonCtrl m_spinCustom5;
+	CEdit m_editLogFile;
+	CButton m_btnBrowse;
 	CButton m_btnOK;
 
 	const CString m_strFileName;
 	CString m_strRegKey;
+	bool m_bGlobal;
 };
