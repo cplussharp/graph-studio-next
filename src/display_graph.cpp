@@ -761,8 +761,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (selected_pin)
 			selected_pin->selected = true;
 		RefreshFilters();
-		if (params && params->auto_arrange)
-			SmartPlacement();
+		SmartPlacement(false);
 	}
 
 	HRESULT DisplayGraph::AddFilter(IBaseFilter *filter, CString proposed_name)
@@ -2028,8 +2027,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		
         if (hr == S_OK) {
 		    RefreshFilters();
-			if (params->auto_arrange)
-				SmartPlacement();
+			SmartPlacement(false);
         }
 
 		DSUtil::ShowError(hr, _T("Connecting Pins"));
@@ -2358,8 +2356,30 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	}
 
 	// do some nice automatic filter placement
-	void DisplayGraph::SmartPlacement()
+	void DisplayGraph::SmartPlacement(bool force /* = true */)
 	{
+		if (params && !params->auto_arrange && !force) {		// if not forced to arrange 
+			bool new_connected_filter = false;					// search for any new connected filters
+			for (int i=0; i<filters.GetCount() && !new_connected_filter; i++) {
+				const Filter * const filter = filters[i];
+				if (filter->column < 0) {		// newly created fiter since last call to SmartPlacement
+					for (int j=0; j<2 && !new_connected_filter; j++) {
+						const CArray<Pin*> & pins = j==0 ? filter->input_pins : filter->output_pins;
+						const int num_pins = pins.GetCount();
+						for (int k=0; k<num_pins; k++) {
+							if (pins[k]->connected) {
+								new_connected_filter = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+
+			if (!new_connected_filter)
+				return;						// nothing to do - all connected filters have been laid out before
+		}
+
 		// Reset all columns and placement information cached in Filters
 		columns.RemoveAll();
 

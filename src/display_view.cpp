@@ -1049,7 +1049,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		if (SUCCEEDED(hr)) {
 			graph.RefreshFilters();
-			graph.SmartPlacement();
+			graph.SmartPlacement(false);
 			graph.Dirty();
 			Invalidate();
 		} else {
@@ -1073,8 +1073,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		    if (SUCCEEDED(hr)) {
 			    graph.RefreshFilters();
-				if (graph.params->auto_arrange)
-					graph.SmartPlacement();
+				graph.SmartPlacement(false);
 			    graph.Dirty();
 			    Invalidate();
 			} else {
@@ -1103,8 +1102,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				CFileSrcForm form(current_filter->display_name);
 				HRESULT hr = form.ChooseSourceFile(source);
 				graph.RefreshFilters();
-				if (graph.params->auto_arrange)
-					graph.SmartPlacement();
+				graph.SmartPlacement(false);
 				graph.Dirty();
 				Invalidate();
 			}
@@ -1120,8 +1118,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				CFileSinkForm form(current_filter->display_name);
 				HRESULT hr = form.ChooseSinkFile(sink);
 				graph.RefreshFilters();
-				if (graph.params->auto_arrange)
-					graph.SmartPlacement();
+				graph.SmartPlacement(false);
 				graph.Dirty();
 				Invalidate();
 			}

@@ -186,8 +186,7 @@ void CEventsForm::OnGraphEvent(long evcode, LONG_PTR param1, LONG_PTR param2)
 	case EC_GRAPH_CHANGED:	
 		{ 
 			view->graph.RefreshFilters();
-			if (view->graph.params->auto_arrange)
-				view->graph.SmartPlacement();
+			view->graph.SmartPlacement(false);
 			view->Invalidate();
 			msg = _T("EC_GRAPH_CHANGED"); 
 		} 
