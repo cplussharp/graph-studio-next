@@ -413,8 +413,11 @@ int AudioFormatCaps::Load(int capindex, AM_MEDIA_TYPE *mtSrc, WAVEFORMATEX *wfxS
 	extrasize = wfx.cbSize;
 	if (extrasize > 0) {
 		extradata = (uint8*)malloc(extrasize);
-		uint8	*src = (uint8*)wfxSrc + sizeof(WAVEFORMATEX);
-		memcpy(extradata, src, extrasize);
+		if (extradata)
+		{
+			uint8	*src = (uint8*)wfxSrc + sizeof(WAVEFORMATEX);
+			memcpy(extradata, src, extrasize);
+		}
 	}
 
 	return 0;

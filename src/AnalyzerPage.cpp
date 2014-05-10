@@ -244,7 +244,7 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field, bool com
         switch(field)
         {
             case Number:
-                val.Format(_T("%d"), entry.EntryNr);
+                val.Format(_T("%I64d"), entry.EntryNr);
                 break;
 
             case TimeStamp:

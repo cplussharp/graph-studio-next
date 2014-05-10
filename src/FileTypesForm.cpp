@@ -577,12 +577,12 @@ void CFileTypesForm::OnBnClickedButtonCopy()
             text.Append(group->GetItem(0)->value);
 
             GraphStudio::PropItem* item = group->GetItemByName(_T("Name"));
-            if (item) text.AppendFormat(_T(" %s"), item->value);
+			if (item) text.AppendFormat(_T(" %s"), (LPCTSTR)item->value);
 
             item = group->GetItemByName(_T("File"));
-            if (item) text.AppendFormat(_T(" (%s)"), item->value);
+			if (item) text.AppendFormat(_T(" (%s)"), (LPCTSTR)item->value);
 
-            text.AppendFormat(_T(" [%s]"), group->GetItem(group->GetCount() - 1)->value);
+			text.AppendFormat(_T(" [%s]"), (LPCTSTR)group->GetItem(group->GetCount() - 1)->value);
 
             text.Append(_T("\n"));
         }
@@ -604,12 +604,12 @@ void CFileTypesForm::OnBnClickedButtonCopy()
             text.Append(group->GetItem(0)->value);
 
             GraphStudio::PropItem* item = group->GetItemByName(_T("Name"));
-            if (item) text.AppendFormat(_T(" %s"), item->value);
+			if (item) text.AppendFormat(_T(" %s"), (LPCTSTR)item->value);
 
             item = group->GetItemByName(_T("File"));
-            if (item) text.AppendFormat(_T(" (%s)"), item->value);
+			if (item) text.AppendFormat(_T(" (%s)"), (LPCTSTR)item->value);
 
-            text.AppendFormat(_T(" [%s]"), group->GetItem(group->GetCount() - 1)->value);
+			text.AppendFormat(_T(" [%s]"), (LPCTSTR)group->GetItem(group->GetCount() - 1)->value);
 
             text.Append(_T("\n"));
         }
@@ -636,14 +636,14 @@ void CFileTypesForm::OnBnClickedButtonCopy()
             int bytePatternIndex = 1;
             if (item) 
             {
-                text.AppendFormat(_T(" %s"), item->value);
+				text.AppendFormat(_T(" %s"), (LPCTSTR)item->value);
                 bytePatternIndex++;
             }
 
             item = group->GetItemByName(_T("File"));
             if (item)
             {
-                text.AppendFormat(_T(" (%s)"), item->value);
+				text.AppendFormat(_T(" (%s)"), (LPCTSTR)item->value);
                 bytePatternIndex++;
             }
             text.Append(_T("\n"));
@@ -651,10 +651,10 @@ void CFileTypesForm::OnBnClickedButtonCopy()
             for (;bytePatternIndex < group->GetCount()-1; bytePatternIndex++)
             {
                 item = group->GetItem(bytePatternIndex);
-                text.AppendFormat(_T("\t%s: %s\n"), item->name, item->value);
+				text.AppendFormat(_T("\t%s: %s\n"), (LPCTSTR)item->name, (LPCTSTR)item->value);
             }
 
-            text.AppendFormat(_T("[%s]\n\n"), group->GetItem(group->GetCount() - 1)->value);
+			text.AppendFormat(_T("[%s]\n\n"), (LPCTSTR)group->GetItem(group->GetCount() - 1)->value);
         }
     }
 

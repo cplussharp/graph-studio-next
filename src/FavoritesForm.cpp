@@ -370,7 +370,7 @@ void CFavoritesForm::OnNMRclickTreeFavorites(NMHDR *pNMHDR, LRESULT *pResult)
 	ptClient = ptScreen;
 	tree.ScreenToClient(&ptClient);
 
-	UINT		flags;
+	UINT		flags = 0;
 	HTREEITEM	item = tree.HitTest(ptClient, &flags);
 
 	// create a menu
@@ -1021,7 +1021,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	void FavoritesTree::OnMouseMove(UINT nFlags, CPoint point) 
 	{
 		HTREEITEM	hitem;
-		UINT		flags;
+		UINT		flags = 0;
 
 		if (m_bLDragging) {
 			POINT pt = point;

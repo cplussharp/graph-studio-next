@@ -123,7 +123,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (reg.Open(HKEY_CLASSES_ROOT, clsid_str, KEY_READ) == ERROR_SUCCESS) {
 
 			TCHAR		val[1024];
-			ULONG		len;
+			ULONG		len = 1024;
 			reg.QueryStringValue(_T(""), val, &len);
 			filename = val;
 
@@ -147,7 +147,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (reg.Open(HKEY_CLASSES_ROOT, clsid_str, KEY_READ) == ERROR_SUCCESS) {
 
 			TCHAR		val[1024];
-			ULONG		len;
+			ULONG		len = 1024;
 			reg.QueryStringValue(_T(""), val, &len);
 			name = val;
 
@@ -317,7 +317,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		group = info->AddItem(new PropItem(_T("Pin")));
 		
-		PIN_INFO	pi;
+		PIN_INFO	pi = {};
 		HRESULT		hr;
 		pin->QueryPinInfo(&pi);
 		if (pi.pFilter) 

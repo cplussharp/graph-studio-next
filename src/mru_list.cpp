@@ -109,7 +109,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		const int count = min(max_count, (int) list.GetCount());
 		for (int i=0; i<count; i++) {
 			CString	t;
-			t.Format(_T("&%i %s"), (i+1), list[i]);
+			t.Format(_T("&%i %s"), (i + 1), (LPCTSTR)list[i]);
 			menu->InsertMenu(insert_pos + i, MF_BYPOSITION | MF_STRING, ID_LIST_MRU_FILE0 + i, t);
 		}
 		

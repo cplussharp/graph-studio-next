@@ -58,7 +58,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		for (int i=0; i<count; i++) {
 			CString		key;
 			key.Format(_T("%s_%d"), name, i);
-			AfxGetApp()->WriteProfileString(_T("Settings"), key, GetAt(i));
+			AfxGetApp()->WriteProfileString(_T("Settings"), (LPCTSTR)key, GetAt(i));
 		}
 	}
 
@@ -75,8 +75,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		for (int i=0; i<count; i++) {
 			CString		item;
 			CString		key;
-			key.Format(_T("%s_%d"), name, i);
-			item = AfxGetApp()->GetProfileString(_T("Settings"), key, _T(""));
+			key.Format(_T("%s_%d"), (LPCTSTR)name, i);
+			item = AfxGetApp()->GetProfileString(_T("Settings"), (LPCTSTR)key, _T(""));
 			if (item != _T("")) {
 				Add(item);
 			}

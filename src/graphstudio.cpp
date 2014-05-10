@@ -275,7 +275,7 @@ public:
 
 CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
 {
-    m_strVerInfo.Format(_T("GraphStudioNext %s\n\n"), CString(VER_FILE_VERSION_STR));
+	m_strVerInfo.Format(_T("GraphStudioNext %s\n\n"), (LPCTSTR)CString(VER_FILE_VERSION_STR));
     m_strVerInfo.Append(CString(VER_FILE_DESCRIPTION_STR));
 }
 

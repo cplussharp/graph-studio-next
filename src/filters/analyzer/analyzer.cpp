@@ -505,6 +505,7 @@ STDMETHODIMP CAnalyzer::GetEntry(__int64 nr, StatisticRecordEntry *pVal)
     if (entry.nDataCount > 0)
     {
         pVal->aData = (BYTE*)CoTaskMemAlloc(pVal->nDataCount);
+		if (!pVal->aData) return E_OUTOFMEMORY;
         CopyMemory(pVal->aData, entry.aData, entry.nDataCount);
     }
 

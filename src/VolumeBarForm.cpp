@@ -103,10 +103,8 @@ void CVolumeBarForm::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar)
 
 void CVolumeBarForm::RefreshLevels()
 {
-	long		lv, lb;
+	long		lv = 0, lb = 0;
 
-	lv = 0;
-	lb = 0;
 	if (basic_audio) {
 		basic_audio->get_Volume(&lv);
 		basic_audio->get_Balance(&lb);

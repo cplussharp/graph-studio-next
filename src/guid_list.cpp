@@ -651,16 +651,19 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 		}
 
-        if(found)
+        if (found)
             str.Append(_T(" "));
 
 		LPOLESTR	str2;
-		StringFromCLSID(guid, &str2);
-        if(found)
-            str.Append(CString(str2));
-        else
-            str = CString(str2);
-		CoTaskMemFree(str2);
+		HRESULT hr = StringFromCLSID(guid, &str2);
+		if (SUCCEEDED(hr) && str2)
+		{
+			if (found)
+				str.Append(CString(str2));
+			else
+				str = CString(str2);
+			CoTaskMemFree(str2);
+		}
 
 		return found;
 	}

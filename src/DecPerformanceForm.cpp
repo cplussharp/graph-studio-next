@@ -349,7 +349,7 @@ void CDecPerformanceForm::InsertListItem(const Timings& timings, int index, cons
 	rate_str.Format(_T("x%7.4f"), (double(timings.realtime_ns) / double(timings.runtime_ns)));
 
 	CString frames_str;
-	frames_str.Format(_T("%d"), timings.frames);
+	frames_str.Format(_T("%I64d"), timings.frames);
 
 	list_results.InsertItem(index, label);
 	list_results.EnsureVisible(index, FALSE);			// scroll to item to make visible if necessary

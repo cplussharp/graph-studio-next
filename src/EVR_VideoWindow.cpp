@@ -110,7 +110,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (!video_control) return -1;
 
 		// check for the video stream change
-		SIZE		new_size, new_ar;
+		SIZE		new_size = { 0, 0 }, new_ar = { 0, 0 };
 		HRESULT		hr;
 
 		hr = video_control->GetNativeVideoSize(&new_size, &new_ar);
