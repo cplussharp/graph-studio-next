@@ -222,7 +222,7 @@ namespace DSUtil
 		if (host == _T("") || request_url == _T("")) return -1;
 
 		// spravime kompletny request
-		complete_request.Format(_T("%s://%s:%d%s"), protocol, host, port, request_url);
+		complete_request.Format(_T("%s://%s:%d%s"), (LPCTSTR)protocol, (LPCTSTR)host, port, (LPCTSTR)request_url);
 		return 0;
 	}
 
@@ -390,22 +390,23 @@ namespace DSUtil
 	{
 		// HKEY_CLASSES_ROOT\CLSID\{07C9CB2C-F51C-47EA-B551-7DA02541D586}
 		LPOLESTR	str;
-		StringFromCLSID(clsid, &str);
+		HRESULT hr = StringFromCLSID(clsid, &str);
+		if (FAILED(hr)) return hr;
 		CString		str_clsid(str);
 		CString		key_name;
 		if (str) CoTaskMemFree(str);
 
-		key_name.Format(_T("CLSID\\%s\\InprocServer32"), str_clsid);
+		key_name.Format(_T("CLSID\\%s\\InprocServer32"), (LPCTSTR)str_clsid);
 		CRegKey		key;
 		if (key.Open(HKEY_CLASSES_ROOT, key_name, KEY_READ) != ERROR_SUCCESS) { 
 			file_exists = false;
-			return -1;
+			return E_FAIL;
 		}
 
-		TCHAR		temp[4*1024];
-		TCHAR		fullpath[4*1024];
+		TCHAR		temp[2 * MAX_PATH];
+		TCHAR		fullpath[2 * MAX_PATH];
 		LPWSTR		fn;
-		ULONG		chars=4*1024;
+		ULONG		chars = 2 * MAX_PATH;
 
 		key.QueryStringValue(_T(""), temp, &chars);
 		temp[chars]=0;
@@ -423,7 +424,7 @@ namespace DSUtil
 		DoReplace(file, _T("%SYSTEMROOT%"), windir);
 		DoReplace(file, _T("%WINDIR%"), windir);
 
-		DWORD ret = SearchPath(NULL, file.GetBuffer(), NULL, 4*1024, fullpath, &fn);
+		DWORD ret = SearchPath(NULL, file.GetBuffer(), NULL, 2 * MAX_PATH, fullpath, &fn);
 		if (ret > 0) {
 			file_exists = true;
 			file = fullpath;
@@ -445,7 +446,7 @@ namespace DSUtil
 		CString filename = PathFindFileName(file);
 
 		CString regKeyNew;
-		regKeyNew.Format(_T("SOFTWARE\\Microsoft\\DirectShow\\Debug\\%s"), filename);
+		regKeyNew.Format(_T("SOFTWARE\\Microsoft\\DirectShow\\Debug\\%s"), (LPCTSTR)filename);
 		CRegKey	keyNew;
 		if (keyNew.Open(HKEY_LOCAL_MACHINE, regKeyNew, KEY_READ) == ERROR_SUCCESS)
 		{
@@ -464,7 +465,7 @@ namespace DSUtil
 		keyNew.Close();
 
 		CString regKeyOld;
-		regKeyOld.Format(_T("SOFTWARE\\Debug\\%s"), filename);
+		regKeyOld.Format(_T("SOFTWARE\\Debug\\%s"), (LPCTSTR)filename);
 		CRegKey	keyOld;
 		if (keyOld.Open(HKEY_LOCAL_MACHINE, regKeyOld, KEY_READ) == ERROR_SUCCESS)
 		{
@@ -491,7 +492,8 @@ namespace DSUtil
 		*/
 
 		LPOLESTR	str;
-		StringFromCLSID(clsid, &str);
+		HRESULT hr = StringFromCLSID(clsid, &str);
+		if (FAILED(hr)) return hr;
 		CString		str_clsid(str);
 		CString		key_name;
 		if (str) CoTaskMemFree(str);
@@ -500,7 +502,7 @@ namespace DSUtil
 		{
 			if (DSUtil::IsUserAdmin())
 			{
-				key_name.Format(_T("CLSID\\%s"), str_clsid);
+				key_name.Format(_T("CLSID\\%s"), (LPCTSTR)str_clsid);
 				CRegKey		key;
 				if (key.Open(HKEY_CLASSES_ROOT, key_name, KEY_READ | KEY_WRITE) == ERROR_SUCCESS) {
 					// simply write the new merit.
@@ -516,7 +518,7 @@ namespace DSUtil
 			else
 			{
 				CString strRegText;
-				strRegText.Format(_T("[HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\CLSID\\%s]\n"), str_clsid);
+				strRegText.Format(_T("[HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\CLSID\\%s]\n"), (LPCTSTR)str_clsid);
 				strRegText.AppendFormat(_T("\"Merit\"=dword:%08x\n\n"), merit);
 				return DSUtil::WriteToRegistryAsAdmin(strRegText);
 			}
@@ -531,7 +533,7 @@ namespace DSUtil
 			REGSAM keyRegSam = KEY_READ;
 			if (DSUtil::IsUserAdmin()) keyRegSam |= KEY_WRITE;
 
-			key_name.Format(_T("CLSID\\{083863F1-70DE-11d0-BD40-00A0C911CE86}\\Instance\\%s"), str_clsid);
+			key_name.Format(_T("CLSID\\{083863F1-70DE-11d0-BD40-00A0C911CE86}\\Instance\\%s"), (LPCTSTR)str_clsid);
 			CRegKey		key;
 			if (key.Open(HKEY_CLASSES_ROOT, key_name, keyRegSam) == ERROR_SUCCESS)
 			{
@@ -557,7 +559,7 @@ namespace DSUtil
 				else
 				{
 					CString strRegText;
-					strRegText.Format(_T("[HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\%s]\n"), key_name);
+					strRegText.Format(_T("[HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\%s]\n"), (LPCTSTR)key_name);
 					strRegText.Append(_T("\"FilterData\"=hex:"));
 
 					for (int i = 0; i < (int)size; i++)
@@ -1561,10 +1563,10 @@ namespace DSUtil
 				CString			display_name;
 
 				display_name = _T("@device:dmo:");
-				StringFromCLSID(dmo_clsid, &str);	
-				if (str) {	display_name += CString(str);	CoTaskMemFree(str);	str = NULL;	}
-				StringFromCLSID(clsid, &str);	
-				if (str) {	display_name += CString(str);	CoTaskMemFree(str);	str = NULL;	}
+				hr = StringFromCLSID(dmo_clsid, &str);	
+				if (SUCCEEDED(hr) && str) { display_name += CString(str);	CoTaskMemFree(str);	str = NULL; }
+				hr = StringFromCLSID(clsid, &str);	
+				if (SUCCEEDED(hr) && str) { display_name += CString(str);	CoTaskMemFree(str);	str = NULL; }
 				filter.moniker_name = display_name;
 				filter.version = 2;
 				filter.FindFilename();
@@ -1573,12 +1575,16 @@ namespace DSUtil
 				// find out merit
 
 				// HKEY_CLASSES_ROOT\CLSID\{07C9CB2C-F51C-47EA-B551-7DA02541D586}
-				StringFromCLSID(dmo_clsid, &str);
-				CString		str_clsid(str);
+				hr = StringFromCLSID(dmo_clsid, &str);
+				CString		str_clsid;
 				CString		key_name;
-				if (str) CoTaskMemFree(str);
+				if (SUCCEEDED(hr) && str)
+				{
+					str_clsid = str;
+					CoTaskMemFree(str);
+				}
 
-				key_name.Format(_T("CLSID\\%s"), str_clsid);
+				key_name.Format(_T("CLSID\\%s"), (LPCTSTR)str_clsid);
 				CRegKey		key;
 				if (key.Open(HKEY_CLASSES_ROOT, key_name, KEY_READ) != ERROR_SUCCESS) { 
 					filter.merit = 0x00600000 + 0x800;
@@ -1872,8 +1878,8 @@ namespace DSUtil
 		pins.RemoveAll();
 		if (!filter) return NOERROR;
 
-		IEnumPins	*epins;
-		IPin		*pin;
+		IEnumPins	*epins = NULL;
+		IPin		*pin = NULL;
 		ULONG		f;
 		HRESULT		hr;
 
@@ -1882,7 +1888,7 @@ namespace DSUtil
 
 		epins->Reset();
 		while (epins->Next(1, &pin, &f) == NOERROR) {
-			PIN_DIRECTION	dir;
+			PIN_DIRECTION	dir = PINDIR_INPUT;
 			PIN_INFO		info;
 			Pin				npin;
 
@@ -1927,7 +1933,7 @@ namespace DSUtil
 	{
 		PinArray		opins;
 		PinArray		ipins;
-		HRESULT			hr;
+		HRESULT			hr = S_OK;
 
 		EnumPins(output, opins, Pin::PIN_FLAG_OUTPUT | Pin::PIN_FLAG_NOT_CONNECTED);
 		EnumPins(input, ipins, Pin::PIN_FLAG_INPUT | Pin::PIN_FLAG_NOT_CONNECTED);
@@ -2199,14 +2205,15 @@ namespace DSUtil
 		*/
 		
 		OLECHAR szCLSID[CHARS_IN_GUID];
-		StringFromGUID2(clsid, szCLSID, CHARS_IN_GUID);
+		HRESULT hr = StringFromGUID2(clsid, szCLSID, CHARS_IN_GUID);
+		if (FAILED(hr)) return hr;
 
 		CString	keyname;
 		keyname.Format(_T("CLSID\\%s"), szCLSID);
 
 		// delete subkey
 		int ret = DSUtil::EliminateSubKey(HKEY_CLASSES_ROOT, keyname.GetBuffer());
-		if (ret < 0) return -1;
+		if (ret < 0) return E_FAIL;
 
 		return 0;
 	}
@@ -2273,7 +2280,7 @@ namespace DSUtil
                 if(result == IDS_SEARCH_FOR_ERROR)
                 {
                     CString url;
-                    url.Format(TEXT("http://www.google.com/search?q=%s"), strHR);
+					url.Format(TEXT("http://www.google.com/search?q=%s"), (LPCTSTR)strHR);
                     ShellExecute(NULL, _T("open"),url, NULL, NULL, SW_SHOWNORMAL);
                 }
                 else if(result == IDS_SHOW_GRAPH_CONSTRUCTION_REPORT)
@@ -2286,7 +2293,7 @@ namespace DSUtil
             else
             {
                 CString strMsg;
-                strMsg.Format(_T("%s\n%s"), strHR, szErr);
+				strMsg.Format(_T("%s\n%s"), (LPCTSTR)strHR, szErr);
                 ok_pressed = ShowError(strMsg,title);
             }
         }
@@ -2445,7 +2452,9 @@ namespace DSUtil
 	    EmptyClipboard();
 	
 	    HGLOBAL		hClipboardData  = GlobalAlloc(GMEM_DDESHARE, sizeof(TCHAR) * (text.GetLength() + 1));
+		if (!hClipboardData) return false;
 	    TCHAR		*buf			= (TCHAR*)GlobalLock(hClipboardData);
+		if (!buf) return false;
 
 	    memset(buf, 0, sizeof(TCHAR)*(text.GetLength() + 1));
 	    memcpy(buf, text.GetBuffer(), sizeof(TCHAR)*(text.GetLength()));
@@ -2473,7 +2482,7 @@ namespace DSUtil
 		if (!bRet)
 			ShowError(_T("Can't start '") + strFile + _T("'"));
 
-		DbgLog((LOG_TRACE, 0, TEXT("Execute '%s' (%s) -> Information.hInstApp 0x%p, .hProcess 0x%p"), strFile, strParams, Information.hInstApp, Information.hProcess));
+		DbgLog((LOG_TRACE, 0, TEXT("Execute '%s' (%s) -> Information.hInstApp 0x%p, .hProcess 0x%p"), (LPCTSTR)strFile, (LPCTSTR)strParams, Information.hInstApp, Information.hProcess));
 
 		return Information.hProcess;
 	}
@@ -2486,12 +2495,12 @@ namespace DSUtil
 			return -1;
 
 		const DWORD nWaitResult = WaitForSingleObject(process, INFINITE);
-		DbgLog((LOG_TRACE, 0, TEXT("ExecuteWait '%s' (%s) -> WaitResult 0x%x"), strFile, strParams, nWaitResult));
+		DbgLog((LOG_TRACE, 0, TEXT("ExecuteWait '%s' (%s) -> WaitResult 0x%x"), (LPCTSTR)strFile, (LPCTSTR)strParams, nWaitResult));
 		ATLASSERT(nWaitResult == WAIT_OBJECT_0);
 
 		DWORD nExitCode = 0;
 		GetExitCodeProcess(process, &nExitCode);
-		DbgLog((LOG_TRACE, 0, TEXT("ExecuteWait '%s' (%s) -> ExitCode %d (0x%x)"), strFile, strParams, nExitCode, nExitCode));
+		DbgLog((LOG_TRACE, 0, TEXT("ExecuteWait '%s' (%s) -> ExitCode %d (0x%x)"), (LPCTSTR)strFile, (LPCTSTR)strParams, nExitCode, nExitCode));
 
 		return nExitCode;
 	}

@@ -88,16 +88,16 @@ BOOL CDbgLogConfigForm::OnInitDialog()
 	// set filename in title
 	CString strTitle;
 	GetWindowText(strTitle);
-	strTitle.AppendFormat(_T(" of '%s'"), m_strFileName);
+	strTitle.AppendFormat(_T(" of '%s'"), (LPCTSTR)m_strFileName);
 	SetWindowText(strTitle);
 
 	// open reg key with the current values
 	CRegKey	regKey;
-	m_strRegKey.Format(_T("SOFTWARE\\Microsoft\\DirectShow\\Debug\\%s"), m_strFileName);
+	m_strRegKey.Format(_T("SOFTWARE\\Microsoft\\DirectShow\\Debug\\%s"), (LPCTSTR)m_strFileName);
 	if (regKey.Open(HKEY_LOCAL_MACHINE, m_strRegKey, KEY_READ) != ERROR_SUCCESS)
 	{
 		// maybe it is an older version
-		m_strRegKey.Format(_T("SOFTWARE\\Debug\\%s"), m_strFileName);
+		m_strRegKey.Format(_T("SOFTWARE\\Debug\\%s"), (LPCTSTR)m_strFileName);
 		if (regKey.Open(HKEY_LOCAL_MACHINE, m_strRegKey, KEY_READ) != ERROR_SUCCESS)
 		{
 			m_strRegKey.Empty();
@@ -112,7 +112,7 @@ BOOL CDbgLogConfigForm::OnInitDialog()
 	regKey.QueryDWORDValue(_T("LOCKING"), m_nLocking);
 	regKey.QueryDWORDValue(_T("TIMING"), m_nTiming);
 
-	DWORD timeout;
+	DWORD timeout = INFINITE;
 	regKey.QueryDWORDValue(_T("TIMEOUT"), timeout);
 	if (timeout > INT32_MAX)
 		m_nTimeout = -1;
@@ -210,7 +210,7 @@ void CDbgLogConfigForm::OnOK()
 		else
 		{
 			CString strRegText;
-			strRegText.Format(_T("[HKEY_LOCAL_MACHINE\\%s]\n"), m_strRegKey);
+			strRegText.Format(_T("[HKEY_LOCAL_MACHINE\\%s]\n"), (LPCTSTR)m_strRegKey);
 			strRegText.AppendFormat(_T("\"TRACE\"=dword:%08x\n"), m_nTrace);
 			strRegText.AppendFormat(_T("\"ERROR\"=dword:%08x\n"), m_nError);
 			strRegText.AppendFormat(_T("\"MEMORY\"=dword:%08x\n"), m_nMemory);
@@ -225,7 +225,7 @@ void CDbgLogConfigForm::OnOK()
 
 			CString logFile = m_strLogFile;
 			logFile.Replace(_T("\\"), _T("\\\\"));
-			strRegText.AppendFormat(_T("\"LogToFile\"=\"%s\"\n\n"), logFile);
+			strRegText.AppendFormat(_T("\"LogToFile\"=\"%s\"\n\n"), (LPCTSTR)logFile);
 
 			DWORD ret = DSUtil::WriteToRegistryAsAdmin(strRegText);
 			if (!ret)

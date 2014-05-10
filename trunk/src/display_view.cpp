@@ -657,7 +657,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
                             Pin * const drop_start = filter_start ? 
 									filter_start->FindPinByPos(new_connection_start, false)	// allow connected pins
 									: NULL;
-                            if(drop_start->dir == PINDIR_OUTPUT) {
+                            if(drop_start && drop_start->dir == PINDIR_OUTPUT) {
                                 for(int i=0; i<current->input_pins.GetSize(); i++)
                                     if(!current->input_pins[i]->IsConnected()) {
                                         drop_end = current->input_pins[i];
@@ -1506,18 +1506,18 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// Find currently selected filter
 		for (int i=0; i<filter_count && !prev_filter && !prev_pin; i++) {
 			Filter * const filter = filters[i];
-			if (filter->selected) {
+			if (filter && filter->selected) {
 				prev_filter = filter;
 			} else { 
 				for (int j=0; j<filter->input_pins.GetCount() && !prev_pin; j++) {
 					Pin * const pin = filter->input_pins[j];
-					if (pin->selected) {
+					if (pin && pin->selected) {
 						prev_pin = pin;
 					}
 				}
 				for (int j=0; j<filter->output_pins.GetCount() && !prev_pin ; j++) {
 					Pin * const pin = filter->output_pins[j];
-					if (pin->selected)
+					if (pin && pin->selected)
 						prev_pin = pin;
 				}
 			}

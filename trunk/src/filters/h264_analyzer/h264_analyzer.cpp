@@ -248,6 +248,7 @@ STDMETHODIMP CH264Analyzer::GetEntry(__int64 nr, H264RecordEntry *pVal)
     if (entry.nDataCount > 0)
     {
         pVal->aData = (BYTE*)CoTaskMemAlloc(pVal->nDataCount);
+		if (!pVal->aData) return E_OUTOFMEMORY;
         CopyMemory(pVal->aData, entry.aData, entry.nDataCount);
     }
 

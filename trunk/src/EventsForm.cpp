@@ -357,7 +357,7 @@ void CEventsForm::OnGraphEvent(long evcode, LONG_PTR param1, LONG_PTR param2)
 	if (msg != _T("")) {
 		CTime	time = CTime::GetCurrentTime();
 		CString	ts;
-		ts.Format(_T("[%02d:%02d:%02d] - %s"), time.GetHour(), time.GetMinute(), time.GetSecond(), msg); 
+		ts.Format(_T("[%02d:%02d:%02d] - %s"), time.GetHour(), time.GetMinute(), time.GetSecond(), (LPCTSTR)msg);
 		list_events.InsertString(0, ts);
 	}
 }

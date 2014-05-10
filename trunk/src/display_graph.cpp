@@ -777,7 +777,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			temp = NULL;
 			int i=0;
 			do {
-				name.Format(_T("%s %.04d"), proposed_name, i);
+				name.Format(_T("%s %.04d"), (LPCTSTR)proposed_name, i);
 				hr = gb->FindFilterByName(name, &temp);
 				temp = NULL;
 				i++;
@@ -923,15 +923,15 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			xml.WriteValue(_T("temporalCompression"),	mt.bTemporalCompression ? _T("true") : _T("false"));
 
 			LPOLESTR clsid_olestr = NULL;
-			StringFromCLSID(mt.majortype, &clsid_olestr);
-			if (clsid_olestr) {
+			HRESULT hr = StringFromCLSID(mt.majortype, &clsid_olestr);
+			if (SUCCEEDED(hr) && clsid_olestr) {
 				xml.WriteValue(_T("majorType"), clsid_olestr);
 				CoTaskMemFree(clsid_olestr);
 			}
 			clsid_olestr = NULL;
 
-			StringFromCLSID(mt.subtype, &clsid_olestr);
-			if (clsid_olestr) {
+			hr = StringFromCLSID(mt.subtype, &clsid_olestr);
+			if (SUCCEEDED(hr) && clsid_olestr) {
 				xml.WriteValue(_T("subType"), clsid_olestr);
 				CoTaskMemFree(clsid_olestr);
 			}
@@ -955,8 +955,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				}
 
 				LPOLESTR clsid_olestr = NULL;
-				StringFromCLSID(mt.formattype, &clsid_olestr);
-				if (clsid_olestr) {
+				HRESULT hr = StringFromCLSID(mt.formattype, &clsid_olestr);
+				if (SUCCEEDED(hr) && clsid_olestr) {
 					xml.WriteValue(_T("formatType"), clsid_olestr);
 					CoTaskMemFree(clsid_olestr);
 				}
@@ -1121,9 +1121,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 
 			LPOLESTR	strclsid = NULL;
-			StringFromCLSID(filter->clsid, &strclsid);
-			xml.WriteValue(_T("clsid"), strclsid);
-			CoTaskMemFree(strclsid);
+			HRESULT hr = StringFromCLSID(filter->clsid, &strclsid);
+			if (SUCCEEDED(hr) && strclsid)
+			{
+				xml.WriteValue(_T("clsid"), strclsid);
+				CoTaskMemFree(strclsid);
+			}
 
 			// now check for interfaces
 			SaveXML_IFileSourceFilter(filter->filter, xml);
@@ -1147,8 +1150,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		xml.EndNode();
 
-		FILE		*f;
-        if(_tfopen_s(&f,fn, _T("wb")) != NOERROR)
+		FILE		*f = NULL;
+        if(_tfopen_s(&f,fn, _T("wb")) != NOERROR || !f)
             return -1;
 
 		CString		x = xml.XML();
@@ -1499,9 +1502,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 						ofilter ? ifilter_index : ofilter_index);
 			} else {
 				str.Format(_T("Could not find %s pin %s on filter %s"), 
-						opin ? _T("input")				: _T("output"),
-						opin ? in_id					: out_id,
-						opin ? ifilter->display_name	: ofilter->display_name);
+						opin ? _T("input") : _T("output"),
+						opin ? (LPCTSTR)in_id : (LPCTSTR)out_id,
+						opin ? (LPCTSTR)ifilter->display_name : (LPCTSTR)ofilter->display_name);
 			}
 			SmartPlacement();
 			DSUtil::ShowError(E_FAIL, str);
@@ -2861,8 +2864,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		// now scan for pins
-		IEnumPins	*epins;
-		IPin		*pin;
+		IEnumPins	*epins = NULL;
+		IPin		*pin = NULL;
 		ULONG		ff;
 		filter->EnumPins(&epins);
 		epins->Reset();
@@ -3099,9 +3102,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// render directed arrows for all connected output pins
 		for (int i=0; i<output_pins.GetCount(); i++) {
 			Pin		*pin = output_pins[i];
-			Pin		*peer = pin->peer;
+			if (!pin) continue;
 
-			if (pin && peer) {
+			Pin		*peer = pin->peer;
+			if (peer) {
                 DWORD	color = RenderParameters::color_connection_type[pin->connectionType];
 				CPoint	pt1, pt2;
 				pin->GetCenterPoint(&pt1);
@@ -3313,9 +3317,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// we check our output pins and test for hit
 		for (int i=0; i<output_pins.GetCount(); i++) {
 			Pin *pin = output_pins[i];
-			Pin *peer = pin->peer;
-			if (!pin->connected) continue;
+			if (!pin || !pin->connected) continue;
 
+			Pin *peer = pin->peer;
 			if (pin && peer) {
 				CPoint	pt1, pt2;
 				pin->GetCenterPoint(&pt1);
@@ -3921,7 +3925,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		
 		if (graph->params->abort_timeout && graph->params->in_render) {
 
-			DWORD		timenow = GetTickCount();
+			ULONGLONG		timenow = GetTickCount64();
 
 			if (graph->params->render_can_proceed &&
 				(timenow > (graph->params->render_start_time + 10*1000))
@@ -3962,7 +3966,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				alloc->Free(moniker_name);
 				alloc->Release();
 			}
-			ra.time_ms = GetTickCount() - graph->params->render_start_time;
+			ra.time_ms = GetTickCount64() - graph->params->render_start_time;
 
 			if (ra.displ_name != _T("")) {
 				graph->params->render_actions.push_back(ra);
@@ -4023,7 +4027,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// moniker name
 		pFilter->GetClassID(&ra.clsid);
 
-		ra.time_ms = GetTickCount() - graph->params->render_start_time;
+		ra.time_ms = GetTickCount64() - graph->params->render_start_time;
 		ra.type = RenderAction::ACTION_CREATE;
 
 		graph->params->render_actions.push_back(ra);
@@ -4034,7 +4038,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	HRESULT GraphCallbackImpl::UnableToRender(IPin *pPin)		// This method uses the thiscall calling convention, rather than __stdcall.
 	{
 		RenderAction	ra;
-		ra.time_ms = GetTickCount() - graph->params->render_start_time;
+		ra.time_ms = GetTickCount64() - graph->params->render_start_time;
 		ra.type = RenderAction::ACTION_RENDER_FAILURE;
 		ra.clsid = GUID_NULL;
 		ra.displ_name = _T("Unknown pin");

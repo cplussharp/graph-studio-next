@@ -17,7 +17,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 class RenderAction
 {
 public:
-	DWORD		time_ms;			// relative to operation start time
+	ULONGLONG	time_ms;			// relative to operation start time
 		
 	enum {
 		ACTION_NONE				= 0,
@@ -134,7 +134,7 @@ public:
 	bool			resize_to_graph;
 
 	// render operation state
-	DWORD					render_start_time;
+	ULONGLONG				render_start_time;
 	bool					in_render;
 	bool					render_can_proceed;
 	vector<RenderAction>	render_actions;						// moniker name list for filters in the last render operation

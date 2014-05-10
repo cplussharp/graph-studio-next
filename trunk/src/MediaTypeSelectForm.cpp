@@ -62,7 +62,7 @@ BOOL CMediaTypeSelectForm::OnInitDialog()
 
 	// First entry is <Default> Media Type
 	const LPCTSTR any = _T("<Default>");
-	media_types_list.InsertItem(0, NULL);
+	media_types_list.InsertItem(0, _T(""));
 
 	media_types_list.SetItemText(0, SUB_TYPE,		any);
 	media_types_list.SetItemText(0, FORMAT_TYPE,	any);

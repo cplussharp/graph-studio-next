@@ -163,7 +163,7 @@ void CTextInfoForm::DoFilterList(int level)
 	Echo(_T("--------------------------------------------------"));
 	for (int i=0; i<view->graph.filters.GetCount(); i++) {
 		GraphStudio::Filter	*filter = view->graph.filters[i];
-		t.Format(_T("%3d. %s"), (i+1), filter->name);
+		t.Format(_T("%3d. %s"), (i + 1), (LPCTSTR)filter->name);
 		Echo(t);
 
 		if (filter->file_name != _T("")) {
@@ -273,7 +273,7 @@ void CTextInfoForm::DoConnectionDetails(int level, int offset)
 				GraphStudio::Pin *opin = filter->output_pins[j];
 				GraphStudio::Pin *peer = opin->peer;
 				if (opin->connected && peer) {
-					t.Format(_T("%3d. [%s]/(%s) -> [%s]/(%s)"), (index+1), filter->name, opin->name, peer->filter->name, peer->name);
+					t.Format(_T("%3d. [%s]/(%s) -> [%s]/(%s)"), (index + 1), (LPCTSTR)filter->name, (LPCTSTR)opin->name, (LPCTSTR)peer->filter->name, (LPCTSTR)peer->name);
 					Echo(ofs + t);
 					if (level > 0) { 
 						DoPinDetails(opin, level, offset+6);
@@ -386,7 +386,7 @@ void CTextInfoForm::DoMPEG2VideoInfo(AM_MEDIA_TYPE *pmt, int level, int offset)
 		f.Format(_T("%d"), mv->dwProfile);
 		break;
 	}
-	t.Format(_T("    dwProfile:            %s"), f);			Echo(ofs+t);
+	t.Format(_T("    dwProfile:            %s"), (LPCTSTR)f);			Echo(ofs + t);
 
 	switch (mv->dwLevel) {
 	case AM_MPEG2Level_Low:			f = _T("AM_MPEG2Level_Low"); break;
@@ -397,7 +397,7 @@ void CTextInfoForm::DoMPEG2VideoInfo(AM_MEDIA_TYPE *pmt, int level, int offset)
 		f.Format(_T("%d"), mv->dwLevel);
 		break;
 	}
-	t.Format(_T("    dwLevel:              %s"), f);			Echo(ofs+t);
+	t.Format(_T("    dwLevel:              %s"), (LPCTSTR)f);			Echo(ofs + t);
 	if (mv->cbSequenceHeader > 0 && level > 3) {
 		BYTE *raw = (BYTE*)mv->dwSequenceHeader;
 		Echo(ofs+_T("Sequence Header:"));

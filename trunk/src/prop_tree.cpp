@@ -31,10 +31,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	{
 		// convert to string
 		LPOLESTR	str = NULL;
-		StringFromCLSID(guid, &str);
-
-		value = str;
-		if (str) CoTaskMemFree(str);
+		HRESULT hr = StringFromCLSID(guid, &str);
+		if (SUCCEEDED(hr) && str)
+		{
+			value = str;
+			CoTaskMemFree(str);
+		}
 	}
 
 	PropItem::PropItem(CString n, int val) :

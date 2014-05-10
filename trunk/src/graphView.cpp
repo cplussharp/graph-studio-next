@@ -2623,7 +2623,9 @@ HRESULT CGraphView::AddFileSourceAsync(CString filename)
 	HRESULT hr = E_NOINTERFACE;
 
 	CComPtr<IBaseFilter> file_reader;
-	file_reader.CoCreateInstance(CLSID_AsyncReader, NULL, CLSCTX_INPROC_SERVER);
+	hr = file_reader.CoCreateInstance(CLSID_AsyncReader, NULL, CLSCTX_INPROC_SERVER);
+	if (FAILED(hr)) return hr;
+
 	CComQIPtr<IFileSourceFilter> file_source(file_reader);
 	if (file_reader && file_source) {
 		hr = graph.AddFilter(file_reader, _T("File Source (Async.)"));

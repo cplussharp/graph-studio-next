@@ -135,7 +135,7 @@ CString CMediaInfo::GetText() const
         {
             GraphStudio::PropItem* item = group->GetItem(j);
             CString frmt;
-            frmt.Format(_T("%20s = %s\r\n"),item->name,item->value);
+			frmt.Format(_T("%20s = %s\r\n"), (LPCTSTR)item->name, (LPCTSTR)item->value);
             str.Append(frmt);
         }
     }
@@ -207,7 +207,7 @@ CString CMediaInfoStream::GetText() const
         {
             GraphStudio::PropItem* item = group->GetItem(j);
             CString frmt;
-            frmt.Format(_T("%[20]s = %s\n\r"),item->name,item->value);
+			frmt.Format(_T("%[20]s = %s\n\r"), (LPCTSTR)item->name, (LPCTSTR)item->value);
             str.Append(frmt);
         }
     }

@@ -467,7 +467,7 @@ LRESULT CPropertyForm::OnPressButton(WPARAM wParam, LPARAM lParam)
 
 int CPropertyForm::LoadPinPage(IPin *pin)
 {
-	PIN_INFO		info;
+	PIN_INFO		info = {};
 	pin->QueryPinInfo(&info);
 	if (info.pFilter) 
 		info.pFilter->Release();
@@ -512,10 +512,8 @@ int CPropertyForm::LoadPinPage(IPin *pin)
 		
 		// if the parent filter is the ACM Wrapper Filter then we will show
 		// the ACM Compression page
-		PIN_INFO	info;
+		PIN_INFO	info = {};
 		bool		is_acm_wrapper = false;
-
-		memset(&info, 0, sizeof(info));
 
 		pin->QueryPinInfo(&info);
 		if (info.pFilter) {

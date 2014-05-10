@@ -88,8 +88,8 @@ int GetFourCC(DWORD fcc, CString &str)
 void CLSIDToString(const CLSID& clsid, CString &str)
 {
 	LPOLESTR	ostr = NULL;
-	StringFromCLSID(clsid, &ostr);
-	if (ostr) {
+	HRESULT hr = StringFromCLSID(clsid, &ostr);
+	if (SUCCEEDED(hr) && ostr) {
 		str = ostr;
 		CoTaskMemFree(ostr);
 	}

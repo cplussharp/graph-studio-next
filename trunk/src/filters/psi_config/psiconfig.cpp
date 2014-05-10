@@ -739,7 +739,7 @@ HRESULT CPayloadParserInputPin::DoReconfigDemuxPin()
 {
     IPin* pPin = GetConnected();
 
-    PIN_INFO info;
+	PIN_INFO info = {};
     HRESULT hr = pPin->QueryPinInfo(&info);
     if(info.pFilter)
         info.pFilter->Release();

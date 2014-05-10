@@ -124,7 +124,7 @@ void RenderParameters::MarkRender(bool start)
 	// remember the time
 	in_render = start;
 	if (start) {
-		render_start_time = GetTickCount();
+		render_start_time = GetTickCount64();
 		render_can_proceed = true;
 		render_actions.clear();
 	}

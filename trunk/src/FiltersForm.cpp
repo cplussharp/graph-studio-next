@@ -178,7 +178,7 @@ void CFiltersForm::OnInitialize()
 		filters.Enumerate(cat);
 		if (filters.filters.GetCount() > 0) {
 			CString	n;
-			n.Format(_T("%s (%d filters)"), cat.name, filters.filters.GetCount());
+			n.Format(_T("%s (%d filters)"), (LPCTSTR)cat.name, filters.filters.GetCount());
 			int item_index = combo_categories.AddString(n);
 			combo_categories.SetItemDataPtr(item_index, (void*)&cat);
 
@@ -586,7 +586,7 @@ void CFiltersForm::UpdateFilterDetails(const DSUtil::FilterTemplate &filter)
 	str_name.Replace(' ', '+');
 	CString url;
 	CString file = filter.file.Mid(CPath(filter.file).FindFileName());
-	url.Format(TEXT("http://www.google.com/search?q=%s+OR+\\\"%s\\\"+OR+%s"), str_clsid, str_name, file);
+	url.Format(TEXT("http://www.google.com/search?q=%s+OR+\\\"%s\\\"+OR+%s"), (LPCTSTR)str_clsid, (LPCTSTR)str_name, (LPCTSTR)file);
 	m_search_online.SetURL(url);
 	if (str) 
 		CoTaskMemFree(str);
@@ -757,7 +757,7 @@ void CFiltersForm::OnUnregisterClick()
 				if (!DSUtil::IsUserAdmin())
 				{
 					CString msg;
-					msg.Format(_T("Admin rights required to unregister DMO '%s'.\nPlease restart the program as admin."), filter->name);
+					msg.Format(_T("Admin rights required to unregister DMO '%s'.\nPlease restart the program as admin."), (LPCTSTR)filter->name);
 					DSUtil::ShowInfo(msg);
 					continue;
 				}
@@ -809,7 +809,7 @@ check_unregister:
 				if (fileExist && unregisterAll)
 				{
 					CString strParams;
-					strParams.Format(_T("-u \"%s\""), fn);
+					strParams.Format(_T("-u \"%s\""), (LPCTSTR)fn);
 					DWORD code = DSUtil::ExecuteWait(_T("regsvr32.exe"), strParams);
 					changed = !code;
 			    }
@@ -819,9 +819,9 @@ check_unregister:
 					{
 						CString msg;
 						if (fileExist)
-							msg.Format(_T("Admin rights required to unregister only the filter '%s'.\nPlease check 'unregister file' or restart the program as admin."), filter->name);
+							msg.Format(_T("Admin rights required to unregister only the filter '%s'.\nPlease check 'unregister file' or restart the program as admin."), (LPCTSTR)filter->name);
 						else
-							msg.Format(_T("Admin rights required to unregister non existent filter '%s'.\nPlease restart the program as admin."), filter->name);
+							msg.Format(_T("Admin rights required to unregister non existent filter '%s'.\nPlease restart the program as admin."), (LPCTSTR)filter->name);
 						DSUtil::ShowInfo(msg);
 
 						if (fileExist)
@@ -836,11 +836,11 @@ check_unregister:
 				    if (SUCCEEDED(hr)) {
                         changed = true;
                         CString		msg;
-                        msg.Format(_T("Unregister '%s' succeeded."), filter->name);
+						msg.Format(_T("Unregister '%s' succeeded."), (LPCTSTR)filter->name);
 					    DSUtil::ShowInfo(msg);
 				    } else {
 					    CString		msg;
-					    msg.Format(_T("Unregister '%s' failed: 0x%08x"), filter->name, hr);
+						msg.Format(_T("Unregister '%s' failed: 0x%08x"), (LPCTSTR)filter->name, hr);
 					    DSUtil::ShowError(hr, msg);
 				    }
 			    }
