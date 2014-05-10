@@ -231,6 +231,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
     ON_COMMAND(ID_HELP_REGISTEREDFILETYPES, &CGraphView::OnHelpRegisteredFileTypes)
     ON_COMMAND(ID_HELP_COMMANDLINEOPTIONS, &CGraphView::OnShowCliOptions)
     ON_COMMAND(ID_OPTIONS_CONFIGURESBE, &CGraphView::OnConfigureSbe)
+	ON_COMMAND(ID_OPTIONS_CONFIGUREGLOBALDBGLOG, &CGraphView::OnConfigureDbgLog)
 	ON_WM_MOUSEWHEEL()
 	ON_WM_MOUSEHWHEEL()
 	ON_COMMAND(ID_VIEW_DECREASEHORIZONTALSPACING, &CGraphView::OnViewDecreaseHorizontalSpacing)
@@ -1472,6 +1473,13 @@ void CGraphView::OnConfigureSbe()
 {
     CSbeConfigForm dlg;
     dlg.DoModal();
+}
+
+void CGraphView::OnConfigureDbgLog()
+{
+	CString strFileName;
+	CDbgLogConfigForm dlg(strFileName);
+	dlg.DoModal();
 }
 
 void CGraphView::UpdateGraphState()

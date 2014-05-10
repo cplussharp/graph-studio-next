@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by graphstudionext.rc
+// Von Microsoft Visual C++ generierte Includedatei.
+// Verwendet durch graphstudionext.rc
 //
 #define IDC_BUTTON_SET_PREROLL          3
 #define IDD_ABOUTBOX                    100
@@ -265,6 +265,10 @@
 #define IDC_EDIT_CUSTOM5                1160
 #define IDC_SPIN_CUSTOM5                1161
 #define IDC_EDIT_LOGFILE                1162
+#define IDC_RADIO_LOGFILE_DEBUGGER      1163
+#define IDC_RADIO_LOGFILE_CONSOLE       1164
+#define IDC_RADIO3                      1165
+#define IDC_RADIO_LOGFILE_FILE          1165
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -421,16 +425,17 @@
 #define ID_CONTEXT_MENU                 32948
 #define ID_GRAPH_NAVIGATE_FILTERS       32949
 #define ID_GRAPH_NAVIGATE_PINS          32952
-#define ID_NEXT_PROPERTY_PAGE         32954
-#define ID_PREVIOUS_PROPERTY_PAGE     32955
+#define ID_NEXT_PROPERTY_PAGE           32954
+#define ID_PREVIOUS_PROPERTY_PAGE       32955
+#define ID_OPTIONS_CONFIGUREGLOBALDBGLOG 32956
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        182
-#define _APS_NEXT_COMMAND_VALUE         32956
-#define _APS_NEXT_CONTROL_VALUE         1163
+#define _APS_NEXT_COMMAND_VALUE         32957
+#define _APS_NEXT_CONTROL_VALUE         1166
 #define _APS_NEXT_SYMED_VALUE           108
 #endif
 #endif

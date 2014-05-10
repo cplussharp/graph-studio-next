@@ -276,6 +276,7 @@ public:
     afx_msg void OnHelpRegisteredFileTypes();
     afx_msg void OnShowCliOptions();
     afx_msg void OnConfigureSbe();
+	afx_msg void OnConfigureDbgLog();
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void OnViewDecreaseHorizontalSpacing();
