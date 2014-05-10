@@ -238,7 +238,7 @@ void CDecPerformanceForm::StartTiming()
 	// update view
 	view->UpdateGraphState();
 	view->graph.RefreshFilters();
-	view->graph.SmartPlacement();
+	view->graph.SmartPlacement(false);
 	view->Invalidate();
 
 	// reset the clock 
@@ -248,7 +248,7 @@ void CDecPerformanceForm::StartTiming()
 
 	// update the display again
 	view->graph.RefreshFilters();
-	view->graph.SmartPlacement();
+	view->graph.SmartPlacement(false);
 	view->Invalidate();
 
 	// Find first time measure filter in graph and store a reference to it

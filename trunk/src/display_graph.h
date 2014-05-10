@@ -341,7 +341,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void SetSelection(Filter * filter, Pin * pin);
 
 		int CalcDownstreamYPosition(Filter* const start_filter) const;
-		void SmartPlacement();
+		void SmartPlacement(bool force = true);
 		void DoubleSelected();
 		HRESULT ConnectPins(Pin *p1, Pin *p2, bool chooseMediaType);
 
