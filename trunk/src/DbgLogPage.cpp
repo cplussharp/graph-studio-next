@@ -18,6 +18,8 @@ BEGIN_MESSAGE_MAP(CDbgLogPage, CDSPropertyPage)
 	ON_WM_SIZE()
     ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CDbgLogPage::OnBnClickedRefresh)
     ON_BN_CLICKED(IDC_BUTTON_DBGLOGSETTINGS, &CDbgLogPage::OnBnClickedSettings)
+	ON_BN_CLICKED(IDC_BUTTON_LOCATE, &CDbgLogPage::OnLocateClick)
+	ON_EN_UPDATE(IDC_FILTER_STRING, &CDbgLogPage::OnUpdateFilterString)
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -56,12 +58,24 @@ BOOL CDbgLogPage::OnInitDialog()
 	btn_refresh.SetFont(GetFont());
 	btn_refresh.SetWindowPos(NULL, 4, 4, rc.Width(), rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
+	btn_locate.Create(_T("&Locate"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_LOCATE);
+	btn_locate.SetFont(GetFont());
+	btn_locate.SetWindowPos(NULL, 8 + rc.Width(), 4, rc.Width(), rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+
 	btn_settings.Create(_T("&Settings"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_DBGLOGSETTINGS);
-	btn_settings.SetWindowPos(NULL, 8 + rc.Width(), 4, rc.Width() + 20, rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_settings.SetWindowPos(NULL, 12 + 2*rc.Width(), 4, rc.Width() + 20, rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 	btn_settings.SetFont(GetFont());
 	btn_settings.SetShield(TRUE);
 
+	title.GetClientRect(&rc);
+	CRect edit_rect(0, 0, 350, 18);		// recommended edit control height is 14 but add a bit as 14 looks cramped
+	edit_rect.MoveToXY(rc.Width() - 354, (rc.Height() - 18) / 2);
+	edit_filter.Create(WS_BORDER | WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_LOWERCASE, edit_rect, &title, IDC_SEARCH_STRING);
+	edit_filter.SetFont(GetFont());
+
 	edit_log.SetFont(&font_log);
+
+	REParseError status = filterRegex.Parse(_T(""), FALSE);
 
 	return TRUE;
 }
@@ -69,14 +83,19 @@ BOOL CDbgLogPage::OnInitDialog()
 void CDbgLogPage::OnSize(UINT nType, int cx, int cy)
 {
 	// resize our controls along...
-	CRect		rc, rc2;
+	CRect		rc;
 	GetClientRect(&rc);
 
 	if (IsWindow(edit_log)) {
+		CRect rc2;
 		title.GetClientRect(&rc2);
 		title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
 		edit_log.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+
+		CRect rc3;
+		edit_filter.GetWindowRect(&rc3);
+		edit_filter.SetWindowPos(NULL, rc.Width() - 4 - rc3.Width(), (rc2.Height() - rc3.Height()) / 2, rc3.Width(), rc3.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
 		title.Invalidate();
 		edit_log.Invalidate();
@@ -128,8 +147,12 @@ void CDbgLogPage::OnBnClickedRefresh()
 		CStdioFile file(logFile, CFile::modeRead | CFile::shareDenyNone);
 		while (file.ReadString(strLine))
 		{
-			strLines.Append(strLine);
-			strLines.Append(_T("\r\n"));
+			CAtlREMatchContext<> mc;
+			if (filterRegex.Match(strLine, &mc))
+			{
+				strLines.Append(strLine);
+				strLines.Append(_T("\r\n"));
+			}
 		}
 	}
 
@@ -146,4 +169,46 @@ void CDbgLogPage::OnBnClickedSettings()
 		CDbgLogConfigForm dlg(strFileName, this);
 		dlg.DoModal();
 	}
+}
+
+void CDbgLogPage::OnLocateClick()
+{
+	if (!logFile.IsEmpty())
+	{
+		CString logFileWithPath = logFile;
+		if (PathIsRelative(logFileWithPath))
+		{
+			TCHAR buf[MAX_PATH] = {};
+			int ret = GetFullPathName(logFileWithPath, MAX_PATH, buf, NULL);
+			if (ret == 0) return;
+			else if (ret > MAX_PATH)
+			{
+				// Buffer to small
+				TCHAR* buf2 = new TCHAR[ret];
+				buf[0] = 0;
+				ret = GetFullPathName(logFileWithPath, ret, buf, NULL);
+				logFileWithPath = buf2;
+				delete[] buf2;
+			}
+			else
+				logFileWithPath = buf;
+		}
+
+		// open the explorer with the location
+		CString		param;
+		param = _T("/select, \"");
+		param += logFileWithPath;
+		param += _T("\"");
+
+		ShellExecute(NULL, _T("open"), _T("explorer.exe"), param, NULL, SW_NORMAL);
+	}
+}
+
+void CDbgLogPage::OnUpdateFilterString()
+{
+	CString filter_string;
+	edit_filter.GetWindowText(filter_string);
+	REParseError status = filterRegex.Parse(filter_string, FALSE);
+
+	OnBnClickedRefresh();
 }

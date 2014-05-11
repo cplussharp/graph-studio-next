@@ -7,7 +7,6 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 #include "RemoteGraphForm.h"
-#include "..\lib\atl\atlrx.h"
 #include <Psapi.h>
 
 

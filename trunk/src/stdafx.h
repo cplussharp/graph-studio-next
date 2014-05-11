@@ -75,6 +75,7 @@
 #include <afxglobals.h>
 #include <afxadv.h> // for jumplist
 //#include <afxlistctrl.h>    // CMFCListCtrl
+#include "..\lib\atl\atlrx.h"
 
 #include <streams.h>
 #include <initguid.h>
