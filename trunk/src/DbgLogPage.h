@@ -29,8 +29,10 @@ public:
 
 	const CString			filterFile;
 	const CString			logFile;
+	FILETIME				logLastChanged;
 
 	CAtlRegExp<>			filterRegex;
+	bool					restoreSelectionOnRefresh;
 
     enum { IDD = IDD_PROPPAGE_DBGLOG };
 public:
@@ -41,14 +43,15 @@ public:
 	virtual BOOL OnInitDialog();
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	void OnSize(UINT nType, int cx, int cy);
+	void OnTimer(UINT_PTR id);
 
-    virtual HRESULT OnConnect(IUnknown *pUnknown);
-    virtual HRESULT OnDisconnect();
 	virtual HRESULT OnActivate();
-	virtual HRESULT OnApplyChanges();
+	virtual HRESULT OnDeactivate();
     afx_msg void OnBnClickedRefresh();
 	afx_msg void OnBnClickedSettings();
 	afx_msg void OnLocateClick();
 	afx_msg void OnUpdateFilterString();
+
+	void RefreshLog();
 };
 

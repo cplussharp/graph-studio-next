@@ -16,6 +16,7 @@
 
 BEGIN_MESSAGE_MAP(CDbgLogPage, CDSPropertyPage)
 	ON_WM_SIZE()
+	ON_WM_TIMER()
     ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CDbgLogPage::OnBnClickedRefresh)
     ON_BN_CLICKED(IDC_BUTTON_DBGLOGSETTINGS, &CDbgLogPage::OnBnClickedSettings)
 	ON_BN_CLICKED(IDC_BUTTON_LOCATE, &CDbgLogPage::OnLocateClick)
@@ -28,7 +29,8 @@ END_MESSAGE_MAP()
 //
 //-----------------------------------------------------------------------------
 CDbgLogPage::CDbgLogPage(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR strTitle, const CString& filterFile, const CString& logFile) :
-	CDSPropertyPage(_T("DbgLogPage"), pUnk, IDD, strTitle), isActiv(false), filterFile(filterFile), logFile(logFile)
+CDSPropertyPage(_T("DbgLogPage"), pUnk, IDD, strTitle), isActiv(false),
+filterFile(filterFile), logFile(logFile), logLastChanged({ 0, 0 }), restoreSelectionOnRefresh(true)
 {
 	if (phr) *phr = NOERROR;
 
@@ -54,9 +56,10 @@ BOOL CDbgLogPage::OnInitDialog()
 
 	CRect	rc;
 	rc.SetRect(0, 0, 60, 23);
-	btn_refresh.Create(_T("&Refresh"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_REFRESH);
+	btn_refresh.Create(_T("&Refresh"), WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | WS_TABSTOP, rc, &title, IDC_BUTTON_REFRESH);
 	btn_refresh.SetFont(GetFont());
 	btn_refresh.SetWindowPos(NULL, 4, 4, rc.Width(), rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_refresh.SetCheck(BST_CHECKED);
 
 	btn_locate.Create(_T("&Locate"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_LOCATE);
 	btn_locate.SetFont(GetFont());
@@ -109,55 +112,39 @@ void CDbgLogPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_LOGFILE, edit_log);
 }
 
-HRESULT CDbgLogPage::OnConnect(IUnknown *pUnknown)
-{
-	return NOERROR;
-}
-
 HRESULT CDbgLogPage::OnActivate()
 {
     isActiv = true;
 
-	OnBnClickedRefresh();
+	OnBnClickedRefresh();	// set timer
+	if (!btn_refresh.GetCheck())
+		RefreshLog();
 
 	return NOERROR;
 }
 
-HRESULT CDbgLogPage::OnDisconnect()
+HRESULT CDbgLogPage::OnDeactivate()
 {
 	isActiv = false;
 
-	// clear log
+	KillTimer(1);
 
-	return NOERROR;
-}
-
-HRESULT CDbgLogPage::OnApplyChanges()
-{
 	return NOERROR;
 }
 
 void CDbgLogPage::OnBnClickedRefresh()
 {
-	CString strLines;
-	CString strLine;
+	bool isChecked = btn_refresh.GetCheck();
 
-	if (PathFileExists(logFile))
+	if (isChecked)
 	{
-		CStdioFile file(logFile, CFile::modeRead | CFile::shareDenyNone);
-		while (file.ReadString(strLine))
-		{
-			CAtlREMatchContext<> mc;
-			if (filterRegex.Match(strLine, &mc))
-			{
-				strLines.Append(strLine);
-				strLines.Append(_T("\r\n"));
-			}
-		}
+		RefreshLog();
+		SetTimer(1, 2000, NULL);
 	}
-
-	edit_log.SetWindowText(strLines);
-	edit_log.LineScroll(edit_log.GetLineCount());
+	else
+	{
+		KillTimer(1);
+	}
 }
 
 
@@ -210,5 +197,62 @@ void CDbgLogPage::OnUpdateFilterString()
 	edit_filter.GetWindowText(filter_string);
 	REParseError status = filterRegex.Parse(filter_string, FALSE);
 
-	OnBnClickedRefresh();
+	restoreSelectionOnRefresh = false;
+	RefreshLog();
+	restoreSelectionOnRefresh = true;
+}
+
+void CDbgLogPage::OnTimer(UINT_PTR id)
+{
+	if (isActiv)
+		RefreshLog();
+}
+
+void CDbgLogPage::RefreshLog()
+{
+	CString strLines;
+	CString strLine;
+
+	if (PathFileExists(logFile))
+	{
+		CStdioFile file(logFile, CFile::modeRead | CFile::shareDenyNone);
+		FILETIME lastChanged = { 0, 0 };
+		if (GetFileTime(file, NULL, NULL, &lastChanged))
+		{
+			if (logLastChanged.dwHighDateTime == lastChanged.dwHighDateTime &&
+				logLastChanged.dwLowDateTime == lastChanged.dwLowDateTime)
+				return;
+
+			logLastChanged = lastChanged;
+		}
+
+		while (file.ReadString(strLine))
+		{
+			CAtlREMatchContext<> mc;
+			if (filterRegex.Match(strLine, &mc))
+			{
+				strLines.Append(strLine);
+				strLines.Append(_T("\r\n"));
+			}
+		}
+	}
+
+	// current selection and scroll
+	int selStart, selEnd;
+	edit_log.GetSel(selStart, selEnd);
+	SCROLLINFO scrollV = {};
+	edit_log.GetScrollInfo(SB_VERT, &scrollV, SIF_POS);
+
+	// set the new text
+	edit_log.SetWindowText(strLines);
+
+	// restore selection or scroll to last
+	if (selStart != selEnd)
+	{
+		edit_log.SetSel(selStart, selEnd, TRUE);
+		// edit_log.SetScrollInfo just scrolls the scrollbars and not the content!?
+		edit_log.LineScroll(scrollV.nPos);
+	}
+	else
+		edit_log.LineScroll(edit_log.GetLineCount());
 }
