@@ -230,6 +230,7 @@
 #define IDC_LIST_DATA                   1123
 #define IDC_STATIC_VERINFO              1125
 #define IDC_SEARCH_STRING               1126
+#define IDC_FILTER_STRING               1126
 #define IDC_USE_MAJOR_TYPE              1127
 #define IDC_USE_SUB_TYPE                1128
 #define IDC_USE_SAMPLE_SIZE             1129

@@ -483,6 +483,33 @@ namespace DSUtil
 			keyOld.Close();
 		}
 		keyOld.Close();
+
+		// check if logfile is console or debugger
+		if (!logFile.IsEmpty())
+		{
+			if (logFile.CompareNoCase(_T("Deb")) == 0 ||
+				logFile.CompareNoCase(_T("Debug")) == 0 ||
+				logFile.CompareNoCase(_T("Debugger")) == 0 ||
+				logFile.CompareNoCase(_T("Console")) == 0)
+			{
+				logFile.Empty();
+			}
+		}
+
+		// check if logfile with process id exist
+		if (!logFile.IsEmpty())
+		{
+			CString fileExt = PathFindExtension(logFile);
+			CString logFileProcess = logFile;
+			PathRemoveExtension(logFileProcess.GetBuffer());
+			logFileProcess.ReleaseBuffer();
+
+			DWORD dwProcessId = GetCurrentProcessId();
+			logFileProcess.AppendFormat(_T("_%d%s"), dwProcessId, (LPCTSTR)fileExt);
+
+			if (PathFileExists(logFileProcess))
+				logFile = logFileProcess;
+		}
 	}
 
 	int FilterTemplate::WriteMerit()
