@@ -30,8 +30,11 @@ END_MESSAGE_MAP()
 //-----------------------------------------------------------------------------
 CDbgLogPage::CDbgLogPage(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR strTitle, const CString& filterFile, const CString& logFile) :
 CDSPropertyPage(_T("DbgLogPage"), pUnk, IDD, strTitle), isActiv(false),
-filterFile(filterFile), logFile(logFile), logLastChanged({ 0, 0 }), restoreSelectionOnRefresh(true)
+filterFile(filterFile), logFile(logFile), restoreSelectionOnRefresh(true)
 {
+	logLastChanged.dwLowDateTime = 0;		// vs2010 doesn't like structs in initializer list for some reason
+	logLastChanged.dwHighDateTime = 0;
+
 	if (phr) *phr = NOERROR;
 
 	if (GraphStudio::HasFont(_T("Consolas")))
