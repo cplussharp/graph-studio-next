@@ -29,12 +29,9 @@ END_MESSAGE_MAP()
 //
 //-----------------------------------------------------------------------------
 CDbgLogPage::CDbgLogPage(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR strTitle, const CString& filterFile, const CString& logFile) :
-CDSPropertyPage(_T("DbgLogPage"), pUnk, IDD, strTitle), isActiv(false),
-filterFile(filterFile), logFile(logFile), restoreSelectionOnRefresh(true)
+CDSPropertyPage(_T("DbgLogPage"), pUnk, IDD, strTitle), refreshOnTimer(true),
+filterFile(filterFile), logFile(logFile), lastFileSize(-1), restoreSelectionOnRefresh(true)
 {
-	logLastChanged.dwLowDateTime = 0;		// vs2010 doesn't like structs in initializer list for some reason
-	logLastChanged.dwHighDateTime = 0;
-
 	if (phr) *phr = NOERROR;
 
 	if (GraphStudio::HasFont(_T("Consolas")))
@@ -62,7 +59,7 @@ BOOL CDbgLogPage::OnInitDialog()
 	btn_refresh.Create(_T("&Refresh"), WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | WS_TABSTOP, rc, &title, IDC_BUTTON_REFRESH);
 	btn_refresh.SetFont(GetFont());
 	btn_refresh.SetWindowPos(NULL, 4, 4, rc.Width(), rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
-	btn_refresh.SetCheck(BST_CHECKED);
+	btn_refresh.SetCheck(refreshOnTimer ? BST_CHECKED : BST_UNCHECKED);
 
 	btn_locate.Create(_T("&Locate"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_LOCATE);
 	btn_locate.SetFont(GetFont());
@@ -78,10 +75,11 @@ BOOL CDbgLogPage::OnInitDialog()
 	edit_rect.MoveToXY(rc.Width() - 354, (rc.Height() - 18) / 2);
 	edit_filter.Create(WS_BORDER | WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_LOWERCASE, edit_rect, &title, IDC_SEARCH_STRING);
 	edit_filter.SetFont(GetFont());
+	edit_filter.SetWindowText(filterString);
 
 	edit_log.SetFont(&font_log);
 
-	REParseError status = filterRegex.Parse(_T(""), FALSE);
+	OnUpdateFilterString();
 
 	return TRUE;
 }
@@ -117,37 +115,24 @@ void CDbgLogPage::DoDataExchange(CDataExchange* pDX)
 
 HRESULT CDbgLogPage::OnActivate()
 {
-    isActiv = true;
-
-	OnBnClickedRefresh();	// set timer
-	if (!btn_refresh.GetCheck())
-		RefreshLog();
-
+	RefreshLog();
+	SetTimer(1, 2000, NULL);
 	return NOERROR;
 }
 
 HRESULT CDbgLogPage::OnDeactivate()
 {
-	isActiv = false;
-
 	KillTimer(1);
-
+	refreshOnTimer = btn_refresh.GetCheck() != 0;		// save dialog state
+	edit_filter.GetWindowText(filterString);
 	return NOERROR;
 }
 
 void CDbgLogPage::OnBnClickedRefresh()
 {
-	bool isChecked = btn_refresh.GetCheck();
-
-	if (isChecked)
-	{
+	refreshOnTimer = btn_refresh.GetCheck() != 0;
+	if (refreshOnTimer)
 		RefreshLog();
-		SetTimer(1, 2000, NULL);
-	}
-	else
-	{
-		KillTimer(1);
-	}
 }
 
 
@@ -198,64 +183,80 @@ void CDbgLogPage::OnUpdateFilterString()
 {
 	CString filter_string;
 	edit_filter.GetWindowText(filter_string);
-	REParseError status = filterRegex.Parse(filter_string, FALSE);
+	filterRegexValid = filter_string.GetLength() > 0 && filterRegex.Parse(filter_string, FALSE) == REPARSE_ERROR_OK;
 
+	lastFileSize = -1;			// force refresh
 	restoreSelectionOnRefresh = false;
-	RefreshLog();
-	restoreSelectionOnRefresh = true;
+	refreshOnTimer = true;		// force single udpate on next timer message
 }
 
 void CDbgLogPage::OnTimer(UINT_PTR id)
 {
-	if (isActiv)
+	if (refreshOnTimer) {
 		RefreshLog();
+		refreshOnTimer = btn_refresh.GetCheck() != 0;
+	}
 }
 
 void CDbgLogPage::RefreshLog()
 {
 	CString strLines;
-	CString strLine;
 
 	if (PathFileExists(logFile))
 	{
-		CStdioFile file(logFile, CFile::modeRead | CFile::shareDenyNone);
-		FILETIME lastChanged = { 0, 0 };
-		if (GetFileTime(file, NULL, NULL, &lastChanged))
-		{
-			if (logLastChanged.dwHighDateTime == lastChanged.dwHighDateTime &&
-				logLastChanged.dwLowDateTime == lastChanged.dwLowDateTime)
-				return;
+		// DbgLog output already contains windows CR-LF sequences so we can open in binary mode
+		CStdioFile file(logFile, CFile::modeRead | CFile::shareDenyNone | (filterRegexValid ? CFile::typeText : CFile::typeBinary) );
 
-			logLastChanged = lastChanged;
+		DWORD sizeHigh = 0;
+		DWORD sizeLow = GetFileSize(file, &sizeHigh);
+		if (sizeHigh != 0 || sizeLow > INT_MAX || sizeLow == lastFileSize ) {			// don't support log files > 2GB!! Don't refresh if file length the same as before
+			lastFileSize = sizeLow;
+			return;
 		}
 
-		while (file.ReadString(strLine))
-		{
+		if (filterRegexValid) {
+			// preallocate string buffer
+			TCHAR * const string_buf = strLines.GetBufferSetLength(sizeLow / sizeof(TCHAR));
+			strLines.ReleaseBuffer(0);
+			CString strLine;
 			CAtlREMatchContext<> mc;
-			if (filterRegex.Match(strLine, &mc))
+			while (file.ReadString(strLine))
 			{
-				strLines.Append(strLine);
-				strLines.Append(_T("\r\n"));
+				if (filterRegex.Match(strLine, &mc)) {
+					strLines.Append(strLine);
+					strLines.Append(_T("\r\n"));
+				}
+			}
+		} else {
+			CStringA strLinesAscii;
+			CHAR * const ascii_buf = strLinesAscii.GetBufferSetLength(sizeLow + 1);
+			if (ascii_buf) {
+				const UINT bytes_read = file.Read(ascii_buf, sizeLow);
+				strLinesAscii.ReleaseBuffer(min(bytes_read, sizeLow));		// force null termination after bytes read
+				strLines = strLinesAscii;
 			}
 		}
 	}
 
 	// current selection and scroll
-	int selStart, selEnd;
-	edit_log.GetSel(selStart, selEnd);
-	SCROLLINFO scrollV = {};
-	edit_log.GetScrollInfo(SB_VERT, &scrollV, SIF_POS);
+	int selStart = 0, selEnd = 0;
+	SCROLLINFO scrollV = {0};
+	if (restoreSelectionOnRefresh) {
+		edit_log.GetSel(selStart, selEnd);
+		edit_log.GetScrollInfo(SB_VERT, &scrollV, SIF_POS);
+	}
+	restoreSelectionOnRefresh = true;
 
-	// set the new text
 	edit_log.SetWindowText(strLines);
 
-	// restore selection or scroll to last
-	if (selStart != selEnd)
+	if (selStart != selEnd) 
 	{
 		edit_log.SetSel(selStart, selEnd, TRUE);
 		// edit_log.SetScrollInfo just scrolls the scrollbars and not the content!?
 		edit_log.LineScroll(scrollV.nPos);
-	}
-	else
+	} 
+	else 
+	{
 		edit_log.LineScroll(edit_log.GetLineCount());
+	}
 }

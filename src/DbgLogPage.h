@@ -19,7 +19,6 @@ protected:
 
 public:
 	GraphStudio::TitleBar	title;
-    bool                    isActiv;
 	CButton					btn_refresh;
 	CButton					btn_settings;
 	CButton					btn_locate;
@@ -29,10 +28,13 @@ public:
 
 	const CString			filterFile;
 	const CString			logFile;
-	FILETIME				logLastChanged;
+	int						lastFileSize;
 
+	CString					filterString;
+	bool					filterRegexValid;
 	CAtlRegExp<>			filterRegex;
 	bool					restoreSelectionOnRefresh;
+	bool					refreshOnTimer;
 
     enum { IDD = IDD_PROPPAGE_DBGLOG };
 public:
