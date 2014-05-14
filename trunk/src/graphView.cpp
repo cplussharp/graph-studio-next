@@ -1333,7 +1333,7 @@ void CGraphView::OnDeleteSelection()
 
 void CGraphView::OnMpeg2DemuxCreatePsiPin()
 {
-	GraphStudio::Filter * const current_filter = graph.GetSelectedFilter();
+	GraphStudio::Filter* current_filter = graph.GetSelectedFilter();
     if(!current_filter) 
 		return;
 
@@ -1368,10 +1368,10 @@ void CGraphView::OnMpeg2DemuxCreatePsiPin()
 	                hr = filter.CreateInstance(&psiConfigFilter);
 	                if (SUCCEEDED(hr))
                     {
-                        // Set PSI Pin as current Pin
-                        GraphStudio::Pin pin(NULL);
-                        pin.Load(psiPin);
-						graph.SetSelection(NULL, &pin);
+						// Set PSI Pin as current Pin
+						current_filter->Refresh();
+						GraphStudio::Pin* pin = current_filter->FindPin(psiPin);
+						graph.SetSelection(NULL, pin);
 
                         // Insert and connect PSI Config Filter
 		                hr = InsertNewFilter(psiConfigFilter, filter.name);

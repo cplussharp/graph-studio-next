@@ -58,6 +58,51 @@ STDMETHODIMP CFakeM2tsDevice::NonDelegatingQueryInterface(REFIID riid, void ** p
 /*********************************************************************************************
 * ITSSourceFilter implementierung
 *********************************************************************************************/
+STDMETHODIMP CFakeM2tsDevice::JoinFilterGraph(IFilterGraph* pGraph, LPCWSTR pName)
+{
+	HRESULT hr = __super::JoinFilterGraph(pGraph, pName);
+	
+	if (SUCCEEDED(hr) && pGraph)
+	{
+		// if it is the first filter, also add the MPEG2Demux and connect to it
+		CComPtr<IEnumFilters> enumFilters;
+		if (SUCCEEDED(pGraph->EnumFilters(&enumFilters)))
+		{
+			enumFilters->Reset();
+			if (enumFilters->Skip(2) == S_FALSE)	// Only one filter present
+			{
+				// Create Mpeg2Demux
+				CComPtr<IBaseFilter> mpeg2Demux;
+				if (SUCCEEDED(CoCreateInstance(CLSID_MPEG2Demultiplexer, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&mpeg2Demux)))
+				{
+					// Insert Mpeg2Demux
+					if (SUCCEEDED(pGraph->AddFilter(mpeg2Demux, _T("MPEG-2 Demultiplexer"))))
+					{
+						// get Mpeg2Demux Input Pin
+						CComPtr<IEnumPins> enumPins;
+						if (SUCCEEDED(mpeg2Demux->EnumPins(&enumPins)))
+						{
+							enumPins->Reset();
+							CComPtr<IPin> mpeg2DemuxInput;
+							ULONG cbFetched;
+							if (SUCCEEDED(enumPins->Next(1, &mpeg2DemuxInput, &cbFetched)))
+							{
+								// connect Pins
+								pGraph->ConnectDirect(GetPin(0), mpeg2DemuxInput, NULL);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return hr;
+}
+
+/*********************************************************************************************
+* ITSSourceFilter implementierung
+*********************************************************************************************/
 STDMETHODIMP CFakeM2tsDevice::Load(LPCOLESTR pszFileName, const AM_MEDIA_TYPE *pmt)
 {
     // kann nur einmal geladen werden

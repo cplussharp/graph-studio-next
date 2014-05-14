@@ -29,6 +29,9 @@ public:
     static CUnknown * WINAPI CreateInstance(LPUNKNOWN punk, HRESULT *phr);
     static const CFactoryTemplate g_Template;
 
+	// IBaseFilter
+	STDMETHODIMP JoinFilterGraph(IFilterGraph * pGraph, LPCWSTR pName);
+
     // IFileSourceFilter
     STDMETHODIMP Load(LPCOLESTR pszFileName, const AM_MEDIA_TYPE *pmt);
     STDMETHODIMP GetCurFile( LPOLESTR *ppszFileName, AM_MEDIA_TYPE *pmt);
