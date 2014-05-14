@@ -156,6 +156,7 @@ private:
     IPin* m_pConnecToPin;
     bool m_forVideo;
     CMediaType m_parsedMediaType;
+	int m_nSampleCount;
 
 public:
     CPayloadParserInputPin(CPsiConfigFilter *pTextOutFilter, LPUNKNOWN pUnk,
@@ -171,6 +172,11 @@ public:
     HRESULT CheckMediaType(const CMediaType *pmt);
     STDMETHODIMP Receive(IMediaSample *pSample);
     STDMETHODIMP EndOfStream(void);
+
+	bool ParseMpegVideo(const BYTE* pData, const long lDataLen);
+	bool ParseH264(const BYTE* pData, const long lDataLen);
+	bool ParseMpegAudio(const BYTE* pData, const long lDataLen);
+	bool ParseAAC(const BYTE* pData, const long lDataLen);
 
     void FillParsedMediaType();
 };

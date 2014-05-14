@@ -131,6 +131,8 @@ void CPsiConfigFilter::ConfigurePmtSectionsOnDemux(MPEG2_PMT_SECTION* pmtsec)
     static const DWORD ST_MPEG1_AUDIO = ISO_IEC_11172_3_AUDIO;
     static const DWORD ST_MPEG2_AUDIO = ISO_IEC_13818_3_AUDIO;
     static const DWORD ST_AC3_AUDIO = DOLBY_AC3_AUDIO;
+	static const DWORD ST_MPEG2_AAC = ISO_IEC_13818_7_AUDIO;
+	static const DWORD ST_MPEG4_AAC = ISO_IEC_14496_3_AUDIO;
 
     // see also http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/M2TS.html
     static const DWORD ST_H264 = 0x1b;
@@ -147,6 +149,8 @@ void CPsiConfigFilter::ConfigurePmtSectionsOnDemux(MPEG2_PMT_SECTION* pmtsec)
            streamType == ST_MPEG1_AUDIO ||
            streamType == ST_MPEG2_AUDIO ||
            streamType == ST_AC3_AUDIO ||
+		   streamType == ST_MPEG2_AAC ||
+		   streamType == ST_MPEG4_AAC ||	// not tested
            streamType == ST_H264)
         {
             hasEsToConfig = true;
@@ -161,23 +165,24 @@ void CPsiConfigFilter::ConfigurePmtSectionsOnDemux(MPEG2_PMT_SECTION* pmtsec)
             case ST_MPEG2_VIDEO:
                 mt.majortype = MEDIATYPE_Video;
                 mt.subtype = MEDIASUBTYPE_MPEG2_VIDEO;
-                //mt.formattype = FORMAT_MPEG2Video;
                 break;
             case ST_MPEG1_AUDIO:
                 mt.majortype = MEDIATYPE_Audio;
                 mt.subtype = MEDIASUBTYPE_MPEG1AudioPayload;
-                //mt.formattype = FORMAT_WaveFormatEx;
                 break;
             case ST_MPEG2_AUDIO:
                 mt.majortype = MEDIATYPE_Audio;
                 mt.subtype = MEDIASUBTYPE_MPEG1AudioPayload;
-                //mt.formattype = FORMAT_WaveFormatEx;
                 break;
             case ST_AC3_AUDIO:
                 mt.majortype = MEDIATYPE_Audio;
                 mt.subtype = MEDIASUBTYPE_DOLBY_AC3;
-                //mt.formattype = FORMAT_WaveFormatEx;
                 break;
+			case ST_MPEG2_AAC:
+			case ST_MPEG4_AAC:	// not tested
+				mt.majortype = MEDIATYPE_Audio;
+				mt.subtype = MEDIASUBTYPE_MPEG_ADTS_AAC;
+				break;
             case ST_H264:
                 mt.majortype = MEDIATYPE_Video;
                 mt.subtype = MEDIASUBTYPE_H264;
@@ -707,7 +712,7 @@ BOOL CPMTProcessor::store(BYTE * pbBuffer, long lDataLen)
 
 CPayloadParserInputPin::CPayloadParserInputPin( CPsiConfigFilter *pFilter, LPUNKNOWN pUnk, CCritSec *pLock, CCritSec *pReceiveLock, IPin* pConnectToPin, bool forVideo, HRESULT *phr)
 : CRenderedInputPin(NAME("CPayloadParserInputPin"), (CBaseFilter *) pFilter, pLock, phr, L"Input"),
-  m_pConnecToPin(pConnectToPin), m_forVideo(forVideo), m_pFilter(pFilter), m_pReceiveLock(pReceiveLock), readyToReconfigDemuxer(false)
+  m_pConnecToPin(pConnectToPin), m_forVideo(forVideo), m_pFilter(pFilter), m_pReceiveLock(pReceiveLock), readyToReconfigDemuxer(false), m_nSampleCount(0)
 {
 }
 
@@ -753,8 +758,8 @@ HRESULT CPayloadParserInputPin::GetMediaType(int iPosition, CMediaType *pmt)
 {
     CheckPointer(pmt,E_POINTER);
 
-    if(iPosition < 0) return E_INVALIDARG;
-    if(iPosition > 2) return VFW_S_NO_MORE_ITEMS;
+    if (iPosition < 0) return E_INVALIDARG;
+	if (iPosition > (m_forVideo ? 2 : 3)) return VFW_S_NO_MORE_ITEMS;
 
     pmt->majortype = m_forVideo ? MEDIATYPE_Video : MEDIATYPE_Audio;
 
@@ -768,6 +773,7 @@ HRESULT CPayloadParserInputPin::GetMediaType(int iPosition, CMediaType *pmt)
     {
         if (!iPosition) pmt->subtype = MEDIASUBTYPE_MPEG1Audio;
         else if (iPosition == 1) pmt->subtype = MEDIASUBTYPE_MPEG2_AUDIO;
+		else if (iPosition == 2) pmt->subtype = MEDIASUBTYPE_MPEG_ADTS_AAC;
         else pmt->subtype = MEDIASUBTYPE_DOLBY_AC3;
     }
 
@@ -795,7 +801,9 @@ HRESULT CPayloadParserInputPin::CheckMediaType(const CMediaType *pMediaType)
         if(pMediaType->subtype != MEDIASUBTYPE_NULL &&
             pMediaType->subtype != MEDIASUBTYPE_MPEG1Audio && 
             pMediaType->subtype != MEDIASUBTYPE_MPEG1AudioPayload && 
-            pMediaType->subtype != MEDIASUBTYPE_MPEG2_AUDIO)
+            pMediaType->subtype != MEDIASUBTYPE_MPEG2_AUDIO && 
+			pMediaType->subtype != MEDIASUBTYPE_MPEG_ADTS_AAC &&
+			pMediaType->subtype != MEDIASUBTYPE_DOLBY_AC3)
             return VFW_E_INVALIDMEDIATYPE;
     }
 
@@ -837,10 +845,19 @@ HRESULT CPayloadParserInputPin::Receive(IMediaSample * pSample)
     CAutoLock lock(m_pReceiveLock);
 
     HRESULT hr = CBaseInputPin::Receive(pSample);
-    if(hr != S_OK) return hr;
+    if (hr != S_OK) return hr;
 
     // allready parsed
-    if(readyToReconfigDemuxer) return S_OK;
+    if (readyToReconfigDemuxer) return S_OK;
+
+	// only analyze the first 10 Samples
+	m_nSampleCount++;
+	if (m_nSampleCount > 10)
+	{
+		readyToReconfigDemuxer = true;
+		m_pFilter->PayloadParserPinReady();
+		return hr;
+	}
 
     CHECK_BADPTR( TEXT("invalid sample"), pSample);
 
@@ -853,200 +870,296 @@ HRESULT CPayloadParserInputPin::Receive(IMediaSample * pSample)
     lDataLen = pSample->GetActualDataLength();
     lDataLen -= 4;
 
-    if(m_forVideo)
+    if (m_forVideo)
     {
-        // Search for MPEG Sequence Header and Sequence Extension
-        int iSeqHeadStart = -1;
-        int iSeqHeadStop = -1;
-        int iSeqExtStart = -1;
-        int iSeqExtStop = -1;
-
-        for(int i=0; i<lDataLen; i++)
-        {
-            // Syncbyte
-            if(pData[i] == 0 && pData[i+1] == 0 && pData[i+2] == 1)
-            {
-                // set StopPos
-                if(iSeqHeadStart != -1 && iSeqHeadStop == -1)
-                    iSeqHeadStop = i-1;
-
-                if(iSeqExtStart != -1 && iSeqExtStop == -1)
-                    iSeqExtStop = i-1;
-                
-                if(iSeqHeadStart == -1 && pData[i+3] == 0xb3)
-                {
-                    iSeqHeadStart = i;
-                    i += 10;
-                }
-                else if(iSeqExtStart == -1 && pData[i+3] == 0xb5)
-                {
-                    iSeqExtStart = i;
-                    i += 8;
-                }
-            }
-
-            if(iSeqHeadStop != -1 && iSeqExtStop != -1)
-                break;
-        }
-
-        if(iSeqHeadStart != -1 && iSeqHeadStop != -1)
-        {
-            if(iSeqExtStart != -1 && iSeqExtStop != -1)
-            {
-                // Mpeg2
-                m_parsedMediaType.majortype = MEDIATYPE_Video;
-                m_parsedMediaType.subtype = MEDIASUBTYPE_MPEG2_VIDEO;
-                m_parsedMediaType.formattype = FORMAT_MPEG2_VIDEO;
-                m_parsedMediaType.bFixedSizeSamples = FALSE;
-                m_parsedMediaType.bTemporalCompression = TRUE;
-                m_parsedMediaType.lSampleSize = 0;
-
-                int cbSequenceHeader = (iSeqHeadStop-iSeqHeadStart+1) + (iSeqExtStop-iSeqExtStart+1);
-                if(cbSequenceHeader % 4 != 0) cbSequenceHeader += 4 - cbSequenceHeader % 4; // DWORD align seqheader
-                m_parsedMediaType.cbFormat = sizeof(MPEG2VIDEOINFO) + cbSequenceHeader;
-                m_parsedMediaType.pbFormat = (BYTE*)CoTaskMemAlloc(m_parsedMediaType.cbFormat);
-
-                ZeroMemory(m_parsedMediaType.pbFormat, m_parsedMediaType.cbFormat);
-
-                MPEG2VIDEOINFO* pInfo = (MPEG2VIDEOINFO*)m_parsedMediaType.pbFormat;
-
-                pInfo->cbSequenceHeader = cbSequenceHeader;
-                BYTE* dst = (BYTE*)pInfo->dwSequenceHeader;
-                CopyMemory(dst, pData + iSeqHeadStart, (iSeqHeadStop-iSeqHeadStart+1));
-                dst += (iSeqHeadStop-iSeqHeadStart+1);
-                CopyMemory(dst, pData + iSeqExtStart, (iSeqExtStop-iSeqExtStart+1));
-
-                FillParsedMediaType();
-            }
-            else
-            {
-                // TODO Mpeg1
-            }
-
-            readyToReconfigDemuxer = true;
-        }
-        else
-        {
-            // can't parse, no b3 found
-        }
+		if (m_parsedMediaType.subtype == MEDIASUBTYPE_MPEG1Video || m_parsedMediaType.subtype == MEDIASUBTYPE_MPEG2_VIDEO)
+		{
+			ParseMpegVideo(pData, lDataLen);
+		}
+		else if (m_parsedMediaType.subtype == MEDIASUBTYPE_H264)
+		{
+			ParseH264(pData, lDataLen);
+		}
      }
     else
     {
-        // Search for MPEG Sequence Header and Sequence Extension
-        int iFrameStart = -1;
-
-        for(int i=0; i<lDataLen; i++)
-            if(pData[i] == 0xFF && ((pData[i+1] & 0xE0) == 0xE0))
-            {
-                iFrameStart = i;
-                break;
-            }
-
-        if(iFrameStart != -1)
-        {
-            m_parsedMediaType.majortype = MEDIATYPE_Audio;
-
-            BYTE version = (pData[iFrameStart+1] & 0x18) >> 3;
-            BYTE layer = (pData[iFrameStart+1] & 0x06) >> 1;
-            BYTE protect = (pData[iFrameStart+1] & 0x01);
-
-            if(version == 2 || version == 0)
-                m_parsedMediaType.subtype = MEDIASUBTYPE_MPEG1AudioPayload;//MEDIASUBTYPE_MPEG2_AUDIO;
-            else if(version == 3)
-                m_parsedMediaType.subtype = MEDIASUBTYPE_MPEG1AudioPayload;
-            else
-            {
-                // i don't know
-                m_parsedMediaType.subtype = MEDIASUBTYPE_NULL;
-                readyToReconfigDemuxer = true;
-                return hr;
-            }
-
-            m_parsedMediaType.formattype = FORMAT_WaveFormatEx;
-            m_parsedMediaType.bFixedSizeSamples = TRUE;
-            m_parsedMediaType.bTemporalCompression = FALSE;
-            m_parsedMediaType.cbFormat = sizeof(MPEG1WAVEFORMAT);
-            m_parsedMediaType.pbFormat = (BYTE*)CoTaskMemAlloc(m_parsedMediaType.cbFormat);
-            ZeroMemory(m_parsedMediaType.pbFormat, m_parsedMediaType.cbFormat);
-
-            MPEG1WAVEFORMAT* pInfo = (MPEG1WAVEFORMAT*)m_parsedMediaType.pbFormat;
-            pInfo->wfx.wFormatTag = WAVE_FORMAT_MPEG;
-            pInfo->wfx.cbSize = sizeof(MPEG1WAVEFORMAT) - sizeof(WAVEFORMATEX);
-
-            switch(layer)
-            {
-            case 1: pInfo->fwHeadLayer = ACM_MPEG_LAYER3; break;
-            case 2: pInfo->fwHeadLayer = ACM_MPEG_LAYER2; break;
-            case 3: pInfo->fwHeadLayer = ACM_MPEG_LAYER1; break;
-            }
-
-            BYTE bitrateIndex = (pData[iFrameStart+2] & 0xF0) >> 4;
-            BYTE sampleRate = (pData[iFrameStart+2] & 0x0C) >> 2;
-            BYTE padding = (pData[iFrameStart+2] & 0x02) >> 1;
-            BYTE privat = pData[iFrameStart+2] & 0x01;
-
-            // Bitrate
-            int bitrateType = 0;
-            if(version == 3)
-            {
-                if(pInfo->fwHeadLayer == ACM_MPEG_LAYER1) bitrateType = 0;
-                else if(pInfo->fwHeadLayer == ACM_MPEG_LAYER2) bitrateType = 1;
-                else if(pInfo->fwHeadLayer == ACM_MPEG_LAYER3) bitrateType = 2;
-            }
-            else
-            {
-                if(pInfo->fwHeadLayer == ACM_MPEG_LAYER1) bitrateType = 3;
-                else if(pInfo->fwHeadLayer == ACM_MPEG_LAYER2) bitrateType = 4;
-                else if(pInfo->fwHeadLayer == ACM_MPEG_LAYER3) bitrateType = 5;
-            }
-            pInfo->dwHeadBitrate = bitrates[bitrateIndex][bitrateType] * 1000;
-
-            // samplerate
-            int samplerateType = 0;
-            if(version == 0) samplerateType = 2;
-            else if(version == 2) samplerateType = 1;
-            pInfo->wfx.nSamplesPerSec = samplerates[sampleRate][samplerateType];
-
-            pInfo->wfx.nBlockAlign = 1;
-
-            // Channels
-            BYTE channel = (pData[iFrameStart+3] & 0xC0) >> 6;
-            pInfo->wfx.nChannels = channel == 3 ? 1 : 2;
-            switch(channel)
-            {
-            case 0: pInfo->fwHeadMode = ACM_MPEG_STEREO; break;
-            case 1: pInfo->fwHeadMode = ACM_MPEG_JOINTSTEREO; break;
-            case 2: pInfo->fwHeadMode = ACM_MPEG_DUALCHANNEL; break;
-            case 3: pInfo->fwHeadMode = ACM_MPEG_SINGLECHANNEL; break;
-            }
-
-            if(channel == 1)    // only for JointStereo
-                pInfo->fwHeadModeExt = (pData[iFrameStart+3] & 0x30) >> 4;
-                
-            BYTE copyright = (pData[iFrameStart+3] & 0x08) >> 3;
-            BYTE original = (pData[iFrameStart+3] & 0x04) >> 2;
-
-            pInfo->wHeadEmphasis = pData[iFrameStart+3] & 0x03;
-
-            if(privat) pInfo->fwHeadFlags |= ACM_MPEG_PRIVATEBIT;
-            if(copyright) pInfo->fwHeadFlags |= ACM_MPEG_COPYRIGHT;
-            if(original) pInfo->fwHeadFlags |= ACM_MPEG_ORIGINALHOME;
-            if(!protect) pInfo->fwHeadFlags |= ACM_MPEG_PROTECTIONBIT;
-            if(version == 3) pInfo->fwHeadFlags |= ACM_MPEG_ID_MPEG1;
-
-            readyToReconfigDemuxer = true;
-        }
-        else
-        {
-            // can't parse
-            //readyToReconfigDemuxer = true;
-        }
+		if (m_parsedMediaType.subtype == MEDIASUBTYPE_MPEG1Audio ||
+			m_parsedMediaType.subtype == MEDIASUBTYPE_MPEG1AudioPayload ||
+			m_parsedMediaType.subtype == MEDIASUBTYPE_MPEG2_AUDIO)
+		{
+			ParseMpegAudio(pData, lDataLen);
+		}
+		else if (m_parsedMediaType.subtype == MEDIASUBTYPE_MPEG_ADTS_AAC)
+		{
+			ParseAAC(pData, lDataLen);
+		}
     }
 
-    if(readyToReconfigDemuxer)
+    if (readyToReconfigDemuxer)
         m_pFilter->PayloadParserPinReady();
 
     return hr;
+}
+
+bool CPayloadParserInputPin::ParseMpegVideo(const BYTE* pData, const long lDataLen)
+{
+	// Search for MPEG Sequence Header and Sequence Extension
+	int iSeqHeadStart = -1;
+	int iSeqHeadStop = -1;
+	int iSeqExtStart = -1;
+	int iSeqExtStop = -1;
+
+	for (int i = 0; i < lDataLen; i++)
+	{
+		// Syncbyte
+		if (pData[i] == 0 && pData[i + 1] == 0 && pData[i + 2] == 1)
+		{
+			// set StopPos
+			if (iSeqHeadStart != -1 && iSeqHeadStop == -1)
+				iSeqHeadStop = i - 1;
+
+			if (iSeqExtStart != -1 && iSeqExtStop == -1)
+				iSeqExtStop = i - 1;
+
+			if (iSeqHeadStart == -1 && pData[i + 3] == 0xb3)
+			{
+				iSeqHeadStart = i;
+				i += 10;
+			}
+			else if (iSeqExtStart == -1 && pData[i + 3] == 0xb5)
+			{
+				iSeqExtStart = i;
+				i += 8;
+			}
+		}
+
+		if (iSeqHeadStop != -1 && iSeqExtStop != -1)
+			break;
+	}
+
+	if (iSeqHeadStart != -1 && iSeqHeadStop != -1)
+	{
+		if (iSeqExtStart != -1 && iSeqExtStop != -1)
+		{
+			// Mpeg2
+			m_parsedMediaType.majortype = MEDIATYPE_Video;
+			m_parsedMediaType.subtype = MEDIASUBTYPE_MPEG2_VIDEO;
+			m_parsedMediaType.formattype = FORMAT_MPEG2_VIDEO;
+			m_parsedMediaType.bFixedSizeSamples = FALSE;
+			m_parsedMediaType.bTemporalCompression = TRUE;
+			m_parsedMediaType.lSampleSize = 0;
+
+			int cbSequenceHeader = (iSeqHeadStop - iSeqHeadStart + 1) + (iSeqExtStop - iSeqExtStart + 1);
+			if (cbSequenceHeader % 4 != 0) cbSequenceHeader += 4 - cbSequenceHeader % 4; // DWORD align seqheader
+			m_parsedMediaType.cbFormat = sizeof(MPEG2VIDEOINFO)+cbSequenceHeader;
+			m_parsedMediaType.pbFormat = (BYTE*)CoTaskMemAlloc(m_parsedMediaType.cbFormat);
+
+			ZeroMemory(m_parsedMediaType.pbFormat, m_parsedMediaType.cbFormat);
+
+			MPEG2VIDEOINFO* pInfo = (MPEG2VIDEOINFO*)m_parsedMediaType.pbFormat;
+
+			pInfo->cbSequenceHeader = cbSequenceHeader;
+			BYTE* dst = (BYTE*)pInfo->dwSequenceHeader;
+			CopyMemory(dst, pData + iSeqHeadStart, (iSeqHeadStop - iSeqHeadStart + 1));
+			dst += (iSeqHeadStop - iSeqHeadStart + 1);
+			CopyMemory(dst, pData + iSeqExtStart, (iSeqExtStop - iSeqExtStart + 1));
+
+			FillParsedMediaType();
+		}
+		else
+		{
+			// TODO Mpeg1
+		}
+
+		readyToReconfigDemuxer = true;
+		return true;
+	}
+
+	return false;
+}
+
+bool CPayloadParserInputPin::ParseH264(const BYTE* pData, const long lDataLen)
+{
+	// TODO search for SPS and PPS
+	return false;
+}
+
+bool CPayloadParserInputPin::ParseMpegAudio(const BYTE* pData, const long lDataLen)
+{
+	// Search for MPEG Sequence Header and Sequence Extension
+	int iFrameStart = -1;
+
+	for (int i = 0; i < lDataLen; i++)
+		if (pData[i] == 0xFF && ((pData[i + 1] & 0xE0) == 0xE0))
+		{
+			iFrameStart = i;
+			break;
+		}
+
+	if (iFrameStart != -1)
+	{
+		m_parsedMediaType.majortype = MEDIATYPE_Audio;
+
+		BYTE version = (pData[iFrameStart + 1] & 0x18) >> 3;
+		BYTE layer = (pData[iFrameStart + 1] & 0x06) >> 1;
+		BYTE protect = (pData[iFrameStart + 1] & 0x01);
+
+		if (version == 2 || version == 0)
+			m_parsedMediaType.subtype = MEDIASUBTYPE_MPEG1AudioPayload;//MEDIASUBTYPE_MPEG2_AUDIO;
+		else if (version == 3)
+			m_parsedMediaType.subtype = MEDIASUBTYPE_MPEG1AudioPayload;
+		else
+		{
+			// i don't know
+			m_parsedMediaType.subtype = MEDIASUBTYPE_NULL;
+			readyToReconfigDemuxer = true;
+			return false;
+		}
+
+		m_parsedMediaType.formattype = FORMAT_WaveFormatEx;
+		m_parsedMediaType.bFixedSizeSamples = TRUE;
+		m_parsedMediaType.bTemporalCompression = FALSE;
+		m_parsedMediaType.cbFormat = sizeof(MPEG1WAVEFORMAT);
+		m_parsedMediaType.pbFormat = (BYTE*)CoTaskMemAlloc(m_parsedMediaType.cbFormat);
+		ZeroMemory(m_parsedMediaType.pbFormat, m_parsedMediaType.cbFormat);
+
+		MPEG1WAVEFORMAT* pInfo = (MPEG1WAVEFORMAT*)m_parsedMediaType.pbFormat;
+		pInfo->wfx.wFormatTag = WAVE_FORMAT_MPEG;
+		pInfo->wfx.cbSize = sizeof(MPEG1WAVEFORMAT)-sizeof(WAVEFORMATEX);
+
+		switch (layer)
+		{
+		case 1: pInfo->fwHeadLayer = ACM_MPEG_LAYER3; break;
+		case 2: pInfo->fwHeadLayer = ACM_MPEG_LAYER2; break;
+		case 3: pInfo->fwHeadLayer = ACM_MPEG_LAYER1; break;
+		}
+
+		BYTE bitrateIndex = (pData[iFrameStart + 2] & 0xF0) >> 4;
+		BYTE sampleRate = (pData[iFrameStart + 2] & 0x0C) >> 2;
+		BYTE padding = (pData[iFrameStart + 2] & 0x02) >> 1;
+		BYTE privat = pData[iFrameStart + 2] & 0x01;
+
+		// Bitrate
+		int bitrateType = 0;
+		if (version == 3)
+		{
+			if (pInfo->fwHeadLayer == ACM_MPEG_LAYER1) bitrateType = 0;
+			else if (pInfo->fwHeadLayer == ACM_MPEG_LAYER2) bitrateType = 1;
+			else if (pInfo->fwHeadLayer == ACM_MPEG_LAYER3) bitrateType = 2;
+		}
+		else
+		{
+			if (pInfo->fwHeadLayer == ACM_MPEG_LAYER1) bitrateType = 3;
+			else if (pInfo->fwHeadLayer == ACM_MPEG_LAYER2) bitrateType = 4;
+			else if (pInfo->fwHeadLayer == ACM_MPEG_LAYER3) bitrateType = 5;
+		}
+		pInfo->dwHeadBitrate = bitrates[bitrateIndex][bitrateType] * 1000;
+
+		// samplerate
+		int samplerateType = 0;
+		if (version == 0) samplerateType = 2;
+		else if (version == 2) samplerateType = 1;
+		pInfo->wfx.nSamplesPerSec = samplerates[sampleRate][samplerateType];
+
+		pInfo->wfx.nBlockAlign = 1;
+
+		// Channels
+		BYTE channel = (pData[iFrameStart + 3] & 0xC0) >> 6;
+		pInfo->wfx.nChannels = channel == 3 ? 1 : 2;
+		switch (channel)
+		{
+		case 0: pInfo->fwHeadMode = ACM_MPEG_STEREO; break;
+		case 1: pInfo->fwHeadMode = ACM_MPEG_JOINTSTEREO; break;
+		case 2: pInfo->fwHeadMode = ACM_MPEG_DUALCHANNEL; break;
+		case 3: pInfo->fwHeadMode = ACM_MPEG_SINGLECHANNEL; break;
+		}
+
+		if (channel == 1)    // only for JointStereo
+			pInfo->fwHeadModeExt = (pData[iFrameStart + 3] & 0x30) >> 4;
+
+		BYTE copyright = (pData[iFrameStart + 3] & 0x08) >> 3;
+		BYTE original = (pData[iFrameStart + 3] & 0x04) >> 2;
+
+		pInfo->wHeadEmphasis = pData[iFrameStart + 3] & 0x03;
+
+		if (privat) pInfo->fwHeadFlags |= ACM_MPEG_PRIVATEBIT;
+		if (copyright) pInfo->fwHeadFlags |= ACM_MPEG_COPYRIGHT;
+		if (original) pInfo->fwHeadFlags |= ACM_MPEG_ORIGINALHOME;
+		if (!protect) pInfo->fwHeadFlags |= ACM_MPEG_PROTECTIONBIT;
+		if (version == 3) pInfo->fwHeadFlags |= ACM_MPEG_ID_MPEG1;
+
+		readyToReconfigDemuxer = true;
+		return true;
+	}
+	
+	return false;
+}
+
+bool CPayloadParserInputPin::ParseAAC(const BYTE* pData, const long lDataLen)
+{
+	if (pData[0] == 0xFF && (pData[1] & 0xF0) == 0xF0) // ADTS Sync word
+	{
+		bool mpegVersion2 = pData[1] & 0x08;
+
+		BYTE profile = ((pData[2] & 0xC0) >> 6) + 1;
+		// 1 : AAC Main
+		// 2 : AAC LC(Low Complexity)
+		// 3 : AAC SSR(Scalable Sample Rate)
+		// 4 : AAC LTP(Long Term Prediction)
+
+		BYTE freqIdx = ((pData[2] & 0x3C) >> 2);
+		DWORD samplesPerSec = 0;
+		switch (freqIdx)
+		{
+		case 0: samplesPerSec = 96000; break;
+		case 1: samplesPerSec = 88200; break;
+		case 2: samplesPerSec = 64000; break;
+		case 3: samplesPerSec = 48000; break;
+		case 4: samplesPerSec = 44100; break;
+		case 5: samplesPerSec = 32000; break;
+		case 6: samplesPerSec = 24000; break;
+		case 7: samplesPerSec = 22050; break;
+		case 8: samplesPerSec = 16000; break;
+		case 9: samplesPerSec = 12000; break;
+		case 10: samplesPerSec = 11025; break;
+		case 11: samplesPerSec = 8000; break;
+		case 12: samplesPerSec = 7350; break;
+		}
+
+		BYTE channelConfig = ((pData[2] & 0x01) << 2) | ((pData[3] & 0xC0) >> 6);
+		WORD channels = 0;
+		switch (freqIdx)
+		{
+		case 1: channels = 1; break;
+		case 2: channels = 2; break;
+		case 3: channels = 3; break;
+		case 4: channels = 4; break;
+		case 5: channels = 5; break;
+		case 6: channels = 6; break;
+		case 7: channels = 8; break;
+		}
+
+		m_parsedMediaType.majortype = MEDIATYPE_Audio;
+		m_parsedMediaType.subtype = MEDIASUBTYPE_MPEG_ADTS_AAC;
+		m_parsedMediaType.formattype = FORMAT_WaveFormatEx;
+		m_parsedMediaType.bFixedSizeSamples = TRUE;
+		m_parsedMediaType.bTemporalCompression = FALSE;
+		m_parsedMediaType.cbFormat = sizeof(WAVEFORMATEX);
+		m_parsedMediaType.pbFormat = (BYTE*)CoTaskMemAlloc(m_parsedMediaType.cbFormat);
+		ZeroMemory(m_parsedMediaType.pbFormat, m_parsedMediaType.cbFormat);
+
+		WAVEFORMATEX* pInfo = (WAVEFORMATEX*)m_parsedMediaType.pbFormat;
+		pInfo->wFormatTag = WAVE_FORMAT_MPEG_ADTS_AAC;
+		if (samplesPerSec > 0)
+			pInfo->nSamplesPerSec = samplesPerSec;
+		if (channels)
+			pInfo->nChannels = channels;
+
+		readyToReconfigDemuxer = true;
+		return true;
+	}
+
+	return false;
 }
 
 STDMETHODIMP CPayloadParserInputPin::EndOfStream(void)
@@ -1193,7 +1306,7 @@ DWORD CPayloadParserReconfigurer::ThreadProc()
     HRESULT hr = m_pFilter->m_pMediaCtrl->StopWhenReady();
 
     // reconfigur pins
-    for(int i=0; i<m_pFilter->m_countPayloadPins; i++)
+    for (int i=0; i<m_pFilter->m_countPayloadPins; i++)
         m_pFilter->m_payloadPins[i]->DoReconfigDemuxPin();
 
     // Notify application
