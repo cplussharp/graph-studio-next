@@ -88,6 +88,7 @@ public:
 	__int64						last_stop_time_ns;
 
     bool                        m_bExitOnStop;
+	bool						full_screen;
 
 public:
 	virtual ~CGraphView();
@@ -321,6 +322,8 @@ public:
 	afx_msg void OnNextPropertyPage();
 	afx_msg void OnPreviousPropertyPage	();
 	afx_msg void OnUpdateNextOrPreviousPropertyPage(CCmdUI *pCmdUI);
+	afx_msg void OnPlayFullscreenmode();
+	afx_msg void OnUpdatePlayFullscreenmode(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in graphView.cpp

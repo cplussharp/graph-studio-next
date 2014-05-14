@@ -263,7 +263,9 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_PREVIOUS_PROPERTY_PAGE, &CGraphView::OnPreviousPropertyPage)
 	ON_UPDATE_COMMAND_UI(ID_NEXT_PROPERTY_PAGE, &CGraphView::OnUpdateNextOrPreviousPropertyPage)
 	ON_UPDATE_COMMAND_UI(ID_PREVIOUS_PROPERTY_PAGE, &CGraphView::OnUpdateNextOrPreviousPropertyPage)
-	END_MESSAGE_MAP()
+	ON_COMMAND(ID_PLAY_FULLSCREENMODE, &CGraphView::OnPlayFullscreenmode)
+	ON_UPDATE_COMMAND_UI(ID_PLAY_FULLSCREENMODE, &CGraphView::OnUpdatePlayFullscreenmode)
+END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
 //
@@ -292,6 +294,7 @@ CGraphView::CGraphView()
 	, last_stop_time_ns(0LL)
     , m_bExitOnStop(false)
 	, m_ToolTip(this)
+	, full_screen(false)
 {
     // Create the ToolTip control.
 	m_ToolTip.Create(this);
@@ -1227,10 +1230,21 @@ void CGraphView::OnRenderFileClick()
 void CGraphView::OnGraphStreamingStarted()
 {
 	last_stop_time_ns = last_start_time_ns = timer.GetTimeNS();
+
+	if (full_screen) {
+		CComQIPtr<IVideoWindow> vw(graph.gb);
+		if (vw) 
+			vw->put_FullScreenMode(OATRUE);
+	}
 }
 
 void CGraphView::OnGraphStreamingComplete()
 {
+	CComQIPtr<IVideoWindow> vw(graph.gb);
+	if (vw) {
+		vw->put_FullScreenMode(OAFALSE);
+	}
+
 	last_stop_time_ns = timer.GetTimeNS();
 
 	OnStopClick();
@@ -2870,3 +2884,27 @@ afx_msg void CGraphView::OnUpdateNextOrPreviousPropertyPage(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(property_pages.GetCount() > 0);
 }
+
+void CGraphView::OnPlayFullscreenmode()
+{
+	CComQIPtr<IVideoWindow> vw(graph.gb);
+	long mode = OAFALSE;
+	if (vw && E_NOTIMPL != vw->get_FullScreenMode(&mode)) {
+		full_screen = !full_screen;
+	}
+}
+
+void CGraphView::OnUpdatePlayFullscreenmode(CCmdUI *pCmdUI)
+{
+	BOOL enable=FALSE, check=FALSE;
+	CComQIPtr<IVideoWindow> vw(graph.gb);
+	long mode = OAFALSE;
+	if (vw && E_NOTIMPL != vw->get_FullScreenMode(&mode)) {
+		enable = TRUE;
+		check = full_screen ? TRUE : FALSE;
+	}
+	pCmdUI->Enable(enable);
+	pCmdUI->SetCheck(check);
+}
+
+

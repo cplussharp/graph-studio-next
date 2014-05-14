@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Von Microsoft Visual C++ generierte Includedatei.
-// Verwendet durch graphstudionext.rc
+// Microsoft Visual C++ generated include file.
+// Used by graphstudionext.rc
 //
 #define IDC_BUTTON_SET_PREROLL          3
 #define IDD_ABOUTBOX                    100
@@ -426,6 +426,7 @@
 #define ID_CONTEXT_MENU                 32948
 #define ID_GRAPH_NAVIGATE_FILTERS       32949
 #define ID_GRAPH_NAVIGATE_PINS          32952
+#define ID_PLAY_FULLSCREENMODE          32953
 #define ID_NEXT_PROPERTY_PAGE           32954
 #define ID_PREVIOUS_PROPERTY_PAGE       32955
 #define ID_OPTIONS_CONFIGUREGLOBALDBGLOG 32956

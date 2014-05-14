@@ -25,7 +25,7 @@ IDI_GRAPHSTUDIO_GRAPHTYPE     ICON              "res\\graphxml.ico"
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Englisch (USA) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -1176,6 +1176,7 @@ BEGIN
         MENUITEM "Progress &View...\tCtrl+F5",  ID_VIEW_PROGRESSVIEW
         MENUITEM "S&eek...\tCtrl+K",            ID_BUTTON_SEEK
         MENUITEM "Use &Clock",                  ID_GRAPH_USECLOCK
+        MENUITEM "F&ull Screen",                ID_PLAY_FULLSCREENMODE, GRAYED
         MENUITEM SEPARATOR
         MENUITEM "Back 1 &minute\tAlt Ctrl Shift Left", ID_SEEK_BACKWARD_4
         MENUITEM "Back 10 seco&nds\tAlt Ctrl Left", ID_SEEK_BACKWARD_3
@@ -1619,7 +1620,7 @@ BEGIN
     ID_OPTIONS_CONFIGUREGLOBALDBGLOG "Configure the Global DbgLog Settings."
 END
 
-#endif    // Englisch (USA) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
