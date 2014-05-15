@@ -7,6 +7,8 @@
 //-----------------------------------------------------------------------------
 #pragma once
 
+class CMainFrame;
+
 GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	class Filter;
@@ -26,12 +28,15 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	public:
 
 		Filter								*filter;
+		CMainFrame							* parent_frame;
 		CComPtr<IMFVideoDisplayControl>		video_control;		// EVR video control
 		HCURSOR								cursor;
 
 		// as we've seen them last time
 		SIZE								native_size;
 		SIZE								aspect_ratio;
+		CRect								original_rect;		// used to restore position after full screen playback
+		bool								full_screen;		// only true for duration of playback
 
 	public:
 		EVR_VideoWindow();
@@ -50,6 +55,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void OnPaint();
 		BOOL OnEraseBkgnd(CDC *pDC);
 		void OnClose();
+		BOOL PreTranslateMessage(MSG *pmsg);
 	};
 
 GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
