@@ -836,7 +836,7 @@ void CGraphView::OnPlayClick()
 	// backup way of setting start time for graphs that don't generate EC_PAUSED events when started
 	last_stop_time_ns = last_start_time_ns = timer.GetTimeNS();
 
-	const HRESULT hr = graph.DoPlay();
+	const HRESULT hr = graph.DoPlay(full_screen);
 	DSUtil::ShowError(hr, _T("Error starting playback"));
 	UpdateGraphState();
 }
@@ -850,7 +850,7 @@ void CGraphView::OnStopClick()
 
 void CGraphView::OnPauseClick()
 {
-	graph.DoPause();
+	graph.DoPause(full_screen);
 	UpdateGraphState();
 }
 

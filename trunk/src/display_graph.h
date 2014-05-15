@@ -370,9 +370,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// control
 		void DoFrameStep();
-		HRESULT DoPlay();
+		HRESULT DoPlay(bool full_screen = false);
 		HRESULT DoStop();
-		HRESULT DoPause();
+		HRESULT DoPause(bool full_screen = false);
 
 		// scrolling aid
 		CRect GetGraphSize();

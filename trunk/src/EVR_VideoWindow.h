@@ -40,7 +40,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// Init / Close
 		int Open(Filter *filter);
 		int Close();
-		int Start();
+		HRESULT Start(bool full_screen);
+		HRESULT Stop();
 
 		// methods
 		void ResetSizePos();
