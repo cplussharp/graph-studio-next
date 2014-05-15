@@ -463,7 +463,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 	}
 
-	HRESULT DisplayGraph::DoPlay()
+	HRESULT DisplayGraph::DoPlay(bool full_screen /*= false*/)
 	{
 		HRESULT hr = S_OK;
 
@@ -472,7 +472,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			for (int i=0; i<filters.GetCount(); i++) {
 				Filter	*filter = filters[i];
 				if (filter->videowindow) {
-					hr = filter->videowindow->Start();
+					hr = filter->videowindow->Start(full_screen);
+					if (FAILED(hr))
+						return hr;
 				}
 			}
 		}
@@ -493,35 +495,51 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	HRESULT DisplayGraph::DoStop()
 	{
+		HRESULT hr = S_OK;
+
+		if (!is_remote) {
+			for (int i=0; i<filters.GetCount(); i++) {
+				Filter	*filter = filters[i];
+				if (filter->videowindow) {
+					hr = filter->videowindow->Stop();
+				}
+			}
+		}
+
 		if (is_frame_stepping) {
-			if (fs) fs->CancelStep();
+			if (fs) 
+				hr = fs->CancelStep();
 			is_frame_stepping = false;
 		}
 
 		if (mc) {		
-			mc->Stop();
+			hr = mc->Stop();
 			Seek(0);
-			return NOERROR;
+			return hr;
 		}
 
 		return E_NOINTERFACE;
 	}
 
-	HRESULT DisplayGraph::DoPause()
+	HRESULT DisplayGraph::DoPause(bool full_screen /*= false*/)
 	{
+		HRESULT hr = S_OK;
 		// send start notification to all EVR filters
 		// set the new clock for all filters
 		if (!is_remote) {
 			for (int i=0; i<filters.GetCount(); i++) {
 				Filter	*filter = filters[i];
 				if (filter->videowindow) {
-					filter->videowindow->Start();
+					hr = filter->videowindow->Start(full_screen);
+					if (FAILED(hr))
+						return hr;
 				}
 			}
 		}
 
-		if (mc) mc->Pause();
-		return NOERROR;
+		if (mc) 
+			hr = mc->Pause();
+		return hr;
 	}
 
 	int DisplayGraph::Seek(double time_ms, BOOL keyframe)

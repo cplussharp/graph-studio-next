@@ -104,34 +104,46 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		return 0;
 	}
-
-	int EVR_VideoWindow::Start()
+	HRESULT EVR_VideoWindow::Stop()
 	{
-		if (!video_control) return -1;
+		return video_control ? video_control->SetFullscreen(FALSE) : E_POINTER;
+	}
 
-		// check for the video stream change
-		SIZE		new_size = { 0, 0 }, new_ar = { 0, 0 };
-		HRESULT		hr;
+	HRESULT EVR_VideoWindow::Start(bool full_screen)
+	{
+		HRESULT hr = S_OK;
 
-		hr = video_control->GetNativeVideoSize(&new_size, &new_ar);
-		if (FAILED(hr)) return -1;
+		CheckPointer(video_control, E_POINTER);
 
-		if (new_size.cx != native_size.cx || new_size.cy != native_size.cy ||
-			new_ar.cx != aspect_ratio.cx || new_ar.cy != aspect_ratio.cy
-			) {
+		if (full_screen) {
+			hr = video_control->SetFullscreen(TRUE);
 
-			native_size.cx = new_size.cx;
-			native_size.cy = new_size.cy;
-			aspect_ratio.cx = new_ar.cx;
-			aspect_ratio.cy = new_ar.cy;
+		} else {
 
-			// refresh the video window
-			ResetSizePos();
+			// check for the video stream change
+			SIZE		new_size = { 0, 0 }, new_ar = { 0, 0 };
+
+			hr = video_control->GetNativeVideoSize(&new_size, &new_ar);
+			if (FAILED(hr)) 
+				return hr;
+
+			if (new_size.cx != native_size.cx || new_size.cy != native_size.cy ||
+				new_ar.cx != aspect_ratio.cx || new_ar.cy != aspect_ratio.cy
+				) {
+
+				native_size.cx = new_size.cx;
+				native_size.cy = new_size.cy;
+				aspect_ratio.cx = new_ar.cx;
+				aspect_ratio.cy = new_ar.cy;
+
+				// refresh the video window
+				ResetSizePos();
+			}
+
+			ShowWindow(SW_SHOW);
 		}
 
-		ShowWindow(SW_SHOW);
-
-		return 0;
+		return hr;
 	}
 
 	void EVR_VideoWindow::ResetSizePos()
