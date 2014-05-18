@@ -3545,27 +3545,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (!dll_file.IsEmpty()) return dll_file;
 
 		// find the filter dll file
-		char* vtbl = *reinterpret_cast<char**>(filter.p);
-
-		HMODULE hMods[1024];
-		HANDLE hProcess = GetCurrentProcess();
-		DWORD cbNeeded;
-		if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
+		const VOID* pvVirtualTable = *((const VOID**)filter.p);
+		MEMORY_BASIC_INFORMATION Information;
+		if (VirtualQueryEx(GetCurrentProcess(), pvVirtualTable, &Information, sizeof Information))
 		{
-			for (UINT i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
-			{
-				MODULEINFO mi;
-				GetModuleInformation(hProcess, hMods[i], &mi, sizeof(mi));
-				if (vtbl >= reinterpret_cast<char*>(mi.lpBaseOfDll) && vtbl < reinterpret_cast<char*>(mi.lpBaseOfDll) + mi.SizeOfImage)
-				{
-					TCHAR szModName[MAX_PATH];
-					if (GetModuleFileNameEx(hProcess, hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR)))
-					{
-						dll_file = szModName;
-						break;
-					}
-				}
-			}
+			TCHAR szModName[MAX_PATH] = { 0 };
+			if (GetModuleFileName((HMODULE)Information.AllocationBase, szModName, sizeof(szModName) / sizeof(TCHAR)))
+				dll_file = szModName;
 		}
 
 		return dll_file;
