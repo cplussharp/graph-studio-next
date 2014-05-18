@@ -3552,7 +3552,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		DWORD cbNeeded;
 		if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
 		{
-			for (int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+			for (UINT i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
 			{
 				MODULEINFO mi;
 				GetModuleInformation(hProcess, hMods[i], &mi, sizeof(mi));

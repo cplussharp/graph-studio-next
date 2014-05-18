@@ -2846,7 +2846,7 @@ afx_msg void CGraphView::OnUpdateSeekByTime(CCmdUI *pCmdUI)
 /// If no property page has the focus, show the first page
 void CGraphView::ShowPropertyPage(int increment) const
 {
-	const int num_pages = property_pages.GetCount();
+	const int num_pages = (int) property_pages.GetCount();
 	if (num_pages <= 0)
 		return;
 

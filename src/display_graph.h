@@ -416,10 +416,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		int nHeight    = -MulDiv(size, (int)(GetDeviceCaps(dc, LOGPIXELSY)), 72 );
 		DeleteDC(dc);
 
-		DWORD dwBold   = (bold ? FW_BOLD : 0);
-		DWORD dwItalic = (italic ? TRUE : FALSE);
+		BYTE nBold   = (bold ? FW_BOLD : 0);
+		BYTE nItalic = (italic ? TRUE : FALSE);
 
-		f.CreateFont(nHeight, 0, 0, 0, dwBold, dwItalic, FALSE, FALSE, DEFAULT_CHARSET,
+		f.CreateFont(nHeight, 0, 0, 0, nBold, nItalic, FALSE, FALSE, DEFAULT_CHARSET,
 					  OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 5, VARIABLE_PITCH, name);
 	}
 

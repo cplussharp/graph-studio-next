@@ -1099,7 +1099,7 @@ bool CPayloadParserInputPin::ParseAAC(const BYTE* pData, const long lDataLen)
 {
 	if (pData[0] == 0xFF && (pData[1] & 0xF0) == 0xF0) // ADTS Sync word
 	{
-		bool mpegVersion2 = pData[1] & 0x08;
+		bool mpegVersion2 = (pData[1] & 0x08) != 0;
 
 		BYTE profile = ((pData[2] & 0xC0) >> 6) + 1;
 		// 1 : AAC Main
