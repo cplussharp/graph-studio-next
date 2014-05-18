@@ -393,7 +393,7 @@ void CH264StructReader::ReadSliceHeader(CBitStreamReader& bs, slice_header_t& sh
             sh.bottom_field_flag = bs.ReadU1();
     }
 
-    if (isNonIDR == 5 )
+    if (isNonIDR)
         sh.idr_pic_id = bs.ReadUE();
 
     // we don't need to know all
