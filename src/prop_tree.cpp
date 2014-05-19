@@ -310,16 +310,20 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
         dontDrawItem = false;
 
-		BuildNode(root, tree.GetRootItem());
+		const HTREEITEM root_item = tree.GetRootItem();
+		BuildNode(root, root_item);
+		const HTREEITEM first_child = tree.GetNextItem(root_item, TVGN_CHILD);
+		if (first_child) {
+			tree.Select(first_child, TVGN_FIRSTVISIBLE);
+		}
 	}
 
 	void PropertyTree::BuildNode(PropItem *node, HTREEITEM item)
 	{
-		int i;
-		for (i=0; i<node->GetCount(); i++) {
-			PropItem *pi = node->GetItem(i);
+		for (int i=0; i<node->GetCount(); i++) {
+			PropItem * const pi = node->GetItem(i);
 
-			HTREEITEM	newitem = tree.InsertItem(pi->name, item);
+			const HTREEITEM	newitem = tree.InsertItem(pi->name, item);
 			tree.SetItemData(newitem, (DWORD_PTR)pi);
 
 			BuildNode(pi, newitem);
