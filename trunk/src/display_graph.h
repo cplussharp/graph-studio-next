@@ -100,6 +100,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		CLSID					clsid;				// it's CLASS_ID
 		CString					clsid_str;			// string version
 		CString					dll_file;			// file name of the filter dll file
+		bool					created_from_dll;	// If true, filters was created directly from DLL class factory
 
 		CComPtr<IBaseFilter>	filter;
 		CArray<Pin*>			input_pins;
