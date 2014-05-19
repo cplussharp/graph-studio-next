@@ -190,7 +190,7 @@ public:
 	int TryOpenXML(const CString& fn);
 	HRESULT AddFileSourceAsync(const CString& source_file);
 	HRESULT AddSourceFilter(const CString& source_file);
-    HRESULT InsertFilterFromDLL(const CString& dll_file);
+    HRESULT InsertFilterFromDLL(CString& dll_file);
 
 	virtual LRESULT OnWmCommand(WPARAM wParam, LPARAM lParam);
 

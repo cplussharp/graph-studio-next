@@ -28,6 +28,8 @@ public:
 	GraphStudio::FilenameList		file_list;
 	GraphStudio::FilenameList		clsid_list;
 
+	HRESULT					hr;
+
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV-Unterstützung
 
