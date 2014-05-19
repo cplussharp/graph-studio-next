@@ -146,7 +146,10 @@ BOOL CFilterFromFile::OnInitDialog()
 	for (int i=0; i<file_list.GetCount(); i++)
         sel = combo_file.AddString(file_list[i]);
 
-    combo_file.SetCurSel(sel);
+	if (result_file.GetLength() > 0)
+		combo_file.SetWindowText(result_file);
+	else
+		combo_file.SetCurSel(sel);
     OnChangeComboFile();
 
     return TRUE;

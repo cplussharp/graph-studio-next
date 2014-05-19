@@ -185,10 +185,12 @@ public:
 	void OnUpdateRenderMediaFile(CCmdUI *ui);
 	void OnUpdateUseClock(CCmdUI *ui);
 	void OnDropFiles(HDROP hDropInfo);
-	HRESULT TryOpenFile(CString fn, bool render_media_file = false);
-	int TryOpenXML(CString fn);
-	HRESULT AddFileSourceAsync(CString source_file);
-	HRESULT AddSourceFilter(CString source_file);
+	HRESULT TryOpenFile(const CString& fn, bool render_media_file = false);
+	bool ShouldOpenInNewDocument(const CString& fn);
+	int TryOpenXML(const CString& fn);
+	HRESULT AddFileSourceAsync(const CString& source_file);
+	HRESULT AddSourceFilter(const CString& source_file);
+    HRESULT InsertFilterFromDLL(const CString& dll_file);
 
 	virtual LRESULT OnWmCommand(WPARAM wParam, LPARAM lParam);
 
