@@ -1125,7 +1125,6 @@ HRESULT CGraphView::TryOpenFile(const CString& file_to_open, bool render_media_f
 
 	if (render_media_file) {
 		hr = graph.RenderFile(fn);
-		graph.Dirty();
 	} else {
 		CPath	path(fn);
 		CString	ext = path.GetExtension();
@@ -1139,6 +1138,8 @@ HRESULT CGraphView::TryOpenFile(const CString& file_to_open, bool render_media_f
 			hr = graph.LoadXML(fn);
 		} else if ((ext == _T(".dll") || ext == _T(".ax"))) {
 			hr = InsertFilterFromDLL(fn);
+		} else {
+			hr = graph.RenderFile(fn);
 		}
 	}
 
