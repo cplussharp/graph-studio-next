@@ -158,7 +158,8 @@ BOOL CgraphstudioApp::InitInstance()
 	// if we've been started with a command line parameter
 	// do open the file
 	if (m_cmdInfo.m_strFileName != _T("")) {
-		view->OnNewClick();
+		if (view->ShouldOpenInNewDocument(m_cmdInfo.m_strFileName))
+			view->OnNewClick();
 		view->TryOpenFile(m_cmdInfo.m_strFileName);
 
         if (m_cmdInfo.m_bNoClock)

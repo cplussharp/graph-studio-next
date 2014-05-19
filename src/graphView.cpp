@@ -1108,27 +1108,37 @@ HRESULT CGraphView::FileSaveAs(DocumentType input_type)
 	return hr;
 }
 
+// Don't clear graph before adding some file types
+bool CGraphView::ShouldOpenInNewDocument(const CString& fn)
+{
+	const CString ext = CPath(fn).GetExtension().MakeLower();
+	return ext != _T(".dll") &&
+			ext == _T(".ax");
+}
+
 // render_media_file - default false but allows caller to force render as media file if needed
-HRESULT CGraphView::TryOpenFile(CString fn, bool render_media_file)
+HRESULT CGraphView::TryOpenFile(const CString& fn, bool render_media_file)
 {
 	HRESULT hr = S_OK;
-	CPath	path(fn);
-	CString	ext = path.GetExtension();
 	DocumentType save_as = NONE;
 
-	ext = ext.MakeLower();
-	if (ext == _T(".grf") && !render_media_file) {
-		save_as = GRF;
-		hr = graph.LoadGRF(fn);
-		
-	}
-	else if ((ext == _T(".grfx") || ext == _T(".xml")) && !render_media_file) {
-		save_as = XML;
-		hr = graph.LoadXML(fn);
-
-	} else {
+	if (render_media_file) {
 		hr = graph.RenderFile(fn);
 		graph.Dirty();
+	} else {
+		CPath	path(fn);
+		CString	ext = path.GetExtension();
+
+		ext = ext.MakeLower();
+		if (ext == _T(".grf")) {
+			save_as = GRF;
+			hr = graph.LoadGRF(fn);
+		} else if ((ext == _T(".grfx") || ext == _T(".xml"))) {
+			save_as = XML;
+			hr = graph.LoadXML(fn);
+		} else if ((ext == _T(".dll") || ext == _T(".ax"))) {
+			InsertFilterFromDLL(fn);
+		}
 	}
 
 	if (FAILED(hr))
@@ -1194,7 +1204,8 @@ void CGraphView::OnFileOpenClick()
 {
 	const CString filename = PromptForFileToOpen(false);
 	if (!filename.IsEmpty()) {
-		OnNewClick();
+		if (ShouldOpenInNewDocument(filename))
+			OnNewClick();
 		TryOpenFile(filename, false);
 	}
 }
@@ -1212,7 +1223,8 @@ void CGraphView::OnRenderUrlClick()
 	CRenderUrlForm		dlg;
 	INT_PTR ret = dlg.DoModal();
 	if (ret == IDOK) {
-		OnNewClick();
+		if (ShouldOpenInNewDocument(dlg.result_file))
+			OnNewClick();
 		ret = TryOpenFile(dlg.result_file, /* render_media_file= */ true);
 	}
     AfxGetMainWnd()->SendMessage(WM_UPDATEPLAYRATE);
@@ -1222,7 +1234,8 @@ void CGraphView::OnRenderFileClick()
 {
 	const CString filename = PromptForFileToOpen(true);
 	if (!filename.IsEmpty()) {
-		OnNewClick();
+		if (ShouldOpenInNewDocument(filename))
+			OnNewClick();
 		TryOpenFile(filename, true);
 	}
 }
@@ -1287,7 +1300,16 @@ void CGraphView::OnFindInFiltersWindow()
 
 void CGraphView::OnGraphInsertFilterFromFile()
 {
+	InsertFilterFromDLL(CString());
+}
+
+HRESULT CGraphView::InsertFilterFromDLL(const CString& dll_file)
+{
+	HRESULT hr = S_OK;
+
 	CFilterFromFile dlg(this);
+	dlg.result_file = dll_file;
+
     INT_PTR ret = dlg.DoModal();
     if(IDOK == ret && dlg.filterFactory != NULL)
     {
@@ -1305,6 +1327,7 @@ void CGraphView::OnGraphInsertFilterFromFile()
 			InsertNewFilter(instance, filterName, /* connectCurrentPin = */ false);
         }
     }
+	return hr;
 }
 
 void CGraphView::OnDeleteSelection()
@@ -1714,7 +1737,7 @@ void CGraphView::OnDropFiles(HDROP hDropInfo)
 					DSUtil::ShowError(_T("Files dropped on filter that does not support IFileSourceFilter or ISinkFilter"));
 				}
 			} else {
-				if (!(GetKeyState(VK_CONTROL) & 0x80)) {
+				if (!(GetKeyState(VK_CONTROL) & 0x80) && ShouldOpenInNewDocument(filename)) {
 					OnNewClick();			// Clear graph before loading unless user has held down control when file is dropped
 				}
 
@@ -1873,7 +1896,8 @@ void CGraphView::OnMRUClick(UINT nID)
 		return ;
 
 	const CString	fn = mru.list[idx];
-	OnNewClick();
+	if (ShouldOpenInNewDocument(fn))
+		OnNewClick();
 	const HRESULT hr = TryOpenFile(fn);
 }
 
@@ -2613,7 +2637,7 @@ void CGraphView::OnUpdateOptionsUseinternalgrffileparser(CCmdUI *pCmdUI)
 	pCmdUI->SetCheck(CgraphstudioApp::g_useInternalGrfParser);
 }
 
-HRESULT CGraphView::AddSourceFilter(CString filename)
+HRESULT CGraphView::AddSourceFilter(const CString& filename)
 {
 	CComPtr<IBaseFilter> ibasefilter;
 	const HRESULT hr = graph.gb->AddSourceFilter(filename, filename, &ibasefilter);
@@ -2640,7 +2664,7 @@ void CGraphView::OnFileAddSourceFilter()
     }
 }
 
-HRESULT CGraphView::AddFileSourceAsync(CString filename)
+HRESULT CGraphView::AddFileSourceAsync(const CString& filename)
 {
 	HRESULT hr = E_NOINTERFACE;
 
