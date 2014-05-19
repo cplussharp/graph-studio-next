@@ -988,6 +988,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 		}
 
+		graph.Dirty();
+
 		Pin * const current_pin = graph.GetSelectedPin();
 
 		// has selected pin, then get IPin interface now, because graph.AddFilter will release current_pin

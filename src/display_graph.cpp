@@ -1980,6 +1980,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				callback->OnRenderFinished();
 
 		} while (0);
+		
+		Dirty();
 
 		return hr;
 	}
