@@ -14,7 +14,7 @@
 IMPLEMENT_DYNAMIC(CFilterFromFile, CDialog)
 
 CFilterFromFile::CFilterFromFile(CWnd* pParent /*=NULL*/)
-: CDialog(CFilterFromFile::IDD, pParent), result_clsid(CLSID_NULL), filterFactory(NULL)
+: CDialog(CFilterFromFile::IDD, pParent), result_clsid(CLSID_NULL), filterFactory(NULL), hr(S_OK)
 {
 
 }
@@ -67,7 +67,7 @@ void CFilterFromFile::OnOK()
                 if(strClsid.Right(1) != _T("}"))
                     strClsid.Append(_T("}"));
 
-                HRESULT hr = CLSIDFromString(strClsid, &result_clsid);
+                hr = CLSIDFromString(strClsid, &result_clsid);
                 if(SUCCEEDED(hr))
                 {
                     SetLastError(0);

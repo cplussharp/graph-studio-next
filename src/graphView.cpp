@@ -1117,10 +1117,11 @@ bool CGraphView::ShouldOpenInNewDocument(const CString& fn)
 }
 
 // render_media_file - default false but allows caller to force render as media file if needed
-HRESULT CGraphView::TryOpenFile(const CString& fn, bool render_media_file)
+HRESULT CGraphView::TryOpenFile(const CString& file_to_open, bool render_media_file)
 {
 	HRESULT hr = S_OK;
 	DocumentType save_as = NONE;
+	CString fn(file_to_open);		// Open as DLL can modify filename
 
 	if (render_media_file) {
 		hr = graph.RenderFile(fn);
@@ -1137,11 +1138,11 @@ HRESULT CGraphView::TryOpenFile(const CString& fn, bool render_media_file)
 			save_as = XML;
 			hr = graph.LoadXML(fn);
 		} else if ((ext == _T(".dll") || ext == _T(".ax"))) {
-			InsertFilterFromDLL(fn);
+			hr = InsertFilterFromDLL(fn);
 		}
 	}
 
-	if (FAILED(hr))
+	if (FAILED(hr) && hr != E_ABORT)
 		DSUtil::ShowError(hr, TEXT("Can't open file"));
 	else {
 
@@ -1300,10 +1301,16 @@ void CGraphView::OnFindInFiltersWindow()
 
 void CGraphView::OnGraphInsertFilterFromFile()
 {
-	InsertFilterFromDLL(CString());
+	CString dll_file;
+	HRESULT hr = InsertFilterFromDLL(dll_file);
+
+	if (dll_file.GetLength() > 0) {
+		mru.NotifyEntry(dll_file);
+		UpdateMRUMenu();
+	}
 }
 
-HRESULT CGraphView::InsertFilterFromDLL(const CString& dll_file)
+HRESULT CGraphView::InsertFilterFromDLL(CString& dll_file)
 {
 	HRESULT hr = S_OK;
 
@@ -1311,22 +1318,29 @@ HRESULT CGraphView::InsertFilterFromDLL(const CString& dll_file)
 	dlg.result_file = dll_file;
 
     INT_PTR ret = dlg.DoModal();
-    if(IDOK == ret && dlg.filterFactory != NULL)
-    {
-        CComPtr<IBaseFilter> instance;
-        HRESULT hr = dlg.filterFactory->CreateInstance(NULL, IID_IBaseFilter, (void**)&instance);
-        if(FAILED(hr))
-            DSUtil::ShowError(hr, _T("Error creating instance of filter"));
-        else {
-            // Get Filter name
-            FILTER_INFO filterInfo = {0};   
-            instance->QueryFilterInfo(&filterInfo);
-            CString filterName = filterInfo.achName;
-            if(filterName == _T(""))
-                filterName = PathFindFileName(dlg.result_file);
-			InsertNewFilter(instance, filterName, /* connectCurrentPin = */ false);
-        }
+
+	if (IDOK != ret)
+		return E_ABORT;		// user cancelled
+	if (FAILED(dlg.hr))
+		return dlg.hr;
+	if (!dlg.filterFactory)
+		return E_NOINTERFACE;
+
+	dll_file = dlg.result_file;
+    CComPtr<IBaseFilter> instance;
+    hr = dlg.filterFactory->CreateInstance(NULL, IID_IBaseFilter, (void**)&instance);
+    if(FAILED(hr))
+        DSUtil::ShowError(hr, _T("Error creating instance of filter"));
+    else {
+        // Get Filter name
+        FILTER_INFO filterInfo = {0};   
+        instance->QueryFilterInfo(&filterInfo);
+        CString filterName = filterInfo.achName;
+        if(filterName == _T(""))
+            filterName = PathFindFileName(dlg.result_file);
+		InsertNewFilter(instance, filterName, /* connectCurrentPin = */ false);
     }
+
 	return hr;
 }
 
