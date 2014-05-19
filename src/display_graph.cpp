@@ -2602,20 +2602,23 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	//-------------------------------------------------------------------------
 
 	Filter::Filter(DisplayGraph *parent)
-		: column(-1)
+		: graph(parent)
+		, params(graph ? graph->params : NULL)
+		, clsid(GUID_NULL)
+		, created_from_dll(false)
+		, posx(0)
+		, posy(0)
+		, width(0)
+		, height(0)
 		, name_width(0)
+		, column(-1)
+		, selected(false)
+		, connected(false)
+		, videowindow(NULL)
+		, overlay_icon_active(-1)
+		, filter_type(FILTER_UNKNOWN)
+		, filter_purpose(FILTER_OTHER)
 	{
-		graph = parent;
-		params = (graph != NULL ? graph->params : NULL);
-		clsid = CLSID_VideoMixingRenderer9;
-		filter = NULL;
-		posx = 0;
-		posy = 0;
-		selected = false;
-		basic_audio = NULL;
-		clock = NULL;
-		videowindow = NULL;
-		overlay_icon_active = -1;
 	}
 
 	Filter::~Filter()
