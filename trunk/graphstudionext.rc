@@ -1613,6 +1613,7 @@ BEGIN
     ID_SEEK_BACKWARD_3      "Seek backward 10 seconds"
     ID_SEEK_BACKWARD_4      "Seek backward 1 minute"
     ID_HELP_REGISTEREDFILETYPES "Show registered filetypes and protocols"
+	ID_GRAPH_INSERTFILTERFROMFILE	"Create new filter from DLL class factory. Can be saved in GRFX files but is incompatible with GRF files."
 END
 
 STRINGTABLE

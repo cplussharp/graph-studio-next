@@ -276,6 +276,7 @@ namespace DSUtil
 	// remove registry information
 	HRESULT UnregisterFilter(GUID clsid, GUID category);
 	HRESULT UnregisterCOM(GUID clsid);
+	HRESULT GetClassFactoryFromDll(LPCOLESTR dll_file, const CLSID& clsid, IClassFactory**);
 
     static bool m_bExitOnError = false; // terminates the programm if an error is reported and sets the error-code as exit value
     bool ShowError(HRESULT hr, LPCTSTR title=NULL);
