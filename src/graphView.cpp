@@ -1336,8 +1336,12 @@ HRESULT CGraphView::InsertFilterFromDLL(CString& dll_file)
         // Get Filter name
         FILTER_INFO filterInfo = {0};   
         instance->QueryFilterInfo(&filterInfo);
-        CString filterName = filterInfo.achName;
-        if(filterName == _T(""))
+
+		CString filterName;
+		GraphStudio::GetObjectName(dlg.result_clsid, filterName);
+		if(filterName.GetLength() == 0)
+			filterName = filterInfo.achName;
+		if(filterName.GetLength() == 0)
             filterName = PathFindFileName(dlg.result_file);
 		hr = InsertNewFilter(instance, filterName, /* connectCurrentPin = */ false);
 		if (SUCCEEDED(hr)) {
