@@ -87,6 +87,7 @@
 #define IDC_BUTTON_ABOUT                1015
 #define IDC_BUTTON_LOCK                 1015
 #define IDC_BUILDGRAPH                  1015
+#define IDC_BUTTON_SCAN_CLSIDS          1015
 #define IDC_SLIDER_SEEK                 1016
 #define IDC_SLIDER_VOLUME               1016
 #define IDC_SLIDER_IRATE                1016
