@@ -165,7 +165,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		CString name = _T("Unknown");
 		GetObjectName(filter.clsid, name);
-		info->AddItem(new PropItem(_T("Object Name"), name));
+		info->AddItem(new PropItem(_T("Registry Name"), name));
 
 		// get Dll file
 		CString		filename = filter.GetDllFileName();
