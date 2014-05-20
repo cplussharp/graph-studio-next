@@ -123,7 +123,7 @@ void CFilterDetailsPage::OnBuildTree()
 		group->AddItem(new GraphStudio::PropItem(_T("Type"), type));
 		GraphStudio::GetFilterDetails(gfilter, group);
 
-	GraphStudio::PropItem * const categories_item = new GraphStudio::PropItem(_T("Categories"));
+	GraphStudio::PropItem * const categories_item = new GraphStudio::PropItem(_T("Categories (registry information from CLSID)"));
 	GraphStudio::PropItem * const categories_count = categories_item->AddItem(new GraphStudio::PropItem(_T("Count"), 0));
 	const int num_categories = GraphStudio::GetFilterInformationFromCLSID(CFiltersForm::GetFilterCategories(), gfilter.clsid, categories_item);
 
