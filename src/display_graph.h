@@ -99,7 +99,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		CString					display_name;		// name as it appears
 		CLSID					clsid;				// it's CLASS_ID
 		CString					clsid_str;			// string version
-		CString					dll_file;			// file name of the filter dll file
+		mutable CString			dll_file;			// file name of the filter dll file (used as internal cache)
 		bool					created_from_dll;	// If true, filters was created directly from DLL class factory
 
 		CComPtr<IBaseFilter>	filter;
@@ -169,7 +169,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void RemoveSelectedConnections();
 		void RemoveFromGraph();
 		void UpdateClock();
-		CString GetDllFileName();
+		CString GetDllFileName() const;
 
 		// Helpers
 		bool IsSource();

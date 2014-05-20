@@ -70,37 +70,9 @@ void CFilterFromFile::OnOK()
                 hr = CLSIDFromString(strClsid, &result_clsid);
                 if(SUCCEEDED(hr))
                 {
-                    SetLastError(0);
-			        HINSTANCE hLib = CoLoadLibrary(const_cast<LPOLESTR>(T2COLE(result_file)), TRUE);
-                    LPFNGETCLASSOBJECT pfnGetClassObject = NULL;
-			        if (hLib != NULL)
-				        pfnGetClassObject = (LPFNGETCLASSOBJECT)GetProcAddress(hLib, "DllGetClassObject");
-
-			        if (hLib == NULL || pfnGetClassObject == NULL)
-			        {
-				        DWORD dwError = GetLastError();
-				        if (dwError != 0)
-					        hr = HRESULT_FROM_WIN32(dwError);
-				        else
-					        hr = HRESULT_FROM_WIN32(ERROR_INVALID_DLL);
-			        }
-
-                    if(FAILED(hr))
-                    {
-                        CString msg;
-                        msg.Format(_T("Error loading library (hr = 0x%08x)"), hr);
-                        DSUtil::ShowError(hr, msg);
-                        return;
-                    }
-
-                    hr = pfnGetClassObject(result_clsid, IID_IClassFactory, (void**)&filterFactory);
-                    if(FAILED(hr))
-                    {
-                        CString msg;
-                        msg.Format(_T("Error getting IClassFactory for filter (hr = 0x%08x)"), hr);
-                        DSUtil::ShowError(hr, msg);
-                        return;
-                    }
+					hr = DSUtil::GetClassFactoryFromDll((T2COLE(result_file)), result_clsid, &filterFactory);
+					if (FAILED(hr))
+						return;
 
                     CString entry = PathFindFileName(result_file);
                     entry.MakeLower();

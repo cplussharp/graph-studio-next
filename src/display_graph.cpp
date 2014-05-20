@@ -1146,6 +1146,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				CoTaskMemFree(strclsid);
 			}
 
+			if (filter->created_from_dll) {
+				xml.WriteValue(_T("class_factory_dll"), filter->GetDllFileName());
+			}
+
 			// now check for interfaces
 			SaveXML_IFileSourceFilter(filter->filter, xml);
 			SaveXML_IFileSinkFilter(filter->filter, xml);
@@ -1586,6 +1590,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		const CString			name		= node->GetValue(_T("name"));
 		CString					clsid_str	= node->GetValue(_T("clsid"));
 		const CString			dn			= node->GetValue(_T("displayname"));
+		CString					dll			= node->GetValue(_T("class_factory_dll"));	// may get reselected in file dialog
 		GUID					clsid;
 		HRESULT					hr = NOERROR;
 		int						filter_id_type = -1;
@@ -1614,8 +1619,34 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		case 0:
 			{
 				// create by CLSID
-				hr = CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
-				if (FAILED(hr)) {
+				if (dll.GetLength() > 0) {		// check for missing cass factory DLL
+					CPath dll_path(dll);
+					while (!dll_path.FileExists()) {
+						CFileDialog dlg(TRUE, _T(".dll"), dll_path, OFN_ENABLESIZING|OFN_FILEMUSTEXIST, 
+							_T("DLL Files|*.dll;*.ax|All Files|*.*|"));
+						dlg.m_ofn.lpstrTitle = _T("Find filter DLL/AX or cancel to use CoCreateInstance");
+						dll = _T("");
+						if (IDOK == dlg.DoModal()) {
+							dll = dlg.GetPathName();
+							dll_path = CPath(dll);
+						} else {
+							break;
+						}
+					}
+				}
+
+				if (dll.GetLength() > 0) {		// create from DLL class factory
+					CComPtr<IClassFactory> class_factory;
+					hr = DSUtil::GetClassFactoryFromDll((T2COLE(dll)), clsid, &class_factory);
+					if (!class_factory)
+						hr = E_POINTER;
+					if (SUCCEEDED(hr)) {
+						hr = class_factory->CreateInstance(NULL, __uuidof(IBaseFilter), (void**)&instance);
+					}
+				} else {						// else try creating by CoCreateInstance
+					hr = CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER, __uuidof(IBaseFilter), (void**)&instance);
+				}
+				if (FAILED(hr) || !instance) {
 					CString str;
 					str.Format(_T("CoCreateInstance error %s CLSID %s"), (const TCHAR *)name, (const TCHAR *)clsid_str);
 					SmartPlacement();
@@ -3545,7 +3576,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	}
 
 
-	CString Filter::GetDllFileName()
+	CString Filter::GetDllFileName() const
 	{
 		if (!dll_file.IsEmpty()) return dll_file;
 

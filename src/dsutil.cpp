@@ -2266,6 +2266,48 @@ namespace DSUtil
 		return NOERROR;
 	}
 
+	HRESULT GetClassFactoryFromDll(LPCOLESTR dll_file, const CLSID& clsid, IClassFactory** factory)
+	{
+		HRESULT hr = S_OK;
+		if (!factory)
+			return E_POINTER;
+		*factory = NULL;
+
+		SetLastError(0);
+		HINSTANCE hLib = CoLoadLibrary(const_cast<LPOLESTR>(dll_file), TRUE);
+		LPFNGETCLASSOBJECT pfnGetClassObject = NULL;
+		if (hLib != NULL)
+			pfnGetClassObject = (LPFNGETCLASSOBJECT)GetProcAddress(hLib, "DllGetClassObject");
+
+		if (hLib == NULL || pfnGetClassObject == NULL)
+		{
+			DWORD dwError = GetLastError();
+			if (dwError != 0)
+				hr = HRESULT_FROM_WIN32(dwError);
+			else
+				hr = HRESULT_FROM_WIN32(ERROR_INVALID_DLL);
+		}
+
+		if(FAILED(hr))
+		{
+			CString msg;
+			msg.Format(_T("Error loading library (hr = 0x%08x)"), hr);
+			DSUtil::ShowError(hr, msg);
+			return hr;
+		}
+
+		hr = pfnGetClassObject(clsid, IID_IClassFactory, (void**)factory);
+		if(FAILED(hr))
+		{
+			CString msg;
+			msg.Format(_T("Error getting IClassFactory for filter (hr = 0x%08x)"), hr);
+			DSUtil::ShowError(hr, msg);
+			return hr;
+		}
+		return hr;
+	}
+
+
     bool ShowError(HRESULT hr, LPCTSTR title)
     {
 		bool ok_pressed = true;
