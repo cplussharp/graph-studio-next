@@ -1113,7 +1113,7 @@ bool CGraphView::ShouldOpenInNewDocument(const CString& fn)
 {
 	const CString ext = CPath(fn).GetExtension().MakeLower();
 	return ext != _T(".dll") &&
-			ext == _T(".ax");
+			ext != _T(".ax");
 }
 
 // render_media_file - default false but allows caller to force render as media file if needed
