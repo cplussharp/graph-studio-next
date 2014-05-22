@@ -1124,6 +1124,7 @@ HRESULT CGraphView::TryOpenFile(const CString& file_to_open, bool render_media_f
 	CString fn(file_to_open);		// Open as DLL can modify filename
 
 	if (render_media_file) {
+		// If users is requesting render file then don't fall back on add file source or add file source async
 		hr = graph.RenderFile(fn);
 	} else {
 		CPath	path(fn);
@@ -1140,6 +1141,16 @@ HRESULT CGraphView::TryOpenFile(const CString& file_to_open, bool render_media_f
 			hr = InsertFilterFromDLL(fn);
 		} else {
 			hr = graph.RenderFile(fn);
+
+			// Fall back on add file source for partial render or add with file source async
+			// if both fail, report the original render file HRESULT
+			if (FAILED(hr)) {
+				HRESULT hr2 = AddFileSourceAsync(fn);
+				if (FAILED(hr2))
+					hr2 = AddSourceFilter(fn);
+				if (SUCCEEDED(hr2))
+					hr = hr2;			// one of the two backups succeeded - report success
+			}
 		}
 	}
 
@@ -1773,8 +1784,10 @@ void CGraphView::OnDropFiles(HDROP hDropInfo)
 
 				if (GetKeyState(VK_SHIFT) & 0x80) {
 					hr = AddFileSourceAsync(filename);
+					DSUtil::ShowError(hr, TEXT("Can't add async file source"));
 				} else if (GetKeyState(VK_MENU) & 0x80) {
 					hr = AddSourceFilter(filename);
+					DSUtil::ShowError(hr, TEXT("IGraphBuilder::AddSourceFilter failed"));
 				} else {
 					hr = TryOpenFile(filename);
 				}
@@ -2690,7 +2703,8 @@ void CGraphView::OnFileAddSourceFilter()
 {
 	const CString filename = PromptForFileToOpen(true);
 	if (!filename.IsEmpty()) {
-		AddSourceFilter(filename);
+		HRESULT hr = AddSourceFilter(filename);
+		DSUtil::ShowError(hr, TEXT("IGraphBuilder::AddSourceFilter failed"));
     }
 }
 
@@ -2725,7 +2739,8 @@ void CGraphView::OnFileAddFileSourceAsync()
 {
 	const CString filename = PromptForFileToOpen(true);
 	if (!filename.IsEmpty()) {
-		AddFileSourceAsync(filename);
+		HRESULT hr = AddFileSourceAsync(filename);
+		DSUtil::ShowError(hr, TEXT("Can't add async file source"));
     }
 }
 
