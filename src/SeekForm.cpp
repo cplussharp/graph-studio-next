@@ -375,18 +375,18 @@ bool CSeekForm::ParseTimeString(const CString& time_str, LONGLONG& time)
 		} else {
 			// attempt to parse as hours:minutes:seconds
 
-			float arg1=0.0f, arg2=0.0f, arg3=0.0f;
-			parsedArgs = _stscanf_s(time_str, _T("%f:%f:%f"), &arg1, &arg2, &arg3);
+			double arg1=0.0, arg2=0.0, arg3=0.0;
+			parsedArgs = _stscanf_s(time_str, _T("%lf:%lf:%lf"), &arg1, &arg2, &arg3);
 
 			switch (parsedArgs) {
 			case 1:
 				arg3 = arg1;			// seconds
-				arg1 = arg2 = 0.0f;
+				arg1 = arg2 = 0.0;
 				break;
 			case 2:
 				arg3 = arg2;			// seconds
 				arg2 = arg1;			// minutes
-				arg1 = 0.0f;
+				arg1 = 0.0;
 				break;
 			case 3:
 				// no action required. Hours, minutes and seconds given
