@@ -203,15 +203,22 @@ void CFilterFromFile::OnChangeComboFile()
     }
 }
 
-HRESULT CFilterFromFile::GetClassFactoryEntryPoint(LPCOLESTR dll_file, LPFNGETCLASSOBJECT & entry_point)
+HRESULT CFilterFromFile::GetClassFactoryEntryPoint(LPCOLESTR dll_file, HMODULE& hLib, LPFNGETCLASSOBJECT & entry_point)
 {
+	hLib = NULL;
 	entry_point = NULL;
 	HRESULT hr = S_OK;
 	if (!dll_file)
 		return E_POINTER;
 
+	// set dll path as lib path
+	CString libPath = dll_file;
+	PathRemoveFileSpec(libPath.GetBuffer());
+	libPath.ReleaseBuffer();
+	SetDllDirectory(libPath);
+
 	SetLastError(0);
-	HINSTANCE hLib = CoLoadLibrary(const_cast<LPOLESTR>(dll_file), TRUE);
+	hLib = CoLoadLibrary(const_cast<LPOLESTR>(dll_file), TRUE);
 	if (hLib != NULL)
 		entry_point = (LPFNGETCLASSOBJECT)GetProcAddress(hLib, "DllGetClassObject");
 
@@ -232,7 +239,9 @@ void CFilterFromFile::OnBnClickedButtonScanClsids()
 	LPFNGETCLASSOBJECT entry_point = NULL;
 	CString dll_file;
 	combo_file.GetWindowText(dll_file);
-	HRESULT hr = GetClassFactoryEntryPoint(T2COLE(dll_file), entry_point); 
+
+	HMODULE	library;
+	HRESULT hr = GetClassFactoryEntryPoint(T2COLE(dll_file), library, entry_point);
 	if (FAILED(hr)) {
 		DSUtil::ShowError(hr, _T("Error getting DLL entry point"));
 		return;
@@ -243,66 +252,81 @@ void CFilterFromFile::OnBnClickedButtonScanClsids()
 
 	CAtlMap<CLSID, CString> matched_clsids;
 
-	HKEY hKey = NULL;
-	if( RegOpenKeyEx( HKEY_CLASSES_ROOT,
-		TEXT("CLSID"),
-		0,
-		KEY_READ,
-		&hKey) == ERROR_SUCCESS)
+	// temporary register the file and then search the CLSIDs
+	if (library)
 	{
-		DWORD    num_sub_keys=0;
-		DWORD    longest_subkey=0;
+		typedef HRESULT(_stdcall *DllRegisterServerProc)();
+		typedef HRESULT(_stdcall *DllUnregisterServerProc)();
 
-		// Get the class name and the value count. 
-		DWORD retCode = RegQueryInfoKey(hKey, NULL, NULL, NULL,           
-			&num_sub_keys, &longest_subkey, NULL, NULL, NULL, NULL, NULL, NULL);			
-
-		if (num_sub_keys > 0)
+		DllRegisterServerProc reg = (DllUnregisterServerProc)GetProcAddress(library, "DllRegisterServer");
+		DllUnregisterServerProc unreg = (DllUnregisterServerProc)GetProcAddress(library, "DllUnregisterServer");
+		if (reg && unreg)
 		{
-			const int			MAX_KEY_LENGTH = 50;
-			TCHAR				subkey_name[MAX_KEY_LENGTH];   // buffer for subkey name
-			DWORD				subkey_name_size;                   // size of name string 
-			CLSID				subkey_clsid;
-			IClassFactory *		factory = NULL;
+			// override HKEY_CLASSES_ROOT
+			HKEY hKeyFakeClass;
+			CString strKeyClass = _T("Software\\MONOGRAM\\GraphStudioNext\\HKEY_CLASSES_ROOT");
+			long lRes = RegCreateKey(HKEY_CURRENT_USER, strKeyClass, &hKeyFakeClass);
+			if (lRes == ERROR_SUCCESS)
+				lRes = RegOverridePredefKey(HKEY_CLASSES_ROOT, hKeyFakeClass);
+				
+			if (lRes == ERROR_SUCCESS)
+			{
+				// override HKEY_LOCAL_MACHINE
+				HKEY hKeyFakeLocal;
+				CString strKeyLocal = _T("Software\\MONOGRAM\\GraphStudioNext\\HKEY_LOCAL_MACHINE");
+				long lRes = RegCreateKey(HKEY_CURRENT_USER, strKeyLocal, &hKeyFakeLocal);
+				if (lRes == ERROR_SUCCESS)
+					lRes = RegOverridePredefKey(HKEY_LOCAL_MACHINE, hKeyFakeLocal);
 
-			for (DWORD i=0; i<num_sub_keys; i++) 
-			{ 
-				subkey_name_size = MAX_KEY_LENGTH;
-				if (ERROR_SUCCESS == RegEnumKeyEx(hKey, i, subkey_name, &subkey_name_size, NULL, NULL, NULL, NULL)
-						&& SUCCEEDED(CLSIDFromString(subkey_name, &subkey_clsid))
-						&& SUCCEEDED(entry_point(subkey_clsid, __uuidof(IClassFactory), (void**)&factory))) 
+				if (lRes == ERROR_SUCCESS)
 				{
-					// Get name of COM object
-					CString clsid_name;
-					const int MAX_NAME_LENGTH = 256;
-					OLECHAR * const name_buffer = clsid_name.GetBufferSetLength(MAX_NAME_LENGTH);
-					DWORD name_size = MAX_NAME_LENGTH;
-					LSTATUS status = RegGetValue(hKey, subkey_name, NULL, RRF_RT_REG_SZ, NULL, name_buffer, &name_size);
-					clsid_name.ReleaseBuffer(name_size/sizeof(*name_buffer));
+					// register
+					HRESULT hr = reg();
+					if (SUCCEEDED(hr))
+					{
+						// search for CLSIDs
+						GetClsidsFromRegistry(hKeyFakeClass, entry_point, matched_clsids);
 
-					matched_clsids.SetAt(subkey_clsid, clsid_name);
+						// unregister to clean up
+						unreg();
+					}
+					else
+						DSUtil::ShowError(hr, _T("Error temporary registering the DLL"));
+
+					// restore HKEY_LOCAL_MACHINE
+					RegOverridePredefKey(HKEY_LOCAL_MACHINE, NULL);
+					
+					// delete key
+					RegDeleteTree(hKeyFakeLocal, NULL);
+					RegCloseKey(hKeyFakeLocal);
+					RegDeleteKey(HKEY_CURRENT_USER, strKeyLocal);
 				}
-				if (factory) {
-					factory->Release();
-					factory = NULL;
-				}
+
+				// restore HKEY_CLASSES_ROOT
+				RegOverridePredefKey(HKEY_CLASSES_ROOT, NULL);
+				
+				// delete key
+				RegDeleteTree(hKeyFakeClass, NULL);
+				RegCloseKey(hKeyFakeClass);
+				RegDeleteKey(HKEY_CURRENT_USER, strKeyClass);
 			}
-		} 
+		}
 	}
-	RegCloseKey(hKey);
+
+	// Find CLSIDs in Registry
+	GetClsidsFromRegistry(HKEY_CLASSES_ROOT, entry_point, matched_clsids);
 
 	// Find CLSIDs of all coclasses in type library
-
 	CComPtr<ITypeLib> typelib;
-	if (SUCCEEDED(LoadTypeLibEx(T2COLE(dll_file), REGKIND_NONE, &typelib)) && typelib) 
+	if (SUCCEEDED(LoadTypeLibEx(T2COLE(dll_file), REGKIND_NONE, &typelib)) && typelib)
 	{
 		CComPtr<ITypeInfo> typeinfo;
-		for (UINT i = 0;i < typelib->GetTypeInfoCount();++i) {
+		for (UINT i = 0; i < typelib->GetTypeInfoCount(); ++i) {
 			typeinfo.Release();
 
 			TYPEKIND typekind;
 			if (SUCCEEDED(typelib->GetTypeInfoType(i, &typekind))
-					&& typekind == TKIND_COCLASS) {
+				&& typekind == TKIND_COCLASS) {
 				CComBSTR class_name;
 				TYPEATTR *typeattr = NULL;
 				typelib->GetTypeInfo(i, &typeinfo);
@@ -321,16 +345,20 @@ void CFilterFromFile::OnBnClickedButtonScanClsids()
 		}
 	}
 
-	CLSID clsid;
-	CString clsid_description;
-	POSITION pos = matched_clsids.GetStartPosition();
 	int index = 0;
-	while (matched_clsids.GetNextAssoc(pos, clsid, clsid_description), pos) {
+	POSITION pos = matched_clsids.GetStartPosition();
+	while (pos)
+	{
+		CLSID clsid;
+		CString clsid_description;
+		matched_clsids.GetNextAssoc(pos, clsid, clsid_description);
+
 		CString clsid_string;
 		CLSIDToString(clsid, clsid_string);
 		const int item = list_clsid.InsertItem(index++, clsid_string);
 		list_clsid.SetItemText(item, 1, clsid_description);
 	}
+
 	if (list_clsid.GetItemCount() > 0) {
 		list_clsid.EnableWindow(TRUE);
 		list_clsid.SetColumnWidth(0, -1);
@@ -339,6 +367,58 @@ void CFilterFromFile::OnBnClickedButtonScanClsids()
 		list_clsid.SetColumnWidth(1, -1);
 	}
 }
+
+void CFilterFromFile::GetClsidsFromRegistry(HKEY keyClass, LPFNGETCLASSOBJECT entry_point, CAtlMap<CLSID, CString>& matched_clsids)
+{
+	HKEY hKey = NULL;
+	if (RegOpenKeyEx(keyClass,
+		TEXT("CLSID"),
+		0,
+		KEY_READ,
+		&hKey) == ERROR_SUCCESS)
+	{
+		DWORD    num_sub_keys = 0;
+		DWORD    longest_subkey = 0;
+
+		// Get the class name and the value count. 
+		DWORD retCode = RegQueryInfoKey(hKey, NULL, NULL, NULL,
+			&num_sub_keys, &longest_subkey, NULL, NULL, NULL, NULL, NULL, NULL);
+
+		if (num_sub_keys > 0)
+		{
+			const int			MAX_KEY_LENGTH = 50;
+			TCHAR				subkey_name[MAX_KEY_LENGTH];   // buffer for subkey name
+			DWORD				subkey_name_size;                   // size of name string 
+			CLSID				subkey_clsid;
+			IClassFactory *		factory = NULL;
+
+			for (DWORD i = 0; i < num_sub_keys; i++)
+			{
+				subkey_name_size = MAX_KEY_LENGTH;
+				if (ERROR_SUCCESS == RegEnumKeyEx(hKey, i, subkey_name, &subkey_name_size, NULL, NULL, NULL, NULL)
+					&& SUCCEEDED(CLSIDFromString(subkey_name, &subkey_clsid))
+					&& SUCCEEDED(entry_point(subkey_clsid, __uuidof(IClassFactory), (void**)&factory)))
+				{
+					// Get name of COM object
+					CString clsid_name;
+					const int MAX_NAME_LENGTH = 256;
+					OLECHAR * const name_buffer = clsid_name.GetBufferSetLength(MAX_NAME_LENGTH);
+					DWORD name_size = MAX_NAME_LENGTH;
+					LSTATUS status = RegGetValue(hKey, subkey_name, NULL, RRF_RT_REG_SZ, NULL, name_buffer, &name_size);
+					clsid_name.ReleaseBuffer(name_size / sizeof(*name_buffer));
+
+					matched_clsids.SetAt(subkey_clsid, clsid_name);
+				}
+				if (factory) {
+					factory->Release();
+					factory = NULL;
+				}
+			}
+		}
+	}
+	RegCloseKey(hKey);
+}
+
 
 struct SortData
 {

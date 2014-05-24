@@ -37,7 +37,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
     virtual void OnOK();
 public:
-	static HRESULT GetClassFactoryEntryPoint(LPCOLESTR dll_file, LPFNGETCLASSOBJECT & entry_point);
+	static HRESULT GetClassFactoryEntryPoint(LPCOLESTR dll_file, HMODULE& hLib, LPFNGETCLASSOBJECT & entry_point);
+	static void GetClsidsFromRegistry(HKEY keyClass, LPFNGETCLASSOBJECT entry_point, CAtlMap<CLSID, CString>& matched_clsids);
 
     virtual BOOL OnInitDialog();
 
