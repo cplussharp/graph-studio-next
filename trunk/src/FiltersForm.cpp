@@ -10,10 +10,6 @@
 
 #include "time_utils.h"
 
-typedef HRESULT (_stdcall *DllUnregisterServerProc)(); 
-typedef HRESULT (_stdcall *DllRegisterServerProc)(); 
-
-
 //-----------------------------------------------------------------------------
 //
 //	CFiltersForm class
@@ -941,13 +937,32 @@ void CFiltersForm::OnRegisterClick()
         CString filename = dlg.GetNextPathName(pos);
         firstFilterFile = filename;
 
-		DWORD code = DSUtil::ExecuteWait(_T("regsvr32.exe"), filename);
+		CString strParams;
+		strParams.Format(_T("\"%s\""), (LPCTSTR)filename);
+		DWORD code = DSUtil::ExecuteWait(_T("regsvr32.exe"), strParams);
 		changed = !code;
     }
 
     // reload the filters
     if (changed)
     {
+		// All-Filters does not contain the newly registered filters, so change combo to "DirectShow Filters"
+		int i = 0;
+		for (int i = 0; i < combo_categories.GetCount(); i++)
+		{
+			DSUtil::FilterCategory* const item_data = (DSUtil::FilterCategory*)combo_categories.GetItemDataPtr(i);
+
+			if (item_data != (DSUtil::FilterCategory*)CATEGORY_FAVORITES &&
+				item_data != (DSUtil::FilterCategory*)CATEGORY_BLACKLIST)
+			{
+				if (item_data->clsid == CLSID_LegacyAmFilterCategory)
+				{
+					combo_categories.SetCurSel(i);
+					break;
+				}
+			}
+		}
+
 	    OnComboCategoriesChange();
 
         DSUtil::FilterTemplate*	filter;
@@ -959,6 +974,8 @@ void CFiltersForm::OnRegisterClick()
                 list_filters.SetItemState(i, LVIS_SELECTED, LVIS_SELECTED);
                 list_filters.SetSelectionMark(i);
                 list_filters.EnsureVisible(i, TRUE);
+
+				UpdateFilterDetails(*filter);
                 return;
             }
         }
