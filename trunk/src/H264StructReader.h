@@ -301,6 +301,7 @@ public:
     static void ReadSliceHeader(CBitStreamReader& bs, slice_header_t& sh, sps_t& sps, bool isNonIDR);
 
     static REFERENCE_TIME GetAvgTimePerFrame(int num_units_in_tick, int time_scale);
+	static RECT GetSize(sps_t& sps, bool ignoreCropping = false);
 };
 
 GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation

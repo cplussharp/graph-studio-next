@@ -351,6 +351,21 @@ REFERENCE_TIME CH264StructReader::GetAvgTimePerFrame(int num_units_in_tick, int 
     return val;
 }
 
+RECT CH264StructReader::GetSize(sps_t& sps, bool ignoreCropping)
+{
+	RECT rc = { 0, 0, 0, 0 };
+	rc.right = (sps.pic_width_in_mbs_minus1 + 1) * 16;
+	rc.bottom = (2 - (sps.frame_mbs_only_flag ? 1 : 0)) * ((sps.pic_height_in_map_units_minus1 + 1) * 16);
+
+	if (sps.frame_cropping_flag && !ignoreCropping)
+	{
+		rc.right -= sps.frame_crop_right_offset * 2 + sps.frame_crop_left_offset * 2;
+		rc.bottom -= (2 - (sps.frame_mbs_only_flag ? 1 : 0)) * (sps.frame_crop_bottom_offset * 2 + sps.frame_crop_top_offset * 2);
+	}
+
+	return rc;
+}
+
 
 void CH264StructReader::ReadSEI(CBitStreamReader& bs, sei_t& sei)
 {

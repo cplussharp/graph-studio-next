@@ -178,7 +178,8 @@ public:
 	bool ParseMpegAudio(const BYTE* pData, const long lDataLen);
 	bool ParseAAC(const BYTE* pData, const long lDataLen);
 
-    void FillParsedMediaType();
+    void FillParsedMediaTypeMpeg2();
+	void FillParsedMediaTypeH264(const BYTE* spsData, int spsLen, const BYTE* ppsData, int ppsLen);
 };
 
 
