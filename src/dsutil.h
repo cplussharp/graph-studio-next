@@ -296,6 +296,8 @@ namespace DSUtil
 	HANDLE Execute(const CString& strFile, const CString& strParams, bool bAsAdministrator = true);
 	DWORD ExecuteWait(const CString& strFile, const CString& strParams, bool bAsAdministrator = true);
 	DWORD WriteToRegistryAsAdmin(const CString& strRegText);
+
+	ULONGLONG GetTickCount64();
 };
 
 

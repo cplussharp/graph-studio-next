@@ -3965,7 +3965,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		
 		if (graph->params->abort_timeout && graph->params->in_render) {
 
-			ULONGLONG		timenow = GetTickCount64();
+			ULONGLONG		timenow = DSUtil::GetTickCount64();
 
 			if (graph->params->render_can_proceed &&
 				(timenow > (graph->params->render_start_time + 10*1000))
@@ -4006,7 +4006,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				alloc->Free(moniker_name);
 				alloc->Release();
 			}
-			ra.time_ms = GetTickCount64() - graph->params->render_start_time;
+			ra.time_ms = DSUtil::GetTickCount64() - graph->params->render_start_time;
 
 			if (ra.displ_name != _T("")) {
 				graph->params->render_actions.push_back(ra);
@@ -4067,7 +4067,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// moniker name
 		pFilter->GetClassID(&ra.clsid);
 
-		ra.time_ms = GetTickCount64() - graph->params->render_start_time;
+		ra.time_ms = DSUtil::GetTickCount64() - graph->params->render_start_time;
 		ra.type = RenderAction::ACTION_CREATE;
 
 		graph->params->render_actions.push_back(ra);
@@ -4078,7 +4078,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	HRESULT GraphCallbackImpl::UnableToRender(IPin *pPin)		// This method uses the thiscall calling convention, rather than __stdcall.
 	{
 		RenderAction	ra;
-		ra.time_ms = GetTickCount64() - graph->params->render_start_time;
+		ra.time_ms = DSUtil::GetTickCount64() - graph->params->render_start_time;
 		ra.type = RenderAction::ACTION_RENDER_FAILURE;
 		ra.clsid = GUID_NULL;
 		ra.displ_name = _T("Unknown pin");
