@@ -2606,6 +2606,18 @@ namespace DSUtil
 
 		return retCode;
 	}
+
+	ULONGLONG GetTickCount64()
+	{
+		typedef ULONGLONG (WINAPI *FPTR_GetTickCount64)(void);
+
+		static FPTR_GetTickCount64 pGetTickCount64 = (FPTR_GetTickCount64)GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "GetTickCount64");
+
+		if (pGetTickCount64)
+			return (*pGetTickCount64)();
+		
+		return GetTickCount();
+	}
 };
 
 
