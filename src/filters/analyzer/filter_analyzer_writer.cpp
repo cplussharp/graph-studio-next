@@ -63,10 +63,6 @@ STDMETHODIMP CAnalyzerWriterInput::NonDelegatingQueryInterface(REFIID iid, void*
 
     if (IID_IStream == iid)
 		return GetInterface(static_cast<IStream*>(this), ppv);
-  //  else if (__uuidof(IStreamBufferDataCounters) == iid)
-		//return GetInterface(static_cast<IStreamBufferDataCounters*>(this), ppv);
-    //else if (iid == IID_ISpecifyPropertyPages)
-    //    return GetInterface(static_cast<ISpecifyPropertyPages*>(this), ppv);
 
 	return __super::NonDelegatingQueryInterface(iid, ppv);
 }
@@ -285,6 +281,8 @@ STDMETHODIMP CAnalyzerWriterFilter::NonDelegatingQueryInterface(REFIID riid, voi
         return GetInterface(static_cast<IAMFilterMiscFlags*>(this), ppv);
     else if (__uuidof(IAnalyzerCommon) == riid)
 		return m_analyzer->NonDelegatingQueryInterface(riid, ppv);
+	else if (IID_ISpecifyPropertyPages == riid)
+		return GetInterface(static_cast<ISpecifyPropertyPages*>(this), ppv);
 
     return __super::NonDelegatingQueryInterface(riid, ppv);
 }

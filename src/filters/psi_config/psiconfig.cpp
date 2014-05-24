@@ -964,7 +964,7 @@ bool CPayloadParserInputPin::ParseMpegVideo(const BYTE* pData, const long lDataL
 			dst += (iSeqHeadStop - iSeqHeadStart + 1);
 			CopyMemory(dst, pData + iSeqExtStart, (iSeqExtStop - iSeqExtStart + 1));
 
-			FillParsedMediaType();
+			FillParsedMediaTypeMpeg2();
 		}
 		else
 		{
@@ -980,6 +980,92 @@ bool CPayloadParserInputPin::ParseMpegVideo(const BYTE* pData, const long lDataL
 
 bool CPayloadParserInputPin::ParseH264(const BYTE* pData, const long lDataLen)
 {
+	const BYTE* sps = NULL;
+	int spsLen = 0;
+	const BYTE* pps = NULL;
+	int ppsLen = NULL;
+
+	int lastNullBytes = 0;
+	for (long i = 0; i < lDataLen - 1; i++)
+	{
+		BYTE val = pData[i];
+
+		if (val == 0) lastNullBytes++;
+		else if (val == 1 && lastNullBytes >= 3)
+		{
+			// end pos
+			if (sps && spsLen == 0)
+			{
+				const BYTE* newNAL = pData + i - 3; // 00 00 00 (01)
+				spsLen = newNAL - sps;
+
+				// we found what we need
+				if (pps && ppsLen) break;
+			}
+			else if (pps && ppsLen == 0)
+			{
+				const BYTE* newNAL = pData + i - 3; // 00 00 00 (01)
+				ppsLen = newNAL - pps;
+
+				// we found what we need
+				if (sps && spsLen) break;
+			}
+
+			// start pos
+			UINT8 nalType = pData[i+1] & 0x1f;
+			switch (nalType)
+			{
+			case 7:
+				sps = pData + i - 3; // 00 00 00 (01)
+				break;
+
+			case 8:
+				pps = pData + i - 3; // 00 00 00 (01)
+				break;
+			}
+
+			lastNullBytes = 0;
+		}
+		else
+			lastNullBytes = 0;
+	}
+
+	if (sps && spsLen == 0)
+		spsLen = (pData + lDataLen) - sps;
+	else if (pps && ppsLen == 0)
+		ppsLen = (pData + lDataLen) - sps;
+
+	if (sps || pps)
+	{
+		m_parsedMediaType.majortype = MEDIATYPE_Video;
+		m_parsedMediaType.subtype = MEDIASUBTYPE_H264;
+		m_parsedMediaType.formattype = FORMAT_MPEG2_VIDEO;
+		m_parsedMediaType.bFixedSizeSamples = FALSE;
+		m_parsedMediaType.bTemporalCompression = TRUE;
+		m_parsedMediaType.lSampleSize = 0;
+
+		int cbSequenceHeader = spsLen + ppsLen;
+		if (cbSequenceHeader % 4 != 0) cbSequenceHeader += 4 - cbSequenceHeader % 4; // DWORD align seqheader
+		m_parsedMediaType.cbFormat = sizeof(MPEG2VIDEOINFO) + cbSequenceHeader;
+		m_parsedMediaType.pbFormat = (BYTE*)CoTaskMemAlloc(m_parsedMediaType.cbFormat);
+		ZeroMemory(m_parsedMediaType.pbFormat, m_parsedMediaType.cbFormat);
+
+		MPEG2VIDEOINFO* pInfo = (MPEG2VIDEOINFO*)m_parsedMediaType.pbFormat;
+
+		pInfo->cbSequenceHeader = cbSequenceHeader;
+		BYTE* dst = (BYTE*)pInfo->dwSequenceHeader;
+		if (sps)
+		{
+			CopyMemory(dst, sps, spsLen);
+			dst += spsLen;
+		}
+		if (pps) CopyMemory(dst, pps, ppsLen);
+
+		FillParsedMediaTypeH264(sps, spsLen, pps, ppsLen);
+		readyToReconfigDemuxer = true;
+		return true;
+	}
+
 	// TODO search for SPS and PPS
 	return false;
 }
@@ -1169,7 +1255,7 @@ STDMETHODIMP CPayloadParserInputPin::EndOfStream(void)
 }
 
 
-void CPayloadParserInputPin::FillParsedMediaType(void)
+void CPayloadParserInputPin::FillParsedMediaTypeMpeg2(void)
 {
     if (m_parsedMediaType.majortype == MEDIATYPE_Video &&
         m_parsedMediaType.subtype == MEDIASUBTYPE_MPEG2_VIDEO &&
@@ -1259,6 +1345,44 @@ void CPayloadParserInputPin::FillParsedMediaType(void)
         pSeq++;
         pInfo->hdr.dwBitRate += (*pSeq & 0xC0) >> 6;
     }
+}
+
+void CPayloadParserInputPin::FillParsedMediaTypeH264(const BYTE* spsData, int spsLen, const BYTE* ppsData, int ppsLen)
+{
+	if (m_parsedMediaType.majortype == MEDIATYPE_Video &&
+		m_parsedMediaType.subtype == MEDIASUBTYPE_H264 &&
+		m_parsedMediaType.formattype == FORMAT_MPEG2_VIDEO &&
+		m_parsedMediaType.pbFormat != NULL)
+	{
+		// Parse MPEG2SequenceHeader and fill Bitmapinfoheader and Videoinfoheader2 with the information
+		MPEG2VIDEOINFO* pInfo = (MPEG2VIDEOINFO*)m_parsedMediaType.pbFormat;
+		if (pInfo->cbSequenceHeader < spsLen+ppsLen)
+			return;
+
+		if (spsData && spsLen)
+		{
+			GraphStudio::CBitStreamReader brSPS(spsData, spsLen);
+			brSPS.SkipU8(5); // 00 00 00 01 NALHeader
+
+			GraphStudio::sps_t sps = { 0 };
+			GraphStudio::CH264StructReader::ReadSPS(brSPS, sps);
+
+			pInfo->dwLevel = sps.level_idc;
+			pInfo->dwProfile = sps.profile_idc;
+
+			RECT size = GraphStudio::CH264StructReader::GetSize(sps);
+			pInfo->hdr.rcSource = size;
+			pInfo->hdr.rcTarget = size;
+			size = GraphStudio::CH264StructReader::GetSize(sps, true);
+			pInfo->hdr.bmiHeader.biWidth = size.right;
+			pInfo->hdr.bmiHeader.biHeight = size.bottom;
+			pInfo->hdr.bmiHeader.biCompression = MAKEFOURCC('H', '2', '6', '4');
+			pInfo->hdr.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+
+			if (sps.vui_parameters_present_flag)
+				pInfo->hdr.AvgTimePerFrame = GraphStudio::CH264StructReader::GetAvgTimePerFrame(sps.vui.num_units_in_tick, sps.vui.time_scale);
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------

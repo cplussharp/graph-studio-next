@@ -156,7 +156,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         // works direct on the buffer and returns the count of stripped bytes
         static int StripEmulationBytes(UINT8* buf, SIZE_T bufLen);
 
-        CBitStreamReader(UINT8* buf, int size, bool skipEmulationBytes = true);
+        CBitStreamReader(const UINT8* buf, int size, bool skipEmulationBytes = true);
         inline UINT32 ByteAligned() const { return m_bitsLeft == 8 ? 1 : 0; }
         inline UINT32 IsEnd() const { return m_p >= m_end ? 1 : 0; }
         inline SSIZE_T GetPos() const { return (m_p - m_start); }
@@ -175,16 +175,16 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
         UINT32 PeekU1();
 
-        inline UINT8* Pointer() { return m_p; }
+        inline const UINT8* Pointer() { return m_p; }
         inline void SkipToEnd() { m_p = m_end; }
         inline void ByteAlign() { if (m_bitsLeft != 8) m_bitsLeft = 0; GotoNextByteIfNeeded(); }
 
     private:
         void GotoNextByteIfNeeded();
 
-        UINT8* m_start;
-        UINT8* m_p;
-        UINT8* m_end;
+        const UINT8* m_start;
+        const UINT8* m_p;
+        const UINT8* m_end;
         int m_bitsLeft;
         bool m_skipEmulationBytes;
     };
