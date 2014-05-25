@@ -22,6 +22,7 @@ public:
     CListCtrl               list_clsid;
 
 	CString					result_file;
+	CString					result_name;
     CLSID                   result_clsid;
     IClassFactory*          filterFactory;
 
