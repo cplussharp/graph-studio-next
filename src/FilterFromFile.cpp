@@ -74,7 +74,7 @@ void CFilterFromFile::OnOK()
                     strClsid.Append(_T("}"));
 
                 hr = CLSIDFromString(strClsid, &result_clsid);
-                if(SUCCEEDED(hr))
+                if (SUCCEEDED(hr))
                 {
 					hr = DSUtil::GetClassFactoryFromDll(T2COLE(result_file), result_clsid, &filterFactory);
 					if (FAILED(hr))
@@ -467,6 +467,7 @@ void CFilterFromFile::OnLvnItemchangedListData(NMHDR *pNMHDR, LRESULT *pResult)
 	if ((pNMLV->uNewState & LVIS_SELECTED) && 
 			!(pNMLV->uOldState & LVIS_SELECTED)) {
 		combo_clsid.SetWindowText(list_clsid.GetItemText(pNMLV->iItem, 0));
+		result_name = list_clsid.GetItemText(pNMLV->iItem, 1);
 	}
 
 	*pResult = 0;

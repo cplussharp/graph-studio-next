@@ -1345,16 +1345,23 @@ HRESULT CGraphView::InsertFilterFromDLL(CString& dll_file)
         DSUtil::ShowError(hr, _T("Error creating instance of filter"));
     else {
         // Get Filter name
-        FILTER_INFO filterInfo = {0};   
-        instance->QueryFilterInfo(&filterInfo);
+		CString filterName = dlg.result_name;
 
-		CString filterName;
-		GraphStudio::GetObjectName(dlg.result_clsid, filterName);
-		if(filterName.GetLength() == 0)
+		if (filterName.IsEmpty())
+			GraphStudio::GetObjectName(dlg.result_clsid, filterName);
+
+		if (filterName.IsEmpty())
+		{
+			FILTER_INFO filterInfo = { 0 };
+			instance->QueryFilterInfo(&filterInfo);
 			filterName = filterInfo.achName;
-		if(filterName.GetLength() == 0)
+		}
+
+		if (filterName.IsEmpty())
             filterName = PathFindFileName(dlg.result_file);
+
 		hr = InsertNewFilter(instance, filterName, /* connectCurrentPin = */ false);
+
 		if (SUCCEEDED(hr)) {
 			// Mark the filter we created as being created by a DLL class factory
 			const INT_PTR filter_count = graph.filters.GetCount();
