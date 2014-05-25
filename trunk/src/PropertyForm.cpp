@@ -261,13 +261,28 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
 				for (int i=0; i<(int)pagelist.cElems; i++) {
 					CComPtr<IPropertyPage>	page;
 					hr = CoCreateInstance(pagelist.pElems[i], NULL, CLSCTX_INPROC_SERVER, IID_IPropertyPage, (void**)&page);
-					if (SUCCEEDED(hr)) {
+					if (hr == REGDB_E_CLASSNOTREG)
+					{
+						// maybe the filter is loaded directly from the dll
+						// try to load the property page from the dll
+						GraphStudio::Filter gf(NULL);
+						gf.LoadFromFilter(filter);
+						CString strFilterFile = gf.GetDllFileName();
+						if (!strFilterFile.IsEmpty())
+						{
+							// load the dll
+							CComPtr<IClassFactory> factory;
+							if (SUCCEEDED(DSUtil::GetClassFactoryFromDll(T2COLE(strFilterFile), pagelist.pElems[i], &factory)))
+								hr = factory->CreateInstance(NULL, IID_IPropertyPage, (void**)&page);
+						}
+					}
+					
+					if (page)
+					{
 						// assign the object
 						hr = page->SetObjects(1, &obj);
-						if (SUCCEEDED(hr)) {
-							// and add the page to our container
-							container->AddPage(page);
-						}
+						if (SUCCEEDED(hr))
+							container->AddPage(page); // and add the page to our container
 					}
 
 					page = NULL;
