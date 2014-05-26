@@ -981,9 +981,9 @@ bool CPayloadParserInputPin::ParseMpegVideo(const BYTE* pData, const long lDataL
 bool CPayloadParserInputPin::ParseH264(const BYTE* pData, const long lDataLen)
 {
 	const BYTE* sps = NULL;
-	int spsLen = 0;
+	SIZE_T spsLen = 0;
 	const BYTE* pps = NULL;
-	int ppsLen = NULL;
+	SIZE_T ppsLen = NULL;
 
 	int lastNullBytes = 0;
 	for (long i = 0; i < lDataLen - 1; i++)
@@ -1044,15 +1044,15 @@ bool CPayloadParserInputPin::ParseH264(const BYTE* pData, const long lDataLen)
 		m_parsedMediaType.bTemporalCompression = TRUE;
 		m_parsedMediaType.lSampleSize = 0;
 
-		int cbSequenceHeader = spsLen + ppsLen;
+		SIZE_T cbSequenceHeader = spsLen + ppsLen;
 		if (cbSequenceHeader % 4 != 0) cbSequenceHeader += 4 - cbSequenceHeader % 4; // DWORD align seqheader
-		m_parsedMediaType.cbFormat = sizeof(MPEG2VIDEOINFO) + cbSequenceHeader;
+		m_parsedMediaType.cbFormat = sizeof (MPEG2VIDEOINFO) + (ULONG) cbSequenceHeader;
 		m_parsedMediaType.pbFormat = (BYTE*)CoTaskMemAlloc(m_parsedMediaType.cbFormat);
 		ZeroMemory(m_parsedMediaType.pbFormat, m_parsedMediaType.cbFormat);
 
 		MPEG2VIDEOINFO* pInfo = (MPEG2VIDEOINFO*)m_parsedMediaType.pbFormat;
 
-		pInfo->cbSequenceHeader = cbSequenceHeader;
+		pInfo->cbSequenceHeader = (DWORD) cbSequenceHeader;
 		BYTE* dst = (BYTE*)pInfo->dwSequenceHeader;
 		if (sps)
 		{
@@ -1347,7 +1347,7 @@ void CPayloadParserInputPin::FillParsedMediaTypeMpeg2(void)
     }
 }
 
-void CPayloadParserInputPin::FillParsedMediaTypeH264(const BYTE* spsData, int spsLen, const BYTE* ppsData, int ppsLen)
+void CPayloadParserInputPin::FillParsedMediaTypeH264(const BYTE* spsData, SIZE_T spsLen, const BYTE* ppsData, SIZE_T ppsLen)
 {
 	if (m_parsedMediaType.majortype == MEDIATYPE_Video &&
 		m_parsedMediaType.subtype == MEDIASUBTYPE_H264 &&
@@ -1356,12 +1356,12 @@ void CPayloadParserInputPin::FillParsedMediaTypeH264(const BYTE* spsData, int sp
 	{
 		// Parse MPEG2SequenceHeader and fill Bitmapinfoheader and Videoinfoheader2 with the information
 		MPEG2VIDEOINFO* pInfo = (MPEG2VIDEOINFO*)m_parsedMediaType.pbFormat;
-		if (pInfo->cbSequenceHeader < spsLen+ppsLen)
+		if (pInfo->cbSequenceHeader < (DWORD) (spsLen + ppsLen))
 			return;
 
 		if (spsData && spsLen)
 		{
-			GraphStudio::CBitStreamReader brSPS(spsData, spsLen);
+			GraphStudio::CBitStreamReader brSPS(spsData, (INT) spsLen);
 			brSPS.SkipU8(5); // 00 00 00 01 NALHeader
 
 			GraphStudio::sps_t sps = { 0 };

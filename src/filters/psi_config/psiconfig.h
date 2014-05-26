@@ -179,7 +179,7 @@ public:
 	bool ParseAAC(const BYTE* pData, const long lDataLen);
 
     void FillParsedMediaTypeMpeg2();
-	void FillParsedMediaTypeH264(const BYTE* spsData, int spsLen, const BYTE* ppsData, int ppsLen);
+	void FillParsedMediaTypeH264(const BYTE* spsData, SIZE_T spsLen, const BYTE* ppsData, SIZE_T ppsLen);
 };
 
 
