@@ -431,8 +431,8 @@ int CALLBACK ListCompare(LPARAM item1, LPARAM item2, LPARAM data)
 	SortData * const sort_data = (SortData*)data;
 	if (sort_data && sort_data->list) {
 
-		const CString str1 = sort_data->list->GetItemText(item1, sort_data->column_index);
-		const CString str2 = sort_data->list->GetItemText(item2, sort_data->column_index);
+		const CString str1 = sort_data->list->GetItemText((int) item1, sort_data->column_index);
+		const CString str2 = sort_data->list->GetItemText((int) item2, sort_data->column_index);
 
 		if (str1 < str2)
 			return -1;
