@@ -20,6 +20,7 @@ BEGIN_MESSAGE_MAP(CDbgLogPage, CDSPropertyPage)
     ON_BN_CLICKED(IDC_BUTTON_REFRESH, &CDbgLogPage::OnBnClickedRefresh)
     ON_BN_CLICKED(IDC_BUTTON_DBGLOGSETTINGS, &CDbgLogPage::OnBnClickedSettings)
 	ON_BN_CLICKED(IDC_BUTTON_LOCATE, &CDbgLogPage::OnLocateClick)
+	ON_BN_CLICKED(IDC_BUTTON_CLEAR_LOG, &CDbgLogPage::OnClearLogClick)
 	ON_EN_UPDATE(IDC_FILTER_STRING, &CDbgLogPage::OnUpdateFilterString)
 END_MESSAGE_MAP()
 
@@ -30,7 +31,7 @@ END_MESSAGE_MAP()
 //-----------------------------------------------------------------------------
 CDbgLogPage::CDbgLogPage(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR strTitle, const CString& filterFile, const CString& logFile) :
 CDSPropertyPage(_T("DbgLogPage"), pUnk, IDD, strTitle), refreshOnTimer(true),
-filterFile(filterFile), logFile(logFile), lastFileSize(-1), restoreSelectionOnRefresh(true)
+filterFile(filterFile), logFile(logFile), lastFileSize(-1), fileStartOffset(0), restoreSelectionOnRefresh(true)
 {
 	if (phr) *phr = NOERROR;
 
@@ -70,8 +71,12 @@ BOOL CDbgLogPage::OnInitDialog()
 	btn_settings.SetFont(GetFont());
 	btn_settings.SetShield(TRUE);
 
+	btn_clear.Create(_T("&Clear"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_CLEAR_LOG);
+	btn_clear.SetWindowPos(NULL, 36 + 3*rc.Width(), 4, rc.Width() + 20, rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_clear.SetFont(GetFont());
+
 	title.GetClientRect(&rc);
-	CRect edit_rect(0, 0, 350, 18);		// recommended edit control height is 14 but add a bit as 14 looks cramped
+	CRect edit_rect(0, 0, 320, 18);		// recommended edit control height is 14 but add a bit as 14 looks cramped
 	edit_rect.MoveToXY(rc.Width() - 354, (rc.Height() - 18) / 2);
 	edit_filter.Create(WS_BORDER | WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_LOWERCASE, edit_rect, &title, IDC_SEARCH_STRING);
 	edit_filter.SetFont(GetFont());
@@ -146,6 +151,26 @@ void CDbgLogPage::OnBnClickedSettings()
 	}
 }
 
+void CDbgLogPage::OnClearLogClick()
+{
+	fileStartOffset = 0;
+
+	if (!PathFileExists(logFile))
+		return;
+
+	CStdioFile file(logFile, CFile::modeRead | CFile::shareDenyNone | (filterRegexValid ? CFile::typeText : CFile::typeBinary) );
+	DWORD sizeHigh = 0;
+	const DWORD sizeLow = GetFileSize(file, &sizeHigh);
+	if (sizeHigh != 0 || sizeLow > INT_MAX) {			// don't support log files > 2GB!! Don't refresh if file length the same as before
+		return;
+	}
+	fileStartOffset = sizeLow;
+
+	lastFileSize = -1;			// force refresh
+	restoreSelectionOnRefresh = false;
+	RefreshLog();
+}
+
 void CDbgLogPage::OnLocateClick()
 {
 	if (!logFile.IsEmpty())
@@ -213,6 +238,14 @@ void CDbgLogPage::RefreshLog()
 			return;
 		}
 		lastFileSize = sizeLow;
+
+		if (fileStartOffset > sizeLow) {		// sanity check if file offset is beyond end of file
+			fileStartOffset = 0;				// reset offset to zero
+		} else {
+			sizeLow -= fileStartOffset;
+			file.Seek(fileStartOffset, CFile::begin);
+		}
+
 
 		if (filterRegexValid) {
 			// preallocate string buffer
