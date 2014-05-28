@@ -239,24 +239,32 @@ void CDbgLogPage::RefreshLog()
 	}
 
 	// current selection and scroll
-	int selStart = 0, selEnd = 0;
+	int selStart = -1, selEnd = -1;
 	SCROLLINFO scrollV = {0};
 	if (restoreSelectionOnRefresh) {
 		edit_log.GetSel(selStart, selEnd);
+		if (selStart == selEnd) {							// no selected text
+			int length = edit_log.GetWindowTextLength();	// if at end of text
+			if (selStart >= length) {						
+				selStart = -1;								// move to end of text after refresh
+			}
+		}
 		edit_log.GetScrollInfo(SB_VERT, &scrollV, SIF_POS);
 	}
 	restoreSelectionOnRefresh = true;
 
 	edit_log.SetWindowText(strLines);
 
-	if (selStart != selEnd) 
-	{
+	if (selStart >= 0)		// restore position
+	{			
 		edit_log.SetSel(selStart, selEnd, TRUE);
 		// edit_log.SetScrollInfo just scrolls the scrollbars and not the content!?
 		edit_log.LineScroll(scrollV.nPos);
 	} 
-	else 
+	else					// scroll to end of log
 	{
 		edit_log.LineScroll(edit_log.GetLineCount());
+		const int len = edit_log.GetWindowTextLength();
+		edit_log.SetSel(len, len, TRUE);
 	}
 }
