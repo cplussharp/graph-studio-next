@@ -210,9 +210,9 @@ void CDbgLogPage::RefreshLog()
 		DWORD sizeHigh = 0;
 		DWORD sizeLow = GetFileSize(file, &sizeHigh);
 		if (sizeHigh != 0 || sizeLow > INT_MAX || sizeLow == lastFileSize ) {			// don't support log files > 2GB!! Don't refresh if file length the same as before
-			lastFileSize = sizeLow;
 			return;
 		}
+		lastFileSize = sizeLow;
 
 		if (filterRegexValid) {
 			// preallocate string buffer
