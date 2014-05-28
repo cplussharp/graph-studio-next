@@ -271,6 +271,7 @@
 #define IDC_RADIO_LOGFILE_CONSOLE       1164
 #define IDC_RADIO3                      1165
 #define IDC_RADIO_LOGFILE_FILE          1165
+#define IDC_BUTTON_CLEAR_LOG			1166
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -438,7 +439,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        182
 #define _APS_NEXT_COMMAND_VALUE         32957
-#define _APS_NEXT_CONTROL_VALUE         1166
+#define _APS_NEXT_CONTROL_VALUE         1167
 #define _APS_NEXT_SYMED_VALUE           108
 #endif
 #endif
