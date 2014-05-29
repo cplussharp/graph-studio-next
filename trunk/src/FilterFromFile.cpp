@@ -280,24 +280,46 @@ void CFilterFromFile::OnBnClickedButtonScanClsids()
 
 				if (lRes == ERROR_SUCCESS)
 				{
-					// register
-					HRESULT hr = reg();
-					if (SUCCEEDED(hr))
-					{
-						// search for CLSIDs
-						GetClsidsFromRegistry(hKeyFakeClass, entry_point, matched_clsids);
+					// override HKEY_CURRENT_USER
+					HKEY hKeyFakeUser;
+					CString strKeyUser = _T("Software\\MONOGRAM\\GraphStudioNext\\HKEY_CURRENT_USER");
+					long lRes = RegCreateKey(HKEY_CURRENT_USER, strKeyUser, &hKeyFakeUser);
+					if (lRes == ERROR_SUCCESS)
+						lRes = RegOverridePredefKey(HKEY_CURRENT_USER, hKeyFakeUser);
 
-						// unregister to clean up
-						unreg();
+					if (lRes == ERROR_SUCCESS)
+					{
+						// register
+						HRESULT hr = reg();
+						if (SUCCEEDED(hr))
+						{
+							// search for CLSIDs
+							GetClsidsFromRegistry(hKeyFakeClass, entry_point, matched_clsids);
+
+							// unregister to clean up
+							unreg();
+						}
+						else
+							DSUtil::ShowError(hr, _T("Error temporary registering the DLL"));
+
+
+						// restore HKEY_CURRENT_USER
+						RegOverridePredefKey(HKEY_CURRENT_USER, NULL);
+
+						// delete key
+						//RegDeleteTree(hKeyFakeUser, NULL); // not working on XP
+						SHDeleteKey(hKeyFakeUser, NULL);
+						RegCloseKey(hKeyFakeUser);
+						RegDeleteKey(HKEY_CURRENT_USER, strKeyUser);
+
 					}
-					else
-						DSUtil::ShowError(hr, _T("Error temporary registering the DLL"));
 
 					// restore HKEY_LOCAL_MACHINE
 					RegOverridePredefKey(HKEY_LOCAL_MACHINE, NULL);
 					
 					// delete key
-					RegDeleteTree(hKeyFakeLocal, NULL);
+					//RegDeleteTree(hKeyFakeLocal, NULL); // not working on XP
+					SHDeleteKey(hKeyFakeLocal, NULL);
 					RegCloseKey(hKeyFakeLocal);
 					RegDeleteKey(HKEY_CURRENT_USER, strKeyLocal);
 				}
@@ -306,7 +328,8 @@ void CFilterFromFile::OnBnClickedButtonScanClsids()
 				RegOverridePredefKey(HKEY_CLASSES_ROOT, NULL);
 				
 				// delete key
-				RegDeleteTree(hKeyFakeClass, NULL);
+				//RegDeleteTree(hKeyFakeClass, NULL); // not working on XP
+				SHDeleteKey(hKeyFakeClass, NULL);
 				RegCloseKey(hKeyFakeClass);
 				RegDeleteKey(HKEY_CURRENT_USER, strKeyClass);
 			}
@@ -399,15 +422,20 @@ void CFilterFromFile::GetClsidsFromRegistry(HKEY keyClass, LPFNGETCLASSOBJECT en
 					&& SUCCEEDED(CLSIDFromString(subkey_name, &subkey_clsid))
 					&& SUCCEEDED(entry_point(subkey_clsid, __uuidof(IClassFactory), (void**)&factory)))
 				{
-					// Get name of COM object
-					CString clsid_name;
-					const int MAX_NAME_LENGTH = 256;
-					OLECHAR * const name_buffer = clsid_name.GetBufferSetLength(MAX_NAME_LENGTH);
-					DWORD name_size = MAX_NAME_LENGTH;
-					LSTATUS status = RegGetValue(hKey, subkey_name, NULL, RRF_RT_REG_SZ, NULL, name_buffer, &name_size);
-					clsid_name.ReleaseBuffer(name_size / sizeof(*name_buffer));
+					CRegKey rkKey;
+					if (ERROR_SUCCESS == rkKey.Open(hKey, subkey_name, KEY_READ))
+					{
+						const int MAX_NAME_LENGTH = 256;
+						TCHAR szFilterName[MAX_NAME_LENGTH] = { 0 };
+						DWORD szLength = MAX_NAME_LENGTH;
 
-					matched_clsids.SetAt(subkey_clsid, clsid_name);
+						// Get name of COM object
+						if (ERROR_SUCCESS == rkKey.QueryStringValue(NULL, szFilterName, &szLength))
+						{
+							CString clsid_name = szFilterName;
+							matched_clsids.SetAt(subkey_clsid, clsid_name);
+						}
+					}
 				}
 				if (factory) {
 					factory->Release();

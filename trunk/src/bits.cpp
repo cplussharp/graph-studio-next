@@ -160,7 +160,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         return strippedBytes;
     }
 
-    CBitStreamReader::CBitStreamReader(const UINT8* buf, int size, bool skipEmulationBytes)
+    CBitStreamReader::CBitStreamReader(const UINT8* buf, SIZE_T size, bool skipEmulationBytes)
         : m_start(buf), m_p(buf), m_end(buf + size), m_bitsLeft(8), m_skipEmulationBytes(skipEmulationBytes)
     {
     }
