@@ -18,6 +18,7 @@
 #endif
 
 //#define _AFX_NO_MFC_CONTROLS_IN_DIALOGS // Remove MFC Controls from Static MFC lib
+#define _ATL_XP_TARGETING
 
 // Modify the following defines if you have to target a platform prior to the ones specified below.
 // Refer to MSDN for the latest info on corresponding values for different platforms.
@@ -41,6 +42,10 @@
 
 // turns off MFC's hiding of some common and often safely ignored warning messages
 #define _AFX_ALL_WARNINGS
+
+// PSAPI for WinXP
+#define PSAPI_VERSION       1
+#pragma comment(lib, "Psapi.lib")
 
 #pragma warning( disable : 4995 4996 )		// TODO fix deprecated function references
 
