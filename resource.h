@@ -283,6 +283,7 @@
 #define ID_FAVORITE_FILTER              7500
 #define ID_PREFERRED_VIDEO_RENDERER     8000
 #define ID_COMPATIBLE_FILTER            9000
+#define ID_CONNECT_PIN                  9500
 #define ID_FILE_RENDERURL               32772
 #define ID_FILE_CONNECTTOREMOTEGRAPH    32775
 #define ID_FILE_DISCONNECTFROMREMOTEGRAPH 32776
@@ -432,13 +433,14 @@
 #define ID_NEXT_PROPERTY_PAGE           32954
 #define ID_PREVIOUS_PROPERTY_PAGE       32955
 #define ID_OPTIONS_CONFIGUREGLOBALDBGLOG 32956
+#define ID_GRAPH_CONNECTPIN             32957
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        182
-#define _APS_NEXT_COMMAND_VALUE         32957
+#define _APS_NEXT_COMMAND_VALUE         32958
 #define _APS_NEXT_CONTROL_VALUE         1167
 #define _APS_NEXT_SYMED_VALUE           108
 #endif

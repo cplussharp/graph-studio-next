@@ -44,6 +44,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         ON_COMMAND(ID_MPEG2DEMUX_CREATE_PSI_PIN, &DisplayView::OnMpeg2DemuxCreatePsiPin)
         ON_COMMAND(ID_CHOOSE_SOURCE_FILE, &DisplayView::OnChooseSourceFile)
         ON_COMMAND(ID_CHOOSE_DESTINATION_FILE, &DisplayView::OnChooseDestinationFile)
+        ON_COMMAND(ID_GRAPH_CONNECTPIN, &DisplayView::OnConnectPin)
 
 		ON_COMMAND_RANGE(ID_STREAM_SELECT, ID_STREAM_SELECT+100, &DisplayView::OnSelectStream)
 		ON_COMMAND_RANGE(ID_COMPATIBLE_FILTER, ID_COMPATIBLE_FILTER+999, &DisplayView::OnCompatibleFilterClick)
@@ -170,6 +171,95 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		ShowContextMenu(point, filter, pin);
 	}
 
+	void DisplayView::OnConnectPin()
+	{
+		Pin * const current_pin = graph.GetSelectedPin();
+		if (!current_pin)
+			return;
+
+		CMenu	menu;
+		if (!menu.CreatePopupMenu()) 
+			return;
+
+		if (PopulateConnectMenu(menu, *current_pin) > 0) {
+			Filter * const filter  = current_pin->filter;
+			CPoint point(filter->posx + filter->width + DisplayGraph::GRID_SIZE*2, filter->posy);
+			point -= GetScrollPosition();
+			ClientToScreen(&point);
+			menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, AfxGetMainWnd());
+		}
+	}
+
+	void DisplayView::OnConnectPinClick(UINT nID)
+	{
+		const int pin_index = nID - ID_CONNECT_PIN;
+
+		Pin * const current_pin = graph.GetSelectedPin();
+		if (current_pin && pin_index >=0 && pin_index < connect_pins.GetCount()) {
+			const HRESULT hr = DSUtil::ConnectPin(graph.gb, current_pin->pin, connect_pins[pin_index]->pin, graph.params->connect_mode != 0, graph.params->connect_mode == 2);
+			DSUtil::ShowError(hr, _T("Failed to connect pins"));
+			graph.RefreshFilters();
+			graph.SmartPlacement(false);
+			Invalidate();
+		}
+	}
+
+	int DisplayView::PopulateConnectMenu(CMenu& menu, GraphStudio::Pin & source_pin)
+	{
+		connect_pins.RemoveAll();
+
+		int p = 0;
+		const int filter_count = graph.filters.GetCount();
+		for (int i=0; i<filter_count; i++) {
+			Filter & filter = *graph.filters[i];
+			bool filter_added = false;
+
+			if (source_pin.filter != &filter) {			// Don't offer pins on the same filter
+				CArray<Pin *> & pins = source_pin.dir == PINDIR_OUTPUT ? filter.input_pins : filter.output_pins;		// iterate pins of opposite direction
+				const int pin_count = pins.GetCount();
+				for (int j=0; j<pin_count; j++) {
+					Pin & pin = *pins[j];
+					if (!pin.IsConnected()) {
+
+						CString str_menu(_T("&"));
+						str_menu += filter.name;
+						str_menu += _T(" / ");
+						str_menu += pin.name;
+						menu.InsertMenu(p, MF_BYPOSITION | MF_STRING, ID_CONNECT_PIN+p, str_menu);
+						p++;
+						connect_pins.Add(&pin);
+					}
+				}
+			}
+		}
+		return p;
+	}
+
+	/*  Current context menu entries
+
+		"&Audio Renderers"
+		"&Analyzer Filter"
+		"&Blacklist"
+		"&Compatible Filters"
+		"&Create PSI Pin"
+		"Choose &Destination File..."
+		"&DXVA Null Renderer"
+		"D&elete Selected"
+		"&Favorite"
+		"Find &in Filters..."
+		"F&ile Writer"
+		"Time &Measure Filter"
+		"&Null Renderer"
+		"C&onnect Pin..."
+		"&Properties..."
+		"&Render Pin"
+		"Choose &Source File..."
+		"&Tee Filter"
+		"D&ump Filter"
+		"&Video Renderers"				
+		"Remo&ve Pin"
+		"Analyzer &Writer Filter"
+	*/
 	void DisplayView::ShowContextMenu(CPoint point, GraphStudio::Filter * current_filter, GraphStudio::Pin* current_pin)
 	{
 		CMenu	menu;
@@ -236,6 +326,15 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_RENDER, _T("&Render Pin"));
 			if (offer_remove)
 				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_REMOVE, _T("Remo&ve Pin"));
+
+			CMenu		submenu;
+			submenu.CreatePopupMenu();
+			if (PopulateConnectMenu(submenu, *current_pin) > 0) {
+				menu.InsertMenu(p, MF_BYPOSITION | MF_STRING | renderFlags, IDC_STATIC, _T(""));
+				menu.ModifyMenu(p, MF_BYPOSITION | MF_POPUP | MF_STRING, (UINT_PTR)submenu.m_hMenu, _T("C&onnect Pin..."));
+				p++;
+				submenu.Detach();
+			}
 		}
 
 		/////////////////////// Filter operations
@@ -1052,7 +1151,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (SUCCEEDED(hr)) {
 			graph.RefreshFilters();
 			graph.SmartPlacement(false);
-			graph.Dirty();
 			Invalidate();
 		} else {
             DSUtil::ShowError(hr,_T("Can't render pin"));
@@ -1076,7 +1174,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		    if (SUCCEEDED(hr)) {
 			    graph.RefreshFilters();
 				graph.SmartPlacement(false);
-			    graph.Dirty();
 			    Invalidate();
 			} else {
 				DSUtil::ShowError(hr,_T("Can't remove pin"));
@@ -1105,7 +1202,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				HRESULT hr = form.ChooseSourceFile(source);
 				graph.RefreshFilters();
 				graph.SmartPlacement(false);
-				graph.Dirty();
 				Invalidate();
 			}
 		}
@@ -1121,7 +1217,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				HRESULT hr = form.ChooseSinkFile(sink);
 				graph.RefreshFilters();
 				graph.SmartPlacement(false);
-				graph.Dirty();
 				Invalidate();
 			}
 		}
@@ -1146,6 +1241,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	void DisplayView::OnDeleteSelection()
 	{
 		// to be overriden
+	}
+
+	void DisplayView::OnFiltersRefreshed()
+	{
+		connect_pins.RemoveAll();		// prevent stale references
 	}
 
 	void DisplayView::OnFilterRemoved(DisplayGraph *sender, Filter *filter)

@@ -1193,10 +1193,11 @@ BEGIN
     BEGIN
         MENUITEM "Insert &Filter...\tCtrl+F",   ID_GRAPH_INSERTFILTER
         MENUITEM "Insert Filter from Fi&le...", ID_GRAPH_INSERTFILTERFROMFILE
-        MENUITEM "Disconnect &all Filters\tCtrl+Del", ID_BUTTON_REMOVE_CONNECTIONS
         MENUITEM SEPARATOR
+        MENUITEM "Disconnect &all Filters\tCtrl+Del", ID_BUTTON_REMOVE_CONNECTIONS
         MENUITEM "&Duplicate Selected Filters\tCtrl+D", ID_FILTERS_DOUBLESELECTEDFILTERS
         MENUITEM "Delete Selectio&n\tDel",      ID_DELETE_FILTER
+        MENUITEM "Connect Pin...\tCtrl+Shift+C", ID_GRAPH_CONNECTPIN
         MENUITEM "&Properties...\tReturn, Alt+Return", ID_PROPERTYPAGE
         MENUITEM "Conte&xt Menu...\tMenu, Shift+F10", ID_CONTEXT_MENU
         MENUITEM "Navigate Filters\tArrow keys", ID_GRAPH_NAVIGATE_FILTERS, GRAYED
@@ -1286,6 +1287,7 @@ BEGIN
     "5",            ID_VIEW_150,            VIRTKEY, CONTROL, NOINVERT
     "6",            ID_VIEW_200,            VIRTKEY, CONTROL, NOINVERT
     "=",            ID_VIEW_INCREASEZOOMLEVEL, ASCII, NOINVERT
+    "C",            ID_GRAPH_CONNECTPIN,    VIRTKEY, SHIFT, CONTROL, NOINVERT
     "D",            ID_FILTERS_DOUBLESELECTEDFILTERS, VIRTKEY, CONTROL, NOINVERT
     "D",            ID_BUTTON_DIRECT,       VIRTKEY, SHIFT, CONTROL, NOINVERT
     "E",            ID_VIEW_GRAPHEVENTS,    VIRTKEY, CONTROL, NOINVERT

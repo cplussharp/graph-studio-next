@@ -503,6 +503,7 @@ void CDecPerformanceForm::OnBuildGraphClick()
 
 	view->graph.RefreshFilters();
 	view->graph.SmartPlacement();
+	view->Invalidate();
 }
 
 void CDecPerformanceForm::OnStartClick()

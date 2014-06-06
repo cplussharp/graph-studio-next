@@ -209,6 +209,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	class GraphCallback
 	{
 	public:
+		virtual void OnFiltersRefreshed() = 0;
 		virtual void OnFilterRemoved(DisplayGraph *sender, Filter *filter) = 0;
 		virtual void OnRenderFinished() = 0;
 		virtual void OnSmartPlacement() = 0;

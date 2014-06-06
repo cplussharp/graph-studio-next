@@ -638,6 +638,9 @@ LRESULT CGraphView::OnWmCommand(WPARAM wParam, LPARAM lParam)
 	if (id >= ID_FAVORITE_FILTER && id < ID_FAVORITE_FILTER + 500) {
 		OnFavoriteFilterClick(id);
 	} else
+	if (id >= ID_CONNECT_PIN && id < ID_CONNECT_PIN + 500) {
+		OnConnectPinClick(id);
+	} else
 	if (id >= ID_LIST_MRU_FILE0 && id < ID_LIST_MRU_FILE0 + 10) {
 		OnMRUClick(id);
 	}	
@@ -1450,7 +1453,6 @@ void CGraphView::OnMpeg2DemuxCreatePsiPin()
                 }
 
                 graph.RefreshFilters();
-                graph.Dirty();
                 Invalidate();
             }
             else
@@ -1805,7 +1807,7 @@ void CGraphView::OnDropFiles(HDROP hDropInfo)
 		// don't do smart placement if we've just changed files sources or sinks
 		// if we're opening files then that does its own refresh 
 		graph.RefreshFilters();
-		graph.Dirty();
+		graph.SmartPlacement(false);
 		Invalidate();
 	}
 	DragFinish(hDropInfo);
@@ -2293,7 +2295,6 @@ void CGraphView::OnOptionsDisplayFileName()
 	render_params.SetDisplayFileName(!render_params.display_file_name);
 	graph.RefreshFilters();
 	graph.SmartPlacement();
-	graph.Dirty();
 	Invalidate();
 }
 
