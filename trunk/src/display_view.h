@@ -45,6 +45,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		bool				new_connection_start_connected;
 		bool				new_connection_end_connected;
         Pin::PIN_CONNECTION_TYPE new_connection_start_type;
+		CArray<Pin*>		connect_pins;
 
 		enum {
 			DRAG_GROUP = 0,
@@ -89,6 +90,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void OnDeleteFilter();
 		void OnChooseSourceFile();
 		void OnChooseDestinationFile();
+		void OnConnectPin();
 
 		void MakeScreenshot(const CString& image_filename, const GUID& gdiplus_format);
 		bool SetSelectionFromClick(UINT nFlags, CPoint point, GraphStudio::Filter ** selected_filter = NULL, GraphStudio::Pin** selected_pin = NULL);
@@ -100,9 +102,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void UpdateFavoritesMenu();
 		virtual void PopulateAudioRenderersMenu(CMenu& menu) {}
 		virtual void PopulateVideoRenderersMenu(CMenu& menu) {};
+		virtual int PopulateConnectMenu(CMenu& menu, GraphStudio::Pin &);
         void PrepareFavoriteFiltersMenu(CMenu &menu);
 		void OnSelectStream(UINT id);
 		void OnCompatibleFilterClick(UINT id);
+		void OnConnectPinClick(UINT nID);
 		void NavigateFilterGraph(bool pin, bool vertical, bool positive);
 		void ShowContextMenu(CPoint pt, GraphStudio::Filter *, GraphStudio::Pin *);
 
@@ -115,10 +119,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// to be overriden
 		virtual void OnDisplayPropertyPage(IUnknown *object, GraphStudio::Filter *filter, CString title);
-		virtual void OnFilterRemoved(DisplayGraph *sender, Filter *filter);
 		virtual void OnOverlayIconClick(OverlayIcon *icon, CPoint point);
-		virtual void OnRenderFinished();
 		virtual void OnDeleteSelection();
+
+		// GraphCallback implementation
+		virtual void OnFiltersRefreshed();
+		virtual void OnFilterRemoved(DisplayGraph *sender, Filter *filter);
+		virtual void OnRenderFinished();
 		virtual void OnSmartPlacement();
 
         virtual void OnMpeg2DemuxCreatePsiPin();

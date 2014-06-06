@@ -2172,6 +2172,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		RefreshClock();
 		RefreshFPS();
 		Dirty();
+		if (callback)
+			callback->OnFiltersRefreshed();
 	}
 
 	void DisplayGraph::LoadPeers()

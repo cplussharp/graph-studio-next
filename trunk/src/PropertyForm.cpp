@@ -61,7 +61,6 @@ void CPropertyForm::DoDataExchange(CDataExchange* pDX)
 void CPropertyForm::OnClose()
 {
     view->graph.RefreshFilters();
-    view->graph.Dirty();
     view->Invalidate();
 
 	CRect rect;
