@@ -473,7 +473,7 @@ namespace DSUtil
 
 			TCHAR val[MAX_PATH];
 			DWORD len = MAX_PATH;
-			if (keyNew.QueryStringValue(_T("LogToFile"), val, &len) == ERROR_SUCCESS)
+			if (keyOld.QueryStringValue(_T("LogToFile"), val, &len) == ERROR_SUCCESS)
 			{
 				// set only if logging to file like "C:\..."
 				if (len > 1)
