@@ -2286,23 +2286,26 @@ namespace DSUtil
 				hr = HRESULT_FROM_WIN32(dwError);
 			else
 				hr = HRESULT_FROM_WIN32(ERROR_INVALID_DLL);
+		} else {
+			hr = pfnGetClassObject(clsid, IID_IClassFactory, (void**)factory);
 		}
 
 		if(FAILED(hr))
 		{
-			CString msg;
-			msg.Format(_T("Error loading library (hr = 0x%08x)"), hr);
-			DSUtil::ShowError(hr, msg);
-			return hr;
-		}
+			CString str_clsid;
+			GraphStudio::NameGuid(clsid, str_clsid, false);
+			const CString str_dll(dll_file);
+			const TCHAR * format_string;
+			if (!hLib)
+				format_string = _T("Error loading library %s for CLSID %s");
+			else if (!pfnGetClassObject)
+				format_string = _T("Error finding DllGetClassObject entry point in %s for CLSID %s");
+			else
+				format_string = _T("Error returned from DllGetClassObject in %s for CLSID %s");
 
-		hr = pfnGetClassObject(clsid, IID_IClassFactory, (void**)factory);
-		if(FAILED(hr))
-		{
 			CString msg;
-			msg.Format(_T("Error getting IClassFactory for filter (hr = 0x%08x)"), hr);
+			msg.Format(format_string, (const TCHAR*)str_dll, (const TCHAR*)str_clsid);
 			DSUtil::ShowError(hr, msg);
-			return hr;
 		}
 		return hr;
 	}
