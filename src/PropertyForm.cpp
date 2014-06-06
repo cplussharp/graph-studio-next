@@ -272,8 +272,11 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
 						{
 							// load the dll
 							CComPtr<IClassFactory> factory;
-							if (SUCCEEDED(DSUtil::GetClassFactoryFromDll(T2COLE(strFilterFile), pagelist.pElems[i], &factory)))
+							hr = DSUtil::GetClassFactoryFromDll(T2COLE(strFilterFile), pagelist.pElems[i], &factory);
+							if (SUCCEEDED(hr)) {
 								hr = factory->CreateInstance(NULL, IID_IPropertyPage, (void**)&page);
+								DSUtil::ShowError(hr, _T("Class factory CreateInstance failed"));
+							}
 						}
 					}
 					

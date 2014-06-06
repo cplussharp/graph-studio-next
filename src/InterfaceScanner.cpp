@@ -103,6 +103,13 @@ void GetInterfaceInfo_ISpecifyPropertyPages(GraphStudio::PropItem* group, IUnkno
 		CAUUID ids = { 0, NULL };
 		const int pages = (S_OK == pI->GetPages(&ids) && ids.pElems) ? ids.cElems : 0;
 		group->AddItem(new GraphStudio::PropItem(_T("Pages"), pages));
+		for (int i=0; i<pages; i++) {
+			CString str_guid;
+			CString title;
+			GraphStudio::NameGuid(ids.pElems[i], str_guid, false);
+			title.Format(_T("pElems[%d]"), i);
+			group->AddItem(new GraphStudio::PropItem(title, str_guid));
+		}
         if(ids.pElems)
             CoTaskMemFree(ids.pElems);
     }
