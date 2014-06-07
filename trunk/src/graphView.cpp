@@ -1787,14 +1787,14 @@ void CGraphView::OnDropFiles(HDROP hDropInfo)
 					DSUtil::ShowError(_T("Files dropped on filter that does not support IFileSourceFilter or ISinkFilter"));
 				}
 			} else {
-				if (!(GetKeyState(VK_CONTROL) & 0x80) && ShouldOpenInNewDocument(filename)) {
+				if (!(GetKeyState(VK_CONTROL) & 0x8000) && ShouldOpenInNewDocument(filename)) {
 					OnNewClick();			// Clear graph before loading unless user has held down control when file is dropped
 				}
 
-				if (GetKeyState(VK_SHIFT) & 0x80) {
+				if (GetKeyState(VK_SHIFT) & 0x8000) {
 					hr = AddFileSourceAsync(filename);
 					DSUtil::ShowError(hr, TEXT("Can't add async file source"));
-				} else if (GetKeyState(VK_MENU) & 0x80) {
+				} else if (GetKeyState(VK_MENU) & 0x8000) {
 					hr = AddSourceFilter(filename);
 					DSUtil::ShowError(hr, TEXT("IGraphBuilder::AddSourceFilter failed"));
 				} else {
@@ -2482,7 +2482,7 @@ void CGraphView::OnRemoveConnections()
 
 BOOL CGraphView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
-	const int alt = GetKeyState(VK_MENU) & 0x80;
+	const int alt = GetKeyState(VK_MENU) & 0x8000;
 	const int shift = nFlags & MK_SHIFT;
 	const int ctrl = nFlags & MK_CONTROL;
 

@@ -613,7 +613,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	BOOL PropTreeEdit::PreTranslateMessage(MSG* pMsg) 
 	{
 		if (pMsg->message == WM_KEYDOWN) {
-			if (!GetKeyState(VK_CONTROL) && !GetKeyState(VK_MENU)) {
+			if (!(GetKeyState(VK_CONTROL) & 0x8000)
+					&& !(GetKeyState(VK_MENU) & 0x8000)) {
 				if (pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE) {
 					::TranslateMessage(pMsg);
 					::DispatchMessage(pMsg);
