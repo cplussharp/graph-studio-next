@@ -61,7 +61,7 @@ BOOL CLookupForm::DoCreateDialog(CWnd* parent)
 
     CRect	rc;
 	rc.SetRect(0, 0, 60, 23);
-    m_btnSearch.Create(_T("Search"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &m_title, IDC_BUTTON_SEARCH);
+    m_btnSearch.Create(_T("&Search"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &m_title, IDC_BUTTON_SEARCH);
     m_btnSearch.SetFont(GetFont());
     rc.SetRect(0, 0, 250, 23);
     m_editSearch.Create(ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, rc, &m_title, IDC_EDIT_SEARCH);
