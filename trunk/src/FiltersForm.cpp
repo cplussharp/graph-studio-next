@@ -467,7 +467,9 @@ void CFiltersForm::OnComboMeritChange()
 BOOL CFiltersForm::PreTranslateMessage(MSG *pmsg)
 {
 	if (pmsg->message == WM_KEYDOWN) {
-		if (!GetKeyState(VK_SHIFT) && !GetKeyState(VK_CONTROL) && !GetKeyState(VK_MENU)) {
+		if (!(GetKeyState(VK_SHIFT) & 0x80) 
+				&& !(GetKeyState(VK_CONTROL) & 0x80) 
+				&& !(GetKeyState(VK_MENU) & 0x80)) {
 			if (pmsg->wParam == VK_RETURN) {
 				OnBnClickedButtonInsert();
 				return TRUE;
