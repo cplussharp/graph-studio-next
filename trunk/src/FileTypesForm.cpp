@@ -132,11 +132,11 @@ BOOL CFileTypesForm::DoCreateDialog(CWnd* parent)
 	// create buttons
 	CRect	rc;
 	rc.SetRect(0, 0, 60, 23);
-    btn_copy.Create(_T("Copy"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_COPY);
+    btn_copy.Create(_T("&Copy"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_COPY);
 	btn_copy.SetFont(GetFont());
     btn_copy.SetWindowPos(NULL, 4, 4, rc.Width(), rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
-	btn_reload.Create(_T("Reload"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_CLEAR);
+	btn_reload.Create(_T("&Reload"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_CLEAR);
     btn_reload.SetWindowPos(NULL, 8 + rc.Width(), 4, rc.Width(), rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 	btn_reload.SetFont(GetFont());
 

@@ -58,9 +58,9 @@ BOOL CRemoteGraphForm::OnInitDialog()
 	// create buttons
 	CRect	rc;
 	rc.SetRect(0, 0, 80, 25);
-	btn_refresh.Create(_T("Refresh"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_REFRESH);
+	btn_refresh.Create(_T("&Refresh"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_REFRESH);
 	btn_refresh.SetFont(GetFont());
-	btn_connect.Create(_T("Connect"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_CONNECT);
+	btn_connect.Create(_T("&Connect"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_CONNECT);
 	btn_connect.SetFont(GetFont());
 
 	SetWindowPos(NULL, 0, 0, 600, 250, SWP_NOMOVE);
