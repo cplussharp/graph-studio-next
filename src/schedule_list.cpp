@@ -459,7 +459,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	BOOL ScheduleListEdit::PreTranslateMessage(MSG* pMsg) 
 	{
 		if (pMsg->message == WM_KEYDOWN) {
-			if (!GetKeyState(VK_CONTROL) && !GetKeyState(VK_MENU)) {
+			if (!(GetKeyState(VK_CONTROL) & 0x8000)
+					&& !(GetKeyState(VK_MENU) & 0x8000)) {
 				if (pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE) {
 					::TranslateMessage(pMsg);
 					::DispatchMessage(pMsg);
@@ -478,7 +479,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void ScheduleListEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) 
 	{
-		if (!GetKeyState(VK_CONTROL) && !GetKeyState(VK_MENU)) {
+		if (!(GetKeyState(VK_CONTROL) & 0x8000)
+				&& !(GetKeyState(VK_MENU) & 0x8000)) {
 			if (nChar == VK_ESCAPE || nChar == VK_RETURN) {
 
 				// iba pri stlaceni ENTER sa prepise
@@ -552,7 +554,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	BOOL ScheduleListCombo::PreTranslateMessage(MSG* pMsg)
 	{
 		if (pMsg->message == WM_KEYDOWN) {
-			if (!GetKeyState(VK_CONTROL) && !GetKeyState(VK_MENU)) {
+			if (!(GetKeyState(VK_CONTROL) & 0x8000)
+					&& !(GetKeyState(VK_MENU) & 0x8000)) {
 				if (pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE) {
 					::TranslateMessage(pMsg);
 					::DispatchMessage(pMsg);
@@ -582,7 +585,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void ScheduleListCombo::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) 
 	{
-		if (!GetKeyState(VK_CONTROL) && !GetKeyState(VK_MENU)) {
+		if (!(GetKeyState(VK_CONTROL) & 0x8000) 
+				&& !(GetKeyState(VK_MENU) & 0x8000)) {
 			if (nChar == VK_ESCAPE || nChar == VK_RETURN) {
 				esc = (nChar == VK_ESCAPE);
 				GetParent()->SetFocus();
