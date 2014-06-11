@@ -1197,6 +1197,7 @@ BEGIN
         MENUITEM "Disconnect &all Filters\tCtrl+Del", ID_BUTTON_REMOVE_CONNECTIONS
         MENUITEM "&Duplicate Selected Filters\tCtrl+D", ID_FILTERS_DOUBLESELECTEDFILTERS
         MENUITEM "Delete Selectio&n\tDel",      ID_DELETE_FILTER
+        MENUITEM "&Render Pin\tCtrl+Shift+R",   ID_PIN_RENDER
         MENUITEM "Connect Pin...\tCtrl+Shift+C", ID_GRAPH_CONNECTPIN
         MENUITEM "&Properties...\tReturn, Alt+Return", ID_PROPERTYPAGE
         MENUITEM "Conte&xt Menu...\tMenu, Shift+F10", ID_CONTEXT_MENU
@@ -1308,6 +1309,7 @@ BEGIN
     "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
     "Q",            ID_HELP_HRESULTLOOKUP,  VIRTKEY, CONTROL, NOINVERT
     "R",            ID_FILE_RENDERFILE,     VIRTKEY, CONTROL, NOINVERT
+    "R",            ID_PIN_RENDER,          VIRTKEY, SHIFT, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE_AS,        VIRTKEY, SHIFT, CONTROL, NOINVERT
     "S",            ID_FILE_SAVEASXML,      VIRTKEY, SHIFT, ALT, NOINVERT
