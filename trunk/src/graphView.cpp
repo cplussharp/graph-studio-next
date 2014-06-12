@@ -122,6 +122,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_BUTTON_SEEK, &CGraphView::OnSeekClick)
     ON_COMMAND(ID_BUTTON_ADDFILTER, &CGraphView::OnGraphInsertFilter)
     ON_COMMAND(ID_BUTTON_REMOVE_CONNECTIONS, &CGraphView::OnRemoveConnections)
+	ON_COMMAND(ID_GRAPH_DISCONNECTSELECTEDFILTERS, &CGraphView::OnDisconnectSelectedFilters)
 	ON_COMMAND(ID_OPTIONS_EXACTMATCH, &CGraphView::OnOptionsExactMatchClick)
     ON_COMMAND(ID_OPTIONS_USEMEDIAINFO, &CGraphView::OnOptionsUseMediaInfoClick)
     ON_COMMAND(ID_OPTIONS_SHOWGUIDOFKNOWNTYPES, &CGraphView::OnOptionsShowGuidOfKnownTypesClick)
@@ -2466,15 +2467,29 @@ void CGraphView::OnUpdateRemoveConnections(CCmdUI *pCmdUI)
     pCmdUI->Enable(stateOk && hasConnections ? TRUE : FALSE);
 }
 
+void CGraphView::OnDisconnectSelectedFilters()
+{
+	RemoveConnections(true);
+}
+
 void CGraphView::OnRemoveConnections()
 {
-    for(int i=0; i<graph.filters.GetCount(); i++)
-        if(graph.filters[i]->connected)
-        {
-            for(int j=0; j<graph.filters[i]->output_pins.GetCount(); j++)
-                graph.filters[i]->output_pins[j]->Disconnect();
-        }
+	RemoveConnections(false);
+}
 
+void CGraphView::RemoveConnections(bool onlySelected)
+{
+    for(int i=0; i<graph.filters.GetCount(); i++) {
+		GraphStudio::Filter * const filter = graph.filters[i];
+		if (filter->selected || !onlySelected)
+			if (filter->connected) {
+				for(int j=0; j<graph.filters[i]->output_pins.GetCount(); j++)
+					graph.filters[i]->output_pins[j]->Disconnect();
+				if (onlySelected)
+					for(int j=0; j<graph.filters[i]->input_pins.GetCount(); j++)
+						graph.filters[i]->input_pins[j]->Disconnect();
+			}
+	}
     graph.RefreshFilters();
 	Invalidate();
 }

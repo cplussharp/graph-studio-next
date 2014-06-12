@@ -258,6 +258,8 @@ public:
 
     void OnUpdateRemoveConnections(CCmdUI *pCmdUI);
     void OnRemoveConnections();
+    void OnDisconnectSelectedFilters();
+    void RemoveConnections(bool onlySelected);
 
 	void ChangeFilterSizeParam(int& value, int delta, int min_value=GraphStudio::DisplayGraph::GRID_SIZE);
 	void SaveGraphLayoutSettings();
