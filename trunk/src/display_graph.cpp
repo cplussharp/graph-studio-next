@@ -1791,18 +1791,16 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 					if (sink) {
 						_tprintf(_T("  Setting sink file %s\n"), (LPCTSTR)filter.sink_filename); 
 
-						const DWORD file_attributes = GetFileAttributes(filter.sink_filename);
-
-						// Give the user a chance to fix up an invalid filename but only check file name for the first time
-						if (INVALID_FILE_ATTRIBUTES == file_attributes)
-							hr = E_INVALIDARG;
-						else 
+						// Give the user a chance to fix up an invalid destination path
+						CPath path(filter.sink_filename);
+						if (!path.RemoveFileSpec() || GetFileAttributes(path) == INVALID_FILE_ATTRIBUTES) {
+							CFileSinkForm form(_T("Missing destination file"));
+							do {
+								form.result_file = filter.sink_filename;
+								hr = form.ChooseSinkFile(sink);
+							} while (FAILED(hr));
+						} else {
 							hr = sink->SetFileName(filter.sink_filename, NULL);
-
-						CFileSinkForm form(filter.name);
-						while (FAILED(hr)) {
-							form.result_file = filter.sink_filename;
-							hr = form.ChooseSinkFile(sink);
 						}
 					}
 				}

@@ -86,20 +86,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			if (!fsink) {
 				hr = E_NOINTERFACE;
 			} else {
+				// Give the user a chance to fix up an invalid destination path
 				CString filename = conf->GetValue(_T("dest"));
-
-				const DWORD file_attributes = GetFileAttributes(filename);
-
-				// Give the user a chance to fix up an invalid filename but only check file name for the first time
-				if (INVALID_FILE_ATTRIBUTES == file_attributes)
-					hr = E_INVALIDARG;
-				else 
+				CPath path(filename);
+				if (!path.RemoveFileSpec() || GetFileAttributes(path) == INVALID_FILE_ATTRIBUTES) {
+					CFileSinkForm form(_T("Missing destination file"));
+					do {
+						form.result_file = filename;
+						hr = form.ChooseSinkFile(fsink);
+					} while (FAILED(hr));
+				} else {
 					hr = fsink->SetFileName(filename, NULL);
-
-				CFileSinkForm form(_T("Missing destination file"));
-				while (FAILED(hr)) {
-					form.result_file = filename;
-					hr = form.ChooseSinkFile(fsink);
 				}
 			}
 
