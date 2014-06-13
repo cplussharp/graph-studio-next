@@ -1205,9 +1205,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// Only store for the duration of loading
 		// The IBaseFilter* are only used to find matching Filters so will not crash if pointers are invalid
 		CArray<IBaseFilter *>	filters_loaded_order;
+		CArray<XML::XMLNode *>	connection_nodes;
 
 		for (it = gn->nodes.begin(); it != gn->nodes.end(); it++) {
-			XML::XMLNode * const node = *it;
+			XML::XMLNode * node = *it;
 
 			if (node->name == _T("filter"))	{
 				CComPtr<IBaseFilter> created_filter;
@@ -1216,7 +1217,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			} else if (node->name == _T("render")) 
 				hr = LoadXML_Render(node); 
 			else if (node->name == _T("connect")) {
-				hr = LoadXML_Connect(node, filters_loaded_order); 
+				connection_nodes.Add(node);
 			} else if (node->name == _T("config")) 
 				hr = LoadXML_Config(node); 
 			else if (node->name == _T("iamgraphstreams")) 
@@ -1226,6 +1227,41 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			else if (node->name == _T("command")) 
 				hr = LoadXML_Command(node); 
 		}
+
+		// Iterate all connections until none left or no remaining connections succeed
+		const int MAX_ITERATIONS = 500;		// sanity check to prevent infinite iteration
+		int iterations = 0;
+		bool connections_made = true;
+		CArray<HRESULT> hresults;
+		CArray<CString>	errors;
+
+		while (connections_made &&
+				iterations++ < MAX_ITERATIONS) {					
+
+			hresults.RemoveAll();
+			errors.RemoveAll();
+			connections_made = false;
+
+			for (int i=0; i<connection_nodes.GetCount(); /* incremented below */ ) {
+				CString error_string;
+				hr = LoadXML_Connect(connection_nodes[i], filters_loaded_order, error_string); 
+
+				if (SUCCEEDED(hr)) {
+					connections_made = true;
+					connection_nodes.RemoveAt(i);		// succeeded, remove array element and don't increment index
+				} else {
+					i++;								// failed, leave element in array and increment index
+					hresults.Add(hr);
+					errors.Add(error_string);
+				}
+			}
+		}
+		ASSERT(iterations < MAX_ITERATIONS);
+
+		// Display an remaining connection errors, do smart placement so user can see context to errors
+		SmartPlacement();
+		ASSERT(hresults.GetCount() == errors.GetCount());
+		for (int i=0; i<hresults.GetCount() && i<errors.GetCount() && DSUtil::ShowError(hresults[i], errors[i]); i++) { }	// stop displaying errors if cancel pressed
 
 		return S_OK;
 	}
@@ -1443,7 +1479,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return hr;
 	}
 
-	HRESULT DisplayGraph::LoadXML_Connect(XML::XMLNode *node, const CArray<IBaseFilter *> & indexed_filters)
+	HRESULT DisplayGraph::LoadXML_Connect(XML::XMLNode *node, const CArray<IBaseFilter *> & indexed_filters, CString& error_string)
 	{
 		CheckPointer(node, E_POINTER);
 
@@ -1517,19 +1553,16 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		if (!opin || !ipin) {
-			CString str;
 			if (!ofilter || !ifilter) {
-				str.Format(_T("Could not find %s filter index %d"), 
+				error_string.Format(_T("Could not find %s filter index %d"), 
 						ofilter ? _T("input")	: _T("output"),
 						ofilter ? ifilter_index : ofilter_index);
 			} else {
-				str.Format(_T("Could not find %s pin %s on filter %s"), 
+				error_string.Format(_T("Could not find %s pin %s on filter %s"), 
 						opin ? _T("input") : _T("output"),
 						opin ? (LPCTSTR)in_id : (LPCTSTR)out_id,
 						opin ? (LPCTSTR)ifilter->display_name : (LPCTSTR)ofilter->display_name);
 			}
-			SmartPlacement();
-			DSUtil::ShowError(E_FAIL, str);
 			return VFW_E_NOT_FOUND;
 		}
 
@@ -1553,14 +1586,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		if (FAILED(hr)) {
-			CString str;
-			str.Format(_T("Error connecting %s pin %s to %s pin %s"), 
+			error_string.Format(_T("Error connecting %s pin %s to %s pin %s"), 
 					(const TCHAR *)ofilter->name,	
 					(const TCHAR *)opin->name,
 					(const TCHAR *)ifilter->name,
 					(const TCHAR *)ipin->name);
-			SmartPlacement();
-			DSUtil::ShowError(hr, str);
 			return hr;
 		}
 
