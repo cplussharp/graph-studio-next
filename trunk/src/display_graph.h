@@ -311,7 +311,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		HRESULT LoadXML(CString fn);
 		HRESULT LoadXML_Filter(XML::XMLNode *node, CComPtr<IBaseFilter>& created_filter);
 		HRESULT LoadXML_Render(XML::XMLNode *node);
-		HRESULT LoadXML_Connect(XML::XMLNode *node, const CArray<IBaseFilter *> & indexed_filters);
+		HRESULT LoadXML_Connect(XML::XMLNode *node, const CArray<IBaseFilter *> & indexed_filters, CString& error_string);
 		HRESULT LoadXML_Schedule(XML::XMLNode *node);
 		HRESULT LoadXML_Config(XML::XMLNode *node);
 		HRESULT LoadXML_Interfaces(XML::XMLNode *node, IBaseFilter *filter);
