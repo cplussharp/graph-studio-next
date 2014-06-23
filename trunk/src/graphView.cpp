@@ -555,6 +555,7 @@ void CGraphView::OnInit()
 	// set the seeking bar data
 	CMainFrame *frame = (CMainFrame*)GetParentFrame();
 	frame->m_wndSeekingBar.SetGraphView(this);
+	SetFocus();
 
 	mru.Load();
 
