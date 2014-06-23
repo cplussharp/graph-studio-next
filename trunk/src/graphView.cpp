@@ -577,8 +577,10 @@ void CGraphView::OnInit()
 	render_params.video_renderers = &video_renderers;
 
 	CgraphstudioApp::g_showConsole = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowConsoleWindow"), 0) ? true : false;
-	if (CgraphstudioApp::g_showConsole)
-		ShowConsole(true);				// Don't do anything on startup unless show console setting is true
+	if (CgraphstudioApp::g_showConsole) {
+		ShowConsole(true);					// Don't do anything on startup unless show console setting is true
+		SetFocus();							// Set initial focus to the main window, not the console
+	}
 
 	CgraphstudioApp::g_useInternalGrfParser = AfxGetApp()->GetProfileInt(_T("Settings"), _T("UseInternalGrfParser"), 0) ? true : false;
 	CgraphstudioApp::g_SaveXmlAndGrf        = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveXmlAndGrf"), CgraphstudioApp::g_SaveXmlAndGrf) != 0;
