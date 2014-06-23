@@ -2340,6 +2340,10 @@ namespace DSUtil
 				strError += "\r\n";
 				strError += title;
             }
+
+			CString decimalHR;
+			decimalHR.Format(_T(" (decimal %d)"), (int)hr);
+			strError += decimalHR;
                 
             if (CTaskDialog::IsSupported())
             {
