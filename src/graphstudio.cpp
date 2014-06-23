@@ -144,9 +144,9 @@ BOOL CgraphstudioApp::InitInstance()
 	if (showCmd != SW_SHOWMAXIMIZED)		// Allow only maximized and normal
 		showCmd = SW_SHOWNORMAL;
 
-	m_pMainWnd->SetFocus();
 	m_pMainWnd->ShowWindow(showCmd);
 	m_pMainWnd->UpdateWindow();
+	m_pMainWnd->SetFocus();
 
     // command line optionen
     if (m_cmdInfo.m_bExitOnError)

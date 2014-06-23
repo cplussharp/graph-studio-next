@@ -74,6 +74,7 @@ BOOL CTextInfoForm::DoCreateDialog(CWnd* parent)
 	// Force a second resize to give the combo box a chance to position itself once it's fully created
 	// Would not be an issue if the setup above was done in OnInitDialog...
 	SetWindowPos(NULL, 0, 0, 0, 0, SWP_NOMOVE);		// resize down to zero
+	SetWindowPos(NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOZORDER);		// resize down to zero
 	RestorePosition();								// then restore position or set default position
 
 	OnInitialize();
