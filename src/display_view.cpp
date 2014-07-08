@@ -181,7 +181,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (!menu.CreatePopupMenu()) 
 			return;
 
-		if (PopulateConnectMenu(menu, *current_pin) > 0) {
+		const int num_menu_items = PopulateConnectMenu(menu, *current_pin);
+		if (num_menu_items == 1) {
+			OnConnectPinClick(ID_CONNECT_PIN);		// only one connectable pin so use that
+		} else if (num_menu_items > 1) {
 			Filter * const filter  = current_pin->filter;
 			CPoint point(filter->posx + filter->width + DisplayGraph::GRID_SIZE*2, filter->posy);
 			point -= GetScrollPosition();
