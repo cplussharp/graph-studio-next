@@ -8,7 +8,7 @@
 #pragma once
 
 class CGraphView;
-
+class CMainFrame;
 //-----------------------------------------------------------------------------
 //
 //	CSeekSlider class
@@ -70,6 +70,7 @@ public:
 	CBrush					back_brush;
 
 	CGraphView				*view;
+	CMainFrame              *frame;
 
 	// accumulator for Seek Requests
 	bool					pending_seek_request;
@@ -78,7 +79,7 @@ public:
 	CSeekingBar();
 	~CSeekingBar();
 
-	virtual BOOL Create(CWnd *pParent, UINT nIDTemplate, UINT nStyle, UINT nID);
+	virtual BOOL Create(CMainFrame *pParent, UINT nIDTemplate, UINT nStyle, UINT nID);
 	BOOL OnEraseBkgnd(CDC *pDC);
 	void OnMove(int cx, int cy);
 

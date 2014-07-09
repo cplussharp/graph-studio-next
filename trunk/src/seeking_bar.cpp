@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------
 #include "stdafx.h"
 #include "seeking_bar.h"
-
+#include "MainFrm.h"
 #include "time_utils.h"
 
 
@@ -160,8 +160,10 @@ CSeekingBar::~CSeekingBar()
 {
 }
 
-BOOL CSeekingBar::Create(CWnd* pParent, UINT nIDTemplate, UINT nStyle, UINT nID) 
+BOOL CSeekingBar::Create(CMainFrame* pParent, UINT nIDTemplate, UINT nStyle, UINT nID)
 {
+	frame = pParent;
+
 	BOOL bReturn = CDialogBar::Create(pParent, nIDTemplate, nStyle, nID);
 	back_brush.CreateSolidBrush(RGB(212, 219, 238));
 
@@ -239,8 +241,12 @@ void CSeekingBar::SetGraphView(CGraphView *graph_view)
 void CSeekingBar::UpdateGraphPosition()
 {
 	double	pos_ms = 0.0, dur_ms = 0.0;
+	FILTER_STATE GraphState = State_Running;
 
 	if (view) {
+		if (view->graph.GetState(GraphState, 0) != 0) {
+			GraphState = State_Running;
+		}
 		int ret = view->graph.GetPositionAndDuration(pos_ms, dur_ms);
 		if (ret < 0) {
 			pos_ms = 0.0;
@@ -256,6 +262,19 @@ void CSeekingBar::UpdateGraphPosition()
 
 	// display how far through the playback
 	const double proportion = dur_ms != 0.0 ? pos_ms / dur_ms : 0.0;
+
+	if (frame && frame->GetTaskBarList())
+	{
+		TBPFLAG ProgressState = TBPF_NORMAL;
+		switch (GraphState)
+		{
+		case State_Running: ProgressState = TBPF_NORMAL; break;
+		case State_Paused: ProgressState = TBPF_PAUSED; break;
+		default: ProgressState = TBPF_NOPROGRESS; break;
+		}
+		frame->GetTaskBarList()->SetProgressValue(*frame, static_cast<ULONGLONG>(pos_ms), static_cast<ULONGLONG>(dur_ms)); 
+		frame->GetTaskBarList()->SetProgressState(*frame, dur_ms != 0.0 ? ProgressState : TBPF_NOPROGRESS);
+	}
 
 	if (view) {
 		view->OnUpdateTimeLabel(cur);
