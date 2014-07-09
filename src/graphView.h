@@ -90,6 +90,8 @@ public:
     bool                        m_bExitOnStop;
 	bool						full_screen;
 
+	bool						m_bIsLoop;
+
 public:
 	virtual ~CGraphView();
 
@@ -116,6 +118,7 @@ public:
 	void OnPlayClick();
 	void OnStopClick();
 	void OnPauseClick();
+	void OnLoopClick();
 	void OnPlayPauseToggleClick();
 	void OnFrameStepClick();
 	void OnRefreshFilters();
@@ -182,6 +185,7 @@ public:
 	void OnUpdatePlayButton(CCmdUI *ui);
 	void OnUpdatePauseButton(CCmdUI *ui);
 	void OnUpdateStopButton(CCmdUI *ui);
+	void OnUpdateLoopButton(CCmdUI *ui);
 	void OnUpdateRenderMediaFile(CCmdUI *ui);
 	void OnUpdateUseClock(CCmdUI *ui);
 	void OnDropFiles(HDROP hDropInfo);

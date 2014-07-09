@@ -1174,6 +1174,7 @@ BEGIN
         MENUITEM "P&ause",                      ID_BUTTON_PAUSE
         MENUITEM "&Stop\tEsc",                  ID_BUTTON_STOP
         MENUITEM "&Frame Step\tShift+Space",    ID_BUTTON_STEP
+        MENUITEM "&Loop",                       ID_BUTTON_LOOP
         MENUITEM SEPARATOR
         MENUITEM "Progress &View...\tCtrl+F5",  ID_VIEW_PROGRESSVIEW
         MENUITEM "S&eek...\tCtrl+K",            ID_BUTTON_SEEK
