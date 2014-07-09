@@ -22,6 +22,8 @@ public:
 
 	bool			TranslateKeyboardAccelerator(MSG *pMSG);	// used for processing keystrokes in modeless dialogs
 
+	ITaskbarList3 * GetTaskBarList() const { return m_pTaskbarList; }
+
 protected:
 	CStatusBar		m_wndStatusBar;
 	CReBar			m_wndReBar;
