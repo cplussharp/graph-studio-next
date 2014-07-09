@@ -1174,7 +1174,7 @@ BEGIN
         MENUITEM "P&ause",                      ID_BUTTON_PAUSE
         MENUITEM "&Stop\tEsc",                  ID_BUTTON_STOP
         MENUITEM "&Frame Step\tShift+Space",    ID_BUTTON_STEP
-        MENUITEM "&Loop",                       ID_BUTTON_LOOP
+        MENUITEM "&Loop\tCtrl+Shift+L",         ID_BUTTON_LOOP
         MENUITEM SEPARATOR
         MENUITEM "Progress &View...\tCtrl+F5",  ID_VIEW_PROGRESSVIEW
         MENUITEM "S&eek...\tCtrl+K",            ID_BUTTON_SEEK
@@ -1303,6 +1303,7 @@ BEGIN
     "K",            ID_BUTTON_SEEK,         VIRTKEY, CONTROL, NOINVERT
     "K",            ID_GRAPH_USECLOCK,      VIRTKEY, SHIFT, CONTROL, NOINVERT
     "L",            ID_HELP_GUIDLOOKUP,     VIRTKEY, CONTROL, NOINVERT
+    "L",            ID_BUTTON_LOOP,         VIRTKEY, SHIFT, CONTROL, NOINVERT
     "M",            ID_VIEW_DECODERPERFORMANCE, VIRTKEY, CONTROL, NOINVERT
     "M",            ID_BUTTON_DIRECT_WITHMT, VIRTKEY, SHIFT, CONTROL, NOINVERT
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
