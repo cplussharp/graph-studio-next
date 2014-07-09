@@ -113,6 +113,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_BUTTON_PLAY, &CGraphView::OnPlayClick)
 	ON_COMMAND(ID_BUTTON_PAUSE, &CGraphView::OnPauseClick)
 	ON_COMMAND(ID_BUTTON_STOP, &CGraphView::OnStopClick)
+	ON_COMMAND(ID_BUTTON_LOOP, &CGraphView::OnLoopClick)
 	ON_COMMAND(ID_BUTTON_STEP, &CGraphView::OnFrameStepClick)
 	ON_COMMAND(ID_BUTTON_PLAYPAUSE, &CGraphView::OnPlayPauseToggleClick)
     ON_COMMAND(ID_BUTTON_INTELLIGENT, &CGraphView::OnConnectModeIntelligentClick)
@@ -189,6 +190,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON_PLAY, &CGraphView::OnUpdatePlayButton)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON_PAUSE, &CGraphView::OnUpdatePauseButton)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON_STOP, &CGraphView::OnUpdateStopButton)
+	ON_UPDATE_COMMAND_UI(ID_BUTTON_LOOP, &CGraphView::OnUpdateLoopButton)
 	ON_UPDATE_COMMAND_UI(ID_FILE_RENDERFILE, &CGraphView::OnUpdateRenderMediaFile)
 	ON_UPDATE_COMMAND_UI(ID_FILE_CONNECTTOREMOTEGRAPH, &CGraphView::OnUpdateConnectRemote)
 	ON_UPDATE_COMMAND_UI(ID_FILE_DISCONNECTFROMREMOTEGRAPH, &CGraphView::OnUpdateDisconnectRemote)
@@ -296,6 +298,7 @@ CGraphView::CGraphView()
     , m_bExitOnStop(false)
 	, m_ToolTip(this)
 	, full_screen(false)
+	, m_bIsLoop(false)
 {
     // Create the ToolTip control.
 	m_ToolTip.Create(this);
@@ -861,6 +864,11 @@ void CGraphView::OnPauseClick()
 	UpdateGraphState();
 }
 
+void CGraphView::OnLoopClick()
+{
+	m_bIsLoop ^= true;
+}
+
 void CGraphView::OnPlayPauseToggleClick()
 {
 	FILTER_STATE	state;
@@ -1281,6 +1289,11 @@ void CGraphView::OnGraphStreamingComplete()
 	last_stop_time_ns = timer.GetTimeNS();
 
 	OnStopClick();
+
+	if(m_bIsLoop)
+	{
+		OnPlayClick();
+	}
 
 	// if there were any tests running, let the form know
 	if (form_dec_performance) {
@@ -1703,6 +1716,11 @@ void CGraphView::OnUpdateStopButton(CCmdUI *ui)
 	} else {
 		ui->Enable(FALSE);
 	}
+}
+
+void CGraphView::OnUpdateLoopButton(CCmdUI *ui)
+{
+	ui->SetCheck(m_bIsLoop);
 }
 
 void CGraphView::OnGraphRunning()
