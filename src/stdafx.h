@@ -134,6 +134,7 @@ using namespace std;
 
 #include "bits.h"
 #include "H264StructReader.h"
+#include "H265StructReader.h"
 
 #include "MediaInfoDLL.h"
 

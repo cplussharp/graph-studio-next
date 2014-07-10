@@ -319,6 +319,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
     <ClInclude Include="src\graphView.h" />
     <ClInclude Include="src\GRF_File.h" />
     <ClInclude Include="src\H264StructReader.h" />
+    <ClInclude Include="src\H265StructReader.h" />
     <ClInclude Include="src\HiResTimer.h" />
     <ClInclude Include="src\InterfaceScanner.h" />
     <ClInclude Include="src\LookupForm.h" />
@@ -424,6 +425,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
     <ClCompile Include="src\graphView.cpp" />
     <ClCompile Include="src\GRF_File.cpp" />
     <ClCompile Include="src\H264StructReader.cpp" />
+    <ClCompile Include="src\H265StructReader.cpp" />
     <ClCompile Include="src\InterfaceScanner.cpp" />
     <ClCompile Include="src\LookupForm.cpp" />
     <ClCompile Include="src\MainFrm.cpp" />
