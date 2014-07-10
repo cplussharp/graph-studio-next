@@ -682,6 +682,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				extrabuf = extrabuf.MakeUpper();
 				info->AddItem(new PropItem(_T("Length"), len));
 				info->AddItem(new PropItem(_T("Extradata"), extrabuf));
+
+				GetExtradata_Video(pmt, mtinfo);
 			}
 
 		} else
@@ -713,12 +715,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				info->AddItem(new PropItem(_T("Length"), len));
 				info->AddItem(new PropItem(_T("Extradata"), extrabuf));
 
-                // we can also parse out decoder specific info in some cases
-                if (pmt->subtype == MEDIASUBTYPE_H264 || pmt->subtype == MEDIASUBTYPE_AVC1 || pmt->subtype == MEDIASUBTYPE_MC_H264 ) {
-				    GetExtradata_H264(pmt, mtinfo);
-                } else if(pmt->subtype == MEDIASUBTYPE_MPEG2_VIDEO || pmt->subtype == MEDIASUBTYPE_MPEG1Video) {
-                    GetExtradata_MPEGVideo(pmt, mtinfo);
-                }
+				GetExtradata_Video(pmt, mtinfo);
 			}
 		} else
 		if (pmt->formattype == FORMAT_MPEGVideo && pmt->cbFormat >= sizeof(MPEG1VIDEOINFO)) {
@@ -731,12 +728,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			PropItem * const mviinfo = mtinfo->AddItem(new PropItem(_T("MPEG2VIDEOINFO")));
 			GetMpeg2VideoInfoDetails(mvi, mviinfo);
 
-            // we can also parse out decoder specific info in some cases
-            if (pmt->subtype == MEDIASUBTYPE_H264 || pmt->subtype == MEDIASUBTYPE_AVC1 || pmt->subtype == MEDIASUBTYPE_MC_H264 ) {
-				GetExtradata_H264(pmt, mtinfo);
-            } else if(pmt->subtype == MEDIASUBTYPE_MPEG2_VIDEO || pmt->subtype == MEDIASUBTYPE_MPEG1Video) {
-                GetExtradata_MPEGVideo(pmt, mtinfo);
-            }
+			GetExtradata_Video(pmt, mtinfo);
 		}
 
 		// we can also parse out decoder specific info in some cases
@@ -1165,7 +1157,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return 0;
 	}
 
-    int NALParser(CBitStreamReader& br, PropItem *mtinfo)
+    static int H264NALParser(CBitStreamReader& br, PropItem *mtinfo)
     {
         UINT8 NALType = br.ReadU8() & 0x1f;
 
@@ -1173,7 +1165,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         {
             PropItem *spsinfo = mtinfo->AddItem(new PropItem(_T("H264 Sequence Parameter Set")));
 
-            sps_t sps = {0};
+			sps_t sps = { 0 };
             CH264StructReader::ReadSPS(br, sps);
 
             spsinfo->AddItem(new PropItem(_T("Profile IDC"), sps.profile_idc));
@@ -1386,7 +1378,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         else if (NALType == 8)
         {
             PropItem *ppsinfo = mtinfo->AddItem(new PropItem(_T("H264 Picture Parameter Set")));
-            pps_t pps = {0};
+			pps_t pps = { 0 };
             CH264StructReader::ReadPPS(br, pps);
 
             ppsinfo->AddItem(new PropItem(_T("PPS ID"), pps.pic_parameter_set_id));
@@ -1422,29 +1414,52 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         return 0;
     }
 
+	static int GetExtradata_Video(const CMediaType *pmt, PropItem *mtinfo)
+	{
+		// we can also parse out decoder specific info in some cases
+		if (pmt->subtype == MEDIASUBTYPE_H264 || pmt->subtype == MEDIASUBTYPE_AVC1 || pmt->subtype == MEDIASUBTYPE_MC_H264) {
+			GetExtradata_H264(pmt, mtinfo);
+		}
+		else if (pmt->subtype == MEDIASUBTYPE_MPEG2_VIDEO || pmt->subtype == MEDIASUBTYPE_MPEG1Video) {
+			GetExtradata_MPEGVideo(pmt, mtinfo);
+		}
+		else if (pmt->subtype == MEDIASUBTYPE_HVC1 || pmt->subtype == MEDIASUBTYPE_hvc1 || pmt->subtype == MEDIASUBTYPE_MC_H265 ||
+			pmt->subtype == MEDIASUBTYPE_HEVC || pmt->subtype == MEDIASUBTYPE_hevc ||
+			pmt->subtype == MEDIASUBTYPE_H265 || pmt->subtype == MEDIASUBTYPE_h265) {
+			GetExtradata_H265(pmt, mtinfo);
+		}
+		return 0;
+	}
+
+	static uint8 * GetExtradataFromMediaType(const CMediaType * pmt, int & extralen)
+	{
+		uint8 * extra = NULL;
+		if (pmt->formattype == FORMAT_MPEG2Video)
+		{
+			const MPEG2VIDEOINFO * const m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
+			extralen = m2vi->cbSequenceHeader;
+			extra = (uint8*)m2vi->dwSequenceHeader;
+		}
+		else if (pmt->formattype == FORMAT_VIDEOINFO2)
+		{
+			extralen = pmt->cbFormat - sizeof(VIDEOINFOHEADER2);
+			extra = pmt->pbFormat + sizeof(VIDEOINFOHEADER2);
+		}
+		else if (pmt->formattype == FORMAT_VideoInfo)
+		{
+			extralen = pmt->cbFormat - sizeof(VIDEOINFOHEADER);
+			extra = pmt->pbFormat + sizeof(VIDEOINFOHEADER);
+		}
+		return extra;
+	}
+
     int GetExtradata_H264(const CMediaType *pmt, PropItem *mtinfo)
 	{
         if (pmt->pbFormat == NULL)
 			return 0;
 
         int			extralen = 0;
-        uint8*      extra = NULL;
-        if (pmt->formattype == FORMAT_MPEG2Video)
-        {
-		    const MPEG2VIDEOINFO * const m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
-		    extralen = m2vi->cbSequenceHeader;
-            extra = (uint8*)m2vi->dwSequenceHeader;
-        }
-        else if (pmt->formattype == FORMAT_VIDEOINFO2)
-        {
-            extralen = pmt->cbFormat - sizeof(VIDEOINFOHEADER2);
-            extra = pmt->pbFormat + sizeof(VIDEOINFOHEADER2);
-        }
-        else if (pmt->formattype == FORMAT_VideoInfo)
-        {
-            extralen = pmt->cbFormat - sizeof(VIDEOINFOHEADER);
-            extra = pmt->pbFormat + sizeof(VIDEOINFOHEADER);
-        }
+		uint8*      extra = GetExtradataFromMediaType(pmt, extralen);
 
 		// done with
 		if (extralen <= 0) return 0;
@@ -1463,7 +1478,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
                 if (val == 0) lastNullBytes++;
                 else if (val == 1 && lastNullBytes >= 3)
                 {
-                    NALParser(br, mtinfo);
+					H264NALParser(br, mtinfo);
                     // zum vollen byte springen
                     br.SetPos(br.GetPos());
                     lastNullBytes = 0;
@@ -1479,11 +1494,471 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
             {
                 WORD size = br.ReadU16();
                 SSIZE_T pos = br.GetPos();
-                NALParser(br, mtinfo);
+				H264NALParser(br, mtinfo);
                 br.SetPos(pos + size);
             }
         }
 
+		return 0;
+	}
+
+	static CString H265ProfileToString(uint8 general_profile_idc)
+	{
+		CString profile;
+		profile.Format(_T("%d"), general_profile_idc);
+		switch (general_profile_idc)
+		{
+		case 0: profile += " => Main"; break;
+		case 1: profile += " => Main 10"; break;
+		case 2: profile += " => Main Still Picture"; break;
+		default: break;
+		}
+		return profile;
+	}
+
+	static CString H265LevelToString(uint8 general_level_idc)
+	{
+		CString level;
+		if (general_level_idc % 30)
+		{
+			level.Format(_T("%d => %d.%d"), general_level_idc, general_level_idc / 30, (general_level_idc % 30) / 3);
+		}
+		else
+		{
+			level.Format(_T("%d => %d"), general_level_idc, general_level_idc / 30);
+		}
+		return level;
+	}
+
+	static CString H265ChromaFormatToString(uint8 chromaFormat)
+	{
+		CString chroma;
+		chroma.Format(_T("%d"), chromaFormat);
+		switch (chromaFormat)
+		{
+		case 0: chroma += " => monochrome"; break;
+		case 1: chroma += " => 4:2:0"; break;
+		case 2: chroma += " => 4:2:2"; break;
+		case 3: chroma += " => 4:4:4"; break;
+		default: break;
+		}
+		return chroma;
+	}
+
+	static void FillH265ProfileTierLevelInfo(PropItem * info, const h265ptl_t& ptl)
+	{
+		CString	 general_profile_compatibility_flag_hex;
+		general_profile_compatibility_flag_hex.Format(_T("0x%08x"), ptl.general_profile_compatibility_flag);
+
+		info->AddItem(new PropItem(_T("general_profile_space"), ptl.general_profile_space));
+		info->AddItem(new PropItem(_T("general_tier_flag"), ptl.general_tier_flag));
+		info->AddItem(new PropItem(_T("general_profile_idc"), H265ProfileToString(ptl.general_profile_idc)));
+		info->AddItem(new PropItem(_T("general_profile_compatibility_flag"), general_profile_compatibility_flag_hex));
+		info->AddItem(new PropItem(_T("general_progressive_source_flag"), ptl.general_progressive_source_flag));
+		info->AddItem(new PropItem(_T("general_interlaced_source_flag"), ptl.general_interlaced_source_flag));
+		info->AddItem(new PropItem(_T("general_non_packed_constraint_flag"), ptl.general_non_packed_constraint_flag));
+		info->AddItem(new PropItem(_T("general_frame_only_constraint_flag"), ptl.general_frame_only_constraint_flag));
+		info->AddItem(new PropItem(_T("general_level_idc"), H265LevelToString(ptl.general_level_idc)));
+		for (uint8 i(0); i < ptl.maxNumSubLayersMinus1; ++i)
+		{
+			info->AddItem(new PropItem(_T("sub_layer_profile_present_flag"), ptl.sub_layer_profile_present_flag[i]));
+			info->AddItem(new PropItem(_T("sub_layer_level_present_flag"), ptl.sub_layer_level_present_flag[i]));
+			if (ptl.sub_layer_profile_present_flag[i])
+			{
+				info->AddItem(new PropItem(_T("sub_layer_profile_space"), ptl.sub_layer_profile_space[i]));
+				info->AddItem(new PropItem(_T("sub_layer_tier_flag"), ptl.sub_layer_tier_flag[i]));
+				info->AddItem(new PropItem(_T("sub_layer_profile_idc"), H265ProfileToString(ptl.sub_layer_profile_idc[i])));
+				info->AddItem(new PropItem(_T("sub_layer_profile_compatibility_flag"), ptl.sub_layer_profile_compatibility_flag[i]));
+				info->AddItem(new PropItem(_T("sub_layer_progressive_source_flag"), ptl.sub_layer_progressive_source_flag[i]));
+				info->AddItem(new PropItem(_T("sub_layer_interlaced_source_flag"), ptl.sub_layer_interlaced_source_flag[i]));
+				info->AddItem(new PropItem(_T("sub_layer_non_packed_constraint_flag"), ptl.sub_layer_non_packed_constraint_flag[i]));
+				info->AddItem(new PropItem(_T("sub_layer_frame_only_constraint_flag"), ptl.sub_layer_frame_only_constraint_flag[i]));
+			}
+			if (ptl.sub_layer_level_present_flag[i])
+			{
+				info->AddItem(new PropItem(_T("sub_layer_level_idc"), H265LevelToString(ptl.sub_layer_level_idc[i])));
+			}
+		}
+	}
+
+	static void FillH265VPSInfo(PropItem * vpsinfo, const h265vps_t& vps)
+	{
+		FillH265ProfileTierLevelInfo(vpsinfo, vps.ptl);
+
+		vpsinfo->AddItem(new PropItem(_T("video_parameter_set_id"), vps.vps_video_parameter_set_id));
+		vpsinfo->AddItem(new PropItem(_T("max_layers_minus1"), vps.vps_max_layers_minus1));
+		vpsinfo->AddItem(new PropItem(_T("max_sub_layers_minus1"), vps.vps_max_sub_layers_minus1));
+		vpsinfo->AddItem(new PropItem(_T("temporal_id_nesting_flag"), vps.vps_temporal_id_nesting_flag));
+		vpsinfo->AddItem(new PropItem(_T("sub_layer_ordering_info_present_flag"), vps.vps_sub_layer_ordering_info_present_flag));
+		for (uint8 i = (vps.vps_sub_layer_ordering_info_present_flag ? 0 : vps.vps_max_sub_layers_minus1); i < vps.vps_max_layers_minus1; ++i)
+		{
+			vpsinfo->AddItem(new PropItem(_T("max_dec_pic_buffering_minus1"), vps.vps_max_dec_pic_buffering_minus1[i]));
+			vpsinfo->AddItem(new PropItem(_T("max_num_reorder_pics"), vps.vps_max_num_reorder_pics[i]));
+			vpsinfo->AddItem(new PropItem(_T("max_latency_increase_plus1"), vps.vps_max_latency_increase_plus1[i]));
+		}
+		vpsinfo->AddItem(new PropItem(_T("max_layer_id"), vps.vps_max_layer_id));
+		vpsinfo->AddItem(new PropItem(_T("num_layer_sets_minus1"), vps.vps_num_layer_sets_minus1));
+		vpsinfo->AddItem(new PropItem(_T("timing_info_present_flag"), vps.vps_timing_info_present_flag));
+		if (vps.vps_timing_info_present_flag)
+		{
+			vpsinfo->AddItem(new PropItem(_T("num_units_in_tick"), vps.vps_num_units_in_tick));
+			vpsinfo->AddItem(new PropItem(_T("time_scale"), vps.vps_time_scale));
+			vpsinfo->AddItem(new PropItem(_T("poc_proportional_to_timing_flag"), vps.vps_poc_proportional_to_timing_flag));
+			if (vps.vps_poc_proportional_to_timing_flag)
+			{
+				vpsinfo->AddItem(new PropItem(_T("num_ticks_poc_diff_one_minus1"), vps.vps_num_ticks_poc_diff_one_minus1));
+			}
+			vpsinfo->AddItem(new PropItem(_T("num_hrd_parameters"), vps.vps_num_hrd_parameters));
+			for (uint32 i(0); i < vps.vps_num_hrd_parameters; ++i)
+			{
+				vpsinfo->AddItem(new PropItem(_T("hrd_layer_set_idx"), vps.hrd_layer_set_idx[i]));
+				if (i > 0)
+				{
+					vpsinfo->AddItem(new PropItem(_T("cprms_present_flag"), vps.cprms_present_flag[i]));
+				}
+			}
+		}
+		vpsinfo->AddItem(new PropItem(_T("extension_flag"), vps.vps_extension_flag));
+	}
+
+	static void FillH265SPSInfo(PropItem * spsinfo, const h265sps_t& sps)
+	{
+		FillH265ProfileTierLevelInfo(spsinfo, sps.ptl);
+
+		spsinfo->AddItem(new PropItem(_T("video_parameter_set_id"), sps.sps_video_parameter_set_id));
+		spsinfo->AddItem(new PropItem(_T("max_sub_layers_minus1"), sps.sps_max_sub_layers_minus1));
+		spsinfo->AddItem(new PropItem(_T("temporal_id_nesting_flag"), sps.sps_temporal_id_nesting_flag));
+		spsinfo->AddItem(new PropItem(_T("seq_parameter_set_id"), sps.sps_seq_parameter_set_id));
+		spsinfo->AddItem(new PropItem(_T("chroma_format_idc"), H265ChromaFormatToString(sps.chroma_format_idc)));
+		if (sps.chroma_format_idc == 3) spsinfo->AddItem(new PropItem(_T("separate_colour_plane_flag"), sps.separate_colour_plane_flag));
+		spsinfo->AddItem(new PropItem(_T("pic_width_in_luma_samples"), sps.pic_width_in_luma_samples));
+		spsinfo->AddItem(new PropItem(_T("pic_height_in_luma_samples"), sps.pic_height_in_luma_samples));
+		spsinfo->AddItem(new PropItem(_T("conformance_window_flag"), sps.conformance_window_flag));
+		if (sps.conformance_window_flag)
+		{
+			RECT comformance_window = { sps.conf_win_left_offset, sps.conf_win_top_offset, sps.conf_win_right_offset, sps.conf_win_bottom_offset };
+			spsinfo->AddItem(new PropItem(_T("conformance_window"), comformance_window));
+		}
+		spsinfo->AddItem(new PropItem(_T("bit_depth_luma_minus8"), sps.bit_depth_luma_minus8));
+		spsinfo->AddItem(new PropItem(_T("bit_depth_chroma_minus8"), sps.bit_depth_chroma_minus8));
+		spsinfo->AddItem(new PropItem(_T("log2_max_pic_order_cnt_lsb_minus4"), sps.log2_max_pic_order_cnt_lsb_minus4));
+		spsinfo->AddItem(new PropItem(_T("sub_layer_ordering_info_present_flag"), sps.sps_sub_layer_ordering_info_present_flag));
+		for (uint8 i = (sps.sps_sub_layer_ordering_info_present_flag ? 0 : sps.sps_max_sub_layers_minus1); i <= sps.sps_max_sub_layers_minus1; ++i)
+		{
+			spsinfo->AddItem(new PropItem(_T("max_dec_pic_buffering_minus1"), sps.sps_max_dec_pic_buffering_minus1[i]));
+			spsinfo->AddItem(new PropItem(_T("max_num_reorder_pics"), sps.sps_max_num_reorder_pics[i]));
+			spsinfo->AddItem(new PropItem(_T("max_latency_increase_plus1"), sps.sps_max_latency_increase_plus1[i]));
+		}
+		spsinfo->AddItem(new PropItem(_T("log2_min_luma_coding_block_size_minus3"), sps.log2_min_luma_coding_block_size_minus3));
+		spsinfo->AddItem(new PropItem(_T("log2_diff_max_min_luma_coding_block_size"), sps.log2_diff_max_min_luma_coding_block_size));
+		spsinfo->AddItem(new PropItem(_T("log2_min_transform_block_size_minus2"), sps.log2_min_transform_block_size_minus2));
+		spsinfo->AddItem(new PropItem(_T("log2_diff_max_min_transform_block_size"), sps.log2_diff_max_min_transform_block_size));
+		spsinfo->AddItem(new PropItem(_T("max_transform_hierarchy_depth_inter"), sps.max_transform_hierarchy_depth_inter));
+		spsinfo->AddItem(new PropItem(_T("max_transform_hierarchy_depth_intra"), sps.max_transform_hierarchy_depth_intra));
+		spsinfo->AddItem(new PropItem(_T("scaling_list_enabled_flag"), sps.scaling_list_enabled_flag));
+		if (sps.scaling_list_enabled_flag)
+		{
+			spsinfo->AddItem(new PropItem(_T("scaling_list_data_present_flag"), sps.sps_scaling_list_data_present_flag));
+		}
+		spsinfo->AddItem(new PropItem(_T("amp_enabled_flag"), sps.amp_enabled_flag));
+		spsinfo->AddItem(new PropItem(_T("sample_adaptive_offset_enabled_flag"), sps.sample_adaptive_offset_enabled_flag));
+		spsinfo->AddItem(new PropItem(_T("pcm_enabled_flag"), sps.pcm_enabled_flag));
+		if (sps.pcm_enabled_flag)
+		{
+			spsinfo->AddItem(new PropItem(_T("pcm_sample_bit_depth_luma_minus1"), sps.pcm_sample_bit_depth_luma_minus1));
+			spsinfo->AddItem(new PropItem(_T("pcm_sample_bit_depth_chroma_minus1"), sps.pcm_sample_bit_depth_chroma_minus1));
+			spsinfo->AddItem(new PropItem(_T("log2_min_pcm_luma_coding_block_size_minus3"), sps.log2_min_pcm_luma_coding_block_size_minus3));
+			spsinfo->AddItem(new PropItem(_T("log2_diff_max_min_pcm_luma_coding_block_size"), sps.log2_diff_max_min_pcm_luma_coding_block_size));
+			spsinfo->AddItem(new PropItem(_T("pcm_loop_filter_disabled_flag"), sps.pcm_loop_filter_disabled_flag));
+		}
+		spsinfo->AddItem(new PropItem(_T("num_short_term_ref_pic_sets"), sps.num_short_term_ref_pic_sets));
+		spsinfo->AddItem(new PropItem(_T("long_term_ref_pics_present_flag"), sps.long_term_ref_pics_present_flag));
+		if (sps.long_term_ref_pics_present_flag)
+		{
+			spsinfo->AddItem(new PropItem(_T("num_long_term_ref_pics_sps"), sps.num_long_term_ref_pics_sps));
+			for (uint32 i(0); i < sps.num_long_term_ref_pics_sps; ++i)
+			{
+				spsinfo->AddItem(new PropItem(_T("lt_ref_pic_poc_lsb_sps"), sps.lt_ref_pic_poc_lsb_sps[i]));
+				spsinfo->AddItem(new PropItem(_T("used_by_curr_pic_lt_sps_flag"), sps.used_by_curr_pic_lt_sps_flag[i]));
+			}
+		}
+		spsinfo->AddItem(new PropItem(_T("temporal_mvp_enabled_flag"), sps.sps_temporal_mvp_enabled_flag));
+		spsinfo->AddItem(new PropItem(_T("strong_intra_smoothing_enabled_flag"), sps.strong_intra_smoothing_enabled_flag));
+		spsinfo->AddItem(new PropItem(_T("vui_parameters_present_flag"), sps.vui_parameters_present_flag));
+		spsinfo->AddItem(new PropItem(_T("extension_flag"), sps.sps_extension_flag));
+	}
+
+	static void FillH265PPSInfo(PropItem * ppsinfo, const h265pps_t& pps)
+	{
+		ppsinfo->AddItem(new PropItem(_T("pic_parameter_set_id"), pps.pps_pic_parameter_set_id));
+		ppsinfo->AddItem(new PropItem(_T("seq_parameter_set_id"), pps.pps_seq_parameter_set_id));
+		ppsinfo->AddItem(new PropItem(_T("dependent_slice_segments_enabled_flag"), pps.dependent_slice_segments_enabled_flag));
+		ppsinfo->AddItem(new PropItem(_T("output_flag_present_flag"), pps.output_flag_present_flag));
+		ppsinfo->AddItem(new PropItem(_T("num_extra_slice_header_bits"), pps.num_extra_slice_header_bits));
+		ppsinfo->AddItem(new PropItem(_T("sign_data_hiding_enabled_flag"), pps.sign_data_hiding_enabled_flag));
+		ppsinfo->AddItem(new PropItem(_T("cabac_init_present_flag"), pps.cabac_init_present_flag));
+		ppsinfo->AddItem(new PropItem(_T("num_ref_idx_l0_default_active_minus1"), pps.num_ref_idx_l0_default_active_minus1));
+		ppsinfo->AddItem(new PropItem(_T("num_ref_idx_l1_default_active_minus1"), pps.num_ref_idx_l1_default_active_minus1));
+		ppsinfo->AddItem(new PropItem(_T("init_qp_minus26"), pps.init_qp_minus26));
+		ppsinfo->AddItem(new PropItem(_T("constrained_intra_pred_flag"), pps.constrained_intra_pred_flag));
+		ppsinfo->AddItem(new PropItem(_T("transform_skip_enabled_flag"), pps.transform_skip_enabled_flag));
+		ppsinfo->AddItem(new PropItem(_T("cu_qp_delta_enabled_flag"), pps.cu_qp_delta_enabled_flag));
+		if (pps.cu_qp_delta_enabled_flag) ppsinfo->AddItem(new PropItem(_T("diff_cu_qp_delta_depth"), pps.diff_cu_qp_delta_depth));
+
+		ppsinfo->AddItem(new PropItem(_T("cb_qp_offset"), pps.pps_cb_qp_offset));
+		ppsinfo->AddItem(new PropItem(_T("cr_qp_offset"), pps.pps_cr_qp_offset));
+		ppsinfo->AddItem(new PropItem(_T("slice_chroma_qp_offsets_present_flag"), pps.pps_slice_chroma_qp_offsets_present_flag));
+		ppsinfo->AddItem(new PropItem(_T("weighted_pred_flag"), pps.weighted_pred_flag));
+		ppsinfo->AddItem(new PropItem(_T("weighted_bipred_flag"), pps.weighted_bipred_flag));
+		ppsinfo->AddItem(new PropItem(_T("transquant_bypass_enabled_flag"), pps.transquant_bypass_enabled_flag));
+		ppsinfo->AddItem(new PropItem(_T("tiles_enabled_flag"), pps.tiles_enabled_flag));
+		ppsinfo->AddItem(new PropItem(_T("entropy_coding_sync_enabled_flag"), pps.entropy_coding_sync_enabled_flag));
+		if (pps.tiles_enabled_flag)
+		{
+			ppsinfo->AddItem(new PropItem(_T("num_tile_columns_minus1"), pps.num_tile_columns_minus1));
+			ppsinfo->AddItem(new PropItem(_T("num_tile_rows_minus1"), pps.num_tile_rows_minus1));
+			ppsinfo->AddItem(new PropItem(_T("uniform_spacing_flag"), pps.uniform_spacing_flag));
+			if (!pps.uniform_spacing_flag)
+			{
+				for (uint32 i(0); i < pps.num_tile_columns_minus1; i++) ppsinfo->AddItem(new PropItem(_T("column_width_minus1"), pps.column_width_minus1[i]));
+				for (uint32 i(0); i < pps.num_tile_rows_minus1; i++) ppsinfo->AddItem(new PropItem(_T("row_height_minus1"), pps.row_height_minus1[i]));
+			}
+			ppsinfo->AddItem(new PropItem(_T("loop_filter_across_tiles_enabled_flag"), pps.loop_filter_across_tiles_enabled_flag));
+		}
+		ppsinfo->AddItem(new PropItem(_T("loop_filter_across_slices_enabled_flag"), pps.pps_loop_filter_across_slices_enabled_flag));
+		ppsinfo->AddItem(new PropItem(_T("deblocking_filter_control_present_flag"), pps.deblocking_filter_control_present_flag));
+		if (pps.deblocking_filter_control_present_flag)
+		{
+			ppsinfo->AddItem(new PropItem(_T("deblocking_filter_override_enabled_flag"), pps.deblocking_filter_override_enabled_flag));
+			ppsinfo->AddItem(new PropItem(_T("deblocking_filter_disabled_flag"), pps.pps_deblocking_filter_disabled_flag));
+			if (!pps.pps_deblocking_filter_disabled_flag)
+			{
+				ppsinfo->AddItem(new PropItem(_T("beta_offset_div2"), pps.pps_beta_offset_div2));
+				ppsinfo->AddItem(new PropItem(_T("tc_offset_div2"), pps.pps_tc_offset_div2));
+			}
+		}
+		ppsinfo->AddItem(new PropItem(_T("scaling_list_data_present_flag"), pps.pps_scaling_list_data_present_flag));
+		ppsinfo->AddItem(new PropItem(_T("lists_modification_present_flag"), pps.lists_modification_present_flag));
+		ppsinfo->AddItem(new PropItem(_T("log2_parallel_merge_level_minus2"), pps.log2_parallel_merge_level_minus2));
+		ppsinfo->AddItem(new PropItem(_T("slice_segment_header_extension_present_flag"), pps.slice_segment_header_extension_present_flag));
+		ppsinfo->AddItem(new PropItem(_T("extension_flag"), pps.pps_extension_flag));
+	}
+
+	static void FillH265VUIInfo(PropItem * vuiinfo, const h265vui_t& vui)
+	{
+		vuiinfo->AddItem(new PropItem(_T("aspect_ratio_info_present_flag"), vui.aspect_ratio_info_present_flag));
+		if (vui.aspect_ratio_info_present_flag)
+		{
+			vuiinfo->AddItem(new PropItem(_T("aspect_ratio_idc"), vui.aspect_ratio_idc));
+		}
+		vuiinfo->AddItem(new PropItem(_T("overscan_info_present_flag"), vui.overscan_info_present_flag));
+		if (vui.overscan_info_present_flag) vuiinfo->AddItem(new PropItem(_T("overscan_appropriate_flag"), vui.overscan_appropriate_flag));
+		vuiinfo->AddItem(new PropItem(_T("video_signal_type_present_flag"), vui.video_signal_type_present_flag));
+		if (vui.video_signal_type_present_flag)
+		{
+			vuiinfo->AddItem(new PropItem(_T("video_format"), vui.video_format));
+			vuiinfo->AddItem(new PropItem(_T("video_full_range_flag"), vui.video_full_range_flag));
+			vuiinfo->AddItem(new PropItem(_T("colour_description_present_flag"), vui.colour_description_present_flag));
+			if (vui.colour_description_present_flag)
+			{
+				vuiinfo->AddItem(new PropItem(_T("colour_primaries"), vui.colour_primaries));
+				vuiinfo->AddItem(new PropItem(_T("transfer_characteristics"), vui.transfer_characteristics));
+				vuiinfo->AddItem(new PropItem(_T("matrix_coeffs"), vui.matrix_coeffs));
+			}
+		}
+		vuiinfo->AddItem(new PropItem(_T("chroma_loc_info_present_flag"), vui.chroma_loc_info_present_flag));
+		if (vui.chroma_loc_info_present_flag)
+		{
+			vuiinfo->AddItem(new PropItem(_T("chroma_sample_loc_type_top_field"), vui.chroma_sample_loc_type_top_field));
+			vuiinfo->AddItem(new PropItem(_T("chroma_sample_loc_type_bottom_field"), vui.chroma_sample_loc_type_bottom_field));
+		}
+		vuiinfo->AddItem(new PropItem(_T("neutral_chroma_indication_flag"), vui.neutral_chroma_indication_flag));
+		vuiinfo->AddItem(new PropItem(_T("field_seq_flag"), vui.field_seq_flag));
+		vuiinfo->AddItem(new PropItem(_T("frame_field_info_present_flag"), vui.frame_field_info_present_flag));
+		vuiinfo->AddItem(new PropItem(_T("default_display_window_flag"), vui.default_display_window_flag));
+		if (vui.default_display_window_flag)
+		{
+			RECT default_display_window = { vui.def_disp_win_left_offset, vui.def_disp_win_top_offset, vui.def_disp_win_right_offset, vui.def_disp_win_bottom_offset };
+			vuiinfo->AddItem(new PropItem(_T("default_display_window"), default_display_window));
+		}
+		vuiinfo->AddItem(new PropItem(_T("timing_info_present_flag"), vui.vui_timing_info_present_flag));
+		if (vui.vui_timing_info_present_flag)
+		{
+			vuiinfo->AddItem(new PropItem(_T("num_units_in_tick"), vui.vui_num_units_in_tick));
+			vuiinfo->AddItem(new PropItem(_T("time_scale"), vui.vui_time_scale));
+			vuiinfo->AddItem(new PropItem(_T("poc_proportional_to_timing_flag"), vui.vui_poc_proportional_to_timing_flag));
+			if (vui.vui_poc_proportional_to_timing_flag)
+			{
+				vuiinfo->AddItem(new PropItem(_T("num_ticks_poc_diff_one_minus1"), vui.vui_num_ticks_poc_diff_one_minus1));
+				vuiinfo->AddItem(new PropItem(_T("hrd_parameters_present_flag"), vui.vui_hrd_parameters_present_flag));
+			}
+			vuiinfo->AddItem(new PropItem(_T("bitstream_restriction_flag"), vui.bitstream_restriction_flag));
+			if (vui.bitstream_restriction_flag)
+			{
+				vuiinfo->AddItem(new PropItem(_T("tiles_fixed_structure_flag"), vui.tiles_fixed_structure_flag));
+				vuiinfo->AddItem(new PropItem(_T("motion_vectors_over_pic_boundaries_flag"), vui.motion_vectors_over_pic_boundaries_flag));
+				vuiinfo->AddItem(new PropItem(_T("restricted_ref_pic_lists_flag"), vui.restricted_ref_pic_lists_flag));
+				vuiinfo->AddItem(new PropItem(_T("min_spatial_segmentation_idc"), vui.min_spatial_segmentation_idc));
+				vuiinfo->AddItem(new PropItem(_T("max_bytes_per_pic_denom"), vui.max_bytes_per_pic_denom));
+				vuiinfo->AddItem(new PropItem(_T("max_bits_per_min_cu_denom"), vui.max_bits_per_min_cu_denom));
+				vuiinfo->AddItem(new PropItem(_T("log2_max_mv_length_horizontal"), vui.log2_max_mv_length_horizontal));
+				vuiinfo->AddItem(new PropItem(_T("log2_max_mv_length_vertical"), vui.log2_max_mv_length_vertical));
+			}
+		}
+	}
+
+	int GetExtradata_H265(const CMediaType *pmt, PropItem *mtinfo)
+	{
+		if (pmt->pbFormat == NULL)
+			return 0;
+
+		int			extralen = 0;
+		uint8*      extra = GetExtradataFromMediaType(pmt, extralen);
+
+		// done with
+		if (extralen <= 0) return 0;
+
+		std::vector<h265vps_t> VPSes;
+		std::vector<h265sps_t> SPSes;
+		std::vector<h265pps_t> PPSes;
+
+		if (pmt->subtype == MEDIASUBTYPE_HVC1 || pmt->subtype == MEDIASUBTYPE_hvc1)
+		{
+			if (extralen < sizeof(HEVCDecoderConfigurationRecord))
+			{
+				return 0;
+			}
+			HEVCDecoderConfigurationRecord * config = reinterpret_cast<HEVCDecoderConfigurationRecord*>(extra);
+			PropItem *hevcinfo = mtinfo->AddItem(new PropItem(_T("HEVC Decoder Configuration Record")));
+			hevcinfo->AddItem(new PropItem(_T("Configuration Version"), config->configurationVersion));
+			hevcinfo->AddItem(new PropItem(_T("general_profile_space"), config->general_profile_space));
+			hevcinfo->AddItem(new PropItem(_T("general_tier_flag"), config->general_tier_flag));
+			hevcinfo->AddItem(new PropItem(_T("general profile idc"), H265ProfileToString(config->general_profile_idc)));
+			hevcinfo->AddItem(new PropItem(_T("general level idc"), H265LevelToString(config->general_level_idc)));
+			hevcinfo->AddItem(new PropItem(_T("min_spatial_segmentation_idc"), config->min_spatial_segmentation_idc));
+			hevcinfo->AddItem(new PropItem(_T("parallelismType"), config->parallelismType));
+			hevcinfo->AddItem(new PropItem(_T("Chroma Format"), H265ChromaFormatToString(config->chromaFormat)));
+			hevcinfo->AddItem(new PropItem(_T("bitDepthLumaMinus8"), config->bitDepthLumaMinus8));
+			hevcinfo->AddItem(new PropItem(_T("bitDepthChromaMinus8"), config->bitDepthChromaMinus8));
+			hevcinfo->AddItem(new PropItem(_T("avgFrameRate"), config->avgFrameRate));
+			hevcinfo->AddItem(new PropItem(_T("constantFrameRate"), config->constantFrameRate));
+			hevcinfo->AddItem(new PropItem(_T("numTemporalLayers"), config->numTemporalLayers));
+			hevcinfo->AddItem(new PropItem(_T("temporalIdNested"), config->temporalIdNested));
+			hevcinfo->AddItem(new PropItem(_T("lengthSizeMinusOne"), config->lengthSizeMinusOne));
+			hevcinfo->AddItem(new PropItem(_T("numOfArrays"), config->numOfArrays));
+
+			int offset = sizeof(HEVCDecoderConfigurationRecord);
+			CBitStreamReader br(extra + offset, extralen - offset, false);
+
+			for (uint8 i(0); i < config->numOfArrays; ++i)
+			{
+				if ((offset += 3) > extralen) return 0;
+				br.SkipU(2);
+				uint8 NAL_unit_type = br.ReadU(6);
+				uint16 numNALUs = br.ReadU16();
+
+				for (uint16 j(0); j < numNALUs; ++j)
+				{
+					if ((offset += 2) > extralen) return 0;
+					uint16 length = br.ReadU16();
+					if (offset + length > extralen) return 0;
+
+					CBitStreamReader nalr(extra + offset, length);
+					offset += length;
+					
+					// 7.3.1.2 NAL unit header syntax
+					nalr.SkipU1(); // forbidden_zero_bit
+					uint8 nal_unit_type = nalr.ReadU(6);
+					uint8 nuh_layer_id = nalr.ReadU(6);
+					uint8 nuh_temporal_id_plus1 = nalr.ReadU(3);
+
+					switch (NAL_unit_type)
+					{
+					case kH265VPSNUT: { h265vps_t vps; CH265StructReader::ReadVPS(nalr, vps); VPSes.push_back(vps); } break;
+					case kH265SPSNUT: { h265sps_t sps; CH265StructReader::ReadSPS(nalr, sps); SPSes.push_back(sps); } break;
+					case kH265PPSNUT: { h265pps_t pps; CH265StructReader::ReadPPS(nalr, pps); PPSes.push_back(pps); } break;
+					default: break;
+					}
+					br.SkipU8(length);
+				}
+			}
+		}
+		if (pmt->subtype == MEDIASUBTYPE_MC_H265)
+		{
+			// Annex B format
+			CBitStreamReader br(extra, extralen);
+			int lastNullBytes = 0;
+
+			while (br.GetPos() < extralen - 4)
+			{
+				BYTE val = br.ReadU8();
+
+				if (val == 0) lastNullBytes++;
+				else if (val == 1 && lastNullBytes >= 3)
+				{
+					// 7.3.1.2 NAL unit header syntax
+					br.SkipU1(); // forbidden_zero_bit
+					uint8 nal_unit_type = br.ReadU(6);
+					uint8 nuh_layer_id = br.ReadU(6);
+					uint8 nuh_temporal_id_plus1 = br.ReadU(3);
+
+					switch (nal_unit_type)
+					{
+					case kH265VPSNUT: { h265vps_t vps; CH265StructReader::ReadVPS(br, vps); VPSes.push_back(vps); } break;
+					case kH265SPSNUT: { h265sps_t sps; CH265StructReader::ReadSPS(br, sps); SPSes.push_back(sps); } break;
+					case kH265PPSNUT: { h265pps_t pps; CH265StructReader::ReadPPS(br, pps); PPSes.push_back(pps); } break;
+					default: break;
+					}
+
+					br.SetPos(br.GetPos());
+
+					lastNullBytes = 0;
+				}
+				else
+					lastNullBytes = 0;
+			}
+		}
+		if (pmt->subtype == MEDIASUBTYPE_HEVC || pmt->subtype == MEDIASUBTYPE_hevc || pmt->subtype == MEDIASUBTYPE_H265 || pmt->subtype == MEDIASUBTYPE_h265)
+		{
+			// NALU format
+			CBitStreamReader br(extra, extralen, false);
+
+			while (br.GetPos() < extralen - 4)
+			{
+				uint16 size = br.ReadU16();
+				SSIZE_T pos = br.GetPos();
+				// 7.3.1.2 NAL unit header syntax
+				br.SkipU1(); // forbidden_zero_bit
+				uint8 nal_unit_type = br.ReadU(6);
+				uint8 nuh_layer_id = br.ReadU(6);
+				uint8 nuh_temporal_id_plus1 = br.ReadU(3);
+
+				switch (nal_unit_type)
+				{
+				case kH265VPSNUT: { h265vps_t vps; CH265StructReader::ReadVPS(br, vps); VPSes.push_back(vps); } break;
+				case kH265SPSNUT: { h265sps_t sps; CH265StructReader::ReadSPS(br, sps); SPSes.push_back(sps); } break;
+				case kH265PPSNUT: { h265pps_t pps; CH265StructReader::ReadPPS(br, pps); PPSes.push_back(pps); } break;
+				default: break;
+				}
+				br.SetPos(pos + size);
+			}
+		}
+		for (std::vector<h265vps_t>::const_iterator vps = VPSes.begin(); vps != VPSes.end(); ++vps)
+		{
+			FillH265VPSInfo(mtinfo->AddItem(new PropItem(_T("HEVC Video Parameter Set (VPS)"))), *vps);
+		}
+		for (std::vector<h265sps_t>::const_iterator sps = SPSes.begin(); sps != SPSes.end(); ++sps)
+		{
+			FillH265SPSInfo(mtinfo->AddItem(new PropItem(_T("HEVC Sequence Parameter Set (SPS)"))), *sps);
+			if (sps->vui_parameters_present_flag)
+			{
+				FillH265VUIInfo(mtinfo->AddItem(new PropItem(_T("HEVC Video Usability Information (VUI)"))), sps->vui);
+			}
+		}
+		for (std::vector<h265pps_t>::const_iterator pps = PPSes.begin(); pps != PPSes.end(); ++pps)
+		{
+			FillH265PPSInfo(mtinfo->AddItem(new PropItem(_T("HEVC Picture Parameter Set (PPS)"))), *pps);
+		}
 		return 0;
 	}
 
@@ -1493,23 +1968,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			return 0;
 
         int			extralen = 0;
-        uint8*      extra = NULL;
-        if (pmt->formattype == FORMAT_MPEG2Video)
-        {
-		    const MPEG2VIDEOINFO * const m2vi = (MPEG2VIDEOINFO*)pmt->pbFormat;
-		    extralen = m2vi->cbSequenceHeader;
-            extra = (uint8*)m2vi->dwSequenceHeader;
-        }
-        else if (pmt->formattype == FORMAT_VIDEOINFO2)
-        {
-            extralen = pmt->cbFormat - sizeof(VIDEOINFOHEADER2);
-            extra = pmt->pbFormat + sizeof(VIDEOINFOHEADER2);
-        }
-        else if (pmt->formattype == FORMAT_VideoInfo)
-        {
-            extralen = pmt->cbFormat - sizeof(VIDEOINFOHEADER);
-            extra = pmt->pbFormat + sizeof(VIDEOINFOHEADER);
-        }
+		uint8*      extra = GetExtradataFromMediaType(pmt, extralen);
 
         bool isMpeg1 = false;
 

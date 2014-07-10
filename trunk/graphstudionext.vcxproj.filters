@@ -405,6 +405,9 @@
     <ClInclude Include="src\DbgLogPage.h">
       <Filter>Property Pages</Filter>
     </ClInclude>
+    <ClInclude Include="src\H265StructReader.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -670,6 +673,9 @@
     </ClCompile>
     <ClCompile Include="src\DbgLogPage.cpp">
       <Filter>Property Pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\H265StructReader.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

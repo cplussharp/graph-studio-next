@@ -43,7 +43,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	// Decoder Specific Information
 	int GetExtradata_AAC(const CMediaType *pmt, PropItem *mtinfo);
+	int GetExtradata_Video(const CMediaType *pmt, PropItem *mtinfo);
     int GetExtradata_H264(const CMediaType *pmt, PropItem *mtinfo);
+	int GetExtradata_H265(const CMediaType *pmt, PropItem *mtinfo);
     int GetExtradata_MPEGVideo(const CMediaType *pmt, PropItem *mtinfo);
 
 GRAPHSTUDIO_NAMESPACE_END			// cf stdafx.h for explanation
