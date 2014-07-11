@@ -269,12 +269,16 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
 						CString strFilterFile = gf.GetDllFileName();
 						if (!strFilterFile.IsEmpty())
 						{
-							// load the dll
-							CComPtr<IClassFactory> factory;
-							hr = DSUtil::GetClassFactoryFromDll(T2COLE(strFilterFile), pagelist.pElems[i], &factory);
-							if (SUCCEEDED(hr)) {
-								hr = factory->CreateInstance(NULL, IID_IPropertyPage, (void**)&page);
-								DSUtil::ShowError(hr, _T("Class factory CreateInstance failed"));
+							// Don't attempt class factory creation if filter is internal and implemented by our own EXE
+							CPath filterPath(strFilterFile);
+							if (filterPath.GetExtension().MakeLower() != ".exe") {
+								// load the dll
+								CComPtr<IClassFactory> factory;
+								hr = DSUtil::GetClassFactoryFromDll(T2COLE(strFilterFile), pagelist.pElems[i], &factory);
+								if (SUCCEEDED(hr)) {
+									hr = factory->CreateInstance(NULL, IID_IPropertyPage, (void**)&page);
+									DSUtil::ShowError(hr, _T("Class factory CreateInstance failed"));
+								}
 							}
 						}
 					}
