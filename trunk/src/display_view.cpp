@@ -1595,7 +1595,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return next_filter;
 	}
 
-	void DisplayView::NavigateFilterGraph(bool pin_navigation, bool vertical, bool positive)
+	void DisplayView::NavigateFilterGraph(bool pin_navigation, bool vertical, bool positive, bool extend_selection)
 	{
 		CArray<Filter*>& filters = graph.filters;
 		const INT_PTR filter_count = graph.filters.GetCount();
@@ -1687,49 +1687,49 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (!next_filter)
 			next_filter = prev_filter;
 
-		graph.SetSelection(next_pin ? NULL : next_filter, next_pin);		// Select pin or filter, not both
+		graph.SetSelection(next_pin ? NULL : next_filter, next_pin, !extend_selection);		// Select pin or filter, not both
 		ScrollToMakeFilterVisible(next_pin ? next_pin->filter : next_filter);
 		Invalidate();
 	}
 
 	void DisplayView::OnFilterLeft()
 	{
-		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ false	,	/*positive=*/ false	);
+		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ false	,	/*positive=*/ false, /*extend=*/ GetKeyState(VK_SHIFT) < 0	);
 	}
 
 	void DisplayView::OnFilterRight()
 	{
-		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ false	,	/*positive=*/ true	);
+		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ false	,	/*positive=*/ true, /*extend=*/ GetKeyState(VK_SHIFT) < 0	);
 	}
 
 	void DisplayView::OnFilterUp()
 	{
-		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ true	,	/*positive=*/ false	);
+		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ true	,	/*positive=*/ false, /*extend=*/ GetKeyState(VK_SHIFT) < 0	);
 	}
 
 	void DisplayView::OnFilterDown()
 	{
-		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ true	,	/*positive=*/ true	);
+		NavigateFilterGraph(/*pin=*/ false,		/*vertical=*/ true	,	/*positive=*/ true, /*extend=*/ GetKeyState(VK_SHIFT) < 0	);
 	}
 
 	void DisplayView::OnPinLeft()
 	{
-		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ false	,	/*positive=*/ false	);
+		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ false	,	/*positive=*/ false, /*extend=*/ GetKeyState(VK_SHIFT) < 0	);
 	}
 
 	void DisplayView::OnPinRight()
 	{
-		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ false	,	/*positive=*/ true	);
+		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ false	,	/*positive=*/ true, /*extend=*/ GetKeyState(VK_SHIFT) < 0	);
 	}
 
 	void DisplayView::OnPinUp()
 	{
-		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ true ,	/*positive=*/ false	);
+		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ true ,	/*positive=*/ false, /*extend=*/ GetKeyState(VK_SHIFT) < 0	);
 	}
 
 	void DisplayView::OnPinDown()
 	{
-		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ true ,	/*positive=*/ true	);
+		NavigateFilterGraph(/*pin=*/ true,		/*vertical=*/ true ,	/*positive=*/ true, /*extend=*/ GetKeyState(VK_SHIFT) < 0	);
 	}
 
 	void DisplayView::OnContextMenu()

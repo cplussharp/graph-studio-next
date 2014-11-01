@@ -341,7 +341,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void SelectAllFilters(bool select);
 		Filter * GetSelectedFilter(bool allow_multi_selection = false);
 		Pin * GetSelectedPin(bool allow_multi_selection = false);
-		void SetSelection(Filter * filter, Pin * pin);
+		void SetSelection(Filter * filter, Pin * pin, bool clear_existing_selection = true);
 
 		int CalcDownstreamYPosition(Filter* const start_filter) const;
 		void SmartPlacement(bool force = true);
