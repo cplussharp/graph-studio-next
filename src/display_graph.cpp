@@ -2595,11 +2595,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	// filter and/or pin can be NULL
 	// Usually best to set selection of pin OR filter than both
-	void DisplayGraph::SetSelection(Filter * filter, Pin * pin)
+	void DisplayGraph::SetSelection(Filter * filter, Pin * pin, bool clear_existing_selection /* =true */)
 	{
-		const int filter_count = filters.GetCount();
-		for (int i=0; i<filter_count; i++) {
-			filters[i]->Select(false);				// deselect all
+		if (clear_existing_selection) {
+			const int filter_count = filters.GetCount();
+			for (int i=0; i<filter_count; i++) {
+				filters[i]->Select(false);				// deselect all
+			}
 		}
 		if (pin)
 			pin->selected = true;
