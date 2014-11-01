@@ -3445,6 +3445,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 	}
 
+	bool Filter::AnyPinSelected() const
+	{
+		for (int i=0; i<input_pins.GetCount();  i++)	if (input_pins[i]->selected)	return true;
+		for (int i=0; i<output_pins.GetCount(); i++)	if (output_pins[i]->selected)	return true;
+		return false;
+	}
+
 	void Filter::Select(bool select)
 	{
 		selected = select;

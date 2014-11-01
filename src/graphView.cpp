@@ -2502,7 +2502,7 @@ void CGraphView::RemoveConnections(bool onlySelected)
 {
     for(int i=0; i<graph.filters.GetCount(); i++) {
 		GraphStudio::Filter * const filter = graph.filters[i];
-		if (filter->selected || !onlySelected)
+		if (filter->selected || filter->AnyPinSelected() || !onlySelected)
 			if (filter->connected) {
 				for(int j=0; j<graph.filters[i]->output_pins.GetCount(); j++)
 					graph.filters[i]->output_pins[j]->Disconnect();

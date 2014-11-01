@@ -186,6 +186,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void VerifyDrag(int *deltax, int *deltay);
 		void Select(bool select);
 		void SelectConnection(UINT flags, CPoint pt);
+		bool AnyPinSelected() const;
 
 		// overlay icons
 		int CheckIcons(CPoint pt);
