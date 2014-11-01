@@ -116,6 +116,7 @@ public:
 	void OnFileSaveAsClick();
 	void OnRenderUrlClick();
 	void OnPlayClick();
+	void OnCancelClick();
 	void OnStopClick();
 	void OnPauseClick();
 	void OnLoopClick();

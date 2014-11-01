@@ -285,6 +285,7 @@
 #define ID_COMPATIBLE_FILTER            9000
 #define ID_CONNECT_PIN                  9500
 #define ID_FILE_RENDERURL               32772
+#define ID_BUTTON_CANCEL                32774
 #define ID_FILE_CONNECTTOREMOTEGRAPH    32775
 #define ID_FILE_DISCONNECTFROMREMOTEGRAPH 32776
 #define ID_BUTTON_PLAY                  32777

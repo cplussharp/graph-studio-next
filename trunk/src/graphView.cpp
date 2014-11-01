@@ -112,6 +112,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
 	ON_COMMAND(ID_BUTTON_PLAY, &CGraphView::OnPlayClick)
 	ON_COMMAND(ID_BUTTON_PAUSE, &CGraphView::OnPauseClick)
+	ON_COMMAND(ID_BUTTON_CANCEL, &CGraphView::OnCancelClick)
 	ON_COMMAND(ID_BUTTON_STOP, &CGraphView::OnStopClick)
 	ON_COMMAND(ID_BUTTON_LOOP, &CGraphView::OnLoopClick)
 	ON_COMMAND(ID_BUTTON_STEP, &CGraphView::OnFrameStepClick)
@@ -849,6 +850,13 @@ void CGraphView::OnPlayClick()
 	const HRESULT hr = graph.DoPlay(full_screen);
 	DSUtil::ShowError(hr, _T("Error starting playback"));
 	UpdateGraphState();
+}
+
+void CGraphView::OnCancelClick()
+{
+	graph.SetSelection(NULL, NULL);
+	Invalidate();
+	OnStopClick();
 }
 
 void CGraphView::OnStopClick()
