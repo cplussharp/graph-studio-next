@@ -2263,7 +2263,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		for (i=0; i<filters.GetCount(); i++) {
 			Filter *filter = filters[i];
-			if (filter->selected) {
+			if (filter->selected || filter->AnyPinSelected()) {
 				clsid.Add(filter->clsid);
 				names.Add(filter->name);
 
@@ -3445,6 +3445,20 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (start_drag_pos.y + (*deltay) < DisplayGraph::GRID_SIZE) {
 			*deltay = DisplayGraph::GRID_SIZE - start_drag_pos.y;
 		}
+	}
+
+	Pin* Filter::FirstUnconnectedOutputPin()
+	{
+		for (int i=0; i<output_pins.GetCount(); i++)	
+			if (!output_pins[i]->connected)	
+				return output_pins[i];
+		return NULL;
+	}
+
+	bool Filter::AnyOutputPinSelected() const
+	{
+		for (int i=0; i<output_pins.GetCount(); i++)	if (output_pins[i]->selected)	return true;
+		return false;
 	}
 
 	bool Filter::AnyPinSelected() const
