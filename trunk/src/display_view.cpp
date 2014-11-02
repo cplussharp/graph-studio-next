@@ -173,9 +173,22 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void DisplayView::OnConnectPin()
 	{
-		Pin * const current_pin = graph.GetSelectedPin();
+		Pin * current_pin = graph.GetSelectedPin();
+
+		// If no pin selected find first unconnected output or input pin of selected filter
+		if (!current_pin) {
+			Filter * const current_filter = graph.GetSelectedFilter();
+			if (current_filter) {
+				current_pin = current_filter->FirstUnconnectedOutputPin();
+			}
+			if (current_pin) {		// show which pin we chose by selecting it and redrawing
+				graph.SetSelection(NULL, current_pin);
+				Invalidate();
+			}
+		}
+
 		if (!current_pin)
-			return;
+			return;					// nothing to do
 
 		CMenu	menu;
 		if (!menu.CreatePopupMenu()) 
@@ -1092,7 +1105,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		graph.Dirty();
 
-		Pin * const current_pin = graph.GetSelectedPin();
+		Pin * current_pin = graph.GetSelectedPin();
+		if (current_pin && current_pin->dir == PINDIR_INPUT)
+			current_pin = current_pin->peer;
 
 		// has selected pin, then get IPin interface now, because graph.AddFilter will release current_pin
 		CComPtr<IPin> outpin(connectToCurrentPin && current_pin ? current_pin->pin : NULL);
@@ -1142,22 +1157,37 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void DisplayView::OnRenderPin()
 	{
-		Pin * const current_pin = graph.GetSelectedPin();
-		if (!current_pin) 
-			return ;
+		HRESULT hr = S_OK;
+		bool any_rendered = false;
 
 		render_params.MarkRender(true);	
-		HRESULT	hr = graph.gb->Render(current_pin->pin);
+		for (int i=0; i<graph.filters.GetCount() && SUCCEEDED(hr); i++) {
+			Filter * const filter = graph.filters[i];
+			 bool pin_selection = filter->AnyOutputPinSelected();
+			 if (pin_selection || filter->selected) {
+				for (int j=0; j<filter->output_pins.GetCount() && SUCCEEDED(hr); j++) {
+					Pin * const pin = filter->output_pins[j];
+					if (!pin->connected) {
+						if (!pin_selection || pin->selected) {		// render selected output pins or try first output pin if no pins selected
+							any_rendered = true;
+							hr = graph.gb->Render(filter->output_pins[j]->pin);
+							if (!pin_selection)
+								break;								// if filter just try first unconnected output pin
+						}
+					}
+				}
+			 }
+		}
+
 		render_params.MarkRender(false);
 		OnRenderFinished();
 
-		if (SUCCEEDED(hr)) {
+		if (any_rendered) {
 			graph.RefreshFilters();
 			graph.SmartPlacement(false);
 			Invalidate();
-		} else {
-            DSUtil::ShowError(hr,_T("Can't render pin"));
-		}
+		} 
+		DSUtil::ShowError(hr,_T("Can't render pin"));
 	}
 
     void DisplayView::OnRemovePin()

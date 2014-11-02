@@ -176,6 +176,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		bool IsRenderer();
 		int NumOfDisconnectedPins(PIN_DIRECTION dir);
 		int NumOfConnectedPins(PIN_DIRECTION dir);
+		Pin* FirstUnconnectedOutputPin();
 
 		// placement 
 		void CalculatePlacementChain(int new_depth, int x, int y=-1);
@@ -187,6 +188,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void Select(bool select);
 		void SelectConnection(UINT flags, CPoint pt);
 		bool AnyPinSelected() const;
+		bool AnyOutputPinSelected() const;
 
 		// overlay icons
 		int CheckIcons(CPoint pt);
