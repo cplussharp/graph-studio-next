@@ -325,7 +325,8 @@ void CH264StructReader::ReadPPS(CBitStreamReader& bs, pps_t& pps)
     ReadTrailingBits(bs);
 }
 
-REFERENCE_TIME CH264StructReader::GetAvgTimePerFrame(int num_units_in_tick, int time_scale)
+// Use 64bit input params to force 64bit calculation and prevent overflow - issue #246
+REFERENCE_TIME CH264StructReader::GetAvgTimePerFrame(REFERENCE_TIME num_units_in_tick, REFERENCE_TIME time_scale)
 {
     REFERENCE_TIME val = 0;
     // Trick for weird parameters
