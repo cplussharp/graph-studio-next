@@ -404,7 +404,22 @@ void CTunerInfoPage::OnBuildTree()
     GraphStudio::PropItem *group = info.AddItem(new GraphStudio::PropItem(TEXT("ITuner")));
 
     long sigstrength = -1;
-    tuner->get_SignalStrength(&sigstrength);
+    HRESULT hr = tuner->get_SignalStrength(&sigstrength);
+
+	// Check for errors to prevent crashes when no tuner hardware issue #231
+	if (FAILED(hr)) {
+        CString strHR;
+		GraphStudio::NameHResult(hr, strHR);
+		TCHAR szErr[MAX_ERROR_TEXT_LEN] = _T("");
+        DWORD res = AMGetErrorText(hr, szErr, sizeof(szErr)/sizeof(szErr[0]));
+		if (szErr[0]) {
+			strHR += _T(": ");
+			strHR += CString(szErr);
+		}
+		group->AddItem(new GraphStudio::PropItem(_T("Error"), strHR));
+		return;
+	}
+
     group->AddItem(new GraphStudio::PropItem(_T("SignalStrength"), sigstrength));
 
     CComPtr<ITuningSpace> ts;
