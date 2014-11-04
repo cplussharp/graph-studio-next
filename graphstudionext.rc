@@ -1641,6 +1641,7 @@ BEGIN
     ID_SEEK_BACKWARD_3      "Seek backward 10 seconds"
     ID_SEEK_BACKWARD_4      "Seek backward 1 minute"
     ID_HELP_REGISTEREDFILETYPES "Show registered filetypes and protocols"
+	ID_GRAPH_CONNECTPIN		"Connect or disconnect and reconnect an output pin\nConnect output pin"
 END
 
 STRINGTABLE
