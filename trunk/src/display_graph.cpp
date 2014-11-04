@@ -1667,9 +1667,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 				if (dll.GetLength() > 0) {		// create from DLL class factory
 					CComPtr<IClassFactory> class_factory;
-					hr = DSUtil::GetClassFactoryFromDll((T2COLE(dll)), clsid, &class_factory);
-					if (!class_factory)
+					CString error_msg;
+					hr = DSUtil::GetClassFactoryFromDll((T2COLE(dll)), clsid, &class_factory, error_msg);
+					if (!class_factory) {
+						DSUtil::ShowError(hr, error_msg);
 						hr = E_POINTER;
+					}
 					if (SUCCEEDED(hr)) {
 						hr = class_factory->CreateInstance(NULL, __uuidof(IBaseFilter), (void**)&instance);
 					}

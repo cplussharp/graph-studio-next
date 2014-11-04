@@ -2266,7 +2266,7 @@ namespace DSUtil
 		return NOERROR;
 	}
 
-	HRESULT GetClassFactoryFromDll(LPCOLESTR dll_file, const CLSID& clsid, IClassFactory** factory)
+	HRESULT GetClassFactoryFromDll(LPCOLESTR dll_file, const CLSID& clsid, IClassFactory** factory, CString & error_msg)
 	{
 		HRESULT hr = S_OK;
 		if (!factory)
@@ -2303,9 +2303,7 @@ namespace DSUtil
 			else
 				format_string = _T("Error returned from DllGetClassObject in %s for CLSID %s");
 
-			CString msg;
-			msg.Format(format_string, (const TCHAR*)str_dll, (const TCHAR*)str_clsid);
-			DSUtil::ShowError(hr, msg);
+			error_msg.Format(format_string, (const TCHAR*)str_dll, (const TCHAR*)str_clsid);
 		}
 		return hr;
 	}
