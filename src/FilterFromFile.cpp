@@ -76,9 +76,12 @@ void CFilterFromFile::OnOK()
                 hr = CLSIDFromString(strClsid, &result_clsid);
                 if (SUCCEEDED(hr))
                 {
-					hr = DSUtil::GetClassFactoryFromDll(T2COLE(result_file), result_clsid, &filterFactory);
-					if (FAILED(hr))
+					CString error_msg;
+					hr = DSUtil::GetClassFactoryFromDll(T2COLE(result_file), result_clsid, &filterFactory, error_msg);
+					if (FAILED(hr)) {
+						DSUtil::ShowError(hr, error_msg);
 						return;
+					}
 
                     CString entry = PathFindFileName(result_file);
                     entry.MakeLower();

@@ -274,10 +274,10 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
 							if (filterPath.GetExtension().MakeLower() != ".exe") {
 								// load the dll
 								CComPtr<IClassFactory> factory;
-								hr = DSUtil::GetClassFactoryFromDll(T2COLE(strFilterFile), pagelist.pElems[i], &factory);
+								CString error_msg;
+								hr = DSUtil::GetClassFactoryFromDll(T2COLE(strFilterFile), pagelist.pElems[i], &factory, error_msg);
 								if (SUCCEEDED(hr)) {
 									hr = factory->CreateInstance(NULL, IID_IPropertyPage, (void**)&page);
-									DSUtil::ShowError(hr, _T("Class factory CreateInstance failed"));
 								}
 							}
 						}
