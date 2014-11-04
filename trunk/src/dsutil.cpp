@@ -1993,7 +1993,9 @@ namespace DSUtil
 	// pin1 and pin2 can be in either order.
 	// If direct is false, intelligent connect is used
 	// If direct is true, direct connection is used and:
-	//		if chooseMediaType is true, media types are enumerated from pin1 and offered to the user for selection. If the user cancels S_FALSE is returned and no connection is made
+	//		if chooseMediaType is true, media types are enumerated from pin1 and offered to the user for selection. 
+	//				If the user cancels S_FALSE is returned and no connection is made.
+	//				The chosen media type is _not_ returned in the mediaType parameter
 	//		if chooseMediaType is false, mediaType parameter is used for connection
 	HRESULT ConnectPin(IGraphBuilder *gb, IPin *pin1, IPin *pin2, bool direct, bool chooseMediaType /* = false */, AM_MEDIA_TYPE* mediaType /* = NULL */ )
 	{
@@ -2018,7 +2020,7 @@ namespace DSUtil
 		} else {
 
             if (!chooseMediaType) {
-				hr = gb->ConnectDirect(out_pin, in_pin, NULL);
+				hr = gb->ConnectDirect(out_pin, in_pin, mediaType);
 			} else {
 
 				do {														// attempt connection until we succeed or user cancels dialog

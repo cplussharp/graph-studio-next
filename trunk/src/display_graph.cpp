@@ -2094,6 +2094,44 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		filters.RemoveAll();
 	}
 
+	HRESULT DisplayGraph::ReconnectPin(Pin *p1)
+	{
+		HRESULT hr = S_OK;
+
+		if (!p1 || !p1->pin)
+			hr = E_POINTER;
+		else if (!p1->peer) 
+			hr = VFW_E_NOT_CONNECTED;
+		else {
+			Pin * const p2 = p1->peer;
+
+			CMediaType mediaType;
+			if (params->connect_mode == RenderParameters::ConnectMode_Direct)
+				hr = p1->pin->ConnectionMediaType(&mediaType);		// if connecting directly, reconnect with same media type
+
+			if (SUCCEEDED(hr)) {
+				hr = p1->Disconnect();
+			}
+
+			if (SUCCEEDED(hr)) {
+				params->MarkRender(true);
+				hr = DSUtil::ConnectPin(gb, p1->pin, p2->pin, 
+							params->connect_mode != RenderParameters::ConnectMode_Intelligent, 
+							params->connect_mode == RenderParameters::ConnectMode_DirectWithMT,
+							&mediaType);
+				params->MarkRender(false);
+				if (callback)
+					callback->OnRenderFinished();
+			}
+		}
+
+		RefreshFilters();
+		SmartPlacement(false);
+		DSUtil::ShowError(hr, _T("Reconnecting pin"));
+
+		return hr;
+	}
+
 	HRESULT DisplayGraph::ConnectPins(Pin *p1, Pin *p2, bool chooseMediaType)
 	{
 		// verify a few conditions first
@@ -2105,7 +2143,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		HRESULT hr = S_OK;
 
 		params->MarkRender(true);
-		hr = DSUtil::ConnectPin(gb, p1->pin, p2->pin, params->connect_mode != 0, params->connect_mode == 2);
+		hr = DSUtil::ConnectPin(gb, p1->pin, p2->pin,
+					params->connect_mode != RenderParameters::ConnectMode_Intelligent, 
+					params->connect_mode == RenderParameters::ConnectMode_DirectWithMT);
 		params->MarkRender(false);
 		if (callback)
 			callback->OnRenderFinished();
@@ -2632,7 +2672,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 						else {
 							selected = pins[k];
 							if (allow_multi_selection)
-								return selected;		// return first selected filter found
+								return selected;		// return first selected pin found
 						}
 					}
 				}

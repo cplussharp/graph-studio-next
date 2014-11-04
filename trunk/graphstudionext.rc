@@ -1200,7 +1200,7 @@ BEGIN
         MENUITEM "&Duplicate Selection\tCtrl+D", ID_FILTERS_DOUBLESELECTEDFILTERS
         MENUITEM "Delete Selectio&n\tDel/Backspace",      ID_DELETE_FILTER
         MENUITEM "&Render Pin\tCtrl+Shift+R",   ID_PIN_RENDER
-        MENUITEM "Connect Pin...\tCtrl+Shift+C", ID_GRAPH_CONNECTPIN
+        MENUITEM "(Re)C&onnect...\tCtrl+Shift+C", ID_GRAPH_CONNECTPIN
         MENUITEM "&Properties...\tReturn, Alt+Return", ID_PROPERTYPAGE
         MENUITEM "Conte&xt Menu...\tMenu, Shift+F10", ID_CONTEXT_MENU
         MENUITEM "Navigate Filters\t[Shift] Arrow keys", ID_GRAPH_NAVIGATE_FILTERS, GRAYED

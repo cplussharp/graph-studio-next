@@ -180,15 +180,26 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			Filter * const current_filter = graph.GetSelectedFilter();
 			if (current_filter) {
 				current_pin = current_filter->FirstUnconnectedOutputPin();
+				if (!current_pin && current_filter->output_pins.GetCount() > 0)
+					current_pin = current_filter->output_pins[0];			// if none unconnected, select first output pin if any
 			}
 			if (current_pin) {		// show which pin we chose by selecting it and redrawing
 				graph.SetSelection(NULL, current_pin);
 				Invalidate();
+			} else {
+				DSUtil::ShowError(_T("No output pins available on filter. Select a filter or output pin and try again."));
+				return;
 			}
 		}
 
 		if (!current_pin)
 			return;					// nothing to do
+
+		if (current_pin->connected) {
+			graph.ReconnectPin(current_pin);
+			Invalidate();
+			return;
+		}
 
 		CMenu	menu;
 		if (!menu.CreatePopupMenu()) 
@@ -212,7 +223,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		Pin * const current_pin = graph.GetSelectedPin();
 		if (current_pin && pin_index >=0 && pin_index < connect_pins.GetCount()) {
-			const HRESULT hr = DSUtil::ConnectPin(graph.gb, current_pin->pin, connect_pins[pin_index]->pin, graph.params->connect_mode != 0, graph.params->connect_mode == 2);
+			const HRESULT hr = DSUtil::ConnectPin(graph.gb, current_pin->pin, connect_pins[pin_index]->pin, 
+					graph.params->connect_mode != RenderParameters::ConnectMode_Intelligent, 
+					graph.params->connect_mode == RenderParameters::ConnectMode_DirectWithMT);
 			DSUtil::ShowError(hr, _T("Failed to connect pins"));
 			graph.RefreshFilters();
 			graph.SmartPlacement(false);
@@ -1128,7 +1141,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 				// connect new filter to currently selected pin
 				hr = DSUtil::ConnectPinToFilter(graph.gb, outpin, newFilter, 
-						graph.params->connect_mode != 0, graph.params->connect_mode == 2);	
+							graph.params->connect_mode != RenderParameters::ConnectMode_Intelligent, 
+							graph.params->connect_mode == RenderParameters::ConnectMode_DirectWithMT);
 				if (FAILED(hr))
 					DSUtil::ShowError(hr, CString(_T("Can't connect ")) + filterName);
 				else {

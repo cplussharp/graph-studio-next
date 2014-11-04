@@ -2341,7 +2341,7 @@ void CGraphView::OnConnectModeIntelligentClick()
 
 void CGraphView::OnUpdateConnectModeIntelligent(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(render_params.connect_mode == 0);
+	pCmdUI->SetCheck(render_params.connect_mode == GraphStudio::RenderParameters::ConnectMode_Intelligent);
 }
 
 void CGraphView::OnConnectModeDirectClick()
@@ -2351,7 +2351,7 @@ void CGraphView::OnConnectModeDirectClick()
 
 void CGraphView::OnUpdateConnectModeDirect(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(render_params.connect_mode == 1);
+	pCmdUI->SetCheck(render_params.connect_mode == GraphStudio::RenderParameters::ConnectMode_Direct);
 }
 
 void CGraphView::OnConnectModeDirectWmtClick()
@@ -2361,9 +2361,8 @@ void CGraphView::OnConnectModeDirectWmtClick()
 
 void CGraphView::OnUpdateConnectModeDirectWmt(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetCheck(render_params.connect_mode == 2);
+	pCmdUI->SetCheck(render_params.connect_mode == GraphStudio::RenderParameters::ConnectMode_DirectWithMT);
 }
-
 
 void CGraphView::OnOptionsExactMatchClick()
 {
