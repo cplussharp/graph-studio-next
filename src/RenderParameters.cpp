@@ -66,8 +66,10 @@ RenderParameters::RenderParameters()
 
     // load connect mode
     int connectMode = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ConnectMode"), ConnectMode_Intelligent);
-    if(connectMode<0) connectMode = 0;
-    else if(connectMode>2) connectMode = 2;
+    if(connectMode < RenderParameters::ConnectMode_Intelligent) 
+		connectMode = RenderParameters::ConnectMode_Intelligent;
+    else if(connectMode > RenderParameters::ConnectMode_DirectWithMT) 
+		connectMode = RenderParameters::ConnectMode_DirectWithMT;
     connect_mode = (ConnectMode)connectMode;
 
 	render_start_time = 0;

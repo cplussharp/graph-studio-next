@@ -349,6 +349,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void SmartPlacement(bool force = true);
 		void DoubleSelected();
 		HRESULT ConnectPins(Pin *p1, Pin *p2, bool chooseMediaType);
+		HRESULT ReconnectPin(Pin *pin);
 
 		// Clock manipulation
 		void SetClock(bool default_clock, IReferenceClock *new_clock);
