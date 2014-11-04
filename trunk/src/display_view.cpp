@@ -175,7 +175,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	{
 		Pin * current_pin = graph.GetSelectedPin();
 
-		// If no pin selected find first unconnected output or input pin of selected filter
+		// If no pin selected find first unconnected output pin or first output pin of selected filter
 		if (!current_pin) {
 			Filter * const current_filter = graph.GetSelectedFilter();
 			if (current_filter) {
@@ -187,7 +187,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				graph.SetSelection(NULL, current_pin);
 				Invalidate();
 			} else {
-				DSUtil::ShowError(_T("No output pins available on filter. Select a filter or output pin and try again."));
+				DSUtil::ShowError(_T("No output pins on filter to connect."));
 				return;
 			}
 		}
