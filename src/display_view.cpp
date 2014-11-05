@@ -398,10 +398,23 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_SHOW_IN_FILTERS_WINDOW, _T("Find &in Filters..."));
 		}
 
+		CString menu_string;
+		if (current_pin) {
+			if (current_pin->connected)
+				menu_string =  _T("Rec&onnect pin");
+		} else if (current_filter && current_filter->output_pins.GetCount() > 0)
+			menu_string = current_filter->FirstUnconnectedOutputPin() ? _T("C&onnect pin") : _T("Rec&onnect pin");
+		if (!menu_string.IsEmpty())
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_GRAPH_CONNECTPIN, menu_string);
+
+		if (	(current_pin	&& !current_pin->connected) ||
+				(current_filter && current_filter->FirstUnconnectedOutputPin())) {
+			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING, ID_PIN_RENDER, _T("&Render Pin"));
+		}
+
 		/////////////////////// Pin operations
 
 		if (current_pin && !current_pin->connected) {
-			menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_RENDER, _T("&Render Pin"));
 			if (offer_remove)
 				menu.InsertMenu(p++, MF_BYPOSITION | MF_STRING | renderFlags, ID_PIN_REMOVE, _T("Remo&ve Pin"));
 
