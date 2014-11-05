@@ -1896,10 +1896,36 @@ void CGraphView::OnPropertyPageClosed(CPropertyForm *page)
 	}
 }
 
+void CGraphView::OnFiltersRefreshed()
+{
+	__super::OnFiltersRefreshed();
+
+	// scan for property pages referring to filters or pins that no longer exist
+	for (int i=0; i<property_pages.GetCount(); i++) {
+		CPropertyForm * const page = property_pages[i];
+		bool close_page = true;
+		GraphStudio::Filter * const filter = graph.FindFilter((IBaseFilter*)page->filter);
+		if (filter) {
+			if (page->object == page->filter)
+				close_page = false;												// page on filter, filter found, no need to close
+			else {
+				close_page = filter->FindPin((IPin*)page->object) == NULL;		// if pin no longer exists, close page
+			}
+		}
+
+		// kill the page
+		if (close_page) {
+			if (IsWindow(*page)) page->DestroyWindow();
+			delete page;
+			property_pages.RemoveAt(i);
+			i--;			// as we've removed the page at this index, the next page is now at this index so decrement to avoid moving to next page
+		}
+	}
+}
+
 void CGraphView::OnFilterRemoved(GraphStudio::DisplayGraph *sender, GraphStudio::Filter *filter)
 {
-	// close the property pages associated with this filter
-	ClosePropertyPage(filter->filter);
+	// closing property pages associated with this filter is done by OnFiltersRefreshed()
 
 	// Prevent any dangling references to Filters or Pins that are about to be deleted
 	if (overlay_filter == filter)
@@ -1936,18 +1962,15 @@ void CGraphView::OnDisplayPropertyPage(IUnknown *object, GraphStudio::Filter *fi
 	property_pages.Add(page);
 }
 
-void CGraphView::ClosePropertyPage(IUnknown *filter)
+void CGraphView::ClosePropertyPage(CPropertyForm * page)
 {
 	// scan through our objects...
 	for (int i=0; i<property_pages.GetCount(); i++) {
-		CPropertyForm	*page = property_pages[i];
-		if (filter == page->filter) {
-
+		if (page == property_pages[i]) {
 			// kill the page
 			if (IsWindow(*page)) page->DestroyWindow();
 			delete page;
 			property_pages.RemoveAt(i);
-
 			return ;
 		}
 	}
