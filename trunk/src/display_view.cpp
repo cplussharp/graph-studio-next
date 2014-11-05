@@ -171,6 +171,56 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		ShowContextMenu(point, filter, pin);
 	}
 
+	bool DisplayView::ConnectSelectedFilters()
+	{
+		Filter * sel_filters[2] = { NULL, NULL }; 
+
+		for (int i=0; i<graph.filters.GetCount(); i++) {
+			Filter * const f = graph.filters[i];
+			if (f->selected) {
+				if (!sel_filters[0])
+					sel_filters[0] = f;
+				else if (!sel_filters[1])
+					sel_filters[1] = f;
+				else
+					return false;		// more than two filters selected
+			}
+		}
+		if (!sel_filters[1])
+			return false;				// less than two filters selected
+
+		HRESULT hr = S_FALSE;
+		bool connection_attempted = false;
+
+		// try to connect filters both ways round
+		for (int i=0; i<2; i++) {
+
+			Filter * const f1   = sel_filters[i];
+			Filter * const f2   = sel_filters[1-i];
+			Pin * const out_pin = f1->FirstUnconnectedOutputPin();
+			Pin * const in_pin  = f2->FirstUnconnectedInputPin();
+
+			if (out_pin && in_pin) {
+				connection_attempted = true;
+				hr = DSUtil::ConnectPin(graph.gb, out_pin->pin, in_pin->pin, 
+							graph.params->connect_mode != RenderParameters::ConnectMode_Intelligent, 
+							graph.params->connect_mode == RenderParameters::ConnectMode_DirectWithMT);
+				if (SUCCEEDED(hr) && hr != S_FALSE) {
+					graph.SetSelection(NULL, out_pin);		// success - select pin and break out of loop
+					break;
+				}
+			}
+		}
+
+		if (connection_attempted) {
+			graph.RefreshFilters();
+			graph.SmartPlacement(false);
+			Invalidate();
+			DSUtil::ShowError(hr, _T("Failed to connect pins"));
+		}
+		return connection_attempted;				// return true if we tried to connect two selected filters (even if we didn't succeed)
+	}
+
 	void DisplayView::OnConnectPin()
 	{
 		Pin * current_pin = graph.GetSelectedPin();
@@ -186,14 +236,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			if (current_pin) {		// show which pin we chose by selecting it and redrawing
 				graph.SetSelection(NULL, current_pin);
 				Invalidate();
+			} else if (ConnectSelectedFilters()) {
+				return;
 			} else {
-				DSUtil::ShowError(_T("No output pins on filter to connect."));
+				DSUtil::ShowError(_T("No suitable pins to connect/reconnect. Select output pin, one filter or two filters and try again."));
 				return;
 			}
 		}
-
-		if (!current_pin)
-			return;					// nothing to do
 
 		if (current_pin->connected) {
 			graph.ReconnectPin(current_pin);
