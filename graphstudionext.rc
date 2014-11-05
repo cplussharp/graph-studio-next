@@ -1107,6 +1107,7 @@ BEGIN
         MENUITEM "Save As XML&....\tAlt+Shift+S", ID_FILE_SAVEASXML
         POPUP "File Opt&ions"
         BEGIN
+            MENUITEM "&Clear document before load", ID_FILEOPTIONS_CLEAR_DOCUMENT
             MENUITEM "Use Internal GRF file &parser", ID_OPTIONS_USEINTERNALGRFFILEPARSER
             MENUITEM "Always Save GRF and &XML",    ID_FILEOPTIONS_SAVEASXMLANDGRF
             MENUITEM "Always Save &Screenshot",     ID_FILEOPTIONS_SAVE_SCREENHSOT
