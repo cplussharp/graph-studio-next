@@ -201,6 +201,7 @@ public:
 
 	// property pages
 	virtual void OnDisplayPropertyPage(IUnknown *object, GraphStudio::Filter *filter, CString title);
+	virtual void OnFiltersRefreshed();
 	virtual void OnFilterRemoved(GraphStudio::DisplayGraph *sender, GraphStudio::Filter *filter);
 	virtual void OnPropertyPageClosed(CPropertyForm *page);
 	virtual void OnRenderFinished();
@@ -210,7 +211,7 @@ public:
     virtual void OnMpeg2DemuxCreatePsiPin();
 
 	void ClosePropertyPages();
-	void ClosePropertyPage(IUnknown *filter);
+	void ClosePropertyPage(CPropertyForm * page);
 	virtual void OnOverlayIconClick(GraphStudio::OverlayIcon *icon, CPoint point);
 
 	// save/load window position

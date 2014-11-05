@@ -68,7 +68,7 @@ void CPropertyForm::OnClose()
 	previous_size = CSize(rect.Width(), rect.Height());
 
     // report that we're being closed
-    view->ClosePropertyPage(filter);
+    view->ClosePropertyPage(this);
 }
 
 void CPropertyForm::OnOK()
