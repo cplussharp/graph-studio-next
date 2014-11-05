@@ -77,6 +77,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		afx_msg void OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu);	// forwarded from frame window
 
 		void OnRenderPin();
+		void OnUpdateRenderPin(CCmdUI *pCmdUI);
         void OnRemovePin();
 		void OnRenderNullStream();
         void OnRenderDxvaNullStream();
@@ -91,6 +92,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void OnChooseSourceFile();
 		void OnChooseDestinationFile();
 		void OnConnectPin();
+		void OnUpdateConnectPin(CCmdUI *pCmdUI);
 
 		void MakeScreenshot(const CString& image_filename, const GUID& gdiplus_format);
 		bool SetSelectionFromClick(UINT nFlags, CPoint point, GraphStudio::Filter ** selected_filter = NULL, GraphStudio::Pin** selected_pin = NULL);
