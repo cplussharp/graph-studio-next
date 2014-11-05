@@ -109,6 +109,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void OnConnectPinClick(UINT nID);
 		void NavigateFilterGraph(bool pin, bool vertical, bool positive, bool extend_selection);
 		void ShowContextMenu(CPoint pt, GraphStudio::Filter *, GraphStudio::Pin *);
+		bool ConnectSelectedFilters();
 
 		// scrolling aid
 		void UpdateScrolling();

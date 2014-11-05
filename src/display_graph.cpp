@@ -3490,7 +3490,15 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 	}
 
-	Pin* Filter::FirstUnconnectedOutputPin()
+	Pin * Filter::FirstUnconnectedInputPin()
+	{
+		for (int i=0; i<input_pins.GetCount(); i++)	
+			if (!input_pins[i]->connected)	
+				return input_pins[i];
+		return NULL;
+	}
+
+	Pin * Filter::FirstUnconnectedOutputPin()
 	{
 		for (int i=0; i<output_pins.GetCount(); i++)	
 			if (!output_pins[i]->connected)	

@@ -176,6 +176,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		bool IsRenderer();
 		int NumOfDisconnectedPins(PIN_DIRECTION dir);
 		int NumOfConnectedPins(PIN_DIRECTION dir);
+		Pin* FirstUnconnectedInputPin();
 		Pin* FirstUnconnectedOutputPin();
 
 		// placement 
