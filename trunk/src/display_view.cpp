@@ -1408,11 +1408,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void DisplayView::OnSmartPlacement()
 	{
-		if (graph.params->resize_to_graph) {
+		if (graph.params->resize_to_graph && !GetParentFrame()->IsZoomed()) {
 			CRect graph_size = graph.GetGraphSize();
 			graph_size.right = max(graph_size.right, 650);
 			graph_size.bottom = max(graph_size.bottom, 50);
-			GetParentFrame()->SetWindowPos(NULL, 0, 0, graph_size.right + 50, graph_size.bottom+200, SWP_NOMOVE | SWP_NOZORDER);
+			GetParentFrame()->SetWindowPos(NULL, 0, 0, graph_size.right + 50, graph_size.bottom+250, SWP_NOMOVE | SWP_NOZORDER);
 		}
 	}
 
