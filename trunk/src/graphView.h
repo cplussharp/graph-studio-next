@@ -131,6 +131,7 @@ public:
     void OnGraphInsertFilterFromFile();
 	void OnSaveAsXmlAndGrf();
 	void OnAlwaysSaveScreenshot();
+	void OnClearDocumentBeforeLoad();
 	void OnClearMRUClick();
 	void OnMRUClick(UINT nID);
 	void OnGraphScreenshot();
@@ -329,6 +330,7 @@ public:
 	afx_msg void OnUpdateSeekByTime(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSaveAsXmlAndGrf(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateAlwaysSaveScreenshot(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateClearDocumentBeforeLoad(CCmdUI *pCmdUI);
 	afx_msg void OnNextPropertyPage();
 	afx_msg void OnPreviousPropertyPage	();
 	afx_msg void OnUpdateNextOrPreviousPropertyPage(CCmdUI *pCmdUI);

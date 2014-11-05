@@ -143,6 +143,8 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_SAVEASXMLANDGRF, &CGraphView::OnUpdateSaveAsXmlAndGrf)
     ON_COMMAND(ID_FILEOPTIONS_SAVE_SCREENHSOT, &CGraphView::OnAlwaysSaveScreenshot)
 	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_SAVE_SCREENHSOT, &CGraphView::OnUpdateAlwaysSaveScreenshot)
+    ON_COMMAND(ID_FILEOPTIONS_CLEAR_DOCUMENT, &CGraphView::OnClearDocumentBeforeLoad)
+	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_CLEAR_DOCUMENT, &CGraphView::OnUpdateClearDocumentBeforeLoad)
 	ON_COMMAND(ID_VIEW_GRAPHEVENTS, &CGraphView::OnViewGraphEvents)
     ON_COMMAND(ID_VIEW_GRAPHSTATISTICS, &CGraphView::OnViewGraphStatistics)
 	ON_COMMAND(ID_LIST_MRU_CLEAR, &CGraphView::OnClearMRUClick)
@@ -587,10 +589,11 @@ void CGraphView::OnInit()
 		SetFocus();							// Set initial focus to the main window, not the console
 	}
 
-	CgraphstudioApp::g_useInternalGrfParser = AfxGetApp()->GetProfileInt(_T("Settings"), _T("UseInternalGrfParser"), 0) ? true : false;
-	CgraphstudioApp::g_SaveXmlAndGrf        = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveXmlAndGrf"), CgraphstudioApp::g_SaveXmlAndGrf) != 0;
-	CgraphstudioApp::g_SaveScreenshot       = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveScreenshot"), CgraphstudioApp::g_SaveScreenshot) != 0;
-	CgraphstudioApp::g_ScreenshotFormat     = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ScreenshotFormat"), CgraphstudioApp::g_ScreenshotFormat);
+	CgraphstudioApp::g_useInternalGrfParser    = AfxGetApp()->GetProfileInt(_T("Settings"), _T("UseInternalGrfParser"),		0) ? true : false;
+	CgraphstudioApp::g_SaveXmlAndGrf           = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveXmlAndGrf"),			CgraphstudioApp::g_SaveXmlAndGrf) != 0;
+	CgraphstudioApp::g_SaveScreenshot          = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveScreenshot"),			CgraphstudioApp::g_SaveScreenshot) != 0;
+	CgraphstudioApp::g_ClearDocumentBeforeLoad = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ClearDocumentBeforeLoad"),	CgraphstudioApp::g_ClearDocumentBeforeLoad) != 0;
+	CgraphstudioApp::g_ScreenshotFormat        = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ScreenshotFormat"),			CgraphstudioApp::g_ScreenshotFormat);
 
 	int showGuids = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ShowGuidsOfKnownTypes"), 1);
     CgraphstudioApp::g_showGuidsOfKnownTypes = showGuids != 0;
@@ -989,6 +992,17 @@ afx_msg void CGraphView::OnUpdateAlwaysSaveScreenshot(CCmdUI *pCmdUI)
 	pCmdUI->SetCheck(CgraphstudioApp::g_SaveScreenshot ? 1 : 0);
 }
 
+void CGraphView::OnClearDocumentBeforeLoad()
+{
+	CgraphstudioApp::g_ClearDocumentBeforeLoad = !CgraphstudioApp::g_ClearDocumentBeforeLoad;
+	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("ClearDocumentBeforeLoad"), CgraphstudioApp::g_ClearDocumentBeforeLoad);
+}
+
+afx_msg void CGraphView::OnUpdateClearDocumentBeforeLoad(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(CgraphstudioApp::g_ClearDocumentBeforeLoad ? 1 : 0);
+}
+
 HRESULT CGraphView::DoFileSave()
 {
 	HRESULT hr = S_OK;
@@ -1131,12 +1145,13 @@ HRESULT CGraphView::FileSaveAs(DocumentType input_type)
 	return hr;
 }
 
-// Don't clear graph before adding some file types
 bool CGraphView::ShouldOpenInNewDocument(const CString& fn)
 {
+	// Don't clear graph before adding some file types
 	const CString ext = CPath(fn).GetExtension().MakeLower();
-	return ext != _T(".dll") &&
-			ext != _T(".ax");
+	return	ext != _T(".dll") &&
+			ext != _T(".ax") &&
+			CgraphstudioApp::g_ClearDocumentBeforeLoad;
 }
 
 // render_media_file - default false but allows caller to force render as media file if needed
