@@ -30,6 +30,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		ON_WM_LBUTTONUP()
 
 		ON_COMMAND(ID_PIN_RENDER, &DisplayView::OnRenderPin)
+		ON_UPDATE_COMMAND_UI(ID_PIN_RENDER, &DisplayView::OnUpdateRenderPin)
         ON_COMMAND(ID_PIN_REMOVE, &DisplayView::OnRemovePin)
 		ON_COMMAND(ID_PIN_NULL_STREAM, &DisplayView::OnRenderNullStream)
         ON_COMMAND(ID_PIN_DXVA_NULL_STREAM, &DisplayView::OnRenderDxvaNullStream)
@@ -45,6 +46,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         ON_COMMAND(ID_CHOOSE_SOURCE_FILE, &DisplayView::OnChooseSourceFile)
         ON_COMMAND(ID_CHOOSE_DESTINATION_FILE, &DisplayView::OnChooseDestinationFile)
         ON_COMMAND(ID_GRAPH_CONNECTPIN, &DisplayView::OnConnectPin)
+		ON_UPDATE_COMMAND_UI(ID_GRAPH_CONNECTPIN, &DisplayView::OnUpdateConnectPin)
 
 		ON_COMMAND_RANGE(ID_STREAM_SELECT, ID_STREAM_SELECT+100, &DisplayView::OnSelectStream)
 		ON_COMMAND_RANGE(ID_COMPATIBLE_FILTER, ID_COMPATIBLE_FILTER+999, &DisplayView::OnCompatibleFilterClick)
@@ -219,6 +221,21 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			DSUtil::ShowError(hr, _T("Failed to connect pins"));
 		}
 		return connection_attempted;				// return true if we tried to connect two selected filters (even if we didn't succeed)
+	}
+
+	afx_msg void DisplayView::OnUpdateConnectPin(CCmdUI *pCmdUI)
+	{
+		Filter * const current_filter = graph.GetSelectedFilter();
+		bool reconnect = false;
+		if (current_filter) {
+			reconnect = (NULL == current_filter->FirstUnconnectedOutputPin());
+		} else {
+			Pin * const current_pin = graph.GetSelectedPin();
+			reconnect = current_pin->connected;
+		}
+		pCmdUI->SetText( reconnect ? 
+				_T("Rec&onnect Pin...\tCtrl+Shift+C") :
+				_T("C&onnect Pin...\tCtrl+Shift+C")); 
 	}
 
 	void DisplayView::OnConnectPin()
@@ -1229,6 +1246,21 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		Invalidate();
 		return hr;
+	}
+
+	afx_msg void DisplayView::OnUpdateRenderPin(CCmdUI *pCmdUI)
+	{
+		bool enable = false;
+		for (int i=0; i<graph.filters.GetCount() && !enable; i++) {
+			Filter * const filter = graph.filters[i];
+			for (int j=0; j<filter->output_pins.GetCount() && !enable; j++) {
+				Pin * const pin = filter->output_pins[j];
+				if (!pin->connected && (filter->selected && pin->selected)) {
+					enable = true;
+				}
+			}
+		}
+		pCmdUI->Enable(enable);
 	}
 
 	void DisplayView::OnRenderPin()
