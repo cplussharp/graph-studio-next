@@ -231,7 +231,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			reconnect = (NULL == current_filter->FirstUnconnectedOutputPin());
 		} else {
 			Pin * const current_pin = graph.GetSelectedPin();
-			reconnect = current_pin->connected;
+			reconnect = current_pin && current_pin->connected;
 		}
 		pCmdUI->SetText( reconnect ? 
 				_T("Rec&onnect Pin...\tCtrl+Shift+C") :
