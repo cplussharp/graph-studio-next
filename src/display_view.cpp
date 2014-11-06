@@ -1255,7 +1255,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			Filter * const filter = graph.filters[i];
 			for (int j=0; j<filter->output_pins.GetCount() && !enable; j++) {
 				Pin * const pin = filter->output_pins[j];
-				if (!pin->connected && (filter->selected && pin->selected)) {
+				if (!pin->connected && (filter->selected || pin->selected)) {
 					enable = true;
 				}
 			}
