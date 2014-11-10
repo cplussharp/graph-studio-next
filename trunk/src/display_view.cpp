@@ -304,14 +304,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		connect_pins.RemoveAll();
 
 		int p = 0;
-		const int filter_count = graph.filters.GetCount();
+		const INT_PTR filter_count = graph.filters.GetCount();
 		for (int i=0; i<filter_count; i++) {
 			Filter & filter = *graph.filters[i];
 			bool filter_added = false;
 
 			if (source_pin.filter != &filter) {			// Don't offer pins on the same filter
 				CArray<Pin *> & pins = source_pin.dir == PINDIR_OUTPUT ? filter.input_pins : filter.output_pins;		// iterate pins of opposite direction
-				const int pin_count = pins.GetCount();
+				const INT_PTR pin_count = pins.GetCount();
 				for (int j=0; j<pin_count; j++) {
 					Pin & pin = *pins[j];
 					if (!pin.IsConnected()) {
