@@ -256,7 +256,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			} else if (ConnectSelectedFilters()) {
 				return;
 			} else {
-				DSUtil::ShowError(_T("No suitable pins to connect/reconnect. Select output pin, one filter or two filters and try again."));
+				DSUtil::ShowError(_T("No suitable pins to connect or reconnect. Select a pin, a filter or two filters and try again."));
 				return;
 			}
 		}
