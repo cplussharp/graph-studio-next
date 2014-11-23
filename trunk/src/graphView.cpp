@@ -1964,9 +1964,24 @@ void CGraphView::OnDisplayPropertyPage(IUnknown *object, GraphStudio::Filter *fi
 	if (filter) {
 		CPoint filter_pos(filter->posx, filter->posy);
 		filter_pos -= GetScrollPosition();
+		filter_pos.y += filter->height;
 		ClientToScreen(&filter_pos);
+
+		// propertyform always complet on the current screen
+		CRect rcPage;
+		page->GetWindowRect(&rcPage);
+		HMONITOR hMonitor = MonitorFromWindow(this->GetSafeHwnd(), MONITOR_DEFAULTTONEAREST);
+		MONITORINFO monInfo = {0};
+		monInfo.cbSize = sizeof(MONITORINFO);
+		if (GetMonitorInfo(hMonitor, &monInfo))
+		{
+			LONG space = monInfo.rcWork.bottom - (filter_pos.y + rcPage.Height());
+			if (space < 0)
+				filter_pos.y += space;
+		}
+
 		// position the dialog below filter
-		page->SetWindowPos(NULL, filter_pos.x, filter_pos.y + 200, 0, 0, SWP_NOSIZE);
+		page->SetWindowPos(NULL, filter_pos.x, filter_pos.y, 0, 0, SWP_NOSIZE);
 	}
 	if (ret < 0) {
 		delete page;
