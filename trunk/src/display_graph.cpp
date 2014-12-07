@@ -1214,18 +1214,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				CComPtr<IBaseFilter> created_filter;
 				hr = LoadXML_Filter(node, created_filter);
 				filters_loaded_order.Add(created_filter.p);		// Add NULL if filter failed to load to preserve correct filter indices
-			} else if (node->name == _T("render")) 
-				hr = LoadXML_Render(node); 
-			else if (node->name == _T("connect")) {
+			} 
+			else if (node->name == _T("connect"))
 				connection_nodes.Add(node);
-			} else if (node->name == _T("config")) 
+			else if (node->name == _T("config")) 
 				hr = LoadXML_Config(node); 
-			else if (node->name == _T("iamgraphstreams")) 
-				hr = LoadXML_IAMGraphStreams(node); 
-			else if (node->name == _T("schedule")) 
-				hr = LoadXML_Schedule(node); 
-			else if (node->name == _T("command")) 
-				hr = LoadXML_Command(node); 
 		}
 
 		// Iterate all connections until none left or no remaining connections succeed
@@ -1258,10 +1251,37 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 		ASSERT(iterations < MAX_ITERATIONS);
 
-		// Display an remaining connection errors, do smart placement so user can see context to errors
+		// Display any remaining connection errors, do smart placement so user can see context to errors
 		SmartPlacement();
 		ASSERT(hresults.GetCount() == errors.GetCount());
-		for (int i=0; i<hresults.GetCount() && i<errors.GetCount() && DSUtil::ShowError(hresults[i], errors[i]); i++) { }	// stop displaying errors if cancel pressed
+		for (int i=0; i<hresults.GetCount() && i<errors.GetCount(); i++) {
+			if (!DSUtil::ShowError(hresults[i], errors[i]))
+				return S_OK;										// stop displaying errors and give up if cancel pressed
+		}	
+
+		// Load remaining nodes that need to be processed after all filters have been connected
+		for (it = gn->nodes.begin(); it != gn->nodes.end(); it++) {
+			XML::XMLNode * node = *it;
+
+			if (node->name == _T("command")) 
+				hr = LoadXML_Command(node); 
+			else if (node->name == _T("schedule")) 
+				hr = LoadXML_Schedule(node); 
+			else if (node->name == _T("iamgraphstreams")) 
+				hr = LoadXML_IAMGraphStreams(node); 
+			else if (node->name == _T("render")) 
+				hr = LoadXML_Render(node);
+			else
+				hr = S_FALSE;
+
+			if (FAILED(hr)) {
+				SmartPlacement();
+				CString msg;
+				msg.Format(_T("Error loading XML node: %s"), (LPCTSTR)node->name);
+				if (!DSUtil::ShowError(hr, msg))					// stop displaying errors and give up if cancel pressed
+					return S_OK;
+			}
+		}
 
 		return S_OK;
 	}
