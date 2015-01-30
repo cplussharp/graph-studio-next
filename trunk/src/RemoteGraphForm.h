@@ -39,6 +39,7 @@ protected:
 	CListCtrl				list_graphs;
 	CButton					btn_refresh;
 	CButton					btn_connect;
+	CButton					btn_properties;
 	CArray<RemoteGraph>		graphs;
 
 public:
@@ -47,6 +48,9 @@ public:
 public:
 	CRemoteGraphForm(CWnd* pParent = NULL);
 	virtual ~CRemoteGraphForm();
+
+	static bool CanCreateSpyFilterGraphHelperInstance();
+	bool SpyDoPropertyFrameModal(IMoniker* pMoniker);
 
 protected:
 	enum { IDD = IDD_DIALOG_ROT };
@@ -57,6 +61,7 @@ protected:
 
 	void OnRefreshClick();
 	void OnConnectClick();
+	void OnPropertiesClick();
 
 	afx_msg void OnItemchangedListGraphs(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnDblclkListGraphs(NMHDR *pNMHDR, LRESULT *pResult);
