@@ -272,6 +272,7 @@
 #define IDC_RADIO3                      1165
 #define IDC_RADIO_LOGFILE_FILE          1165
 #define IDC_BUTTON_CLEAR_LOG            1166
+#define IDC_BUTTON_SPY_PROPERTYFRAME    1167
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000

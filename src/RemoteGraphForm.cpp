@@ -18,6 +18,7 @@ BEGIN_MESSAGE_MAP(CRemoteGraphForm, CDialog)
 	ON_WM_SIZE()
 	ON_COMMAND(IDC_BUTTON_REFRESH, &CRemoteGraphForm::OnRefreshClick)
 	ON_COMMAND(IDC_BUTTON_CONNECT, &CRemoteGraphForm::OnConnectClick)
+	ON_COMMAND(IDC_BUTTON_SPY_PROPERTYFRAME, &CRemoteGraphForm::OnPropertiesClick)
     ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_GRAPHS, &CRemoteGraphForm::OnItemchangedListGraphs)
     ON_NOTIFY(NM_DBLCLK, IDC_LIST_GRAPHS, &CRemoteGraphForm::OnDblclkListGraphs)
 END_MESSAGE_MAP()
@@ -62,6 +63,11 @@ BOOL CRemoteGraphForm::OnInitDialog()
 	btn_refresh.SetFont(GetFont());
 	btn_connect.Create(_T("&Connect"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_CONNECT);
 	btn_connect.SetFont(GetFont());
+	if(CanCreateSpyFilterGraphHelperInstance())
+	{
+		btn_properties.Create(_T("&Properties..."), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, rc, &title, IDC_BUTTON_SPY_PROPERTYFRAME);
+		btn_properties.SetFont(GetFont());
+	}
 
 	SetWindowPos(NULL, 0, 0, 600, 250, SWP_NOMOVE);
 
@@ -78,9 +84,14 @@ void CRemoteGraphForm::OnSize(UINT nType, int cx, int cy)
 
 	if (IsWindow(list_graphs)) {
 		title.GetClientRect(&rc2);
+		
+		INT nButtonIndex = 0;
+		static const INT g_nButtonWidth = 90;
 
-		btn_refresh.SetWindowPos(NULL, cx - 2*(60+6), 4, 60, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
-		btn_connect.SetWindowPos(NULL, cx - 1*(60+6), 4, 60, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
+		if(btn_properties.GetSafeHwnd())
+			btn_properties.SetWindowPos(NULL, cx - ++nButtonIndex * (g_nButtonWidth + 6), 4, g_nButtonWidth, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
+		btn_connect.SetWindowPos(NULL, cx - ++nButtonIndex * (g_nButtonWidth + 6), 4, g_nButtonWidth, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
+		btn_refresh.SetWindowPos(NULL, cx - ++nButtonIndex * (g_nButtonWidth + 6), 4, g_nButtonWidth, 25, SWP_SHOWWINDOW | SWP_NOZORDER);
 
 		list_graphs.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
@@ -88,6 +99,8 @@ void CRemoteGraphForm::OnSize(UINT nType, int cx, int cy)
 		title.Invalidate();
 		btn_refresh.Invalidate();
 		btn_connect.Invalidate();
+		if(btn_properties.GetSafeHwnd())
+			btn_properties.Invalidate();
 	}
 }
 
@@ -237,6 +250,12 @@ void CRemoteGraphForm::OnConnectClick()
 	OnOK();
 }
 
+void CRemoteGraphForm::OnPropertiesClick()
+{
+	if(sel_graph.moniker)
+		SpyDoPropertyFrameModal(sel_graph.moniker);
+}
+
 void CRemoteGraphForm::OnItemchangedListGraphs(NMHDR* pNMHDR, LRESULT* pResult) 
 {
     NM_LISTVIEW* pNMListView = (NM_LISTVIEW*)pNMHDR;
@@ -248,6 +267,10 @@ void CRemoteGraphForm::OnItemchangedListGraphs(NMHDR* pNMHDR, LRESULT* pResult)
 	    if (sel >= 0 && sel < graphs.GetCount()) {
 		    sel_graph = graphs[sel];
 	    }
+		// WARN: We don't seem to clear sel_graph when no items focused/selected
+		btn_connect.EnableWindow(sel_graph.moniker != NULL);
+		if(btn_properties.GetSafeHwnd())
+			btn_properties.EnableWindow(sel_graph.moniker != NULL);
     }
 }
 
@@ -256,6 +279,62 @@ void CRemoteGraphForm::OnDblclkListGraphs(NMHDR *pNMHDR, LRESULT *pResult)
     LPNMITEMACTIVATE pItem = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
     *pResult = 0;
 
-    if (pItem->iItem >= 0)
-        OnOK();	
+	if(!pItem || pItem->iItem < 0)
+		return;
+	if(GetKeyState(VK_CONTROL) < 0) // Ctrl + DblClk
+	{
+		ATLASSERT(sel_graph.moniker);
+		SpyDoPropertyFrameModal(sel_graph.moniker);
+		return;
+	}
+	OnOK();	
 }
+
+#include <afxole.h>
+
+bool CRemoteGraphForm::CanCreateSpyFilterGraphHelperInstance()
+{
+	// WARN: This is not accurate since we are interested in installed spy with bitness that matches remote process
+	class __declspec(uuid("5A9A684C-A891-4032-8D31-FF6EAB5A0C1E")) FilterGraphHelper;
+	CComPtr<IUnknown> pUnknown;
+	return SUCCEEDED(pUnknown.CoCreateInstance(__uuidof(FilterGraphHelper)));
+}
+
+bool CRemoteGraphForm::SpyDoPropertyFrameModal(IMoniker* pMoniker)
+{
+	ATLASSERT(pMoniker);
+	_ATLTRY
+	{
+		CComPtr<IRunningObjectTable> pRunningObjectTable;
+		ATLENSURE_SUCCEEDED(GetRunningObjectTable(0, &pRunningObjectTable));
+		CComPtr<IBindCtx> pBindCtx;
+		ATLENSURE_SUCCEEDED(CreateBindCtx(0, &pBindCtx));
+		CComPtr<IUnknown> pUnknown;
+		ATLENSURE_SUCCEEDED(pRunningObjectTable->GetObject(sel_graph.moniker, &pUnknown));
+		// NOTE: Doing IDispatch::Invoke to not reference/import external TLB and be dependent from it while building
+		class __declspec(uuid("6945711B-FE0F-4C54-965F-5B67969C28B7")) ISpy;
+		const CComQIPtr<IDispatch, &__uuidof(ISpy)> pSpyDispatch = pUnknown;
+		if(!pSpyDispatch)
+			return false;
+		ATLASSERT(pSpyDispatch);
+		// [id(4)] HRESULT DoPropertyFrameModal([in] LONG nParentWindowHandle);
+		CComVariant vParentWindowHandle((LONG) (LONG_PTR) m_hWnd);
+		DISPPARAMS pParameters[1];
+		ZeroMemory(pParameters, sizeof pParameters);
+		pParameters[0].cArgs = 1;
+		pParameters[0].rgvarg = &vParentWindowHandle;
+		CComVariant vResult;
+		// NOTE: https://support.microsoft.com/kb/248019/en?wa=wsignin1.0
+		AfxOleGetMessageFilter()->EnableNotRespondingDialog(FALSE);
+		const HRESULT nResult = pSpyDispatch->Invoke(4, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, pParameters, &vResult, NULL, NULL);
+		AfxOleGetMessageFilter()->EnableNotRespondingDialog(TRUE);
+		ATLENSURE_SUCCEEDED(nResult);
+	}
+	_ATLCATCHALL()
+	{
+		MessageBeep(MB_ICONERROR);
+		return false;
+	}
+	return true;
+}
+
