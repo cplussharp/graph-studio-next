@@ -206,7 +206,7 @@ See Help/Help Information... menu item for some details of keyboard/mouse bindin
 [download (x32)](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext_0_5_0_1.zip)
 [download (x64)](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext64_0_5_0_1.zip)
 
-New Features:
+*New Features:*
  * Change Playback Rate
  * Favorites Filters in Pin Context Menu
  * Toolbar Button to disconnect all Filters
@@ -218,14 +218,14 @@ New Features:
  * Toolbar Buttons to switch between Connection Modes (Intelligent, Direct, Direct with MediaType selection)
  * Time execution of an arbitrary graph over several runs (TimeMeasure Filter is now useable for every Graph)
  
-Changes:
+*Changes:*
  * optional show GUID for known GUIDs
  * new known GUIDs and Interfaces from uuids.h, DXVA
  * Connect pins more quickly by allow dragging to a filter rather than a precise pin
  * On WinVista/7 use TaskDialog for error messages (+ search button to direct search for the error)
  * Code Cleanup / show more error messages
 
-Bug Fixes:
+*Bug Fixes:*
  * Tap and Hold on Touchscreen now opens the context menu
  * "Display as Filename" now works also for remote graphs
  * running on XP again (0.5.0.0 had a linking-error on XP)
@@ -235,7 +235,7 @@ Bug Fixes:
 [download (x32)](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext_0_4_9_0.zip)
 [download (x64)](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext64_0_4_9_0.zip)
 
-New Features:
+*New Features:*
  * Lookup/Search Dialog for all known GUIDs and HRESULTs
  * Toolbar Button for "Insert Filter"
  * Support for Win7 Taskbar
@@ -248,24 +248,24 @@ New Features:
  * Show IMPEG2PIDMap Mapping for Pin
  * Internal PropertyPages for IDMOQualityControl and IWMResizersProps
  
-Changes:
+*Changes:*
  * Resizeable "Remote Graphs" Dialog
  * a lot of new known GUIDs and Interfaces from moreuuids.h, Xiph, LAVFilter, BDA 
  * Code Cleanup
 
-Bug Fixes:
+*Bug Fixes:*
  * Show Pins created with MPEG2Demux-PropertyPage
 
 
 ### Release 0.4.5.5 (2011-12-22)
 [download (x32 and x64)](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext_0_4_5_5.zip)
 
-New Features:
+*New Features:*
  * x64 build
  * audio-decoder performance test (issue 30)
  * comparison of streamtime and worktime in performance test
 
-Changes:
+*Changes:*
  * don't use MediaInfo by default
  * improved text info dialog (thanks to Kurtnoise)
  * add m2ts/mts as file extension (thanks to Kurtnoise)
@@ -276,7 +276,7 @@ Changes:
 ### Release 0.4.5.1 (2011-11-03)
 [download](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext_0_4_5_1.exe)
 
-New Features:
+*New Features:*
   * support for [http://mediainfo.sourceforge.net MediaInfo] -> more details in the graph-report and in the property-page of a filter with IFileSourceFilter interface (issue 25)
   * unregister multiple selected filters (issue 3)
   * register a filter file (issue 19)
@@ -292,7 +292,7 @@ New Features:
 ### Release 0.4.0.0 (2011-09-27)
 [download](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext_0_4_0_0.exe)
 
-New Features:
+*New Features:*
   * insert multiple selected filters (issue 4)
   * "Insert Video source" / "Insert Audio Source" (issue 8)
   * Search for filter on google (issue 13)
@@ -300,7 +300,7 @@ New Features:
   * Show filtername in IFileSourceFilter/IFileSinkFilter-Dialog (issue 21)
   * Copy filter-properties on Ctrl-D (issue 22)
 
-Bug Fixes:
+*Bug Fixes:*
   * length of filepath/url in dialogs (issue 1)
   * Ctrl-D for DMO filters (issue 2)
   * Crash inCrash on showing property page for unconnectet DMO Filter (issue 6)
