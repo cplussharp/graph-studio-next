@@ -1823,7 +1823,7 @@ IUnknown* pBridgeSink=NULL;
 			NameGuid(filter.clsid, guidStr, true);
 			_tprintf(_T("Creating filter %d %s, CLSID %s\n"), filter.index, (LPCTSTR)filter.name, (LPCTSTR)guidStr); 
 
-			if (memcmp(nullGUID, &filter.guid)!=0) {
+			if (memcmp(&nullGUID, &filter.clsid, sizeof(filter.clsid))!=0) {
 				hr = filter.ibasefilter.CoCreateInstance(filter.clsid, NULL, CLSCTX_INPROC_SERVER);
 			}
 			else {
@@ -1831,7 +1831,7 @@ IUnknown* pBridgeSink=NULL;
 				if (!pIBridgeController) {
 					hr = CoCreateInstance(clsid_GMFBridgeController, NULL, CLSCTX_INPROC_SERVER, __uuidof(pIBridgeController), (void **)&pIBridgeController);
 				}
-				if (_tcscmp(filter.name, _T("Bridge Sink filter")==0) {
+				if (_tcscmp(filter.name, _T("Bridge Sink filter"))==0) {
 					if (pIBridgeController)
 						pIBridgeController->InsertSinkFilter(gb, (IUnknown **) &pBridgeSink);
 					if (pBridgeSink) {
@@ -1840,7 +1840,7 @@ IUnknown* pBridgeSink=NULL;
 						filter.ibasefilter=pSinkFilter;
 					}
 				}
-				else if (_tcscmp(filter.name, _T("Bridge Source filter")==0) {
+				else if (_tcscmp(filter.name, _T("Bridge Source filter"))==0) {
 					if (pIBridgeController)
 						pIBridgeController->InsertSourceFilter(NULL/*pSinkFilter*/, gb, (IUnknown**)&pBridgeSource);
 					if (pBridgeSource) {
