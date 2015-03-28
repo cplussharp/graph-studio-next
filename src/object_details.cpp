@@ -339,6 +339,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			strId = NULL;
 		}
 
+		CComPtr<IMemInputPin> mem_input_pin;
+		pin->QueryInterface(__uuidof(IMemInputPin), (void**)&mem_input_pin);
+		if (mem_input_pin) {
+			group->AddItem(new GraphStudio::PropItem(_T("ReceiveCanBlock"), S_OK == mem_input_pin->ReceiveCanBlock()));
+		}
+
 		CComPtr<IPin>	con_pin = NULL;
 		pin->ConnectedTo(&con_pin);
 		if (con_pin == NULL) {
@@ -775,7 +781,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		GetWaveFormatExDetails(&wfx->Format, wfxi);
 
 		// and add WFExtensible
-		wfxinfo->AddItem(new PropItem(_T("wSamplesPerBlock"), (int)wfx->Samples.wSamplesPerBlock));
+		wfxinfo->AddItem(new PropItem(wfx->Format.wBitsPerSample==0 ? _T("wSamplesPerBlock") : _T("wValidBitsPerSample"), (int)wfx->Samples.wSamplesPerBlock));
 		wfxinfo->AddItem(new PropItem(_T("dwChannelMask"), (int)wfx->dwChannelMask));
 
 		CString		id_name;
