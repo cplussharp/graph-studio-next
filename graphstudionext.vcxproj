@@ -111,14 +111,16 @@
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <LargeAddressAware>true</LargeAddressAware>
-	  <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
     </Link>
     <PreBuildEvent>
       <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
 
 echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 
-SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+echo SubWCRev pre-build step disabled after move to GitHub
+
+echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 </Command>
     </PreBuildEvent>
     <PreBuildEvent>
@@ -154,14 +156,16 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
-	  <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
     </Link>
     <PreBuildEvent>
       <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
 
 echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 
-SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+echo SubWCRev pre-build step disabled after move to GitHub
+
+echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 </Command>
     </PreBuildEvent>
     <PreBuildEvent>
@@ -200,14 +204,16 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
       <LargeAddressAware>true</LargeAddressAware>
-	  <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
     </Link>
     <PreBuildEvent>
       <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
 
 echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 
-SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+echo SubWCRev pre-build step disabled after move to GitHub
+
+echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 </Command>
     </PreBuildEvent>
     <PreBuildEvent>
@@ -244,14 +250,16 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LargeAddressAware>true</LargeAddressAware>
-	  <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
     </Link>
     <PreBuildEvent>
       <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
 
 echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 
-SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+echo SubWCRev pre-build step disabled after move to GitHub
+
+echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 </Command>
     </PreBuildEvent>
     <PreBuildEvent>
@@ -307,7 +315,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
     <ClInclude Include="src\filters\audio_analyzer\filter_audio_analyzer.h" />
     <ClInclude Include="src\filters\dxva_null\filter_dxva_null.h" />
     <ClInclude Include="src\filters\fake_m2ts\filter_fake_m2ts_device.h" />
-	<ClInclude Include="src\filters\h264_analyzer\filter_h264_analyzer.h" />
+    <ClInclude Include="src\filters\h264_analyzer\filter_h264_analyzer.h" />
     <ClInclude Include="src\filters\h264_analyzer\h264_analyzer.h" />
     <ClInclude Include="src\filters\psi_config\psiconfig.h" />
     <ClInclude Include="src\filters\video_analyzer\filter_video_analyzer.h" />
@@ -413,7 +421,7 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
     <ClCompile Include="src\filters\audio_analyzer\filter_audio_analyzer.cpp" />
     <ClCompile Include="src\filters\dxva_null\filter_dxva_null.cpp" />
     <ClCompile Include="src\filters\fake_m2ts\filter_fake_m2ts_device.cpp" />
-	<ClCompile Include="src\filters\h264_analyzer\filter_h264_analyzer.cpp" />
+    <ClCompile Include="src\filters\h264_analyzer\filter_h264_analyzer.cpp" />
     <ClCompile Include="src\filters\h264_analyzer\h264_analyzer.cpp" />
     <ClCompile Include="src\filters\psi_config\psiconfig.cpp" />
     <ClCompile Include="src\filters\video_analyzer\filter_video_analyzer.cpp" />

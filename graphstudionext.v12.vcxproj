@@ -122,7 +122,8 @@
 
 echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 
-SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+echo SubWCRev SVN build step disabled due to move to Git
+echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 </Command>
     </PreBuildEvent>
     <PreBuildEvent>
@@ -165,7 +166,8 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
 
 echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 
-SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+echo SubWCRev SVN build step disabled due to move to Git
+echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 </Command>
     </PreBuildEvent>
     <PreBuildEvent>
@@ -211,7 +213,8 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
 
 echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 
-SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+echo SubWCRev SVN build step disabled due to move to Git
+echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 </Command>
     </PreBuildEvent>
     <PreBuildEvent>
@@ -255,7 +258,8 @@ SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)s
 
 echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 
-SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
+echo SubWCRev SVN build step disabled due to move to Git
+echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
 </Command>
     </PreBuildEvent>
     <PreBuildEvent>
