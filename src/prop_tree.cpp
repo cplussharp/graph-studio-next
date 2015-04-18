@@ -302,17 +302,28 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void PropertyTree::BuildPropertyTree(PropItem *root)
 	{
-        dontDrawItem = true;
-		
-        tree.CancelEdit();
-        tree.SelectItem(NULL);
-        tree.DeleteAllItems();
+		tree.SetRedraw(FALSE);
+		HTREEITEM first_child = NULL;
+		try
+		{
+	        dontDrawItem = true;
 
-        dontDrawItem = false;
+			tree.CancelEdit();
+			tree.SelectItem(NULL);
+			tree.DeleteAllItems();
 
-		const HTREEITEM root_item = tree.GetRootItem();
-		BuildNode(root, root_item);
-		const HTREEITEM first_child = tree.GetNextItem(root_item, TVGN_CHILD);
+			dontDrawItem = false;
+
+			const HTREEITEM root_item = tree.GetRootItem();
+			BuildNode(root, root_item);
+			first_child = tree.GetNextItem(root_item, TVGN_CHILD);
+		}
+		catch(...)
+		{
+			tree.SetRedraw(TRUE);
+			throw;
+		}
+		tree.SetRedraw(TRUE);
 		if (first_child) {
 			tree.Select(first_child, TVGN_FIRSTVISIBLE);
 		}
