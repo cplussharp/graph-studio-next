@@ -253,10 +253,41 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return category_index;
 	}
 
+	CString FormatMerit(DWORD nValue)
+	{
+		CString sText;
+		static const struct { DWORD nValue; LPCSTR pszName; } g_pMap[] = 
+		{
+			#define A(x) { x, #x },
+			A(MERIT_PREFERRED)
+			A(MERIT_NORMAL)
+			A(MERIT_UNLIKELY)
+			A(MERIT_DO_NOT_USE)
+			A(MERIT_SW_COMPRESSOR)
+			A(MERIT_HW_COMPRESSOR)
+			#undef A
+		};
+		for(SIZE_T nIndex = 0; nIndex < _countof(g_pMap); nIndex++)
+			if(nValue >= g_pMap[nIndex].nValue - 0x20 && nValue <= g_pMap[nIndex].nValue + 0x20)
+			{
+				const INT nDelta = (INT) (nValue - g_pMap[nIndex].nValue);
+				sText = CA2CT(g_pMap[nIndex].pszName);
+				if(nDelta > 0)
+					sText.AppendFormat(_T(" + %d"), nDelta);
+				else if(nDelta < 0)
+					sText.AppendFormat(_T(" - %d"), -nDelta);
+				break;
+			}
+		if(sText.IsEmpty())
+			sText.Format(_T("0x%08X"), nValue);
+		else
+			sText.AppendFormat(_T(" (0x%08X)"), nValue);
+		return sText;
+	}
 	int GetFilterInformationFromTemplate(const DSUtil::FilterTemplate & filter_template, PropItem *info)
 	{
 		CString		val;
-		val.Format(_T("0x%08x"), filter_template.merit);
+		val = FormatMerit(filter_template.merit); //val.Format(_T("0x%08x"), filter_template.merit);
 		info->AddItem(new PropItem(_T("Merit"), val));
 		val.Format(_T("0x%08x"), filter_template.version);
 		info->AddItem(new PropItem(_T("Version"), val));
