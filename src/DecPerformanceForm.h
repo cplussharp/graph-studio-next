@@ -99,6 +99,7 @@ private:
 	afx_msg void OnBuildGraphClick();
 
 	void InsertListItem(const Timings& timings, int index, const CString& label);
+	void ShowSummaryStatistics();
 };
 
 

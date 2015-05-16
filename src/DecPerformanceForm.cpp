@@ -12,7 +12,7 @@
 
 namespace
 {
-	const int	PASSES_MAX		= 1000;
+	const int	PASSES_MAX		= 10000;
 	const int	PASSES_DEFAULT	= 10;
 }
 
@@ -57,7 +57,6 @@ CDecPerformanceForm::CDecPerformanceForm(CGraphView* parent_view) :
 
 CDecPerformanceForm::~CDecPerformanceForm()
 {
-	time_filter = NULL;
 }
 
 void CDecPerformanceForm::DoDataExchange(CDataExchange* pDX)
@@ -224,6 +223,13 @@ void CDecPerformanceForm::StartTiming()
 	// just to be sure
 	StopTiming();
 
+	// update number of passes from edit control
+	CString strPhaseCount;
+	edit_passes.GetWindowText(strPhaseCount);
+	phase_count = StrToInt(strPhaseCount);
+	phase_count = max(phase_count, 1);
+	phase_count = min(phase_count, PASSES_MAX);
+
 	// update the file list
 	CString			source_file;
 	cb_files.GetWindowText(source_file);
@@ -271,6 +277,9 @@ void CDecPerformanceForm::StopTiming()
 {
 	if (perf_operation) return ;
 
+	ShowSummaryStatistics();
+	phase_cur = 0;
+
 	// remember it was us who made the call...
 	perf_operation = true;
 	view->OnStopClick();
@@ -297,7 +306,7 @@ void CDecPerformanceForm::OnPhaseComplete()
 
 	timings_avg.runtime_ns	+= timings.runtime_ns;		// update average timings
 	timings_avg.frames		+= timings.frames;
-    timings_avg.realtime_ns   += timings.realtime_ns;
+    timings_avg.realtime_ns += timings.realtime_ns;
 
 	if (0 == phase_cur) {								// update min/max timings
 		timings_min = timings;
@@ -316,20 +325,24 @@ void CDecPerformanceForm::OnPhaseComplete()
 	phase_cur ++;
 	if (phase_cur >= phase_count) {						// if we're done
 		StopTiming();					
+	} else {
+		view->OnStopClick();							// start the next run
+		view->OnPlayClick();
+	}
+}
 
-		timings_avg.frames		/= phase_count;			// calculate average
-		timings_avg.realtime_ns	/= phase_count;
-		timings_avg.runtime_ns	/= phase_count;
+void CDecPerformanceForm::ShowSummaryStatistics()
+{
+	// No point in showing summary statistics if only one or no results
+	if (phase_cur >= 2) {
+		timings_avg.frames		/= phase_cur;			// calculate average
+		timings_avg.realtime_ns	/= phase_cur;
+		timings_avg.runtime_ns	/= phase_cur;
 
 		int list_index = list_results.GetItemCount();	// display min/max/avg
 		InsertListItem(timings_min, list_index++, _T("Min."));
 		InsertListItem(timings_max, list_index++, _T("Max."));
 		InsertListItem(timings_avg, list_index++, _T("Avg."));
-
-		time_filter = NULL;								// release reference to Time Measure filter in case it causes problems later
-	} else {
-		view->OnStopClick();							// start the next run
-		view->OnPlayClick();
 	}
 }
 
@@ -518,25 +531,6 @@ void CDecPerformanceForm::OnStopClick()
 
 BOOL CDecPerformanceForm::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT *pResult)
 {
-	int		id = (int)wParam;
-	switch (id) {
-	case IDC_SPIN_PASSES:
-		{
-			NMUPDOWN	*ud = (NMUPDOWN*)lParam;
-			int			p   = ud->iPos + ud->iDelta;
-
-			// clip <1; PASSES_MAX>
-			p = (p < 1 ? 1 : p > PASSES_MAX ? PASSES_MAX : p);
-			if (phase_count != p) {
-				phase_count = p;
-				CString		str;
-				str.Format(_T("%d"), p);
-				edit_passes.SetWindowText(str);
-			}		
-		}
-		break;
-	}
-
 	return __super::OnNotify(wParam, lParam, pResult);
 }
 
