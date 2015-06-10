@@ -14,6 +14,15 @@
 #define new DEBUG_NEW
 #endif
 
+// Declare APIs for disabling user mode callback exception filter
+// See https://support.microsoft.com/en-us/kb/976038 KB 976038
+typedef BOOL WINAPI Sig_SetProcessUserModeExceptionPolicy(__in DWORD dwFlags);
+		BOOL WINAPI SetProcessUserModeExceptionPolicy(__in DWORD dwFlags);
+
+typedef BOOL WINAPI Sig_GetProcessUserModeExceptionPolicy(__out LPDWORD lpFlags);
+		BOOL WINAPI GetProcessUserModeExceptionPolicy(__out LPDWORD lpFlags);
+
+#define PROCESS_CALLBACK_FILTER_ENABLED     0x1
 
 //-----------------------------------------------------------------------------
 //
@@ -69,6 +78,17 @@ CgraphstudioApp theApp;
 
 BOOL CgraphstudioApp::InitInstance()
 {
+	// Disable user mode callback exception filter as this interferes with debugging
+	HMODULE kernel = LoadLibrary(_T("kernel32.dll"));
+	if (kernel) {
+		Sig_GetProcessUserModeExceptionPolicy * const getApi = (Sig_GetProcessUserModeExceptionPolicy*)GetProcAddress(kernel, "GetProcessUserModeExceptionPolicy");
+		Sig_SetProcessUserModeExceptionPolicy * const setApi = (Sig_SetProcessUserModeExceptionPolicy*)GetProcAddress(kernel, "SetProcessUserModeExceptionPolicy");
+		DWORD dwFlags = 0;
+		if ((*getApi)(&dwFlags)) {
+			(*setApi)(dwFlags & (~PROCESS_CALLBACK_FILTER_ENABLED)); 
+		}
+	}
+
 	INITCOMMONCONTROLSEX InitCtrls;
 	InitCtrls.dwSize = sizeof(InitCtrls);
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
