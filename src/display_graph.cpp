@@ -760,7 +760,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// first delete connections and then filters
 		for (int i=0; i<filters.GetCount(); i++) {
-			filters[i]->RemoveSelectedConnections();
+			if (!filters[i]->selected)
+				filters[i]->RemoveSelectedConnections();	// Allow code below to deal with deleting selected filters and their connections
 		}
 		for (int i=0; i<filters.GetCount(); i++) {
 			if (filters[i]->selected) {
@@ -2772,17 +2773,16 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void Filter::RemovePins()
 	{
-		int i=0;
-		for (i=0; i<input_pins.GetCount(); i++) {
-			Pin *pin = input_pins[i];
-			delete pin;
-		}
-		input_pins.RemoveAll();
-		for (i=0; i<output_pins.GetCount(); i++) {
+		for (int i=0; i<output_pins.GetCount(); i++) {
 			Pin *pin = output_pins[i];
 			delete pin;
 		}
 		output_pins.RemoveAll();
+		for (int i=0; i<input_pins.GetCount(); i++) {
+			Pin *pin = input_pins[i];
+			delete pin;
+		}
+		input_pins.RemoveAll();
 	}
 
 	int Filter::NumOfDisconnectedPins(PIN_DIRECTION dir)
@@ -2839,15 +2839,19 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void Filter::RemoveFromGraph()
 	{
-		// now all our connections need to be broken
-		int i;
-		for (i=0; i<output_pins.GetCount(); i++) {
+		// Now all our connections need to be broken
+		// As we're about to delete this filter release our internal IPin references after we've used them
+		// to prevent badly behaved filters that delete pins crashing during removal from graph
+		// Iterate backwards as a defensive measure as some filters create input and output pins on demand
+		for (int i=output_pins.GetCount()-1; i>=0; i--) {
 			Pin *pin = output_pins[i];
-			if (pin->connected) pin->Disconnect();
+			pin->Disconnect();
+			pin->Load(NULL);			// Release our IPin reference
 		}
-		for (i=0; i<input_pins.GetCount(); i++) {
+		for (int i=input_pins.GetCount()-1; i>=0; i--) {
 			Pin *pin = input_pins[i];
-			if (pin->connected) pin->Disconnect();
+			pin->Disconnect();
+			pin->Load(NULL);			// Release our IPin reference
 		}
 
 		// we can now try to remove us from the graph
