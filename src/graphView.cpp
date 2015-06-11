@@ -2562,14 +2562,16 @@ void CGraphView::RemoveConnections(bool onlySelected)
 {
     for(int i=0; i<graph.filters.GetCount(); i++) {
 		GraphStudio::Filter * const filter = graph.filters[i];
-		if (filter->selected || filter->AnyPinSelected() || !onlySelected)
-			if (filter->connected) {
-				for(int j=0; j<graph.filters[i]->output_pins.GetCount(); j++)
-					graph.filters[i]->output_pins[j]->Disconnect();
-				if (onlySelected)
-					for(int j=0; j<graph.filters[i]->input_pins.GetCount(); j++)
-						graph.filters[i]->input_pins[j]->Disconnect();
-			}
+
+		for(int j=0; j<filter->output_pins.GetCount(); j++)
+			if (!onlySelected || filter->selected || filter->output_pins[j]->selected)
+				filter->output_pins[j]->Disconnect();
+
+		// If disconnecting all filters, disconnecting output pins is enough, no need to disconnect inputs
+		if (onlySelected)
+			for(int j=0; j<filter->input_pins.GetCount(); j++)
+				if (filter->selected || filter->input_pins[j]->selected)
+					filter->input_pins[j]->Disconnect();
 	}
     graph.RefreshFilters();
 	Invalidate();
