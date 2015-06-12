@@ -2904,7 +2904,7 @@ void CGraphView::GetToolTipLabelText(POINT cursorScreenPos, CString& labelText, 
 	if (sel_pin && sel_pin->connected) {
 		AM_MEDIA_TYPE mt;
 		memset(&mt, 0, sizeof(mt));
-		const HRESULT hr = sel_pin->pin->ConnectionMediaType(&mt);
+		const HRESULT hr = sel_pin->ipin->ConnectionMediaType(&mt);
 		if (SUCCEEDED(hr)) {
 			GraphStudio::NameGuid(mt.majortype, labelText, false);
 			CString guid;

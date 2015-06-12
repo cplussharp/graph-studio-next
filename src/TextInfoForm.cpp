@@ -293,7 +293,7 @@ void CTextInfoForm::DoPinDetails(GraphStudio::Pin *pin, int level, int offset)
 	for (int i=0; i<offset; i++) ofs += _T(" ");
 
 	AM_MEDIA_TYPE	mt;
-	HRESULT hr = pin->pin->ConnectionMediaType(&mt);
+	HRESULT hr = pin->ipin->ConnectionMediaType(&mt);
 	if (SUCCEEDED(hr)) {
         GraphStudio::NameGuid(mt.majortype,  f, CgraphstudioApp::g_showGuidsOfKnownTypes);	
 		t = _T("Major:   ") + f;		Echo(ofs+t);

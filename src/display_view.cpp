@@ -204,7 +204,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 			if (out_pin && in_pin) {
 				connection_attempted = true;
-				hr = DSUtil::ConnectPin(graph.gb, out_pin->pin, in_pin->pin, 
+				hr = DSUtil::ConnectPin(graph.gb, out_pin->ipin, in_pin->ipin, 
 							graph.params->connect_mode != RenderParameters::ConnectMode_Intelligent, 
 							graph.params->connect_mode == RenderParameters::ConnectMode_DirectWithMT);
 				if (SUCCEEDED(hr) && hr != S_FALSE) {
@@ -289,7 +289,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		Pin * const current_pin = graph.GetSelectedPin();
 		if (current_pin && pin_index >=0 && pin_index < connect_pins.GetCount()) {
-			const HRESULT hr = DSUtil::ConnectPin(graph.gb, current_pin->pin, connect_pins[pin_index]->pin, 
+			const HRESULT hr = DSUtil::ConnectPin(graph.gb, current_pin->ipin, connect_pins[pin_index]->ipin, 
 					graph.params->connect_mode != RenderParameters::ConnectMode_Intelligent, 
 					graph.params->connect_mode == RenderParameters::ConnectMode_DirectWithMT);
 			DSUtil::ShowError(hr, _T("Failed to connect pins"));
@@ -384,8 +384,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         bool    offer_remove = false;
 
 		DSUtil::MediaTypes mtypes;
-		if (current_pin && current_pin->pin) {
-			HRESULT hr = DSUtil::EnumMediaTypes(current_pin->pin, mtypes);
+		if (current_pin && current_pin->ipin) {
+			HRESULT hr = DSUtil::EnumMediaTypes(current_pin->ipin, mtypes);
 			ASSERT(SUCCEEDED(hr));
 		}
 
@@ -521,7 +521,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				// check for compatible filters
 				PrepareCompatibleFiltersMenu(menu, current_pin);
 				// check for IAMStreamSelect interface
-				PrepareStreamSelectMenu(menu, current_pin->pin);
+				PrepareStreamSelectMenu(menu, current_pin->ipin);
 				p = menu.GetMenuItemCount();
 				menu.InsertMenu(p++, MF_BYPOSITION | MF_SEPARATOR);
 			}
@@ -1202,7 +1202,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			current_pin = current_pin->peer;
 
 		// has selected pin, then get IPin interface now, because graph.AddFilter will release current_pin
-		CComPtr<IPin> outpin(connectToCurrentPin && current_pin ? current_pin->pin : NULL);
+		CComPtr<IPin> outpin(connectToCurrentPin && current_pin ? current_pin->ipin : NULL);
 		hr = graph.AddFilter(newFilter, filterName);
 		if (FAILED(hr)) {
 			DSUtil::ShowError(hr, CString(_T("Can't add ")) + filterName);
@@ -1278,7 +1278,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 					if (!pin->connected) {
 						if (!pin_selection || pin->selected) {		// render selected output pins or try first output pin if no pins selected
 							any_rendered = true;
-							hr = graph.gb->Render(filter->output_pins[j]->pin);
+							hr = graph.gb->Render(filter->output_pins[j]->ipin);
 							if (!pin_selection)
 								break;								// if filter just try first unconnected output pin
 						}
@@ -1304,7 +1304,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (!current_pin) 
 			return;
 
-        CComQIPtr<IMPEG2PIDMap> pPIDMap = current_pin->pin;
+        CComQIPtr<IMPEG2PIDMap> pPIDMap = current_pin->ipin;
         CComQIPtr<IMpeg2Demultiplexer> pMpeg2Demux = current_pin->filter->filter;
 
         if (pPIDMap && pMpeg2Demux)
@@ -1369,7 +1369,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		CString	title;
 		if (current_pin) {
 			title = current_pin->filter->name + _T("/") + current_pin->name + _T(" Properties");
-			OnDisplayPropertyPage(current_pin->pin, current_pin->filter, title);
+			OnDisplayPropertyPage(current_pin->ipin, current_pin->filter, title);
 		} else {
 			Filter * const current_filter = graph.GetSelectedFilter();
 			if (current_filter) {
@@ -1464,8 +1464,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		if (!current_filter) 
 			return ;
-		if (current_pin && current_pin->pin) 
-			current_pin->pin->QueryInterface(IID_IAMStreamSelect, (void**)&select);
+		if (current_pin && current_pin->ipin) 
+			current_pin->ipin->QueryInterface(IID_IAMStreamSelect, (void**)&select);
 		if (!select) 
 			current_filter->filter->QueryInterface(IID_IAMStreamSelect, (void**)&select);
 		if (!select) 
@@ -1502,13 +1502,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		compatible_filters.filters.RemoveAll();
 
 		// ignore invalid and connected pins
-		if (!pin || !(pin->pin) || (pin->dir == PINDIR_INPUT)) return ;
+		if (!pin || !(pin->ipin) || (pin->dir == PINDIR_INPUT)) return ;
 		if (pin->connected) return ;
 
 		// enumerate media types
 		DSUtil::MediaTypes			mtypes;
 
-		DSUtil::EnumMediaTypes(pin->pin, mtypes);
+		DSUtil::EnumMediaTypes(pin->ipin, mtypes);
 		if (mtypes.GetCount() <= 0) return ;
 
 		// now try to enumerate compatible filters

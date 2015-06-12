@@ -81,7 +81,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 			// It's an input pin. Is it mapped to an output pin?
 			ULONG nPin = 0;
-			CONST HRESULT hr = input_pin->pin->QueryInternalConnections(NULL, &nPin);
+			CONST HRESULT hr = input_pin->ipin->QueryInternalConnections(NULL, &nPin);
 			if (hr == S_OK) {
 				// The count (nPin) was zero, and the method returned S_OK, so
 				// this input pin is mapped to exactly zero ouput pins. 
@@ -1069,7 +1069,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			xml.WriteValue(_T("direct"), _T("true"));
 
 			CMediaType mt;
-			if (SUCCEEDED(pin->pin->ConnectionMediaType(&mt))) {
+			if (SUCCEEDED(pin->ipin->ConnectionMediaType(&mt))) {
 				SaveXML_MediaType(xml, mt);
 				SaveXML_MediaTypeFormat(xml, mt);
 			}
@@ -1330,11 +1330,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		DSUtil::MediaTypes				mtlist;
 		CComPtr<IAMBufferNegotiation>	buf_neg;
 
-		HRESULT hr = pin->pin->QueryInterface(IID_IAMBufferNegotiation, (void**)&buf_neg);
+		HRESULT hr = pin->ipin->QueryInterface(IID_IAMBufferNegotiation, (void**)&buf_neg);
 		if (FAILED(hr)) 
 			return hr;
 
-		hr = DSUtil::EnumMediaTypes(pin->pin, mtlist);
+		hr = DSUtil::EnumMediaTypes(pin->ipin, mtlist);
 		if (FAILED(hr))
 			return hr;
 		if (mtlist.GetCount() <= 0)
@@ -1430,7 +1430,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// try to render
 		params->MarkRender(true);
-		HRESULT	hr = gb->Render(pin->pin);
+		HRESULT	hr = gb->Render(pin->ipin);
 		params->MarkRender(false);
 		if (callback) 
 			callback->OnRenderFinished();
@@ -1504,10 +1504,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	{
 		CheckPointer(node, E_POINTER);
 
-		Pin * opin = NULL;
-		Pin * ipin = NULL;
-		Filter * ofilter = NULL;
-		Filter * ifilter = NULL;
+		Pin * out_pin = NULL;
+		Pin * in_pin = NULL;
+		Filter * out_filter = NULL;
+		Filter * in_filter = NULL;
 		CString out_id, in_id;
 
 		const int ofilter_index = node->GetValue(_T("outFilterIndex"), -1);
@@ -1517,38 +1517,38 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				&& ifilter_index >= 0 && ifilter_index < indexed_filters.GetCount()) {
 
 			// Look filter up in out list as DirectShow may have rearranged order within the graph
-			ofilter = FindFilter(indexed_filters[ofilter_index]);
-			ifilter = FindFilter(indexed_filters[ifilter_index]);
+			out_filter = FindFilter(indexed_filters[ofilter_index]);
+			in_filter = FindFilter(indexed_filters[ifilter_index]);
 
-			if (ofilter && ifilter) {
+			if (out_filter && in_filter) {
 				switch (CgraphstudioApp::g_ResolvePins) {
 					case CgraphstudioApp::BY_ID: {
 						// Work around buggy filters that return unsuitable pins or NULL from IBaseFilter::FindPin by searching manually for ID match
 					
 						out_id = node->GetValue(_T("outPinId"));
-						opin = ofilter->FindPinByID(out_id);
-						if (!opin || opin->connected || opin->dir == PINDIR_INPUT)
-							opin = ofilter->FindPinByMatchingID(out_id);
+						out_pin = out_filter->FindPinByID(out_id);
+						if (!out_pin || out_pin->connected || out_pin->dir == PINDIR_INPUT)
+							out_pin = out_filter->FindPinByMatchingID(out_id);
 					
 						in_id = node->GetValue(_T("inPinId"));
-						ipin = ifilter->FindPinByID(in_id);
-						if (!ipin || ipin->connected || ipin->dir == PINDIR_OUTPUT)
-							ipin = ifilter->FindPinByMatchingID(in_id);
+						in_pin = in_filter->FindPinByID(in_id);
+						if (!in_pin || in_pin->connected || in_pin->dir == PINDIR_OUTPUT)
+							in_pin = in_filter->FindPinByMatchingID(in_id);
 					
 					}	break;
 
 					case CgraphstudioApp::BY_INDEX: {
 					
 						int index = node->GetValue(_T("outPinIndex"), -1);
-						if (index >= 0 && index < ofilter->output_pins.GetCount())
-							opin = ofilter->output_pins[index];
-						if (!opin)
+						if (index >= 0 && index < out_filter->output_pins.GetCount())
+							out_pin = out_filter->output_pins[index];
+						if (!out_pin)
 							out_id.Format(_T("%d"), index);
 
 						index = node->GetValue(_T("inPinIndex"), -1);
-						if (index >= 0 && index < ifilter->input_pins.GetCount())
-							ipin = ifilter->input_pins[index];
-						if (!ipin)
+						if (index >= 0 && index < in_filter->input_pins.GetCount())
+							in_pin = in_filter->input_pins[index];
+						if (!in_pin)
 							in_id.Format(_T("%d"), index); 
 
 					}	break;
@@ -1557,10 +1557,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 					default: {
 
 						out_id = node->GetValue(_T("outPinName"));
-						opin = ofilter->FindPinByName(out_id);
+						out_pin = out_filter->FindPinByName(out_id);
 					
 						in_id = node->GetValue(_T("inPinName"));
-						ipin = ifilter->FindPinByName(in_id);
+						in_pin = in_filter->FindPinByName(in_id);
 
 					}	break;
 				}
@@ -1568,21 +1568,21 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		// As further fallback, connect by the old pin path fields
-		if (!opin || !ipin) {
-			opin = FindPinByPath(node->GetValue(_T("out")));
-			ipin = FindPinByPath(node->GetValue(_T("in")));
+		if (!out_pin || !in_pin) {
+			out_pin = FindPinByPath(node->GetValue(_T("out")));
+			in_pin = FindPinByPath(node->GetValue(_T("in")));
 		}
 
-		if (!opin || !ipin) {
-			if (!ofilter || !ifilter) {
+		if (!out_pin || !in_pin) {
+			if (!out_filter || !in_filter) {
 				error_string.Format(_T("Could not find %s filter index %d"), 
-						ofilter ? _T("input")	: _T("output"),
-						ofilter ? ifilter_index : ofilter_index);
+						out_filter ? _T("input")	: _T("output"),
+						out_filter ? ifilter_index : ofilter_index);
 			} else {
 				error_string.Format(_T("Could not find %s pin %s on filter %s"), 
-						opin ? _T("input") : _T("output"),
-						opin ? (LPCTSTR)in_id : (LPCTSTR)out_id,
-						opin ? (LPCTSTR)ifilter->display_name : (LPCTSTR)ofilter->display_name);
+						out_pin ? _T("input") : _T("output"),
+						out_pin ? (LPCTSTR)in_id : (LPCTSTR)out_id,
+						out_pin ? (LPCTSTR)in_filter->display_name : (LPCTSTR)out_filter->display_name);
 			}
 			return VFW_E_NOT_FOUND;
 		}
@@ -1591,7 +1591,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		HRESULT hr = S_OK;
 		if (direct.IsEmpty() || direct == _T("false"))
-			hr = gb->Connect(opin->pin, ipin->pin);
+			hr = gb->Connect(out_pin->ipin, in_pin->ipin);
 		else {
 			CMediaType media_type;
 			const bool use_media_type = SUCCEEDED(LoadXML_MediaType(node, media_type));
@@ -1599,19 +1599,19 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				LoadXML_MediaTypeFormat(node, media_type);
 				
 			// Only use media type for connection if we managed to load it
-			hr = gb->ConnectDirect(opin->pin, ipin->pin, use_media_type ? &media_type : NULL);
+			hr = gb->ConnectDirect(out_pin->ipin, in_pin->ipin, use_media_type ? &media_type : NULL);
 			if (FAILED(hr) && use_media_type) {
 				// If connection with media type failed reattempt connection without media type
-				hr = gb->ConnectDirect(opin->pin, ipin->pin, NULL);
+				hr = gb->ConnectDirect(out_pin->ipin, in_pin->ipin, NULL);
 			}
 		}
 
 		if (FAILED(hr)) {
 			error_string.Format(_T("Error connecting %s pin %s to %s pin %s"), 
-					(const TCHAR *)ofilter->name,	
-					(const TCHAR *)opin->name,
-					(const TCHAR *)ifilter->name,
-					(const TCHAR *)ipin->name);
+					(const TCHAR *)out_filter->name,	
+					(const TCHAR *)out_pin->name,
+					(const TCHAR *)in_filter->name,
+					(const TCHAR *)in_pin->name);
 			return hr;
 		}
 
@@ -1959,7 +1959,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				}
 
 				if (out_pin && in_pin) {
-					hr = gb->ConnectDirect(out_pin->pin, in_pin->pin, &connection.media_type);
+					hr = gb->ConnectDirect(out_pin->ipin, in_pin->ipin, &connection.media_type);
 
 					if (FAILED(hr)) {
 						CString errorStr;
@@ -1969,7 +1969,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 								(LPCTSTR)in_filter->display_name,
 								(LPCTSTR)connection.input_pin_id);
 
-						hr = gb->ConnectDirect(out_pin->pin, in_pin->pin, NULL);	// reattempt with no media type
+						hr = gb->ConnectDirect(out_pin->ipin, in_pin->ipin, NULL);	// reattempt with no media type
 
 						if (FAILED(hr)) {
 							CString title(_T("No media type: "));
@@ -2119,7 +2119,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	{
 		HRESULT hr = S_OK;
 
-		if (!p1 || !p1->pin)
+		if (!p1 || !p1->ipin)
 			hr = E_POINTER;
 		else if (!p1->peer) 
 			hr = VFW_E_NOT_CONNECTED;
@@ -2128,7 +2128,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 			CMediaType mediaType;
 			if (params->connect_mode == RenderParameters::ConnectMode_Direct)
-				hr = p1->pin->ConnectionMediaType(&mediaType);		// if connecting directly, reconnect with same media type
+				hr = p1->ipin->ConnectionMediaType(&mediaType);		// if connecting directly, reconnect with same media type
 
 			if (SUCCEEDED(hr)) {
 				hr = p1->Disconnect();
@@ -2136,7 +2136,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 			if (SUCCEEDED(hr)) {
 				params->MarkRender(true);
-				hr = DSUtil::ConnectPin(gb, p1->pin, p2->pin, 
+				hr = DSUtil::ConnectPin(gb, p1->ipin, p2->ipin, 
 							params->connect_mode != RenderParameters::ConnectMode_Intelligent, 
 							params->connect_mode == RenderParameters::ConnectMode_DirectWithMT,
 							&mediaType);
@@ -2164,7 +2164,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		HRESULT hr = S_OK;
 
 		params->MarkRender(true);
-		hr = DSUtil::ConnectPin(gb, p1->pin, p2->pin,
+		hr = DSUtil::ConnectPin(gb, p1->ipin, p2->ipin,
 					params->connect_mode != RenderParameters::ConnectMode_Intelligent, 
 					params->connect_mode == RenderParameters::ConnectMode_DirectWithMT);
 		params->MarkRender(false);
@@ -3012,7 +3012,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			for (int j=0; j<pin_count; j++) {
 				Pin * const pin = pins[j];
 				if (pin->selected)
-					previously_selected_ipins.insert(pin->pin);
+					previously_selected_ipins.insert(pin->ipin);
 			}
 		}
 
@@ -3161,11 +3161,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		int i;
 		for (i=0; i<input_pins.GetCount(); i++) {
 			Pin *p = input_pins[i];
-			if (p->pin == pin) return p;
+			if (p->ipin == pin) return p;
 		}
 		for (i=0; i<output_pins.GetCount(); i++) {
 			Pin *p = output_pins[i];
-			if (p->pin == pin) return p;
+			if (p->ipin == pin) return p;
 		}
 		return NULL;
 	}
@@ -3451,8 +3451,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			for (int i=0; i<output_pins.GetCount(); i++) {
 				Pin *pin = output_pins[i];
 				IPin *peer_pin = NULL;
-				if (pin && pin->pin) 
-					pin->pin->ConnectedTo(&peer_pin);
+				if (pin && pin->ipin) 
+					pin->ipin->ConnectedTo(&peer_pin);
 
 				if (peer_pin) {
 					Filter	* const down_filter = graph->FindParentFilter(peer_pin);
@@ -3576,13 +3576,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		CArray<Pin*> *lists[] = {&output_pins, &input_pins};
 		const size_t num_lists = sizeof(lists)/sizeof(lists[0]);
 
-		CComPtr<IPin> ipin;
-		HRESULT hr = filter->FindPin(pin_id, &ipin);
+		CComPtr<IPin> ppin;
+		HRESULT hr = filter->FindPin(pin_id, &ppin);
 
 		for (CArray<Pin*> ** pins = lists; pins<lists+num_lists; pins++) {
 			for (int p=0; p<(**pins).GetCount(); p++) {
 				Pin * const pin = (**pins)[p];
-				if (pin->pin == ipin) 
+				if (pin->ipin == ppin) 
 					return pin;
 			}
 		}
@@ -3739,7 +3739,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	Pin::~Pin()
 	{
-		pin = NULL;
+		ipin = NULL;
 	}
 
 	int Pin::Disconnect()
@@ -3748,11 +3748,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			return S_OK;
 
 		// we need to disconnect both pins
-		HRESULT hr = filter->graph->gb->Disconnect(peer->pin);
+		HRESULT hr = filter->graph->gb->Disconnect(peer->ipin);
 		if (FAILED(hr)) 
 			return hr;
 
-		hr = filter->graph->gb->Disconnect(pin);
+		hr = filter->graph->gb->Disconnect(ipin);
 		if (FAILED(hr)) 
 			return hr;
 
@@ -3803,25 +3803,25 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 	}
 
-	int Pin::Load(IPin *pin)
+	int Pin::Load(IPin *ppin)
 	{
-		if (this->pin) {
-			this->pin = NULL;
+		if (this->ipin) {
+			this->ipin = NULL;
 		}
-		if (!pin) return -1;
+		if (!ppin) return -1;
 
 		// keep a reference
-		pin->QueryInterface(IID_IPin, (void**)&this->pin);
+		ppin->QueryInterface(IID_IPin, (void**)&this->ipin);
 
 		IPin *peerpin = NULL;
-		pin->ConnectedTo(&peerpin);
+		ppin->ConnectedTo(&peerpin);
 		connected = (peerpin != NULL);
 		if (peerpin) 
 			peerpin->Release();
 
 		PIN_INFO	info;
 		memset(&info, 0, sizeof(info));
-		pin->QueryPinInfo(&info);
+		ppin->QueryPinInfo(&info);
 		dir = info.dir;
 
 		// find out name
@@ -3830,7 +3830,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			info.pFilter->Release();
 
 		LPOLESTR idStr = NULL;
-		if (SUCCEEDED(pin->QueryId(&idStr)) && idStr) {
+		if (SUCCEEDED(ppin->QueryId(&idStr)) && idStr) {
 			id = CString(idStr);
 		}
 		if (idStr)
@@ -3842,8 +3842,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         DSUtil::MediaTypes pinMtList;
 
         if (connected)
-            pin->ConnectionMediaType(&pinMediaType);
-        else if (SUCCEEDED(DSUtil::EnumMediaTypes(pin, pinMtList)))
+            ppin->ConnectionMediaType(&pinMediaType);
+        else if (SUCCEEDED(DSUtil::EnumMediaTypes(ppin, pinMtList)))
         {
             for (int i=0;i<pinMtList.GetCount();i++)
                 if (pinMtList[i].majortype != MEDIATYPE_NULL)
@@ -3886,7 +3886,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	void Pin::LoadPeer()
 	{
 		IPin *p = NULL;
-		pin->ConnectedTo(&p);
+		ipin->ConnectedTo(&p);
 		if (p) {
 			// find the peer pin
 			peer = filter->graph->FindPin(p);
@@ -3904,9 +3904,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	bool Pin::IsConnected()
 	{
-		if (!pin) return false;
+		if (!ipin) return false;
 		IPin *peer = NULL;
-		if (SUCCEEDED(pin->ConnectedTo(&peer))) {
+		if (SUCCEEDED(ipin->ConnectedTo(&peer))) {
 			if (peer) {
 				peer->Release();
 				return true;

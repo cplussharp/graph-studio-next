@@ -179,7 +179,7 @@ void CPinDetailsPage::OnBuildTree()
 
 	ret = gpin.Load(pin);
 	if (ret == 0) {
-		GetPinDetails(gpin.pin, &info);
+		GetPinDetails(gpin.ipin, &info);
 	}
 }
 

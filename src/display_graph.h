@@ -36,7 +36,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		Filter					*filter;
 		CString					name;
 		CString					id;
-		CComPtr<IPin>			pin;
+		CComPtr<IPin>			ipin;
 		Pin						*peer;			// peer pin
 		PIN_DIRECTION			dir;
 		bool					connected;
