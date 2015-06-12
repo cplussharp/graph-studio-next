@@ -758,6 +758,22 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	{
 		Pin * selected_pin = NULL;
 
+		// For safety remove any IPin references from pins that aren't affected by the operation
+		// For some buggy filters, disconnecting one pin may delete other pins rather than Releasing them
+		// These will be refreshed by RefreshFilters call below
+		for (int i=0; i<filters.GetCount(); i++) {
+			if (!filters[i]->selected) {				// Filter not selected
+				for (int j=0; j<=1; j++) {
+					CArray<Pin*> & pins = j==0 ? filters[i]->output_pins : filters[i]->input_pins; 
+					for (int k=0; k<pins.GetCount(); k++) {
+						Pin * const pin = pins[k];
+						if (!pin->selected && (!pin->peer || !pin->peer->selected))		// pin not selected and not connected to selected pin
+							pin->Load(NULL);
+					}
+				}
+			}
+		}
+
 		// first delete connections and then filters
 		for (int i=0; i<filters.GetCount(); i++) {
 			if (!filters[i]->selected)
@@ -3001,18 +3017,16 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		overlay_icon_active = -1;
 		UpdateClock();
 
-		// Before we remove existing Pins, record IPin of all selected Pins
-		// so that new Pin objects wrapping IPin that were previously selected will still be selected
-		// There could theoretically be chance matches of IPin pointers but the effects would only be
-		// incorrectly selected Pins as we never dereference members of selected_pins;
-		std::set<IPin*> previously_selected_ipins;		// NB do not dereference stored pointers as they may be invalid
+		// Before we remove existing Pins, record the ID of all selected Pins
+		// so that new Pin objects with the same ID that were previously selected will still be selected
+		std::set<CString> selected_pin_ids;
 		for (int i=0; i<2; i++) {
 			CArray<Pin*> & pins = (i==0) ? input_pins : output_pins;
 			const int pin_count = pins.GetCount();
 			for (int j=0; j<pin_count; j++) {
 				Pin * const pin = pins[j];
 				if (pin->selected)
-					previously_selected_ipins.insert(pin->ipin);
+					selected_pin_ids.insert(pin->id);
 			}
 		}
 
@@ -3027,7 +3041,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			PIN_DIRECTION	dir;
 			pin->QueryDirection(&dir);
 			Pin * const new_pin = LoadPin(pin, dir);
-			if (new_pin && previously_selected_ipins.find(pin) != previously_selected_ipins.end())
+			if (new_pin && selected_pin_ids.find(new_pin->id) != selected_pin_ids.end())
 				new_pin->selected = true;
 			pin->Release();
 
@@ -3055,7 +3069,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 #endif
 		}
 		epins->Release();
-		previously_selected_ipins.clear();
 
 		connected = false;
 		int i;
