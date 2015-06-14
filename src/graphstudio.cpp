@@ -84,7 +84,7 @@ BOOL CgraphstudioApp::InitInstance()
 		Sig_GetProcessUserModeExceptionPolicy * const getApi = (Sig_GetProcessUserModeExceptionPolicy*)GetProcAddress(kernel, "GetProcessUserModeExceptionPolicy");
 		Sig_SetProcessUserModeExceptionPolicy * const setApi = (Sig_SetProcessUserModeExceptionPolicy*)GetProcAddress(kernel, "SetProcessUserModeExceptionPolicy");
 		DWORD dwFlags = 0;
-		if ((*getApi)(&dwFlags)) {
+		if (getApi && setApi && (*getApi)(&dwFlags)) {
 			(*setApi)(dwFlags & (~PROCESS_CALLBACK_FILTER_ENABLED)); 
 		}
 	}
