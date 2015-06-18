@@ -2433,7 +2433,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		bool connected_inputs = false;
 		for (int i=0; i<filter->input_pins.GetCount(); i++) {
 			const Pin* const pin = filter->input_pins[i];
-			if (pin->connected) {
+			if (pin->connected && pin->peer) {
 				connected_inputs = true;
 				FindUpstreamInputs(pin->peer->filter, visited_filters, inputs);		// recurse upstream for each connected input
 			}
