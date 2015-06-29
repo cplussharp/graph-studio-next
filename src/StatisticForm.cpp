@@ -73,13 +73,14 @@ BOOL CStatisticForm::DoCreateDialog(CWnd* parent)
     btn_filter_mapper.SetWindowPos(NULL, 16 + 2*rc.Width(), 4, 140, rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
     btn_filter_mapper.SetFont(GetFont());
 
-	m_listCtrl.InsertColumn(0, _T("Name"), LVCFMT_LEFT, 300);
-    m_listCtrl.InsertColumn(1, _T("Count"), LVCFMT_RIGHT, 60);
-    m_listCtrl.InsertColumn(2, _T("Last"), LVCFMT_RIGHT, 60);
-    m_listCtrl.InsertColumn(3, _T("Average"), LVCFMT_RIGHT, 60);
-    m_listCtrl.InsertColumn(4, _T("StdDev"), LVCFMT_RIGHT, 60);
-    m_listCtrl.InsertColumn(5, _T("Min"), LVCFMT_RIGHT, 60);
-    m_listCtrl.InsertColumn(6, _T("Max"), LVCFMT_RIGHT, 60);
+	m_listCtrl.InsertColumn(0, _T("Name"), LVCFMT_LEFT, 400);
+    m_listCtrl.InsertColumn(1, _T("Count"), LVCFMT_RIGHT, 100);
+	m_listCtrl.InsertColumn(2, _T("Last"), LVCFMT_RIGHT, 100);
+	m_listCtrl.InsertColumn(3, _T("Average"), LVCFMT_RIGHT, 100);
+	m_listCtrl.InsertColumn(4, _T("StdDev"), LVCFMT_RIGHT, 100);
+	m_listCtrl.InsertColumn(5, _T("Min"), LVCFMT_RIGHT, 100);
+	m_listCtrl.InsertColumn(6, _T("Max"), LVCFMT_RIGHT, 100);
+	m_listCtrl.InsertColumn(7, _T("Total"), LVCFMT_RIGHT, 150);
 
     m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP );
 
@@ -259,7 +260,10 @@ const CString CStatisticForm::GetEntryString(LONG entryNr, int field)
             case 6:
                 val.Format(_T("%.2f"),entry->dMax);
                 break;
-        }
+			case 7:
+				val.Format(_T("%.2f"), entry->dAverage * entry->lCount);
+				break;
+		}
     }
 
     return val;
