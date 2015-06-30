@@ -1180,6 +1180,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		xml.BeginNode(_T("graph"));
 			xml.WriteValue(_T("name"), _T("Unnamed Graph"));
+			if(!uses_clock)
+				xml.WriteValue(_T("clock"), _T("none"));
 
 			for (int i=0; i<filters.GetCount(); i++) {
 				SaveXML_Filter(xml, filters[i], i);
@@ -1217,6 +1219,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			return VFW_E_NOT_FOUND;
 
 		XML::XMLNode * const gn = *it;
+
+		const CString clock = gn->GetValue(_T("clock"));
+		uses_clock = clock != _T("none");
 
 		// Filter list stored in the same order as stored in XML file for fixing up Filter index references
 		// Only store for the duration of loading

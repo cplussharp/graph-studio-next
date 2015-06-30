@@ -1210,7 +1210,7 @@ HRESULT CGraphView::TryOpenFile(const CString& file_to_open, bool render_media_f
     }
 
 	UpdateGraphState();
-	graph.SetClock(true, NULL);
+	graph.SetClock(graph.uses_clock, NULL);
 	graph.RefreshFilters();
 	graph.SmartPlacement();
 	Invalidate();
