@@ -579,6 +579,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			Filter	*filter = filters[i];
 			filter->UpdateClock();
 		}
+
+		// Ask the graph whether which clock we're using - it may not be one of the filters
+		CComPtr<IReferenceClock> new_clock;
+		CComQIPtr<IMediaFilter> sync_interface(gb);
+		if (sync_interface && SUCCEEDED(sync_interface->GetSyncSource(&new_clock))) {
+			uses_clock = new_clock.p != NULL;
+		}
 	}
 
 	void DisplayGraph::SetClock(bool default_clock, IReferenceClock *new_clock)
