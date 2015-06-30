@@ -1229,6 +1229,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		const CString clock = gn->GetValue(_T("clock"));
 		uses_clock = clock != _T("none");
+		// NOTE: The clock needs to be reset right away because RefreshFilter/RefreshClock calls below would otherwise revert uses_clock
+		if(!uses_clock)
+			SetClock(false, nullptr);
 
 		// Filter list stored in the same order as stored in XML file for fixing up Filter index references
 		// Only store for the duration of loading
