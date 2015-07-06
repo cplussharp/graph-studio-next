@@ -1174,6 +1174,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				xml.WriteValue(_T("class_factory_dll"), filter->GetDllFileName());
 			}
 
+			if (filter->clock) {
+				CComPtr<IReferenceClock>	syncclock;
+				HRESULT hr = filter->filter->GetSyncSource(&syncclock);
+				if (SUCCEEDED(hr) && syncclock == filter->clock)
+					xml.WriteValue(_T("clock"), 1);					// flag that this filter is the sync source
+			}
+
 			// now check for interfaces
 			SaveXML_IFileSourceFilter(filter->filter, xml);
 			SaveXML_IFileSinkFilter(filter->filter, xml);
@@ -1227,17 +1234,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		XML::XMLNode * const gn = *it;
 
-		const CString clock = gn->GetValue(_T("clock"));
-		uses_clock = clock != _T("none");
-		// NOTE: The clock needs to be reset right away because RefreshFilter/RefreshClock calls below would otherwise revert uses_clock
-		if(!uses_clock)
-			SetClock(false, nullptr);
+		// Set default or null clock here and then optionally override with filter clock in filter loading
+		// Default clock must be set before filters loaded otherwise it may choose a filter clock instead
+		SetClock(gn->GetValue(_T("clock")) != _T("none"), nullptr);
 
 		// Filter list stored in the same order as stored in XML file for fixing up Filter index references
 		// Only store for the duration of loading
 		// The IBaseFilter* are only used to find matching Filters so will not crash if pointers are invalid
 		CArray<IBaseFilter *>	filters_loaded_order;
 		CArray<XML::XMLNode *>	connection_nodes;
+
+		CComQIPtr<IReferenceClock> filter_clock;
 
 		for (it = gn->nodes.begin(); it != gn->nodes.end(); it++) {
 			XML::XMLNode * node = *it;
@@ -1246,6 +1253,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				CComPtr<IBaseFilter> created_filter;
 				hr = LoadXML_Filter(node, created_filter);
 				filters_loaded_order.Add(created_filter.p);		// Add NULL if filter failed to load to preserve correct filter indices
+				if (node->GetValue(_T("clock")).GetLength() > 0) {
+					filter_clock = created_filter;
+					ASSERT(filter_clock);
+				}
 			} 
 			else if (node->name == _T("connect"))
 				connection_nodes.Add(node);
@@ -1282,6 +1293,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 		}
 		ASSERT(iterations < MAX_ITERATIONS);
+
+		if (filter_clock)
+			SetClock(false, filter_clock);				// set filter specific clock if any
 
 		// Display any remaining connection errors, do smart placement so user can see context to errors
 		SmartPlacement();
@@ -2911,7 +2925,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		if (filter && clock) {
 			CComPtr<IReferenceClock>	syncclock;
-			syncclock = NULL;
 
 			HRESULT hr = filter->GetSyncSource(&syncclock);
 			if (SUCCEEDED(hr)) {
