@@ -79,6 +79,6 @@ public:
 
 	CArray<GRF_Filter>			grf_filters;
 	CArray<GRF_Connection>		grf_connections;
-	int							clock_flags;
-	int							clock_index;
+	int							clock_flags;		// 0 for no clock, 1 for clock
+	int							clock_index;		// index of filter implementing clock. If zero use default clock (CLSID of clock used rather than filter index is stored in the GRF file in this case)
 };

@@ -1818,6 +1818,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (FAILED(hr))
 			return hr;
 
+		// If we're using a default clock it must be set now before any filters are created otherwise SetDefaultSyncSource could choose clocks from filters
+		if (!grf.clock_index)
+			SetClock(grf.clock_flags != 0, NULL);
+
 		// The order of the following operations should be the same as DirectShow loading of GRF files
 		// This seems to be the order of operations derived from stepping through filter code in GraphEdit
 		// 1 Create filter
@@ -2011,6 +2015,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				}
 			}
 		}
+
+		// If we didn't set a default or NULL clock above, set it now
+		if (grf.clock_index) {
+			Filter* clock_filter = NULL;
+			if (grf.clock_flags != 0 && grf.clock_index > 0 && grf.clock_index <= grf.grf_filters.GetCount())	// 1-based indices
+				clock_filter = FindFilter(grf.grf_filters[grf.clock_index - 1].ibasefilter);
+			ASSERT(clock_filter);
+
+			SetClock(false, clock_filter ? clock_filter->clock : NULL);
+		}
+
 		return S_OK;	// we report any loading errors above and load a partial graph
 	}
 
