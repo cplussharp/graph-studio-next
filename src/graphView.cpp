@@ -1666,12 +1666,7 @@ void CGraphView::OnTimer(UINT_PTR nIDEvent)
 
 void CGraphView::OnUseClock()
 {
-	if (graph.uses_clock) {
-		graph.SetClock(false, NULL);
-	} else {
-		graph.SetClock(true, NULL);
-	}
-
+	graph.SetClock(!graph.uses_clock, NULL);
 	graph.Dirty();
 	Invalidate();
 }
@@ -2514,7 +2509,9 @@ void CGraphView::OnOverlayIconClick(GraphStudio::OverlayIcon *icon, CPoint point
 		{
 			// set this new clock
 			if (icon->filter && icon->filter->clock) {
-				graph.SetClock(false, icon->filter->clock);
+				CComPtr<IReferenceClock>	syncclock;
+				const bool we_are_sync_source = SUCCEEDED(icon->filter->filter->GetSyncSource(&syncclock)) && (syncclock == icon->filter->clock);
+				graph.SetClock(false, we_are_sync_source ? NULL : icon->filter->clock);		// if currently the active clock, turn off clocks
 				graph.Dirty();
 				Invalidate();
 			}
