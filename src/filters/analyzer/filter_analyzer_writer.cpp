@@ -42,9 +42,10 @@ CUnknown* CAnalyzerWriterFilter::CreateInstance(LPUNKNOWN punk, HRESULT *phr)
 /*********************************************************************************************
 * CAnalyzerWriterInput class
 *********************************************************************************************/
-CAnalyzerWriterInput::CAnalyzerWriterInput(CBaseRenderer *pRenderer, HRESULT *phr, LPCWSTR pPinName, HANDLE* pFile, CAnalyzer* pAnalyzer)
+CAnalyzerWriterInput::CAnalyzerWriterInput(CBaseRenderer *pRenderer, HRESULT *phr, LPCWSTR pPinName, HANDLE* pFile, WCHAR* szFileName, CAnalyzer* pAnalyzer)
     : CRendererInputPin(pRenderer, phr, pPinName), 
 	m_pFile(pFile), 
+	m_szFileName(szFileName),
 	m_analyzer(pAnalyzer)
 {
     DbgLog((LOG_MEMORY,1,TEXT("AnalyzerWriterInput created")));
@@ -65,6 +66,53 @@ STDMETHODIMP CAnalyzerWriterInput::NonDelegatingQueryInterface(REFIID iid, void*
 		return GetInterface(static_cast<IStream*>(this), ppv);
 
 	return __super::NonDelegatingQueryInterface(iid, ppv);
+}
+
+STDMETHODIMP
+CAnalyzerWriterInput::GetAllocatorRequirements(__out ALLOCATOR_PROPERTIES*pProps)
+{
+	UNREFERENCED_PARAMETER(pProps);
+	if (!pProps) return E_POINTER;
+
+	pProps->cBuffers = 0;
+	pProps->cbPrefix = 0;
+	pProps->cbBuffer = 0;
+
+	// Get Alignment
+	LPTSTR lpRootPathName = NULL;
+	if (m_pFile && m_pFile != INVALID_HANDLE_VALUE)
+	{
+		lpRootPathName = new TCHAR[MAX_PATH];
+		if (!GetVolumePathName(m_szFileName, lpRootPathName, MAX_PATH))
+		{
+			delete[] lpRootPathName;
+			lpRootPathName = NULL;
+		}
+	}
+
+	DWORD dwSectorsPerCluster = 0;
+	DWORD dwBytesPerSector = 0;
+	DWORD dwNumberOfFreeClusters = 0;
+	DWORD dwTotalNumberOfClusters = 0;
+	if (!GetDiskFreeSpace(lpRootPathName, &dwSectorsPerCluster, &dwBytesPerSector, &dwNumberOfFreeClusters, &dwTotalNumberOfClusters))
+	{
+		DWORD error = GetLastError();
+		if (lpRootPathName)
+		{
+			delete[] lpRootPathName;
+			lpRootPathName = NULL;
+		}
+
+		if (error != 0)
+			return HRESULT_FROM_WIN32(error);
+	}
+
+	pProps->cbAlign = dwBytesPerSector;
+
+	if (lpRootPathName)
+		delete[] lpRootPathName;
+
+	return S_OK;
 }
 
 #pragma region IStream
@@ -307,7 +355,7 @@ CBasePin* CAnalyzerWriterFilter::GetPin(int n)
         // hr's value if an error occurs.
         HRESULT hr = NOERROR;
 
-        m_pInputPin = new CAnalyzerWriterInput(this, &hr, L"In", &m_file, m_analyzer);
+		m_pInputPin = new CAnalyzerWriterInput(this, &hr, L"In", &m_file, m_szFileName, m_analyzer);
         if (NULL == m_pInputPin) {
             return NULL;
         }

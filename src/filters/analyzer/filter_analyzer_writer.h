@@ -18,11 +18,13 @@ class CAnalyzerPosPassThru;
 class CAnalyzerWriterInput : public CRendererInputPin, public IStream
 {
 public:
-    CAnalyzerWriterInput(CBaseRenderer *pRenderer, HRESULT *phr, LPCWSTR pPinName, HANDLE* pFile, CAnalyzer* pAnalyzer);
+	CAnalyzerWriterInput(CBaseRenderer *pRenderer, HRESULT *phr, LPCWSTR pPinName, HANDLE* pFile, WCHAR* szFileName, CAnalyzer* pAnalyzer);
     ~CAnalyzerWriterInput(void);
 
     DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID iid, void** ppv);
+
+	STDMETHODIMP GetAllocatorRequirements(__out ALLOCATOR_PROPERTIES* pProps);
 
     // IStream Methods
     STDMETHOD(Read) (void* pv, ULONG cb, ULONG* pcbRead);
@@ -40,6 +42,7 @@ public:
 protected:
     CCritSec m_lock;
     HANDLE* m_pFile;
+	WCHAR* m_szFileName;
     CAnalyzer* m_analyzer;
 };
 
