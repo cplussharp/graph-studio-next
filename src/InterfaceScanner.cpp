@@ -1516,12 +1516,21 @@ CInterfaceScanner::CInterfaceScanner(IUnknown* pUnk)
 
     for(int i=0; i<m_countKnownInterfaces; i++)
     {
-        IUnknown* pI = NULL;
-        if(S_OK == pUnk->QueryInterface(m_knownInterfaces[i].GetGuid(), (void**)&pI))
-        {
-            m_supportedInterfaces.Add(&m_knownInterfaces[i]);
-            pI->Release();
-        }
+		try
+		{
+			IUnknown* pI = NULL;
+			if (S_OK == pUnk->QueryInterface(m_knownInterfaces[i].GetGuid(), (void**)&pI))
+			{
+				m_supportedInterfaces.Add(&m_knownInterfaces[i]);
+				pI->Release();
+			}
+		}
+		catch (...)
+		{
+			CString msg;
+			msg.Format(_T("Error checking interface %s"), m_knownInterfaces[i].GetName());
+			DSUtil::ShowError(msg, _T("Interface Scanner"));
+		}
     }
 }
 
