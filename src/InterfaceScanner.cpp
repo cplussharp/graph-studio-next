@@ -1267,6 +1267,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{4B2BD7EA-8347-467B-8DBF-62F784929CC3}"), TEXT("ICCSubStreamFiltering"), TEXT("bdaiface.h"), TEXT("")),
     CInterfaceInfo(TEXT("{0369B4E0-45B6-11D3-B650-00C04F79498E}"), TEXT("IChannelTuneRequest"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{901db4c7-31ce-41a2-85dc-8fa0bf41b8da}"), TEXT("ICodecAPI"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd311953.aspx")),
+	CInterfaceInfo(TEXT("{02997C3B-8E1B-460e-9270-545E0DE9563E}"), TEXT("IVideoEncoder"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd377231.aspx")),
     CInterfaceInfo(TEXT("{1A5576FC-0E19-11D3-9D8E-00C04F72D980}"), TEXT("IComponent"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{39A48091-FFFE-4182-A161-3FF802640E26}"), TEXT("IComponents"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{FCD01846-0E19-11D3-9D8E-00C04F72D980}"), TEXT("IComponentsOld"), TEXT("tuner.h"), TEXT("")),
