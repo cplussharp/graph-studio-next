@@ -327,6 +327,13 @@ HRESULT CAnalyzerWriterFilter::CheckMediaType(const CMediaType *pmt)
 	return NOERROR;
 }
 
+HRESULT CAnalyzerWriterFilter::CompleteStateChange(FILTER_STATE OldState)
+{
+	// don't wait for a sample
+	Ready();
+	return S_OK;
+}
+
 HRESULT CAnalyzerWriterFilter::ShouldDrawSampleNow(IMediaSample *sample, REFERENCE_TIME *pStartTime, REFERENCE_TIME *pEndTime)
 {
 	// ignore timestamps

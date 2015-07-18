@@ -71,6 +71,7 @@ public:
 
     // overriden
 	virtual HRESULT CheckMediaType(const CMediaType *pmt);
+	virtual HRESULT CompleteStateChange(FILTER_STATE OldState);
 	virtual HRESULT DoRenderSample(IMediaSample* pSample);
 
 	// ignore time stamps...
