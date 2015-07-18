@@ -227,6 +227,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
     {
         if (IsEnd()) return;
 
+		if (m_p + n >= m_end)
+		{
+			m_p = m_end;
+			m_bitsLeft = 0;
+			return;
+		}
+
         int bitsLeft = m_bitsLeft;
 
         for (int i=0; i<n; i++)
@@ -300,6 +307,22 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	    }
 	    return r;
     }
+
+	GUID CBitStreamReader::ReadGUID()
+	{
+		if (GetRemaining() < sizeof(GUID))
+			return GUID();
+
+		GUID guid = { 0 };
+		guid.Data1 = ReadU32();
+		guid.Data2 = ReadU16();
+		guid.Data3 = ReadU16();
+
+		for (int i = 0; i < 8; i++)
+			guid.Data4[i] = ReadU8();
+
+		return guid;
+	}
 
     UINT32 CBitStreamReader::PeekU1()
     {

@@ -161,6 +161,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         inline UINT32 IsEnd() const { return m_p >= m_end ? 1 : 0; }
         inline SSIZE_T GetPos() const { return (m_p - m_start); }
         inline void SetPos(SSIZE_T pos) { m_p = m_start + pos; m_bitsLeft = 8; }
+		inline SSIZE_T GetRemaining() { return m_end - m_p; }
         
         UINT32 ReadU(int n);
         void SkipU(int n);
@@ -172,6 +173,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         UINT32 ReadU32();
         UINT32 ReadUE();
         INT32 ReadSE();
+
+		GUID ReadGUID();
 
         UINT32 PeekU1();
 
