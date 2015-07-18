@@ -309,7 +309,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_STATIC_VERSION, m_strVerInfo);
 
     // navigate to this location
-    url_label.url = _T("http://code.google.com/p/graph-studio-next/");
+    url_label.url = _T("https://github.com/cplussharp/graph-studio-next");
 }
 
 

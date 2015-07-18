@@ -87,7 +87,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,198,78,50,16,WS_GROUP
     LTEXT           "This software is free under the GNU GPL license",IDC_STATIC,6,72,153,8
     CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,252,24
-    LTEXT           "http://code.google.com/p/graph-studio-next/",IDC_STATIC_URL,7,85,147,8,SS_NOTIFY
+	LTEXT           "https://github.com/cplussharp/graph-studio-next",IDC_STATIC_URL,7,85,158,8,SS_NOTIFY
 END
 
 IDR_MAINFRAME DIALOGEX 0, 0, 330, 16

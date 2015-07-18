@@ -10,6 +10,7 @@ ipch
 *.opensdf
 /bin
 *.suo
+*.aps
 /analyzer_h.h
 /analyzer_i.c
 /analyzer_p.c
