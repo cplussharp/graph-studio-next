@@ -118,13 +118,34 @@ void GetInterfaceInfo_ISpecifyPropertyPages(GraphStudio::PropItem* group, IUnkno
 void GetInterfaceInfo_IAMFilterMiscFlags(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IAMFilterMiscFlags> pI = pUnk;
-    if(pI)
+    if (pI)
     {
-        ULONG flags = pI->GetMiscFlags();
-        if((flags & AM_FILTER_MISC_FLAGS_IS_RENDERER) == AM_FILTER_MISC_FLAGS_IS_RENDERER)
-            group->AddItem(new GraphStudio::PropItem(_T("MiscFlags"), _T("AM_FILTER_MISC_FLAGS_IS_RENDERER"), false));
-        if((flags & AM_FILTER_MISC_FLAGS_IS_SOURCE) == AM_FILTER_MISC_FLAGS_IS_SOURCE)
-            group->AddItem(new GraphStudio::PropItem(_T("MiscFlags"), _T("AM_FILTER_MISC_FLAGS_IS_SOURCE"), false));
+		ULONG flags = pI->GetMiscFlags();
+		if (flags == 0)
+			group->AddItem(new GraphStudio::PropItem(_T("MiscFlags"), _T("0"), false));
+		else
+		{
+			CStringArray strFlags;
+
+			if ((flags & AM_FILTER_MISC_FLAGS_IS_RENDERER) == AM_FILTER_MISC_FLAGS_IS_RENDERER)
+				strFlags.Add(_T("AM_FILTER_MISC_FLAGS_IS_RENDERER"));
+			if ((flags & AM_FILTER_MISC_FLAGS_IS_SOURCE) == AM_FILTER_MISC_FLAGS_IS_SOURCE)
+				strFlags.Add(_T("AM_FILTER_MISC_FLAGS_IS_SOURCE"));
+			if (flags & ~(AM_FILTER_MISC_FLAGS_IS_SOURCE | AM_FILTER_MISC_FLAGS_IS_RENDERER) > 0)
+			{
+				CString strFlag;
+				strFlag.AppendFormat(_T("Unknown (%d)"), flags);
+				strFlags.Add(strFlag);
+			}
+
+			CString strFlagsText;
+			for (int i = 0; i<strFlags.GetCount(); i++)
+			{
+				if (i > 0) strFlagsText += _T(", ");
+				strFlagsText += strFlags[i];
+			}
+			group->AddItem(new GraphStudio::PropItem(_T("MiscFlags"), strFlagsText));
+		}
     }
 }
 
