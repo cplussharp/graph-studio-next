@@ -117,18 +117,6 @@
       <LargeAddressAware>true</LargeAddressAware>
       <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
     </Link>
-    <PreBuildEvent>
-      <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
-
-echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
-
-echo SubWCRev SVN build step disabled due to move to Git
-echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
-</Command>
-    </PreBuildEvent>
-    <PreBuildEvent>
-      <Message>Generate the VersionNo_SVN.h file with the necessary repo identify info for versioning.</Message>
-    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
@@ -161,18 +149,6 @@ echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(Project
       <LargeAddressAware>true</LargeAddressAware>
       <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
     </Link>
-    <PreBuildEvent>
-      <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
-
-echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
-
-echo SubWCRev SVN build step disabled due to move to Git
-echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
-</Command>
-    </PreBuildEvent>
-    <PreBuildEvent>
-      <Message>Generate the VersionNo_SVN.h file with the necessary repo identify info for versioning.</Message>
-    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -208,18 +184,6 @@ echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(Project
       <LargeAddressAware>true</LargeAddressAware>
       <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
     </Link>
-    <PreBuildEvent>
-      <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
-
-echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
-
-echo SubWCRev SVN build step disabled due to move to Git
-echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
-</Command>
-    </PreBuildEvent>
-    <PreBuildEvent>
-      <Message>Generate the VersionNo_SVN.h file with the necessary repo identify info for versioning.</Message>
-    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Midl>
@@ -253,18 +217,6 @@ echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(Project
       <LargeAddressAware>true</LargeAddressAware>
       <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
     </Link>
-    <PreBuildEvent>
-      <Command>echo WARNING - SubWCRev below will fail with paths containing spaces or quotes around paths
-
-echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
-
-echo SubWCRev SVN build step disabled due to move to Git
-echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(ProjectDir)src\VersionNo_SVN.h
-</Command>
-    </PreBuildEvent>
-    <PreBuildEvent>
-      <Message>Generate the VersionNo_SVN.h file with the necessary repo identify info for versioning.</Message>
-    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -360,7 +312,6 @@ echo SubWCRev.exe $(SolutionDir) $(ProjectDir)src\VersionNo_SVN.tmpl.h $(Project
     <ClInclude Include="src\TextInfoForm.h" />
     <ClInclude Include="src\time_utils.h" />
     <ClInclude Include="src\VersionNo.h" />
-    <ClInclude Include="src\VersionNo_SVN.tmpl.h" />
     <ClInclude Include="src\VolumeBarForm.h" />
     <ClInclude Include="src\BufferNegotiationPage.h" />
     <ClInclude Include="src\CustomPage.h" />

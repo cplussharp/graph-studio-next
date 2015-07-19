@@ -345,9 +345,6 @@
     <ClInclude Include="src\VersionNo.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="src\VersionNo_SVN.tmpl.h">
-      <Filter>Application</Filter>
-    </ClInclude>
     <ClInclude Include="src\GRF_File.h">
       <Filter>Utils</Filter>
     </ClInclude>

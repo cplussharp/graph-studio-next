@@ -1,23 +1,16 @@
 #pragma once
 
-// http://www.zachburlingame.com/2011/03/integrating-the-subversion-revision-into-the-version-automatically-with-native-cc/
-#include "VersionNo_SVN.h"
-
 #define STRINGIZE2(s) #s
 #define STRINGIZE(s) STRINGIZE2(s)
 
 #define VERSION_MAJOR               0
 #define VERSION_MINOR               7
-#define VERSION_REVISION            0
-#define VERSION_BUILD               SVN_REVISION
+#define VERSION_REVISION            1
+#define VERSION_BUILD               0 // todo revision from git
 
-#if SVN_LOCAL_MODIFICATIONS
-  #define VERSION_MODIFIER "M"
-#else
-  #define VERSION_MODIFIER
-#endif
+#define VERSION_MODIFIER
  
-#define VER_FILE_DESCRIPTION_STR    "Built " STRINGIZE(SVN_TIME_NOW) " UTC from r" STRINGIZE(SVN_REVISION)
+#define VER_FILE_DESCRIPTION_STR    "Built " __DATE__ " " __TIME__
 #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD
 #define VER_FILE_VERSION_STR        STRINGIZE(VERSION_MAJOR)        \
                                     "." STRINGIZE(VERSION_MINOR)    \
