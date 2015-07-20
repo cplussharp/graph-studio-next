@@ -131,7 +131,7 @@ void GetInterfaceInfo_IAMFilterMiscFlags(GraphStudio::PropItem* group, IUnknown*
 				strFlags.Add(_T("AM_FILTER_MISC_FLAGS_IS_RENDERER"));
 			if ((flags & AM_FILTER_MISC_FLAGS_IS_SOURCE) == AM_FILTER_MISC_FLAGS_IS_SOURCE)
 				strFlags.Add(_T("AM_FILTER_MISC_FLAGS_IS_SOURCE"));
-			if (flags & ~(AM_FILTER_MISC_FLAGS_IS_SOURCE | AM_FILTER_MISC_FLAGS_IS_RENDERER) > 0)
+			if ((flags & ~(AM_FILTER_MISC_FLAGS_IS_SOURCE | AM_FILTER_MISC_FLAGS_IS_RENDERER)) > 0)
 			{
 				CString strFlag;
 				strFlag.AppendFormat(_T("Unknown (%d)"), flags);
