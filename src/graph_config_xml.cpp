@@ -63,11 +63,12 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			} else {
 
 				CString filename = conf->GetValue(_T("source"));
+				const BOOL url = filename.Find(_T("://")) >= 0;
 
-				const DWORD file_attributes = GetFileAttributes(filename);
+				const DWORD file_attributes = !url ? GetFileAttributes(filename) : 0;
 
 				// Give the user a chance to fix up an invalid filename but only check file name for the first time
-				if (INVALID_FILE_ATTRIBUTES == file_attributes)
+				if (!url && INVALID_FILE_ATTRIBUTES == file_attributes)
 					hr = E_INVALIDARG;
 				else 
 					hr = fsource->Load(filename, NULL);
