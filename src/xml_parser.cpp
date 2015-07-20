@@ -412,6 +412,28 @@ namespace XML
 			}
 		}
 
+		#pragma region Escape Special Characters
+		// NOTE: http://www.w3.org/TR/html4/sgml/entities.html#h-24.4.1
+		for (int i=value.GetLength()-1; i>=0; i--) {
+			CString replacement;
+			switch(value[i]) {
+				case _T('&'):
+					replacement = _T("&amp;");
+					break;
+				case _T('<'):
+					replacement = _T("&lt;");
+					break;
+				case _T('>'):
+					replacement = _T("&gt;");
+					break;
+			}
+			if(replacement.IsEmpty())
+				continue;
+			value.Delete(i);
+			value.Insert(i, replacement);
+		}
+		#pragma endregion
+
 		// escape quotes
 		for (int i=value.GetLength()-1; i>=0; i--) {
 			if (value[i] == L'\"') {
