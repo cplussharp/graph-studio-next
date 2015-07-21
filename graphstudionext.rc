@@ -87,7 +87,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,198,78,50,16,WS_GROUP
     LTEXT           "This software is free under the GNU GPL license",IDC_STATIC,6,72,153,8
     CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,252,24
-	LTEXT           "https://github.com/cplussharp/graph-studio-next",IDC_STATIC_URL,7,85,158,8,SS_NOTIFY
+    LTEXT           "https://github.com/cplussharp/graph-studio-next",IDC_STATIC_URL,7,85,158,8,SS_NOTIFY
 END
 
 IDR_MAINFRAME DIALOGEX 0, 0, 330, 16
@@ -1140,6 +1140,8 @@ BEGIN
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
         MENUITEM SEPARATOR
+        MENUITEM "Copy &Screenshot to Clipboard\tCtrl+C", ID_VIEW_COPYSCREENSHOTTOCLIPBOARD
+        MENUITEM SEPARATOR
         MENUITEM "&Refresh Graph\tF5",          ID_BUTTON_REFRESH
         MENUITEM "Reset Graph La&yout",         ID_VIEW_RESETGRAPHLAYOUT
         MENUITEM SEPARATOR
@@ -1375,6 +1377,7 @@ BEGIN
     VK_UP,          ID_PIN_UP,              VIRTKEY, CONTROL, SHIFT, NOINVERT
     "W",            ID_VIEW_GRAPHSTATISTICS, VIRTKEY, CONTROL, NOINVERT
     "Y",            ID_HELP_REGISTEREDFILETYPES, VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_VIEW_COPYSCREENSHOTTOCLIPBOARD, VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -1642,12 +1645,12 @@ BEGIN
     ID_SEEK_BACKWARD_3      "Seek backward 10 seconds"
     ID_SEEK_BACKWARD_4      "Seek backward 1 minute"
     ID_HELP_REGISTEREDFILETYPES "Show registered filetypes and protocols"
-	ID_GRAPH_CONNECTPIN		"Connect or disconnect and reconnect an output pin\nConnect output pin"
 END
 
 STRINGTABLE
 BEGIN
     ID_OPTIONS_CONFIGUREGLOBALDBGLOG "Configure the Global DbgLog Settings."
+    ID_GRAPH_CONNECTPIN     "Connect or disconnect and reconnect an output pin\nConnect output pin"
 END
 
 #endif    // English (United States) resources

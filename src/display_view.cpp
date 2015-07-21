@@ -1424,7 +1424,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		SetScrollSizes(MM_TEXT, size);
 	}
 
-	void DisplayView::MakeScreenshot(const CString& image_filename, const GUID& gdiplus_format)
+	void DisplayView::MakeScreenshot(const CString& image_filename, const GUID& gdiplus_format, bool copy_to_clipboard)
 	{
 		const CRect		imgrect(graph.GetGraphSize());
 		const CRect		bufrect(0, 0, back_width, back_height);
@@ -1438,15 +1438,21 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		CBitmap * const old = tempdc.SelectObject(&tempbitmap);
 		tempdc.BitBlt(0, 0, area.Width(), area.Height(), &memDC, area.left, area.top, SRCCOPY);
 
-		OpenClipboard();
-		EmptyClipboard();
-		SetClipboardData(CF_BITMAP, tempbitmap.GetSafeHandle());
-		CloseClipboard();
+		if(copy_to_clipboard)
+		{
+			OpenClipboard();
+			EmptyClipboard();
+			SetClipboardData(CF_BITMAP, tempbitmap.GetSafeHandle());
+			CloseClipboard();
+		}
 
-        CImage img;
-        img.Attach(tempbitmap);
-        HRESULT hr = img.Save(image_filename, gdiplus_format);
-		DSUtil::ShowError(hr, _T("Failed to save image file of the Filter Graph screenshot"));
+		if(!image_filename.IsEmpty())
+		{
+			CImage img;
+			img.Attach(tempbitmap);
+			HRESULT hr = img.Save(image_filename, gdiplus_format);
+			DSUtil::ShowError(hr, _T("Failed to save image file of the Filter Graph screenshot"));
+		}
 
         // free resources
 		tempdc.SelectObject(old);

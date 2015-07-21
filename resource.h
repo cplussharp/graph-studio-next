@@ -273,6 +273,7 @@
 #define IDC_RADIO_LOGFILE_FILE          1165
 #define IDC_BUTTON_CLEAR_LOG            1166
 #define IDC_BUTTON_SPY_PROPERTYFRAME    1167
+#define ID_VIEW_COPYSCREENSHOTTOCLIPBOARD 1168
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -445,7 +446,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        182
-#define _APS_NEXT_COMMAND_VALUE         32960
+#define _APS_NEXT_COMMAND_VALUE         32963
 #define _APS_NEXT_CONTROL_VALUE         1167
 #define _APS_NEXT_SYMED_VALUE           108
 #endif

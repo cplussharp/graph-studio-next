@@ -220,6 +220,9 @@ public:
 	void SaveWindowPosition();
 	void OnMonitorCallback(HMONITOR monitor, HDC dc, LPRECT rect);
 
+	void OnViewCopyScreenshotToClipboard();
+	void OnUpdateViewCopyScreenshotToClipboard(CCmdUI *pCmdUI);
+
 	void OnViewTextInformation();
 	void OnGraphInsertFileSource();
     void OnGraphInsertTeeFilter();

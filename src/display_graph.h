@@ -340,6 +340,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void LoadPeers();
 		void RemoveSelectionFromGraph();
 
+		int GetFilterCount();
+
 		// selection processing
 		void SelectAllFilters(bool select);
 		Filter * GetSelectedFilter(bool allow_multi_selection = false);

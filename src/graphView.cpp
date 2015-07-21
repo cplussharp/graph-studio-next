@@ -198,6 +198,9 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_UPDATE_COMMAND_UI(ID_FILE_CONNECTTOREMOTEGRAPH, &CGraphView::OnUpdateConnectRemote)
 	ON_UPDATE_COMMAND_UI(ID_FILE_DISCONNECTFROMREMOTEGRAPH, &CGraphView::OnUpdateDisconnectRemote)
 	
+	ON_COMMAND(ID_VIEW_COPYSCREENSHOTTOCLIPBOARD, &CGraphView::OnViewCopyScreenshotToClipboard)
+	ON_UPDATE_COMMAND_UI(ID_VIEW_COPYSCREENSHOTTOCLIPBOARD, &CGraphView::OnUpdateViewCopyScreenshotToClipboard)
+
 	ON_COMMAND(ID_VIEW_TEXTINFORMATION, &CGraphView::OnViewTextInformation)
 	ON_COMMAND(ID_GRAPH_INSERTFILESOURCE, &CGraphView::OnGraphInsertFileSource)
     ON_COMMAND(ID_GRAPH_INSERTTEEFILTER, &CGraphView::OnGraphInsertTeeFilter)
@@ -1776,6 +1779,16 @@ void CGraphView::OnGraphPaused()
 	}
 	toolbar.EnableButton(ID_BUTTON_PAUSE, FALSE);
 	toolbar.EnableButton(ID_BUTTON_STOP, TRUE);
+}
+
+void CGraphView::OnViewCopyScreenshotToClipboard()
+{
+	MakeScreenshot((LPCTSTR) NULL, Gdiplus::ImageFormatBMP);
+}
+
+void CGraphView::OnUpdateViewCopyScreenshotToClipboard(CCmdUI *ui)
+{
+    ui->Enable(graph.GetFilterCount() > 0);
 }
 
 void CGraphView::OnViewTextInformation()

@@ -25,3 +25,4 @@ ipch
 /time_measure_dlldata.c
 /time_measure_h.h
 /time_measure_i.c
+/*.user
