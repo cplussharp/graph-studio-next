@@ -806,11 +806,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		SmartPlacement(false);
 	}
 
-	int DisplayGraph::GetFilterCount()
-	{
-		return (int) filters.GetCount();
-	}
-
 	HRESULT DisplayGraph::AddFilter(IBaseFilter *filter, CString proposed_name)
 	{
 		if (!gb) return E_FAIL;

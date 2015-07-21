@@ -295,7 +295,7 @@ void CRemoteGraphForm::OnDblclkListGraphs(NMHDR *pNMHDR, LRESULT *pResult)
 bool CRemoteGraphForm::CanCreateSpyFilterGraphHelperInstance()
 {
 	// WARN: This is not accurate since we are interested in installed spy with bitness that matches remote process
-	class __declspec(uuid("5A9A684C-A891-4032-8D31-FF6EAB5A0C1E")) FilterGraphHelper;
+	class __declspec(uuid("5A9A684C-A891-4032-8D31-FF6EAB5A0C1E")) FilterGraphHelper; // Alax.Info DirectShowSpy's FilterGraphHelper
 	CComPtr<IUnknown> pUnknown;
 	return SUCCEEDED(pUnknown.CoCreateInstance(__uuidof(FilterGraphHelper)));
 }
@@ -312,7 +312,7 @@ bool CRemoteGraphForm::SpyDoPropertyFrameModal(IMoniker* pMoniker)
 		CComPtr<IUnknown> pUnknown;
 		ATLENSURE_SUCCEEDED(pRunningObjectTable->GetObject(sel_graph.moniker, &pUnknown));
 		// NOTE: Doing IDispatch::Invoke to not reference/import external TLB and be dependent from it while building
-		class __declspec(uuid("6945711B-FE0F-4C54-965F-5B67969C28B7")) ISpy;
+		class __declspec(uuid("6945711B-FE0F-4C54-965F-5B67969C28B7")) ISpy; // Alax.Info DirectShowSpy's ISpy
 		const CComQIPtr<IDispatch, &__uuidof(ISpy)> pSpyDispatch = pUnknown;
 		if(!pSpyDispatch)
 			return false;

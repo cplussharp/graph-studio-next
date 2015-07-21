@@ -64,6 +64,7 @@ public:
 
 	void DoDumpRawBuffer(void *buf, int len, int offset);
 
+	CString GetReportText();
 	void DoSimpleReport();
 	void Echo(CString t);
 	void DisplayReport();

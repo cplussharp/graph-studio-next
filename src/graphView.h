@@ -222,6 +222,10 @@ public:
 
 	void OnViewCopyScreenshotToClipboard();
 	void OnUpdateViewCopyScreenshotToClipboard(CCmdUI *pCmdUI);
+	void OnViewCopyTextToClipboard();
+	void OnUpdateViewCopyTextToClipboard(CCmdUI *ui);
+	void OnViewCopySpyTextToClipboard();
+	void OnUpdateViewCopySpyTextToClipboard(CCmdUI *ui);
 
 	void OnViewTextInformation();
 	void OnGraphInsertFileSource();

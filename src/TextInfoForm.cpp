@@ -138,6 +138,23 @@ void CTextInfoForm::OnBnClickedButtonRefresh()
 	DoSimpleReport();
 }
 
+CString CTextInfoForm::GetReportText()
+{
+	// NOTE: This is a mix of DoSimpleReport and DoSimpleReport
+	int level = 5;
+	lines.RemoveAll();
+	DoFilterList(level);
+	DoConnectionDetails(level, 0);
+    DoFileInfos(level);
+	CString	text;
+	for(int i = 0; i < lines.GetCount(); i++)
+	{
+		text.Append(lines[i]);
+		text.Append(_T("\r\n"));
+	}
+	return text;
+}
+
 void CTextInfoForm::DoSimpleReport()
 {
 	// just enumerate the filters

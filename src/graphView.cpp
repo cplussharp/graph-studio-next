@@ -200,6 +200,10 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	
 	ON_COMMAND(ID_VIEW_COPYSCREENSHOTTOCLIPBOARD, &CGraphView::OnViewCopyScreenshotToClipboard)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_COPYSCREENSHOTTOCLIPBOARD, &CGraphView::OnUpdateViewCopyScreenshotToClipboard)
+	ON_COMMAND(ID_VIEW_COPYTEXTTOCLIPBOARD, &CGraphView::OnViewCopyTextToClipboard)
+	ON_UPDATE_COMMAND_UI(ID_VIEW_COPYTEXTTOCLIPBOARD, &CGraphView::OnUpdateViewCopyTextToClipboard)
+	ON_COMMAND(ID_VIEW_COPYSPYTEXTTOCLIPBOARD, &CGraphView::OnViewCopySpyTextToClipboard)
+	ON_UPDATE_COMMAND_UI(ID_VIEW_COPYSPYTEXTTOCLIPBOARD, &CGraphView::OnUpdateViewCopySpyTextToClipboard)
 
 	ON_COMMAND(ID_VIEW_TEXTINFORMATION, &CGraphView::OnViewTextInformation)
 	ON_COMMAND(ID_GRAPH_INSERTFILESOURCE, &CGraphView::OnGraphInsertFileSource)
@@ -1784,11 +1788,50 @@ void CGraphView::OnGraphPaused()
 void CGraphView::OnViewCopyScreenshotToClipboard()
 {
 	MakeScreenshot((LPCTSTR) NULL, Gdiplus::ImageFormatBMP);
+	MessageBeep(MB_OK);
 }
 
 void CGraphView::OnUpdateViewCopyScreenshotToClipboard(CCmdUI *ui)
 {
-    ui->Enable(graph.GetFilterCount() > 0);
+    ui->Enable(!graph.filters.IsEmpty());
+}
+
+void CGraphView::OnViewCopyTextToClipboard()
+{
+	// SUGG: Wait Cursor
+	DSUtil::SetClipboardText(GetSafeHwnd(), form_textinfo->GetReportText());
+	MessageBeep(MB_OK);
+}
+
+void CGraphView::OnUpdateViewCopyTextToClipboard(CCmdUI *ui)
+{
+    ui->Enable(!graph.filters.IsEmpty());
+}
+
+void CGraphView::OnViewCopySpyTextToClipboard()
+{
+	if(!graph.gb)
+		return;
+	// SUGG: Wait Cursor
+	class __declspec(uuid("{5A9A684C-A891-4032-8D31-FF6EAB5A0C1E}")) FilterGraphHelper; // Alax.Info DirectShowSpy's FilterGraphHelper
+	CComPtr<IDispatch> pDispatch;
+	if(FAILED(pDispatch.CoCreateInstance(__uuidof(FilterGraphHelper))))
+		return;
+	CComVariant vGraphBuilder(graph.gb);
+	if(FAILED(pDispatch.PutProperty(DISPID_VALUE, &vGraphBuilder)))
+		return;
+	CComVariant vText;
+	if(SUCCEEDED(pDispatch.GetProperty(1, &vText)))
+		if(vText.vt == VT_BSTR)
+		{
+			DSUtil::SetClipboardText(GetSafeHwnd(), CString(vText.bstrVal));
+			MessageBeep(MB_OK);
+		}
+}
+
+void CGraphView::OnUpdateViewCopySpyTextToClipboard(CCmdUI *ui)
+{
+    ui->Enable(!graph.filters.IsEmpty());
 }
 
 void CGraphView::OnViewTextInformation()
