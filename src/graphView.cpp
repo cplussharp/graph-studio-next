@@ -1787,7 +1787,7 @@ void CGraphView::OnGraphPaused()
 
 void CGraphView::OnViewCopyScreenshotToClipboard()
 {
-	MakeScreenshot((LPCTSTR) NULL, Gdiplus::ImageFormatBMP);
+	MakeScreenshot((LPCTSTR) NULL, Gdiplus::ImageFormatBMP, true);
 	MessageBeep(MB_OK);
 }
 

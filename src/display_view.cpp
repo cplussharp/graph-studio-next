@@ -1424,7 +1424,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		SetScrollSizes(MM_TEXT, size);
 	}
 
-	void DisplayView::MakeScreenshot(const CString& image_filename, const GUID& gdiplus_format, bool copy_to_clipboard)
+	void DisplayView::MakeScreenshot(const CString& image_filename, const GUID& gdiplus_format, bool set_clipboard)
 	{
 		const CRect		imgrect(graph.GetGraphSize());
 		const CRect		bufrect(0, 0, back_width, back_height);
@@ -1438,7 +1438,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		CBitmap * const old = tempdc.SelectObject(&tempbitmap);
 		tempdc.BitBlt(0, 0, area.Width(), area.Height(), &memDC, area.left, area.top, SRCCOPY);
 
-		if(copy_to_clipboard)
+		if(set_clipboard)
 		{
 			OpenClipboard();
 			EmptyClipboard();
