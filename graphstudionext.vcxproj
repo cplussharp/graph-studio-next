@@ -242,6 +242,8 @@
     <ClInclude Include="src\AnalyzerPage.h" />
     <ClInclude Include="src\BlacklistForm.h" />
     <ClInclude Include="src\CliOptionsForm.h" />
+    <ClInclude Include="src\ComDllAnalyzer.h" />
+    <ClInclude Include="src\ComDllAnalyzerForm.h" />
     <ClInclude Include="src\Crc32.h" />
     <ClInclude Include="src\CustomToolTipCtrl.h" />
     <ClInclude Include="src\DbgLogConfigForm.h" />
@@ -285,6 +287,7 @@
     <ClInclude Include="src\MediaInfoDLL.h" />
     <ClInclude Include="src\MediaTypeSelectForm.h" />
     <ClInclude Include="src\moreuuids.h" />
+    <ClInclude Include="src\RegistryExporter.h" />
     <ClInclude Include="src\RenderParameters.h" />
     <ClInclude Include="src\SbeConfigForm.h" />
     <ClInclude Include="src\SbeSinkPage.h" />
@@ -345,6 +348,8 @@
     <ClCompile Include="src\AnalyzerPage.cpp" />
     <ClCompile Include="src\BlacklistForm.cpp" />
     <ClCompile Include="src\CliOptionsForm.cpp" />
+    <ClCompile Include="src\ComDllAnalyzer.cpp" />
+    <ClCompile Include="src\ComDllAnalyzerForm.cpp" />
     <ClCompile Include="src\Crc32.cpp" />
     <ClCompile Include="src\CustomToolTipCtrl.cpp" />
     <ClCompile Include="src\DbgLogConfigForm.cpp" />
@@ -397,6 +402,7 @@
     <ClCompile Include="src\MeritForm.cpp" />
     <ClCompile Include="src\NewGroupForm.cpp" />
     <ClCompile Include="src\ProgressForm.cpp" />
+    <ClCompile Include="src\RegistryExporter.cpp" />
     <ClCompile Include="src\RemoteGraphForm.cpp" />
     <ClCompile Include="src\RenderParameters.cpp" />
     <ClCompile Include="src\RenderUrlForm.cpp" />

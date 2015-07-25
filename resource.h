@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by graphstudionext.rc
+// Von Microsoft Visual C++ generierte Includedatei.
+// Verwendet durch graphstudionext.rc
 //
 #define IDC_BUTTON_SET_PREROLL          3
 #define IDD_ABOUTBOX                    100
@@ -61,6 +61,7 @@
 #define IDD_DIALOG_DBGLOG               181
 #define IDD_DIALOG_DBGLOGCONFIG         181
 #define IDD_PROPPAGE_DBGLOG             182
+#define IDD_DIALOG_COMDLLANALYZER       183
 #define IDC_COMBO_CATEGORIES            1001
 #define IDC_LIST_FILTERS                1002
 #define IDC_COMBO_MERIT                 1003
@@ -274,8 +275,8 @@
 #define IDC_BUTTON_CLEAR_LOG            1166
 #define IDC_BUTTON_SPY_PROPERTYFRAME    1167
 #define ID_VIEW_COPYSCREENSHOTTOCLIPBOARD 1168
-#define ID_VIEW_COPYTEXTTOCLIPBOARD 1169
-#define ID_VIEW_COPYSPYTEXTTOCLIPBOARD 1170
+#define ID_VIEW_COPYTEXTTOCLIPBOARD     1169
+#define ID_VIEW_COPYSPYTEXTTOCLIPBOARD  1170
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -442,13 +443,14 @@
 #define ID_GRAPH_CONNECTPIN             32957
 #define ID_GRAPH_DISCONNECTSELECTEDFILTERS 32958
 #define ID_BUTTON_LOOP                  32959
+#define ID_HELP_COMDLLANALYZER          32963
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        182
-#define _APS_NEXT_COMMAND_VALUE         32963
+#define _APS_NEXT_COMMAND_VALUE         32964
 #define _APS_NEXT_CONTROL_VALUE         1167
 #define _APS_NEXT_SYMED_VALUE           108
 #endif

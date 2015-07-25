@@ -43,6 +43,7 @@ public:
     CLookupForm                 *form_guidlookup;
     CLookupForm                 *form_hresultlookup;
     CFileTypesForm              *form_filetypes;
+	CComDllAnalyzerForm			*form_comdllanalyzer;
 
     CCustomToolTipCtrl	        m_ToolTip;
     CPoint                      m_lastToolTipPoint;
@@ -293,6 +294,7 @@ public:
     afx_msg void OnHelpGuidLookup();
     afx_msg void OnHelpHresultLookup();
     afx_msg void OnHelpRegisteredFileTypes();
+	afx_msg void OnHelpComDllAnalyzer();
     afx_msg void OnShowCliOptions();
     afx_msg void OnConfigureSbe();
 	afx_msg void OnConfigureDbgLog();

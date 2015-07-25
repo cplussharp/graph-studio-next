@@ -405,6 +405,15 @@
     <ClInclude Include="src\H265StructReader.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\RegistryExporter.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ComDllAnalyzer.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ComDllAnalyzerForm.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -673,6 +682,15 @@
     </ClCompile>
     <ClCompile Include="src\H265StructReader.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RegistryExporter.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ComDllAnalyzer.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ComDllAnalyzerForm.cpp">
+      <Filter>Dialogs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

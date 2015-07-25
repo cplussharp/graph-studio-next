@@ -242,6 +242,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
     ON_COMMAND(ID_HELP_GUIDLOOKUP, &CGraphView::OnHelpGuidLookup)
     ON_COMMAND(ID_HELP_HRESULTLOOKUP, &CGraphView::OnHelpHresultLookup)
     ON_COMMAND(ID_HELP_REGISTEREDFILETYPES, &CGraphView::OnHelpRegisteredFileTypes)
+	ON_COMMAND(ID_HELP_COMDLLANALYZER, &CGraphView::OnHelpComDllAnalyzer)
     ON_COMMAND(ID_HELP_COMMANDLINEOPTIONS, &CGraphView::OnShowCliOptions)
     ON_COMMAND(ID_OPTIONS_CONFIGURESBE, &CGraphView::OnConfigureSbe)
 	ON_COMMAND(ID_OPTIONS_CONFIGUREGLOBALDBGLOG, &CGraphView::OnConfigureDbgLog)
@@ -302,6 +303,7 @@ CGraphView::CGraphView()
     , form_guidlookup(NULL)
     , form_hresultlookup(NULL)
     , form_filetypes(NULL)
+	, form_comdllanalyzer(NULL)
 	, document_type(NONE)
 	, last_start_time_ns(0LL)
 	, last_stop_time_ns(0LL)
@@ -332,6 +334,7 @@ CGraphView::~CGraphView()
     if (form_guidlookup) { form_guidlookup->DestroyWindow(); delete form_guidlookup; form_guidlookup = NULL; }
     if (form_hresultlookup) { form_hresultlookup->DestroyWindow(); delete form_hresultlookup; form_hresultlookup = NULL; }
     if (form_filetypes) { form_filetypes->DestroyWindow(); delete form_filetypes; form_filetypes = NULL; }
+	if (form_comdllanalyzer) { form_comdllanalyzer->DestroyWindow(); delete form_comdllanalyzer; form_comdllanalyzer = NULL; }
 }
 
 BOOL CGraphView::PreCreateWindow(CREATESTRUCT& cs)
@@ -1595,6 +1598,18 @@ void CGraphView::OnHelpRegisteredFileTypes()
     }
 	form_filetypes->ShowWindow(SW_SHOW);
 	form_filetypes->SetActiveWindow();
+}
+
+void CGraphView::OnHelpComDllAnalyzer()
+{
+	if (!form_comdllanalyzer) {
+		form_comdllanalyzer = new CComDllAnalyzerForm(this);
+		form_comdllanalyzer->DoCreateDialog(this);
+		form_comdllanalyzer->view = this;
+		form_comdllanalyzer->OnClickedButtonOpen();
+	}
+	form_comdllanalyzer->ShowWindow(SW_SHOW);
+	form_comdllanalyzer->SetActiveWindow();
 }
 
 void CGraphView::OnShowCliOptions()

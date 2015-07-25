@@ -171,6 +171,9 @@ using namespace std;
 
 #include "mtypes_ext.h"
 
+#include "RegistryExporter.h"
+#include "ComDllAnalyzer.h"""
+
 #include "CustomToolTipCtrl.h"
 
 #include "GraphStudioModelessDialog.h"
@@ -198,6 +201,7 @@ using namespace std;
 #include "volumebarform.h"
 #include "ConfirmForm.h"
 #include "MeritForm.h"
+#include "ComDllAnalyzerForm.h"
 
 #include "InterfaceScanner.h"
 #include "MediaInfo.h"
