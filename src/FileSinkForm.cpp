@@ -84,7 +84,8 @@ BOOL CFileSinkForm::OnInitDialog()
 	for (i=0; i<url_list.GetCount(); i++) combo_url.AddString(url_list[i]);
 
 	OnBnClickedRadioFile();
-	return TRUE;
+	GotoDlgCtrl(&combo_file);
+	return FALSE;
 }
 
 void CFileSinkForm::OnBnClickedRadioFile()

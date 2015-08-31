@@ -85,7 +85,7 @@ BOOL CFileSrcForm::OnInitDialog()
 
 	OnBnClickedRadioFile();
 	GotoDlgCtrl(&combo_file);
-	return TRUE;
+	return FALSE;
 }
 
 void CFileSrcForm::OnBnClickedRadioFile()
