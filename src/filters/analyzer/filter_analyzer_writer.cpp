@@ -267,6 +267,9 @@ STDMETHODIMP CAnalyzerWriterInput::Seek(LARGE_INTEGER liDistanceToMove, DWORD dw
     if (SetFilePointerEx(*m_pFile, liDistanceToMove, &newPos, dwMoveMethod) == 0)
         return HRESULT_FROM_WIN32(GetLastError());
 
+	if (lpNewFilePointer)
+		lpNewFilePointer->QuadPart = newPos.QuadPart;
+
     m_analyzer->AddIStreamSeek(dwOrigin, liDistanceToMove, newPos);
 
     return S_OK;
