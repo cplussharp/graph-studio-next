@@ -64,6 +64,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		DisplayView();
 		~DisplayView();
 
+		CMainFrame* GetParentFrame() const;
+
 		BOOL OnEraseBkgnd(CDC* pDC);
 		virtual void OnDraw(CDC *pDC);
 		void OnSize(UINT nType, int cx, int cy);

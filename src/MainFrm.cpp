@@ -32,6 +32,23 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_CLOSE_WINDOW, &CMainFrame::OnFileClose)
 END_MESSAGE_MAP()
 
+
+namespace
+{
+	LONG GetMenuWidth(HWND hwnd, HMENU hmenu)
+	{
+		LONG width = 0;
+		RECT item_rect = { 0 };
+		for (int i = 0; i < GetMenuItemCount(hmenu); i++)
+			if (GetMenuItemRect(hwnd, hmenu, i, &item_rect)) {
+				width += item_rect.right - item_rect.left;
+			}
+
+		return width;
+	}
+
+}
+
 static UINT indicators[] =
 {
 	ID_SEPARATOR,           // status line indicator
@@ -381,6 +398,43 @@ CGraphView*	GetActiveView()
 { 
 	return ((CMainFrame*)(AfxGetApp()->GetMainWnd()))->view;
 }
+
+void CMainFrame::ResizeToFitClientSize(CSize client_size)
+{
+	CRect rect_seek_bar, rect_toolbar, rect_status_bar;
+	m_wndSeekingBar.GetWindowRect(&rect_seek_bar);
+	m_wndToolBar.GetWindowRect(&rect_toolbar);
+	m_wndStatusBar.GetWindowRect(&rect_status_bar);
+
+	client_size.cy = max(client_size.cy, rect_status_bar.Height());		// Make sure we have at least a status bar height of visible client area
+
+	client_size.cy += rect_seek_bar.Height() + rect_toolbar.Height() + 2 * rect_status_bar.Height();
+
+	const CSize size_toolbar = m_wndToolBar.CalcFixedLayout(/*dynamic= */ FALSE, /* horz= */ TRUE);
+	client_size.cx = max(client_size.cx, size_toolbar.cx);				// make sure long enough to accommodate toolbar
+
+	CMenu * const menu = GetMenu();
+	if (menu) {
+		const LONG menu_width = (21 * GetMenuWidth(GetSafeHwnd(), menu->m_hMenu) / 20);		// add on safety 5% to menu width
+		client_size.cx = max(client_size.cx, menu_width);			// make sure wide enough for menu
+	}
+
+	HMONITOR hMonitor = MonitorFromWindow(GetSafeHwnd(), MONITOR_DEFAULTTONEAREST);
+	MONITORINFO monInfo = { 0 };
+	monInfo.cbSize = sizeof(MONITORINFO);
+	if (GetMonitorInfo(hMonitor, &monInfo))
+	{
+		const CRect working_rect(monInfo.rcWork);
+		client_size.cx = min(client_size.cx, 9 * working_rect.Width()  / 10);	// limit to 90% of current monitor size
+		client_size.cy = min(client_size.cy, 9 * working_rect.Height() / 10);	// limit to 90% of current monitor size
+	}
+
+	CRect client_rect(0, 0, client_size.cx, client_size.cy);
+	AdjustWindowRect(&client_rect, GetStyle(), TRUE);			// adjust size for non-client area
+
+	SetWindowPos(NULL, 0, 0, client_rect.Width(), client_rect.Height(), SWP_NOMOVE | SWP_NOZORDER);
+}
+
 
 // CMainFrame diagnostics
 

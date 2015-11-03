@@ -24,6 +24,8 @@ public:
 
 	ITaskbarList3 * GetTaskBarList() const { return m_pTaskbarList; }
 
+	void			ResizeToFitClientSize(CSize client_size);
+
 protected:
 	CStatusBar		m_wndStatusBar;
 	CReBar			m_wndReBar;

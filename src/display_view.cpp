@@ -85,6 +85,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 	}
 
+	CMainFrame* DisplayView::GetParentFrame() const
+	{
+		CFrameWnd * const frame = __super::GetParentFrame();
+		ASSERT(frame);
+		ASSERT(frame->IsKindOf(RUNTIME_CLASS(CMainFrame)));
+		return (CMainFrame*)frame;
+	}
+
 	BOOL DisplayView::OnEraseBkgnd(CDC* pDC)
 	{
 		return TRUE;
@@ -1408,11 +1416,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void DisplayView::OnSmartPlacement()
 	{
-		if (graph.params->resize_to_graph && !GetParentFrame()->IsZoomed()) {
+		CMainFrame * const frame = GetParentFrame();
+
+		if (graph.params->resize_to_graph && frame && !frame->IsZoomed()) {
 			CRect graph_size = graph.GetGraphSize();
-			graph_size.right = max(graph_size.right, 650);
-			graph_size.bottom = max(graph_size.bottom, 50);
-			GetParentFrame()->SetWindowPos(NULL, 0, 0, graph_size.right + 50, graph_size.bottom+250, SWP_NOMOVE | SWP_NOZORDER);
+			frame->ResizeToFitClientSize(graph_size.Size());
 		}
 	}
 
