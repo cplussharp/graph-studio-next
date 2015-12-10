@@ -256,7 +256,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			KNOWN(FORMAT_UVCH264Video),
 			KNOWN(FORMAT_JPEGImage),
 			KNOWN(FORMAT_Image),
-		#endif
+		#endif // _MSC_VER
 
 		// Wave formats
 		KNOWN(KSDATAFORMAT_SUBTYPE_PCM),

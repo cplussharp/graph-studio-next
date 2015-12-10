@@ -2175,11 +2175,24 @@ namespace DSUtil
         if (mediaType.pbFormat)
         {
             const BITMAPINFOHEADER* bmi = NULL;
-			if(mediaType.formattype == FORMAT_VideoInfo && mediaType.cbFormat >= sizeof(VIDEOINFOHEADER))
-                bmi = &((const VIDEOINFOHEADER*)mediaType.pbFormat)->bmiHeader;
-            else if( (mediaType.formattype == FORMAT_VideoInfo2 || mediaType.formattype == FORMAT_MPEG2_VIDEO)
-					&& mediaType.cbFormat >= sizeof(VIDEOINFOHEADER2) )
-                bmi = &((const VIDEOINFOHEADER2*)mediaType.pbFormat)->bmiHeader;
+			if(mediaType.formattype == FORMAT_VideoInfo && mediaType.cbFormat >= sizeof (VIDEOINFOHEADER))
+                bmi = &((const VIDEOINFOHEADER*) mediaType.pbFormat)->bmiHeader;
+            else 
+			if((mediaType.formattype == FORMAT_VideoInfo2 || mediaType.formattype == FORMAT_MPEG2_VIDEO) && mediaType.cbFormat >= sizeof (VIDEOINFOHEADER2))
+                bmi = &((const VIDEOINFOHEADER2*) mediaType.pbFormat)->bmiHeader;
+			#if _MSC_VER >= 1800 // Visual Studio 2013
+				else
+				if(mediaType.formattype == FORMAT_UVCH264Video && mediaType.cbFormat >= offsetof(KS_H264VIDEOINFO, bMaxCodecConfigDelay))
+				{
+					const KS_H264VIDEOINFO* pH264VideoInfo = (const KS_H264VIDEOINFO*) mediaType.pbFormat;
+					formatDetails.Format(_T("%4d x %4d"), 
+						pH264VideoInfo->wWidth, pH264VideoInfo->wHeight);
+					if(pH264VideoInfo->dwFrameInterval > 0)
+						formatDetails.AppendFormat(_T(", %.2f fps"), 1E7 / pH264VideoInfo->dwFrameInterval);
+					formatDetails.AppendFormat(_T(", profile 0x%04X, level %d"), 
+						pH264VideoInfo->wProfile, pH264VideoInfo->bLevelIDC);
+				}
+			#endif // _MSC_VER
 
             if(bmi != NULL) 
 			{
