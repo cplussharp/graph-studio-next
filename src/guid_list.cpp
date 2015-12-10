@@ -250,6 +250,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		KNOWN(FORMAT_VideoInfo2),
 		KNOWN(FORMAT_WaveFormatEx),
 
+		#if _MSC_VER >= 1800 // Visual Studio 2013
+			// WARN: These are defined in ksuuids.h of Windows SDK 8.1; because I am not sure what is the good way to tell symbol availability
+			//       here with multiple projects for different versions, let's say we expect VS2013 to make the symbols visible
+			KNOWN(FORMAT_UVCH264Video),
+			KNOWN(FORMAT_JPEGImage),
+			KNOWN(FORMAT_Image),
+		#endif
+
 		// Wave formats
 		KNOWN(KSDATAFORMAT_SUBTYPE_PCM),
 		KNOWN(KSDATAFORMAT_SUBTYPE_IEEE_FLOAT),
