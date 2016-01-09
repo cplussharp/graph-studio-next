@@ -2986,7 +2986,10 @@ void CGraphView::GetToolTipLabelText(POINT cursorScreenPos, CString& labelText, 
 		}
 		FreeMediaType(mt);
 	} else if (sel_filter) {
-		GraphStudio::GetObjectName(sel_filter->clsid, labelText);
+		if(sel_filter->clsid != CLSID_NULL)
+			GraphStudio::GetObjectName(sel_filter->clsid, labelText);
+		else
+			labelText.Empty();
 		descriptionText = sel_filter->file_name;
 	}
 }
