@@ -399,13 +399,22 @@
     <ClInclude Include="src\filters\dxva_null\filter_dxva_null.h">
       <Filter>Filters\filter_dxva_null</Filter>
     </ClInclude>
-	<ClInclude Include="src\DbgLogConfigForm.h">
+    <ClInclude Include="src\DbgLogConfigForm.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="src\DbgLogPage.h">
       <Filter>Property Pages</Filter>
     </ClInclude>
     <ClInclude Include="src\H265StructReader.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ComDllAnalyzer.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ComDllAnalyzerForm.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RegistryExporter.h">
       <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
@@ -675,6 +684,15 @@
       <Filter>Property Pages</Filter>
     </ClCompile>
     <ClCompile Include="src\H265StructReader.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ComDllAnalyzer.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ComDllAnalyzerForm.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RegistryExporter.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
