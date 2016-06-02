@@ -9,7 +9,7 @@
 #include "FilterFromFile.h"
 
 #include "time_utils.h"
-#include "ComDllAnalyzer.h"""
+#include "ComDllAnalyzer.h"
 
 // CFilterFromFile-Dialogfeld
 
