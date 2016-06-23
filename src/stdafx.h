@@ -20,6 +20,15 @@
 //#define _AFX_NO_MFC_CONTROLS_IN_DIALOGS // Remove MFC Controls from Static MFC lib
 #define _ATL_XP_TARGETING
 
+// NOTE: There is a better way now to build against current version of Windows SDK, however I would rather limit that to VS 2013+ as some might prefer
+//       building using older tools (even though I would expect this to be good for VS 2012 too)
+
+#if _MSC_VER >= 1800 // Visual Studio 2013
+
+#include <sdkddkver.h>
+
+#else
+
 // Modify the following defines if you have to target a platform prior to the ones specified below.
 // Refer to MSDN for the latest info on corresponding values for different platforms.
 #ifndef WINVER				// Allow use of features specific to Windows XP or later.
@@ -37,6 +46,8 @@
 #ifndef _WIN32_IE			// Allow use of features specific to IE 6.0 or later.
 #define _WIN32_IE 0x0600	// Change this to the appropriate value to target other versions of IE.
 #endif
+
+#endif // _MSC_VER
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// some CString constructors will be explicit
 

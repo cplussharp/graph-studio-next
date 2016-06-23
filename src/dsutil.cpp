@@ -2180,7 +2180,7 @@ namespace DSUtil
             else 
 			if((mediaType.formattype == FORMAT_VideoInfo2 || mediaType.formattype == FORMAT_MPEG2_VIDEO) && mediaType.cbFormat >= sizeof (VIDEOINFOHEADER2))
                 bmi = &((const VIDEOINFOHEADER2*) mediaType.pbFormat)->bmiHeader;
-			#if _MSC_VER >= 1800 // Visual Studio 2013
+			#if _WIN32_WINNT >= 0x0602 // _WIN32_WINNT_WIN8
 				else
 				if(mediaType.formattype == FORMAT_UVCH264Video && mediaType.cbFormat >= offsetof(KS_H264VIDEOINFO, bMaxCodecConfigDelay))
 				{
@@ -2192,7 +2192,7 @@ namespace DSUtil
 					formatDetails.AppendFormat(_T(", profile 0x%04X, level %d"), 
 						pH264VideoInfo->wProfile, pH264VideoInfo->bLevelIDC);
 				}
-			#endif // _MSC_VER
+			#endif // _WIN32_WINNT
 
             if(bmi != NULL) 
 			{
