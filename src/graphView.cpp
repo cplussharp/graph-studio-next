@@ -30,12 +30,11 @@ namespace
 				done_init = true;
 
 				int hConHandle;
-				long lStdHandle;
 				FILE *fp;
 
 				// redirect unbuffered STDOUT to the console
-				lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
-				hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+				const HANDLE lStdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+				hConHandle = _open_osfhandle((INT_PTR) lStdHandle, _O_TEXT);
 				fp = _fdopen( hConHandle, "w" );
 				*stdout = *fp;
 
