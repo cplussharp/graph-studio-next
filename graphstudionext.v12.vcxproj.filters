@@ -414,6 +414,9 @@
     <ClInclude Include="src\ComDllAnalyzerForm.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="src\FilterReportGenerator.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -691,6 +694,9 @@
     </ClCompile>
     <ClCompile Include="src\ComDllAnalyzerForm.cpp">
       <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FilterReportGenerator.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

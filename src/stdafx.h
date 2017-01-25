@@ -172,7 +172,8 @@ using namespace std;
 #include "mtypes_ext.h"
 
 #include "RegistryExporter.h"
-#include "ComDllAnalyzer.h"""
+#include "ComDllAnalyzer.h"
+#include "FilterReportGenerator.h"
 
 #include "CustomToolTipCtrl.h"
 

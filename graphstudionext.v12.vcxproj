@@ -259,6 +259,7 @@
     <ClInclude Include="src\display_view.h" />
     <ClInclude Include="src\DMOQualCtrlPage.h" />
     <ClInclude Include="src\FilterFromFile.h" />
+    <ClInclude Include="src\FilterReportGenerator.h" />
     <ClInclude Include="src\filters\analyzer\analyzer.h" />
     <ClInclude Include="src\filters\analyzer\analyzer_pospassthru.h" />
     <ClInclude Include="src\filters\analyzer\analyzer_proppage_config.h" />
@@ -364,6 +365,7 @@
     <ClCompile Include="src\display_view.cpp" />
     <ClCompile Include="src\DMOQualCtrlPage.cpp" />
     <ClCompile Include="src\FilterFromFile.cpp" />
+    <ClCompile Include="src\FilterReportGenerator.cpp" />
     <ClCompile Include="src\filters\analyzer\analyzer.cpp" />
     <ClCompile Include="src\filters\analyzer\analyzer_proppage_config.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
