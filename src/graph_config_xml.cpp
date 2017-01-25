@@ -84,8 +84,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				pErrorLog;
 				const CString sPropertyNameT(pszPropertyName);
 				BOOL bFound = FALSE;
-				for(auto&& pNode: m_List)
+				for(auto it = m_List.begin(); it != m_List.end(); ++it)
 				{
+          XML::XMLNode* pNode = *it;
 					const CString sName = pNode->GetValue(_T("name"));
 					if(sName.CompareNoCase(sPropertyNameT) == 0)
 					{
