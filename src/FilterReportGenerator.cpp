@@ -145,7 +145,7 @@ bool CFilterReportGenerator::GenerateReport()
 	SIZE_T cbSize = ssStreamData.cbSize.LowPart;
 	CStringW strBuffer;
 	LPWSTR pwszBuffer = strBuffer.GetBuffer(cbSize / sizeof(WCHAR));
-	SIZE_T cbRead;
+	ULONG cbRead;
 	hr = outStream->Read(pwszBuffer, cbSize, &cbRead);
 	if (FAILED(hr))
 	{
