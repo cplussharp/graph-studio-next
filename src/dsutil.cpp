@@ -2174,12 +2174,35 @@ namespace DSUtil
 		CString formatDetails;
         if (mediaType.pbFormat)
         {
+			const VIDEOINFOHEADER* pVideoInfoHeader = NULL;
+			const VIDEOINFOHEADER2* pVideoInfoHeader2 = NULL;
             const BITMAPINFOHEADER* bmi = NULL;
-			if(mediaType.formattype == FORMAT_VideoInfo && mediaType.cbFormat >= sizeof(VIDEOINFOHEADER))
-                bmi = &((const VIDEOINFOHEADER*)mediaType.pbFormat)->bmiHeader;
-            else if( (mediaType.formattype == FORMAT_VideoInfo2 || mediaType.formattype == FORMAT_MPEG2_VIDEO)
-					&& mediaType.cbFormat >= sizeof(VIDEOINFOHEADER2) )
-                bmi = &((const VIDEOINFOHEADER2*)mediaType.pbFormat)->bmiHeader;
+			const LONGLONG* pnAverageFrameTime = NULL;
+			if(mediaType.formattype == FORMAT_VideoInfo && mediaType.cbFormat >= sizeof (VIDEOINFOHEADER))
+			{
+				pVideoInfoHeader = (const VIDEOINFOHEADER*) mediaType.pbFormat;
+                bmi = &pVideoInfoHeader->bmiHeader;
+				pnAverageFrameTime = &pVideoInfoHeader->AvgTimePerFrame;
+			} else 
+			if((mediaType.formattype == FORMAT_VideoInfo2 || mediaType.formattype == FORMAT_MPEG2_VIDEO) && mediaType.cbFormat >= sizeof (VIDEOINFOHEADER2))
+			{
+				pVideoInfoHeader2 = (const VIDEOINFOHEADER2*) mediaType.pbFormat;
+                bmi = &pVideoInfoHeader2->bmiHeader;
+				pnAverageFrameTime = &pVideoInfoHeader2->AvgTimePerFrame;
+			}
+			#if _WIN32_WINNT >= 0x0602 // _WIN32_WINNT_WIN8
+				else
+				if(mediaType.formattype == FORMAT_UVCH264Video && mediaType.cbFormat >= offsetof(KS_H264VIDEOINFO, bMaxCodecConfigDelay))
+				{
+					const KS_H264VIDEOINFO* pH264VideoInfo = (const KS_H264VIDEOINFO*) mediaType.pbFormat;
+					formatDetails.Format(_T("%4d x %4d"), 
+						pH264VideoInfo->wWidth, pH264VideoInfo->wHeight);
+					if(pH264VideoInfo->dwFrameInterval > 0)
+						formatDetails.AppendFormat(_T(", %.2f fps"), 1E7 / pH264VideoInfo->dwFrameInterval);
+					formatDetails.AppendFormat(_T(", profile 0x%04X, level %d"), 
+						pH264VideoInfo->wProfile, pH264VideoInfo->bLevelIDC);
+				}
+			#endif // _WIN32_WINNT
 
             if(bmi != NULL) 
 			{
@@ -2187,6 +2210,8 @@ namespace DSUtil
 				const float averageBPP = pixels ? (8.0f * bmi->biSizeImage) / pixels : 0;
 				formatDetails.Format(_T("%4d x %4d, %3d bpp, %6.3f av"), 
 							bmi->biWidth, bmi->biHeight, bmi->biBitCount, averageBPP);
+				if(pnAverageFrameTime && *pnAverageFrameTime > 0)
+					formatDetails.AppendFormat(_T(", %.3f fps"), 1E7 / *pnAverageFrameTime);
 			} 
 			else if(mediaType.formattype == FORMAT_WaveFormatEx && mediaType.cbFormat >= sizeof(WAVEFORMATEX))
             {

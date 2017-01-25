@@ -413,14 +413,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	CRect DisplayGraph::GetGraphSize()
 	{
 		// find out the rectangle
-		CRect rect(10000000, 10000000, 0, 0);
+		CRect rect(0, 0, 0, 0);
 
 		for (int i=0; i<filters.GetCount(); i++) {
 			Filter	*filter = filters[i];
-			if (filter->posx < rect.left)						rect.left	= filter->posx;
-			if (filter->posy < rect.top)						rect.top	= filter->posy;
-			if (filter->posx + filter->width  > rect.right)		rect.right	= filter->posx+filter->width;
-			if (filter->posy + filter->height > rect.bottom)	rect.bottom = filter->posy+filter->height;
+			rect.left	 = (i==0 || filter->posx					< rect.left)	? filter->posx					: rect.left		;
+			rect.top	 = (i==0 || filter->posy					< rect.top)		? filter->posy					: rect.top		;
+			rect.right	 = (i==0 || filter->posx + filter->width	> rect.right)	? filter->posx+filter->width	: rect.right	;
+			rect.bottom  = (i==0 || filter->posy + filter->height	> rect.bottom)	? filter->posy+filter->height	: rect.bottom 	;
 		}
 
 		// Round outwards and add an extra grid of border

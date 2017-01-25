@@ -1673,7 +1673,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		spsinfo->AddItem(new PropItem(_T("conformance_window_flag"), sps.conformance_window_flag));
 		if (sps.conformance_window_flag)
 		{
-			RECT comformance_window = { sps.conf_win_left_offset, sps.conf_win_top_offset, sps.conf_win_right_offset, sps.conf_win_bottom_offset };
+			RECT comformance_window = { (LONG) sps.conf_win_left_offset, (LONG) sps.conf_win_top_offset, (LONG) sps.conf_win_right_offset, (LONG) sps.conf_win_bottom_offset };
 			spsinfo->AddItem(new PropItem(_T("conformance_window"), comformance_window));
 		}
 		spsinfo->AddItem(new PropItem(_T("bit_depth_luma_minus8"), sps.bit_depth_luma_minus8));
@@ -1815,7 +1815,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		vuiinfo->AddItem(new PropItem(_T("default_display_window_flag"), vui.default_display_window_flag));
 		if (vui.default_display_window_flag)
 		{
-			RECT default_display_window = { vui.def_disp_win_left_offset, vui.def_disp_win_top_offset, vui.def_disp_win_right_offset, vui.def_disp_win_bottom_offset };
+			RECT default_display_window = { (LONG) vui.def_disp_win_left_offset, (LONG) vui.def_disp_win_top_offset, (LONG) vui.def_disp_win_right_offset, (LONG) vui.def_disp_win_bottom_offset };
 			vuiinfo->AddItem(new PropItem(_T("default_display_window"), default_display_window));
 		}
 		vuiinfo->AddItem(new PropItem(_T("timing_info_present_flag"), vui.vui_timing_info_present_flag));

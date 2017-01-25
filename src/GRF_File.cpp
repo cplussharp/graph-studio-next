@@ -139,7 +139,7 @@ HRESULT GRF_File::Load(LPCWSTR fileName)
 	p = token(p,end,&s1,&s2);
 	if (p >= end)
 		return E_NOT_SUFFICIENT_BUFFER;
-	TRACE(trace(TEXT(">>> version = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+	TRACE(trace(TEXT(">>> version = %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 
 	const long format_version = wcstol(s1, NULL, 10);
 	ASSERT(format_version == 3);
@@ -161,19 +161,19 @@ HRESULT GRF_File::Load(LPCWSTR fileName)
 
 			GRF_Filter grf_filter;
 
-			TRACE(trace(TEXT(">>>   %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+			TRACE(trace(TEXT(">>>   %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 			grf_filter.index = wcstol(s1, NULL, 10);
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
-			TRACE(trace(TEXT(">>>     name .... = L\"%.*") TRACEWSTR TEXT("\"\n"),s2-s1,s1));
+			TRACE(trace(TEXT(">>>     name .... = L\"%.*") TRACEWSTR TEXT("\"\n"), (INT) (s2 - s1), s1));
 			grf_filter.name = CString(s1, (int) (s2-s1));
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
-			TRACE(trace(TEXT(">>>     class_id  = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+			TRACE(trace(TEXT(">>>     class_id  = %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 
 			GUID clsid = {0};
 			const CString clsid_str(s1, (int) (s2-s1));
@@ -186,12 +186,12 @@ HRESULT GRF_File::Load(LPCWSTR fileName)
 			const bool source_file = 0 == wcsnicmp(s1,L"SOURCE",s2-s1);
 			const bool sink_file = 0 == wcsnicmp(s1,L"SINK",s2-s1);
 			if (source_file || sink_file) {
-				TRACE(trace(TEXT(">>>     file .... = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+				TRACE(trace(TEXT(">>>     file .... = %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 
 				p = token(p,end,&s1,&s2);
 				if (p >= end)
 					return E_NOT_SUFFICIENT_BUFFER;
-				TRACE(trace(TEXT(">>>     file_name = L\"%.*") TRACEWSTR TEXT("\"\n"),s2-s1,s1));
+				TRACE(trace(TEXT(">>>     file_name = L\"%.*") TRACEWSTR TEXT("\"\n"), (INT) (s2 - s1), s1));
 
 				CStringW filename = CString(s1, (int) (s2-s1));
 
@@ -205,7 +205,7 @@ HRESULT GRF_File::Load(LPCWSTR fileName)
 					return E_NOT_SUFFICIENT_BUFFER;
 			}
 
-			TRACE(trace(TEXT(">>>     length .. = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+			TRACE(trace(TEXT(">>>     length .. = %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 
 			int filter_data_length = 0;
 			const char* filter_data = (const char*)(p + 1);
@@ -235,76 +235,76 @@ HRESULT GRF_File::Load(LPCWSTR fileName)
 
 			GRF_Connection grf_connection;
 
-			TRACE(trace(TEXT(">>>   %.*") TRACEWSTR,s2-s1,s1));
+			TRACE(trace(TEXT(">>>   %.*") TRACEWSTR, (INT) (s2 - s1), s1));
 			grf_connection.output_filter_index = wcstol(s1, NULL, 10);
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
-			TRACE(trace(TEXT(" [L\"%.*") TRACEWSTR TEXT("\"]"),s2-s1,s1));
+			TRACE(trace(TEXT(" [L\"%.*") TRACEWSTR TEXT("\"]"), (INT) (s2 - s1), s1));
 			grf_connection.output_pin_id = CString(s1, (int) (s2-s1));
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
-			TRACE(trace(TEXT(" -> %.*") TRACEWSTR,s2-s1,s1));
+			TRACE(trace(TEXT(" -> %.*") TRACEWSTR, (INT) (s2 - s1), s1));
 			grf_connection.input_filter_index = wcstol(s1, NULL, 10);
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
-			TRACE(trace(TEXT(" [L\"%.*") TRACEWSTR TEXT("\"]\n"),s2-s1,s1));
+			TRACE(trace(TEXT(" [L\"%.*") TRACEWSTR TEXT("\"]\n"), (INT) (s2 - s1), s1));
 			grf_connection.input_pin_id = CString(s1, (int) (s2-s1));
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
-			TRACE(trace(TEXT(">>>     sample_size ........ = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+			TRACE(trace(TEXT(">>>     sample_size ........ = %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 			grf_connection.flags = wcstol(s1, NULL, 10);
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
-			TRACE(trace(TEXT(">>>     major_type ......... = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+			TRACE(trace(TEXT(">>>     major_type ......... = %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 			CString guid_str(s1, (int) (s2-s1));
 			hr = CLSIDFromString(guid_str, &grf_connection.media_type.majortype);
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
-			TRACE(trace(TEXT(">>>     subtype ............ = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+			TRACE(trace(TEXT(">>>     subtype ............ = %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 			guid_str = CString(s1, (int) (s2-s1));
 			hr = CLSIDFromString(guid_str, &grf_connection.media_type.subtype);
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
-			TRACE(trace(TEXT(">>>     fixed_sample_size .. = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+			TRACE(trace(TEXT(">>>     fixed_sample_size .. = %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 			grf_connection.media_type.bFixedSizeSamples = wcstol(s1, NULL, 10);
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
-			TRACE(trace(TEXT(">>>     temporal_compression = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+			TRACE(trace(TEXT(">>>     temporal_compression = %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 			grf_connection.media_type.bTemporalCompression = wcstol(s1, NULL, 10);
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
-			TRACE(trace(TEXT(">>>     length(?) .......... = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+			TRACE(trace(TEXT(">>>     length(?) .......... = %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 			grf_connection.media_type.lSampleSize = wcstol(s1, NULL, 10);
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
-			TRACE(trace(TEXT(">>>     format_type ........ = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+			TRACE(trace(TEXT(">>>     format_type ........ = %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 			guid_str = CString(s1, (int) (s2-s1));
 			hr = CLSIDFromString(guid_str, &grf_connection.media_type.formattype);
 
 			p = token(p,end,&s1,&s2);
 			if (p >= end)
 				return E_NOT_SUFFICIENT_BUFFER;
-			TRACE(trace(TEXT(">>>     length ............. = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+			TRACE(trace(TEXT(">>>     length ............. = %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 
 			int format_length = 0;
 			BYTE* format_data = (BYTE *)(p + 1);
@@ -327,14 +327,14 @@ HRESULT GRF_File::Load(LPCWSTR fileName)
 		p = token(p,end,&s1,&s2);
 		if (p >= end)
 			return E_NOT_SUFFICIENT_BUFFER;
-		TRACE(trace(TEXT(">>>   required = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+		TRACE(trace(TEXT(">>>   required = %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 
 		clock_flags = wcstol(s1, NULL, 10);
 
 		p = token(p,end,&s1,&s2);
 		if (p >= end)
 			return E_NOT_SUFFICIENT_BUFFER;
-		TRACE(trace(TEXT(">>>   clock_id = %.*") TRACEWSTR TEXT("\n"),s2-s1,s1));
+		TRACE(trace(TEXT(">>>   clock_id = %.*") TRACEWSTR TEXT("\n"), (INT) (s2 - s1), s1));
 
 		clock_index = wcstol(s1, NULL, 10);
 	}
