@@ -121,6 +121,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// special
 		CComPtr<IBasicAudio>		basic_audio;
 		CComPtr<IReferenceClock>	clock;
+		bool						is_sync_source;
 
 		// overlay icons
 		CArray<OverlayIcon*>	overlay_icons;
@@ -282,6 +283,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// helpers
 		bool							uses_clock;
+		CString							clock_status_text;
         DWORD                           rotRegister;
 
 		// cached seeking and playback information

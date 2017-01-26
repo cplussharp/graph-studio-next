@@ -128,6 +128,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		, is_remote(false)
 		, is_frame_stepping(false)
 		, uses_clock(true)
+		, clock_status_text(_T("No Clock"))
         , rotRegister(0)
 		, dirty(true)
 		, m_filter_graph_clsid(&CLSID_FilterGraph)
@@ -254,6 +255,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         if(params) params->is_remote = false;
 		is_frame_stepping = false;
 		uses_clock = true;
+		clock_status_text = "No Clock";
 
 		// create new instance of filter graph
 		HRESULT hr;
@@ -305,6 +307,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			fs = NULL;
 			return -1;
 		}
+
+		RefreshClock();
 
 		return 0;
 	}
@@ -574,18 +578,40 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void DisplayGraph::RefreshClock()
 	{
+		bool uses_clock_from_filter = false;
+
 		// update clock status for all filters
 		for (int i=0; i<filters.GetCount(); i++) {
 			Filter	*filter = filters[i];
 			filter->UpdateClock();
+			uses_clock_from_filter |= filter->is_sync_source;
 		}
 
 		// Ask the graph whether which clock we're using - it may not be one of the filters
+		bool uses_system_clock = false;
 		CComPtr<IReferenceClock> new_clock;
 		CComQIPtr<IMediaFilter> sync_interface(gb);
 		if (sync_interface && SUCCEEDED(sync_interface->GetSyncSource(&new_clock))) {
 			uses_clock = new_clock.p != NULL;
+			CComQIPtr<IPersist> persist(new_clock);
+			if (persist) {
+				CLSID clsidClock;
+				persist->GetClassID(&clsidClock);
+				uses_system_clock = CLSID_SystemClock == clsidClock;
+			}
 		}
+
+		if (new_clock)
+		{
+			if (uses_clock_from_filter)
+				clock_status_text = _T("Clock from Filter");
+			else if (uses_system_clock)
+				clock_status_text = _T("System Clock");
+			else
+				clock_status_text = _T("Unknown Clock");
+		}
+		else
+			clock_status_text = _T("No Clock");
 	}
 
 	void DisplayGraph::SetClock(bool default_clock, IReferenceClock *new_clock)
@@ -2800,6 +2826,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		, column(-1)
 		, selected(false)
 		, connected(false)
+		, is_sync_source(false)
 		, videowindow(NULL)
 		, overlay_icon_active(-1)
 		, filter_type(FILTER_UNKNOWN)
@@ -2825,6 +2852,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		basic_audio = NULL;
 		clock = NULL;
+		is_sync_source = false;
 		filter = NULL;
 
 		overlay_icon_active = -1;
@@ -2920,7 +2948,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void Filter::UpdateClock()
 	{
-		bool	we_are_sync_source = false;
+		is_sync_source = false;
 
 		if (filter && clock) {
 			CComPtr<IReferenceClock>	syncclock;
@@ -2928,7 +2956,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			HRESULT hr = filter->GetSyncSource(&syncclock);
 			if (SUCCEEDED(hr)) {
 				if (syncclock == clock) {
-					we_are_sync_source = true;
+					is_sync_source = true;
 				}
 			}
 		}
@@ -2937,7 +2965,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		for (int i=0; i<overlay_icons.GetCount(); i++) {
 			OverlayIcon	*icon = overlay_icons[i];
 			if (icon->id == OverlayIcon::ICON_CLOCK) {
-				icon->state = (we_are_sync_source ? 1 : 0);
+				icon->state = (is_sync_source ? 1 : 0);
 			}
 		}
 	}
@@ -3048,6 +3076,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		clock = NULL;
+		is_sync_source = false;
 		hr = f->QueryInterface(IID_IReferenceClock, (void**)&clock);
 		if (FAILED(hr)) {
 			clock = NULL;

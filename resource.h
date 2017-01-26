@@ -5,6 +5,7 @@
 #define IDC_BUTTON_SET_PREROLL          3
 #define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             100
+#define ID_STATUS_CLOCK                 101
 #define IDD_PROPPAGE_DMOQUALCTRL        102
 #define IDD_BAR_SEEKING                 103
 #define IDC_DELETE_SELECTED             103

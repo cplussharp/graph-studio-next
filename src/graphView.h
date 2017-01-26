@@ -345,6 +345,7 @@ public:
 	afx_msg void OnUpdateNextOrPreviousPropertyPage(CCmdUI *pCmdUI);
 	afx_msg void OnPlayFullscreenmode();
 	afx_msg void OnUpdatePlayFullscreenmode(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateStatusClock(CCmdUI* pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in graphView.cpp

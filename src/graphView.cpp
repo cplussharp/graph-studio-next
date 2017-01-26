@@ -278,6 +278,8 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_UPDATE_COMMAND_UI(ID_PREVIOUS_PROPERTY_PAGE, &CGraphView::OnUpdateNextOrPreviousPropertyPage)
 	ON_COMMAND(ID_PLAY_FULLSCREENMODE, &CGraphView::OnPlayFullscreenmode)
 	ON_UPDATE_COMMAND_UI(ID_PLAY_FULLSCREENMODE, &CGraphView::OnUpdatePlayFullscreenmode)
+
+	ON_UPDATE_COMMAND_UI(ID_STATUS_CLOCK, &CGraphView::OnUpdateStatusClock)
 END_MESSAGE_MAP()
 
 //-----------------------------------------------------------------------------
@@ -3152,4 +3154,7 @@ void CGraphView::OnUpdatePlayFullscreenmode(CCmdUI *pCmdUI)
 	pCmdUI->SetCheck(check);
 }
 
-
+void CGraphView::OnUpdateStatusClock(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetText(graph.clock_status_text);
+}

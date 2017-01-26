@@ -1452,6 +1452,7 @@ END
 STRINGTABLE
 BEGIN
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
+    ID_STATUS_CLOCK         "Clock from Filter"
     IDS_SEARCH_FOR_ERROR    "Search for Error\nSearch online for more information about this error."
 END
 
