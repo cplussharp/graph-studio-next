@@ -34,6 +34,7 @@ public:
 
     static bool g_useInternalGrfParser;
 	static bool g_SaveXmlAndGrf; 
+	static bool g_SaveInformation;
 	static bool g_SaveScreenshot;
 	static bool g_ClearDocumentBeforeLoad; 
     static bool g_showConsole;

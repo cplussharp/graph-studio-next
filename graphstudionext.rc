@@ -1127,6 +1127,7 @@ BEGIN
             MENUITEM "&Clear document before load", ID_FILEOPTIONS_CLEAR_DOCUMENT
             MENUITEM "Use Internal GRF file &parser", ID_OPTIONS_USEINTERNALGRFFILEPARSER
             MENUITEM "Always Save GRF and &XML",    ID_FILEOPTIONS_SAVEASXMLANDGRF
+			MENUITEM "Always Save Graph Infor&mation", ID_FILEOPTIONS_SAVE_INFORMATION
             MENUITEM "Always Save &Screenshot",     ID_FILEOPTIONS_SAVE_SCREENHSOT
             MENUITEM "Load XML Pins by &Name",      ID_FILEOPTIONS_LOADPINSBYNAME
             MENUITEM "Load XML Pins by In&dex",     ID_FILEOPTIONS_LOADPINSBYINDEX

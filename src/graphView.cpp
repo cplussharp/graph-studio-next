@@ -140,7 +140,9 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
     ON_COMMAND(ID_GRAPH_INSERTFILTERFROMFILE, &CGraphView::OnGraphInsertFilterFromFile)
     ON_COMMAND(ID_FILEOPTIONS_SAVEASXMLANDGRF, &CGraphView::OnSaveAsXmlAndGrf)
 	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_SAVEASXMLANDGRF, &CGraphView::OnUpdateSaveAsXmlAndGrf)
-    ON_COMMAND(ID_FILEOPTIONS_SAVE_SCREENHSOT, &CGraphView::OnAlwaysSaveScreenshot)
+    ON_COMMAND(ID_FILEOPTIONS_SAVE_INFORMATION, &CGraphView::OnAlwaysSaveInformation)
+	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_SAVE_INFORMATION, &CGraphView::OnUpdateAlwaysSaveInformation)
+	ON_COMMAND(ID_FILEOPTIONS_SAVE_SCREENHSOT, &CGraphView::OnAlwaysSaveScreenshot)
 	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_SAVE_SCREENHSOT, &CGraphView::OnUpdateAlwaysSaveScreenshot)
     ON_COMMAND(ID_FILEOPTIONS_CLEAR_DOCUMENT, &CGraphView::OnClearDocumentBeforeLoad)
 	ON_UPDATE_COMMAND_UI(ID_FILEOPTIONS_CLEAR_DOCUMENT, &CGraphView::OnUpdateClearDocumentBeforeLoad)
@@ -602,6 +604,7 @@ void CGraphView::OnInit()
 
 	CgraphstudioApp::g_useInternalGrfParser    = AfxGetApp()->GetProfileInt(_T("Settings"), _T("UseInternalGrfParser"),		0) ? true : false;
 	CgraphstudioApp::g_SaveXmlAndGrf           = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveXmlAndGrf"),			CgraphstudioApp::g_SaveXmlAndGrf) != 0;
+	CgraphstudioApp::g_SaveInformation         = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveInformation"),			CgraphstudioApp::g_SaveInformation) != 0;
 	CgraphstudioApp::g_SaveScreenshot          = AfxGetApp()->GetProfileInt(_T("Settings"), _T("SaveScreenshot"),			CgraphstudioApp::g_SaveScreenshot) != 0;
 	CgraphstudioApp::g_ClearDocumentBeforeLoad = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ClearDocumentBeforeLoad"),	CgraphstudioApp::g_ClearDocumentBeforeLoad) != 0;
 	CgraphstudioApp::g_ScreenshotFormat        = AfxGetApp()->GetProfileInt(_T("Settings"), _T("ScreenshotFormat"),			CgraphstudioApp::g_ScreenshotFormat);
@@ -992,6 +995,17 @@ afx_msg void CGraphView::OnUpdateSaveAsXmlAndGrf(CCmdUI *pCmdUI)
 	pCmdUI->SetCheck(CgraphstudioApp::g_SaveXmlAndGrf ? 1 : 0);
 }
 
+void CGraphView::OnAlwaysSaveInformation()
+{
+	CgraphstudioApp::g_SaveInformation = !CgraphstudioApp::g_SaveInformation;
+	AfxGetApp()->WriteProfileInt(_T("Settings"), _T("SaveInformation"), CgraphstudioApp::g_SaveInformation);
+}
+
+afx_msg void CGraphView::OnUpdateAlwaysSaveInformation(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(CgraphstudioApp::g_SaveInformation ? 1 : 0);
+}
+
 void CGraphView::OnAlwaysSaveScreenshot()
 {
 	CgraphstudioApp::g_SaveScreenshot = !CgraphstudioApp::g_SaveScreenshot;
@@ -1045,6 +1059,14 @@ HRESULT CGraphView::DoFileSave()
 	if (SUCCEEDED(hr)) {
 		mru.NotifyEntry(document_filename);
 		UpdateMRUMenu();
+	}
+
+	if (CgraphstudioApp::g_SaveInformation) {
+		CPath information_name(document_filename);
+		information_name.RenameExtension(_T(".txt"));
+
+		CGraphReportGenerator graphReportGenerator(&graph, render_params.use_media_info);
+		graphReportGenerator.SaveReport(5, information_name);
 	}
 
 	if (CgraphstudioApp::g_SaveScreenshot) {

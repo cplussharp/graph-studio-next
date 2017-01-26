@@ -41,6 +41,7 @@ END_MESSAGE_MAP()
 
 bool CgraphstudioApp::g_useInternalGrfParser    = false;
 bool CgraphstudioApp::g_SaveXmlAndGrf           = true;
+bool CgraphstudioApp::g_SaveInformation		    = true;
 bool CgraphstudioApp::g_SaveScreenshot          = true;
 bool CgraphstudioApp::g_ClearDocumentBeforeLoad = true;
 bool CgraphstudioApp::g_showConsole             = false;
