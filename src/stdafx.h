@@ -200,6 +200,8 @@ using namespace std;
 #include "prop_tree.h"
 #include "schedule_list.h"
 
+#include "GraphReportGenerator.h"
+
 #include "object_details.h"
 #include "filename_list.h"
 

@@ -1815,7 +1815,10 @@ void CGraphView::OnUpdateViewCopyScreenshotToClipboard(CCmdUI *ui)
 void CGraphView::OnViewCopyTextToClipboard()
 {
 	// SUGG: Wait Cursor
-	DSUtil::SetClipboardText(GetSafeHwnd(), form_textinfo->GetReportText());
+	CGraphReportGenerator graphReportGenerator(&graph, render_params.use_media_info);
+	CString report = graphReportGenerator.GetReport(5);
+
+	DSUtil::SetClipboardText(GetSafeHwnd(), report);
 	MessageBeep(MB_OK);
 }
 

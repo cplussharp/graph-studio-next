@@ -277,6 +277,7 @@
     <ClInclude Include="src\filters\video_analyzer\video_analyzer.h" />
     <ClInclude Include="src\graphCli.h" />
     <ClInclude Include="src\graphDoc.h" />
+    <ClInclude Include="src\GraphReportGenerator.h" />
     <ClInclude Include="src\graphstudio.h" />
     <ClInclude Include="src\GraphStudioModelessDialog.h" />
     <ClInclude Include="src\graphView.h" />
@@ -386,6 +387,7 @@
     <ClCompile Include="src\filters\video_analyzer\video_analyzer.cpp" />
     <ClCompile Include="src\graphCli.cpp" />
     <ClCompile Include="src\graphDoc.cpp" />
+    <ClCompile Include="src\GraphReportGenerator.cpp" />
     <ClCompile Include="src\graphstudio.cpp" />
     <ClCompile Include="src\GraphStudioModelessDialog.cpp" />
     <ClCompile Include="src\graphView.cpp" />

@@ -417,6 +417,9 @@
     <ClInclude Include="src\FilterReportGenerator.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\GraphReportGenerator.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -696,6 +699,9 @@
       <Filter>Dialogs</Filter>
     </ClCompile>
     <ClCompile Include="src\FilterReportGenerator.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GraphReportGenerator.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>

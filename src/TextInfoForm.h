@@ -31,8 +31,6 @@ public:
 	CComboBox		combo_reporttype;
 	CFont			font_report;
 
-	CArray<CString>	lines;
-
 public:
 
 	CTextInfoForm(CWnd* pParent = NULL); 
@@ -47,27 +45,6 @@ public:
 	void OnInitialize();
 	void OnBnClickedButtonRefresh();
 
-	// report parts
-	void DoFilterList(int level);
-    void DoFileInfos(int level);
-	void DoConnectionDetails(int level, int offset);
-	void DoPinDetails(GraphStudio::Pin *pin, int level, int offset);
-	void DoMediaTypeDetails(AM_MEDIA_TYPE *pmt, int level, int offset);
-
-	// formats
-	void DoWaveFormatEx(AM_MEDIA_TYPE *pmt, int level, int offset);
-	void DoVideoInfo(AM_MEDIA_TYPE *pmt, int level, int offset);
-	void DoVideoInfo2(AM_MEDIA_TYPE *pmt, int level, int offset);
-	void DoMPEG2VideoInfo(AM_MEDIA_TYPE *pmt, int level, int offset);
-	void DoBitmapInfoHeader(const BITMAPINFOHEADER *bmi, int offset);
-
-
-	void DoDumpRawBuffer(void *buf, int len, int offset);
-
-	CString GetReportText();
-	void DoSimpleReport();
-	void Echo(CString t);
-	void DisplayReport();
 	afx_msg void OnBnClickedButtonCopytext();
     afx_msg void OnClickedButtonSave();
 };
