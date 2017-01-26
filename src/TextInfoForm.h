@@ -42,6 +42,7 @@ public:
     BOOL DoCreateDialog(CWnd* parent);
 
 	void OnSize(UINT nType, int cx, int cy);
+	BOOL PreTranslateMessage(MSG *pmsg);
 	void OnInitialize();
 	void OnBnClickedButtonRefresh();
 

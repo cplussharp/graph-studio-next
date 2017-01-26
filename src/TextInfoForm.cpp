@@ -129,6 +129,21 @@ void CTextInfoForm::OnSize(UINT nType, int cx, int cy)
 	}
 }
 
+BOOL CTextInfoForm::PreTranslateMessage(MSG *pmsg)
+{
+	switch (pmsg->message) {
+	case WM_KEYDOWN:
+		// Keys 1 to 6 change the report level
+		if (pmsg->wParam > 0x30 && pmsg->wParam <= 0x36) {
+			int sel = pmsg->wParam - 0x30 - 1;
+			combo_reporttype.SetCurSel(sel);
+			OnBnClickedButtonRefresh();
+			return TRUE;
+		}
+	}
+	return __super::PreTranslateMessage(pmsg);
+}
+
 
 // CTextInfoForm message handlers
 
