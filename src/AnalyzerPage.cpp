@@ -189,7 +189,7 @@ HRESULT CAnalyzerPage::OnApplyChanges()
 	ASSERT(m_nPreviewByteCount <= 0xFFFF);
     filter->put_PreviewSampleByteCount((unsigned short) m_nPreviewByteCount);
 
-    int captureConfig = SCF_ALL;
+    int captureConfig = SCF_All;
     if (IsDlgButtonChecked(IDC_CHECK_ONLYSAMPLES))
         captureConfig = SCF_MediaSample;
 
@@ -308,7 +308,7 @@ const CString CAnalyzerPage::GetEntryString(__int64 entryNr, int field, bool com
 
 					case SRK_BF_JoinFilterGraph:		val = _T("IBaseFilter::JoinFilterGraph");			break;
 					case SRK_BF_Pause:					val = _T("IBaseFilter::Pause");						break;
-					case SRK_BF_Run:					val = _T("IBaseFilter:Run:");						break;
+					case SRK_BF_Run:					val = _T("IBaseFilter::Run");						break;
 					case SRK_BF_SetSyncSource:			val = _T("IBaseFilter::SetSyncSource");				break;
 					case SRK_BF_Stop:					val = _T("IBaseFilter::Stop");						break;
 
