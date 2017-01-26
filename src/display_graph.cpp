@@ -3174,15 +3174,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// check for Enhanced Video Renderer
 		if (graph && (graph->is_remote == false)) {
 			if (clsid == CLSID_EnhancedVideoRenderer) {
-				int ret;
-				if (videowindow) { delete videowindow; videowindow = NULL; }
-
 				// try to initialize the video window object
-				videowindow = new EVR_VideoWindow();
-				ret = videowindow->Open(this);
-				if (ret < 0) {
-					delete videowindow;
-					videowindow = NULL;
+				if (!videowindow) {
+					videowindow = new EVR_VideoWindow();
+					int ret = videowindow->Open(this);
+					if (ret < 0) {
+						delete videowindow;
+						videowindow = NULL;
+					}
 				}
 			}		
 		}
