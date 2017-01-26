@@ -99,7 +99,7 @@ void CTextInfoForm::OnInitialize()
 	for (int i=0; i<ReportNamesCount; i++) {
 		combo_reporttype.AddString(ReportNames[i]);
 	}
-	combo_reporttype.SetCurSel(0);
+	combo_reporttype.SetCurSel(ReportNamesCount - 1);
 }
 
 void CTextInfoForm::DoDataExchange(CDataExchange* pDX)
