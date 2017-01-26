@@ -126,7 +126,7 @@ END
 
 IDD_DIALOG_TEXTVIEW DIALOGEX 0, 0, 347, 241
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
-CAPTION "Text Information"
+CAPTION "Graph Information"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         "",IDC_TITLEBAR,"Static",SS_OWNERDRAW,0,0,347,21
@@ -1157,7 +1157,7 @@ BEGIN
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
         MENUITEM SEPARATOR
-        MENUITEM "Copy Text Information to Clipboard\tCtrl+Alt+C", ID_VIEW_COPYTEXTTOCLIPBOARD
+        MENUITEM "Copy Graph Information to Clipboard\tCtrl+Alt+C", ID_VIEW_COPYTEXTTOCLIPBOARD
         MENUITEM "Copy Screenshot to Clipboard\tCtrl+C", ID_VIEW_COPYSCREENSHOTTOCLIPBOARD
         MENUITEM SEPARATOR
         MENUITEM "&Refresh Graph\tF5",          ID_BUTTON_REFRESH
@@ -1166,7 +1166,7 @@ BEGIN
         MENUITEM "Graph &Construction Report...\tCtrl+U", ID_VIEW_GRAPHCONSTRUCTIONREPORT
         MENUITEM "Graph &Events...\tCtrl+E",    ID_VIEW_GRAPHEVENTS
         MENUITEM "Graph Stat&istics...\tCtrl+W", ID_VIEW_GRAPHSTATISTICS
-        MENUITEM "Te&xt Information...\tCtrl+T", ID_VIEW_TEXTINFORMATION
+        MENUITEM "Graph Infor&mation...\tCtrl+T", ID_VIEW_TEXTINFORMATION
         MENUITEM "&Performance Test...\tCtrl+M", ID_VIEW_DECODERPERFORMANCE
         MENUITEM "Main Window\tCtrl+Backspace", ID_VIEW_MAINWINDOW
         MENUITEM "Next Property Page...\tCtrl+Return", ID_NEXT_PROPERTY_PAGE
