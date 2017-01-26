@@ -1276,7 +1276,7 @@ BEGIN
         MENUITEM "&GUID Lookup...\tCtrl+L",     ID_HELP_GUIDLOOKUP
         MENUITEM "&HRESULT Lookup...\tCtrl+Q",  ID_HELP_HRESULTLOOKUP
         MENUITEM SEPARATOR
-        MENUITEM "Registered Filet&ypes\tCtrl+Y", ID_HELP_REGISTEREDFILETYPES
+        MENUITEM "Registered Filet&ypes...\tCtrl+Y", ID_HELP_REGISTEREDFILETYPES
         MENUITEM "COM DLL Analyzer",            ID_HELP_COMDLLANALYZER
         MENUITEM SEPARATOR
         MENUITEM "Help &Information...",        ID_HELP_COMMANDLINEOPTIONS
