@@ -72,6 +72,8 @@ UINT PASCAL _AfxGetMouseScrollLines()
 	return uCachedScrollLines;
 }
 
+const TCHAR * const info_format_filters =
+	_T("Text-File (*.txt)|*.txt|Log-File (*.log)|*.log;|All Files (*.*)|*.*|");
 
 const TCHAR * const graphic_format_filters = 
 	_T("PNG (*.png)|*.png|JPEG (*.jpg,*.jpeg)|*.jpg;*.jpeg|GIF (*.gif)|*.gif|TIFF (*.tif,*.tiff)|*.tif;*.tiff|Bitmap (*.bmp)|*.bmp|All Files (*.*)|*.*|");
@@ -149,6 +151,7 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_COMMAND(ID_VIEW_GRAPHEVENTS, &CGraphView::OnViewGraphEvents)
     ON_COMMAND(ID_VIEW_GRAPHSTATISTICS, &CGraphView::OnViewGraphStatistics)
 	ON_COMMAND(ID_LIST_MRU_CLEAR, &CGraphView::OnClearMRUClick)
+	ON_COMMAND(ID_GRAPH_MAKEGRAPHINFORMATION, &CGraphView::OnSaveGraphInformation)
 	ON_COMMAND(ID_GRAPH_MAKEGRAPHSCREENSHOT, &CGraphView::OnGraphScreenshot)
 	ON_COMMAND(ID_GRAPH_USECLOCK, &CGraphView::OnUseClock)
 	ON_COMMAND(ID_SEEK_BACKWARD_1, &CGraphView::OnSeekBackward1)
@@ -2126,6 +2129,34 @@ void CGraphView::OnMRUClick(UINT nID)
 	if (ShouldOpenInNewDocument(fn))
 		OnNewClick();
 	const HRESULT hr = TryOpenFile(fn);
+}
+
+void CGraphView::OnSaveGraphInformation()
+{
+	// ask for file
+	const CString filter(info_format_filters);
+	CFileDialog dlg(FALSE, _T("txt"), NULL, OFN_OVERWRITEPROMPT | OFN_ENABLESIZING | OFN_PATHMUSTEXIST, filter);
+
+	CPath input_path(document_filename);
+	input_path.RemoveExtension();
+
+	CString input_filename = CString(input_path);
+	dlg.m_ofn.lpstrFile = input_filename.GetBufferSetLength(MAX_PATH + 1);
+	dlg.m_ofn.nMaxFile = MAX_PATH + 1;
+	dlg.m_ofn.nFilterIndex = 0;
+
+	if (dlg.DoModal() == IDOK) {
+		CString filename(dlg.GetPathName());
+		CPath path(filename);
+
+		if (path.GetExtension().IsEmpty()) {
+			path.AddExtension(_T(".txt"));
+			filename = CString(path);
+		}
+
+		CGraphReportGenerator graphReportGenerator(&graph, render_params.use_media_info);
+		graphReportGenerator.SaveReport(5, filename);
+	}
 }
 
 void CGraphView::OnGraphScreenshot()

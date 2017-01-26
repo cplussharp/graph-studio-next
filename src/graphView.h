@@ -136,6 +136,7 @@ public:
 	void OnClearDocumentBeforeLoad();
 	void OnClearMRUClick();
 	void OnMRUClick(UINT nID);
+	void OnSaveGraphInformation();
 	void OnGraphScreenshot();
 	void OnConnectRemote();
     void OnConnectRemote(CComPtr<IMoniker> moniker, CString graphName);
