@@ -1,28 +1,30 @@
+# Build results
 /Debug
 /Debug64
 /Release
 /Release64
-
-analyzer_dlldata.c
-analyzer_i.c
-*.sdf
-ipch
-*.opensdf
 /bin
+
+#MIDL output
+*_dlldata.c
+*_p.c
+*_i.c
+*_h.h
+*_i.h
+
+# User-specific files
 *.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual C++ cache files
+ipch/
 *.aps
-/analyzer_h.h
-/analyzer_i.c
-/analyzer_p.c
-/analyzer_dlldata.c
-/dump_h.h
-/dump_i.c
-/dxva_null_h.h
-/dxva_null_i.c
-/time_measure_p.c
-/psiconfig_h.h
-/psiconfig_i.c
-/time_measure_dlldata.c
-/time_measure_h.h
-/time_measure_i.c
-/*.user
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
