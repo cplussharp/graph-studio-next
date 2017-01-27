@@ -336,7 +336,7 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
         LoadInterfacePage(obj, TEXT("Interfaces"));
 
         // MediaInfo
-        if(view->render_params.use_media_info)
+        if (view->render_params.use_media_info)
             LoadMediaInfoPage(obj);
 
         // Property Pages for some selected interfaces
@@ -605,12 +605,35 @@ int CPropertyForm::LoadMediaInfoPage(IUnknown *obj)
         LPOLESTR strFile = NULL;
         CMediaType media_type;
         HRESULT hr = pI->GetCurFile(&strFile, &media_type);
-        if(hr == S_OK && strFile != NULL)
-            AddPropertyPage(CMediaInfoPage::CreateInstance(NULL, &hr, CString(strFile)), obj);
+		if (hr == S_OK && strFile != NULL) {
+			CMediaInfoPage* page = CMediaInfoPage::CreateInstance(NULL, &hr, CString(strFile), VARIANT_TRUE);
+			if (page) AddPropertyPage(page, obj);
+		}
+            
 
         if(strFile)
             CoTaskMemFree(strFile);
     }
+
+	// Don't check in running state because the default writer filter will block the access to the file
+	// and the file will mostly have no valid content!
+	if (view->graph_state != State_Running)
+	{
+		CComQIPtr<IFileSinkFilter> pSink = obj;
+		if (pSink)
+		{
+			LPOLESTR strSinkFile = NULL;
+			CMediaType media_type;
+			HRESULT hr = pSink->GetCurFile(&strSinkFile, &media_type);
+			if (hr == S_OK && strSinkFile != NULL) {
+				CMediaInfoPage* page = CMediaInfoPage::CreateInstance(NULL, &hr, CString(strSinkFile), VARIANT_FALSE);
+				if (page) AddPropertyPage(page, obj);
+			}
+
+			if (strSinkFile)
+				CoTaskMemFree(strSinkFile);
+		}
+	}
 
     return 0;
 }

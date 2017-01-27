@@ -165,11 +165,25 @@ void CGraphReportGenerator::DoFileInfos(int level)
 		GraphStudio::Filter	*filter = m_graph->filters[i];
 		if (filter->file_name != _T(""))
 		{
-			CMediaInfo* mi = CMediaInfo::GetInfoForFile(filter->file_name);
-			if (mi != NULL)
+			bool getFileInfo = filter->IsSource();
+
+			// Don't check in running state because the default writer filter will block the access to the file
+			// and the file will mostly have no valid content!
+			if (!getFileInfo && filter->IsRenderer())
 			{
-				Line(mi->GetText());
-				Line();
+				FILTER_STATE graph_state = State_Stopped;
+				m_graph->GetState(graph_state, 10);
+				getFileInfo = graph_state != State_Running;
+			}
+			
+			if (getFileInfo)
+			{
+				CMediaInfo* mi = CMediaInfo::GetInfoForFile(filter->file_name, false);
+				if (mi != NULL)
+				{
+					Line(mi->GetText());
+					Line();
+				}
 			}
 		}
 	}

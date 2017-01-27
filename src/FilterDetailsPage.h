@@ -110,7 +110,7 @@ protected:
     CMediaInfoPage(LPUNKNOWN pUnk, HRESULT *phr, CMediaInfo* pInfo);
 
 public:
-	static CMediaInfoPage* CreateInstance(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR pszFile);
+	static CMediaInfoPage* CreateInstance(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR pszFile, VARIANT_BOOL useCache);
 	virtual ~CMediaInfoPage();
 	
     virtual HRESULT OnConnect(IUnknown *pUnknown);

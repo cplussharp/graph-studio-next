@@ -5,7 +5,7 @@ using namespace MediaInfoDLL;
 class CMediaInfo
 {
 public:
-    static CMediaInfo* GetInfoForFile(LPCTSTR pszFile);
+    static CMediaInfo* GetInfoForFile(LPCTSTR pszFile, bool useCache);
     static void FreeInfoCache();
 
     ~CMediaInfo();

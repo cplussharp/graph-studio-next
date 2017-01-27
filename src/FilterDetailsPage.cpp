@@ -232,10 +232,10 @@ void CInterfaceDetailsPage::OnBuildTree()
 //
 //-----------------------------------------------------------------------------
 
-CMediaInfoPage* CMediaInfoPage::CreateInstance(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR pszFile)
+CMediaInfoPage* CMediaInfoPage::CreateInstance(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR pszFile, VARIANT_BOOL useCache)
 {
-    CMediaInfo* info = CMediaInfo::GetInfoForFile(pszFile);
-    if(info == NULL) return NULL;
+    CMediaInfo* info = CMediaInfo::GetInfoForFile(pszFile, useCache);
+    if (info == NULL) return NULL;
     return new CMediaInfoPage(pUnk, phr, info);
 }
 

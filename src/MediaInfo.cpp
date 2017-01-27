@@ -4,7 +4,7 @@ using namespace MediaInfoDLL;
 static bool searchRegistry = true;
 static CArray<CMediaInfo*> storedInfos;
 
-CMediaInfo* CMediaInfo::GetInfoForFile(LPCTSTR pszFile)
+CMediaInfo* CMediaInfo::GetInfoForFile(LPCTSTR pszFile, bool useCache=true)
 {
     if(!MediaInfoDLL_IsLoaded())
     {
@@ -32,14 +32,14 @@ CMediaInfo* CMediaInfo::GetInfoForFile(LPCTSTR pszFile)
                 return NULL;
         }
     }
-    else
+    else if (useCache)
     {
         CString fileName = pszFile;
         fileName.MakeLower();
 
-        // search for file in cache
-        for (int i=0; i<storedInfos.GetCount(); i++)
-            if(storedInfos[i]->m_file == fileName)
+        // search for file in cache (backwards because newer entries are appended to the end)
+        for (int i=storedInfos.GetCount()-1; i>=0; i--)
+            if (storedInfos[i]->m_file == fileName)
 			    return storedInfos[i];
     }
 
@@ -57,7 +57,8 @@ CMediaInfo* CMediaInfo::GetInfoForFile(LPCTSTR pszFile)
     }
 
     CMediaInfo* mediaInfo = new CMediaInfo(mi, pszFile);
-    storedInfos.Add(mediaInfo);
+	if (useCache)
+		storedInfos.Add(mediaInfo);
     return mediaInfo;
 }
 
