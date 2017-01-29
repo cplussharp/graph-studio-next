@@ -1,8 +1,22 @@
 # GraphStudioNext
 
-[Current version binary downloads](https://drive.google.com/open?id=0Bwvr5qdpKXBxQUlBbWk0ZzJPRjA&authuser=0?)
+[![Build status](https://ci.appveyor.com/api/projects/status/mnlkn8f4vplejn86?svg=true)](https://ci.appveyor.com/project/selenorks/graph-studio-next)
 
-[Depcrecated versions binary downloads](https://drive.google.com/open?id=0Bwvr5qdpKXBxUExwdXZMUjd5ZFU&authuser=0)
+## Latest build for win32:
+
+Release: [graphstudionext.exe](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext.exe?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3DWin32)
+[graphstudionext.pdb](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext.pdb?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3DWin32)
+
+Debug: [graphstudionext.exe](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext.exe?job=Environment%3A%20CONFIGURATION%3DDebug%2C%20PLATFORM%3DWin32)
+[graphstudionext.pdb](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext.pdb?job=Environment%3A%20CONFIGURATION%3DDebug%2C%20PLATFORM%3DWin32)
+
+## Latest build for x64:
+
+Release: [graphstudionext64.exe](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext64.exe?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64)
+[graphstudionext64.pdb](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext64.pdb?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64)
+
+Debug: [graphstudionext64.exe](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext64.exe?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64)
+[graphstudionext64.pdb](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext64.pdb?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64)
 
 GraphStudioNext is a fork of [RadScorpion's](http://blog.monogram.sk/janos/) [GraphStudio](http://blog.monogram.sk/janos/tools/monogram-graphstudio/).
 Because development had stopped on the really useful tool GraphStudio, I started this fork. I use this application every day and I needed some new features to support my workflows and wanted to fix some really annoying bugs.

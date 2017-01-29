@@ -1,0 +1,22 @@
+build: false
+image: Visual Studio 2013
+clone_depth: 1
+environment:
+    
+    matrix:
+        - CONFIGURATION: Release
+          PLATFORM: Win32
+        - CONFIGURATION: Debug
+          PLATFORM: Win32
+        - CONFIGURATION: Release
+          PLATFORM: x64
+        - CONFIGURATION: Debug
+          PLATFORM: x64
+
+test_script:
+  - Msbuild.exe graphstudionext.v12.sln /m /t:graphstudionext /p:Configuration=%CONFIGURATION%;Platform=%PLATFORM%
+
+artifacts:
+
+  # pushing a single file with environment variable in path and "Deployment name" specified
+  - path: bin\*
