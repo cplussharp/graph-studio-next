@@ -1,23 +1,5 @@
 # GraphStudioNext
 
-[![Build status](https://ci.appveyor.com/api/projects/status/mnlkn8f4vplejn86?svg=true)](https://ci.appveyor.com/project/selenorks/graph-studio-next)
-
-## Latest build for win32:
-
-Release: [graphstudionext.exe](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext.exe?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3DWin32)
-[graphstudionext.pdb](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext.pdb?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3DWin32)
-
-Debug: [graphstudionext.exe](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext.exe?job=Environment%3A%20CONFIGURATION%3DDebug%2C%20PLATFORM%3DWin32)
-[graphstudionext.pdb](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext.pdb?job=Environment%3A%20CONFIGURATION%3DDebug%2C%20PLATFORM%3DWin32)
-
-## Latest build for x64:
-
-Release: [graphstudionext64.exe](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext64.exe?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64)
-[graphstudionext64.pdb](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext64.pdb?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64)
-
-Debug: [graphstudionext64.exe](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext64.exe?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64)
-[graphstudionext64.pdb](https://ci.appveyor.com/api/projects/selenorks/graph-studio-next/artifacts/bin/graphstudionext64.pdb?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64)
-
 GraphStudioNext is a fork of [RadScorpion's](http://blog.monogram.sk/janos/) [GraphStudio](http://blog.monogram.sk/janos/tools/monogram-graphstudio/).
 Because development had stopped on the really useful tool GraphStudio, I started this fork. I use this application every day and I needed some new features to support my workflows and wanted to fix some really annoying bugs.
 
@@ -25,6 +7,24 @@ You're welcome to submit bugs and feature requests or just comment whether you l
 
 Thanks to the following for supporting the development of GraphStudioNext:
  * [ROOT6 Technology](http://www.root6technology.com/default.html) Creators of workflow automation software.
+ 
+## Latest build:
+[![Build status](https://ci.appveyor.com/api/projects/status/github/cplussharp/graph-studio-next?svg=true)](https://ci.appveyor.com/project/cplussharp/graph-studio-next)
+
+### win32:
+Release: [graphstudionext.exe](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext.exe?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3DWin32)
+([.pdb](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext.pdb?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3DWin32))
+
+Debug: [graphstudionext.exe](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext.exe?job=Environment%3A%20CONFIGURATION%3DDebug%2C%20PLATFORM%3DWin32)
+([.pdb](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext.pdb?job=Environment%3A%20CONFIGURATION%3DDebug%2C%20PLATFORM%3DWin32))
+
+### x64:
+
+Release: [graphstudionext64.exe](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext64.exe?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64)
+([.pdb](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext64.pdb?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64))
+
+Debug: [graphstudionext64.exe](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext64.exe?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64)
+([.pdb](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext64.pdb?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64))
 
 ## Releases
 ### Release 0.7.0.430 (2014-11-10)
