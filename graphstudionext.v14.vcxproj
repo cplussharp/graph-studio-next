@@ -1,0 +1,487 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{51117F20-9323-4EEE-964D-760C818DF80D}</ProjectGuid>
+    <RootNamespace>graphstudionext</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+    <ProjectName>graphstudionext</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140_xp</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)$(PlatformArchitecture)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Configuration)$(PlatformArchitecture)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectName)$(PlatformArchitecture)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectName)$(PlatformArchitecture)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>false</ValidateAllParameters>
+      <DllDataFileName>%(Filename)_dlldata.c</DllDataFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;.\src;.\baseclasses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>Quartz.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <LargeAddressAware>true</LargeAddressAware>
+      <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <DllDataFileName>%(Filename)_dlldata.c</DllDataFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;.\src;.\baseclasses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>Quartz.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>false</ValidateAllParameters>
+      <DllDataFileName>%(Filename)_dlldata.c</DllDataFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;.\src;.\baseclasses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Full</Optimization>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>Quartz.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+      <LargeAddressAware>true</LargeAddressAware>
+      <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <DllDataFileName>%(Filename)_dlldata.c</DllDataFileName>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;.\src;.\baseclasses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Full</Optimization>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>Quartz.lib;strmiids.lib;winmm.lib;mfuuid.lib;msdmo.lib;Dmoguids.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LargeAddressAware>true</LargeAddressAware>
+      <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+    <None Include="res\addFilter.ico" />
+    <None Include="res\bitmap_clock_active_hi.bmp" />
+    <None Include="res\bitmap_clock_active_lo.bmp" />
+    <None Include="res\bitmap_clock_inactive_hi.bmp" />
+    <None Include="res\bitmap_clock_inactive_lo.bmp" />
+    <None Include="res\bitmap_logo.bmp" />
+    <None Include="res\bitmap_tree.bmp" />
+    <None Include="res\bitmap_volume.bmp" />
+    <None Include="res\bitmap_volume2.bmp" />
+    <None Include="res\graphstudionext.ico" />
+    <None Include="res\graphstudionext64.ico" />
+    <None Include="res\graphstudionext.rc2" />
+    <None Include="res\graphstudioDoc.ico" />
+    <None Include="res\Toolbar.bmp" />
+    <None Include="res\toolbar1.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="graphstudionext.rc" />
+    <ResourceCompile Include="src\filters\analyzer\analyzer_proppage.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="lib\sqlite\sqlite3.h" />
+    <ClInclude Include="lib\sqlite\sqlite3_forcelib.h" />
+    <ClInclude Include="src\AnalyzerPage.h" />
+    <ClInclude Include="src\BlacklistForm.h" />
+    <ClInclude Include="src\CliOptionsForm.h" />
+    <ClInclude Include="src\ComDllAnalyzer.h" />
+    <ClInclude Include="src\ComDllAnalyzerForm.h" />
+    <ClInclude Include="src\Crc32.h" />
+    <ClInclude Include="src\CustomToolTipCtrl.h" />
+    <ClInclude Include="src\DbgLogConfigForm.h" />
+    <ClInclude Include="src\DbgLogPage.h" />
+    <ClInclude Include="src\FileTypesForm.h" />
+    <ClInclude Include="src\FilterBlacklist.h" />
+    <ClInclude Include="interfaces\monofilters.h" />
+    <ClInclude Include="src\display_graph.h" />
+    <ClInclude Include="src\display_view.h" />
+    <ClInclude Include="src\DMOQualCtrlPage.h" />
+    <ClInclude Include="src\FilterFromFile.h" />
+    <ClInclude Include="src\FilterReportGenerator.h" />
+    <ClInclude Include="src\filters\analyzer\analyzer.h" />
+    <ClInclude Include="src\filters\analyzer\analyzer_pospassthru.h" />
+    <ClInclude Include="src\filters\analyzer\analyzer_proppage_config.h" />
+    <ClInclude Include="src\filters\analyzer\analyzer_proppage_resource.h" />
+    <ClInclude Include="src\filters\analyzer\filter_analyzer.h" />
+    <ClInclude Include="src\filters\analyzer\filter_analyzer_writer.h" />
+    <ClInclude Include="src\filters\audio_analyzer\audio_analyzer.h" />
+    <ClInclude Include="src\filters\audio_analyzer\filter_audio_analyzer.h" />
+    <ClInclude Include="src\filters\dxva_null\filter_dxva_null.h" />
+    <ClInclude Include="src\filters\fake_m2ts\filter_fake_m2ts_device.h" />
+    <ClInclude Include="src\filters\h264_analyzer\filter_h264_analyzer.h" />
+    <ClInclude Include="src\filters\h264_analyzer\h264_analyzer.h" />
+    <ClInclude Include="src\filters\psi_config\psiconfig.h" />
+    <ClInclude Include="src\filters\video_analyzer\filter_video_analyzer.h" />
+    <ClInclude Include="src\filters\video_analyzer\video_analyzer.h" />
+    <ClInclude Include="src\graphCli.h" />
+    <ClInclude Include="src\graphDoc.h" />
+    <ClInclude Include="src\GraphReportGenerator.h" />
+    <ClInclude Include="src\graphstudio.h" />
+    <ClInclude Include="src\GraphStudioModelessDialog.h" />
+    <ClInclude Include="src\graphView.h" />
+    <ClInclude Include="src\GRF_File.h" />
+    <ClInclude Include="src\H264StructReader.h" />
+    <ClInclude Include="src\H265StructReader.h" />
+    <ClInclude Include="src\HiResTimer.h" />
+    <ClInclude Include="src\InterfaceScanner.h" />
+    <ClInclude Include="src\LookupForm.h" />
+    <ClInclude Include="src\MainFrm.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="src\MediaInfo.h" />
+    <ClInclude Include="src\MediaInfoDLL.h" />
+    <ClInclude Include="src\MediaTypeSelectForm.h" />
+    <ClInclude Include="src\moreuuids.h" />
+    <ClInclude Include="src\RegistryExporter.h" />
+    <ClInclude Include="src\RenderParameters.h" />
+    <ClInclude Include="src\SbeConfigForm.h" />
+    <ClInclude Include="src\SbeSinkPage.h" />
+    <ClInclude Include="src\StatisticForm.h" />
+    <ClInclude Include="src\stdafx.h" />
+    <ClInclude Include="src\ConfirmForm.h" />
+    <ClInclude Include="src\DecPerformanceForm.h" />
+    <ClInclude Include="src\EventsForm.h" />
+    <ClInclude Include="src\FavoritesForm.h" />
+    <ClInclude Include="src\FileSinkForm.h" />
+    <ClInclude Include="src\FileSrcForm.h" />
+    <ClInclude Include="src\FiltersForm.h" />
+    <ClInclude Include="src\GraphConstructionForm.h" />
+    <ClInclude Include="src\MeritForm.h" />
+    <ClInclude Include="src\NewGroupForm.h" />
+    <ClInclude Include="src\ProgressForm.h" />
+    <ClInclude Include="src\RemoteGraphForm.h" />
+    <ClInclude Include="src\RenderUrlForm.h" />
+    <ClInclude Include="src\ScheduleForm.h" />
+    <ClInclude Include="src\SeekForm.h" />
+    <ClInclude Include="src\TextInfoForm.h" />
+    <ClInclude Include="src\time_utils.h" />
+    <ClInclude Include="src\VersionNo.h" />
+    <ClInclude Include="src\VolumeBarForm.h" />
+    <ClInclude Include="src\BufferNegotiationPage.h" />
+    <ClInclude Include="src\CustomPage.h" />
+    <ClInclude Include="src\FilterACMPage.h" />
+    <ClInclude Include="src\FilterDetailsPage.h" />
+    <ClInclude Include="src\FilterVCMPage.h" />
+    <ClInclude Include="src\PropertyForm.h" />
+    <ClInclude Include="src\WMADecPage.h" />
+    <ClInclude Include="src\bits.h" />
+    <ClInclude Include="src\dsutil.h" />
+    <ClInclude Include="src\filename_list.h" />
+    <ClInclude Include="src\mru_list.h" />
+    <ClInclude Include="src\mtypes_ext.h" />
+    <ClInclude Include="src\object_details.h" />
+    <ClInclude Include="src\WMResizerPage.h" />
+    <ClInclude Include="src\xml_parser.h" />
+    <ClInclude Include="src\BrowserControl.h" />
+    <ClInclude Include="src\EVR_VideoWindow.h" />
+    <ClInclude Include="src\filter_list.h" />
+    <ClInclude Include="src\prop_tree.h" />
+    <ClInclude Include="src\schedule_list.h" />
+    <ClInclude Include="src\seeking_bar.h" />
+    <ClInclude Include="src\title_bar.h" />
+    <ClInclude Include="src\url_label.h" />
+    <ClInclude Include="src\filters\time_measure\filter_time.h" />
+    <ClInclude Include="src\filters\dump\filter_dump.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="lib\sqlite\sqlite3.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\AnalyzerPage.cpp" />
+    <ClCompile Include="src\BlacklistForm.cpp" />
+    <ClCompile Include="src\CliOptionsForm.cpp" />
+    <ClCompile Include="src\ComDllAnalyzer.cpp" />
+    <ClCompile Include="src\ComDllAnalyzerForm.cpp" />
+    <ClCompile Include="src\Crc32.cpp" />
+    <ClCompile Include="src\CustomToolTipCtrl.cpp" />
+    <ClCompile Include="src\DbgLogConfigForm.cpp" />
+    <ClCompile Include="src\DbgLogPage.cpp" />
+    <ClCompile Include="src\FileTypesForm.cpp" />
+    <ClCompile Include="src\FilterBlacklist.cpp" />
+    <ClCompile Include="src\display_graph.cpp" />
+    <ClCompile Include="src\display_view.cpp" />
+    <ClCompile Include="src\DMOQualCtrlPage.cpp" />
+    <ClCompile Include="src\FilterFromFile.cpp" />
+    <ClCompile Include="src\FilterReportGenerator.cpp" />
+    <ClCompile Include="src\filters\analyzer\analyzer.cpp" />
+    <ClCompile Include="src\filters\analyzer\analyzer_proppage_config.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\filters\analyzer\filter_analyzer.cpp" />
+    <ClCompile Include="src\filters\analyzer\filter_analyzer_writer.cpp" />
+    <ClCompile Include="src\filters\audio_analyzer\audio_analyzer.cpp" />
+    <ClCompile Include="src\filters\audio_analyzer\filter_audio_analyzer.cpp" />
+    <ClCompile Include="src\filters\dxva_null\filter_dxva_null.cpp" />
+    <ClCompile Include="src\filters\fake_m2ts\filter_fake_m2ts_device.cpp" />
+    <ClCompile Include="src\filters\h264_analyzer\filter_h264_analyzer.cpp" />
+    <ClCompile Include="src\filters\h264_analyzer\h264_analyzer.cpp" />
+    <ClCompile Include="src\filters\psi_config\psiconfig.cpp" />
+    <ClCompile Include="src\filters\video_analyzer\filter_video_analyzer.cpp" />
+    <ClCompile Include="src\filters\video_analyzer\video_analyzer.cpp" />
+    <ClCompile Include="src\graphCli.cpp" />
+    <ClCompile Include="src\graphDoc.cpp" />
+    <ClCompile Include="src\GraphReportGenerator.cpp" />
+    <ClCompile Include="src\graphstudio.cpp" />
+    <ClCompile Include="src\GraphStudioModelessDialog.cpp" />
+    <ClCompile Include="src\graphView.cpp" />
+    <ClCompile Include="src\GRF_File.cpp" />
+    <ClCompile Include="src\H264StructReader.cpp" />
+    <ClCompile Include="src\H265StructReader.cpp" />
+    <ClCompile Include="src\InterfaceScanner.cpp" />
+    <ClCompile Include="src\LookupForm.cpp" />
+    <ClCompile Include="src\MainFrm.cpp" />
+    <ClCompile Include="src\ConfirmForm.cpp" />
+    <ClCompile Include="src\DecPerformanceForm.cpp" />
+    <ClCompile Include="src\EventsForm.cpp" />
+    <ClCompile Include="src\FavoritesForm.cpp" />
+    <ClCompile Include="src\FileSinkForm.cpp" />
+    <ClCompile Include="src\FileSrcForm.cpp" />
+    <ClCompile Include="src\FiltersForm.cpp" />
+    <ClCompile Include="src\GraphConstructionForm.cpp" />
+    <ClCompile Include="src\MediaInfo.cpp" />
+    <ClCompile Include="src\MediaTypeSelectForm.cpp" />
+    <ClCompile Include="src\MeritForm.cpp" />
+    <ClCompile Include="src\NewGroupForm.cpp" />
+    <ClCompile Include="src\ProgressForm.cpp" />
+    <ClCompile Include="src\RegistryExporter.cpp" />
+    <ClCompile Include="src\RemoteGraphForm.cpp" />
+    <ClCompile Include="src\RenderParameters.cpp" />
+    <ClCompile Include="src\RenderUrlForm.cpp" />
+    <ClCompile Include="src\SbeConfigForm.cpp" />
+    <ClCompile Include="src\SbeSinkPage.cpp" />
+    <ClCompile Include="src\ScheduleForm.cpp" />
+    <ClCompile Include="src\SeekForm.cpp" />
+    <ClCompile Include="src\StatisticForm.cpp" />
+    <ClCompile Include="src\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\TextInfoForm.cpp" />
+    <ClCompile Include="src\time_utils.cpp" />
+    <ClCompile Include="src\VolumeBarForm.cpp" />
+    <ClCompile Include="src\BufferNegotiationPage.cpp" />
+    <ClCompile Include="src\CustomPage.cpp" />
+    <ClCompile Include="src\FilterACMPage.cpp" />
+    <ClCompile Include="src\FilterDetailsPage.cpp" />
+    <ClCompile Include="src\FilterVCMPage.cpp" />
+    <ClCompile Include="src\PropertyForm.cpp" />
+    <ClCompile Include="src\WMADecPage.cpp" />
+    <ClCompile Include="src\bits.cpp" />
+    <ClCompile Include="src\dsutil.cpp" />
+    <ClCompile Include="src\filename_list.cpp" />
+    <ClCompile Include="src\guid_list.cpp" />
+    <ClCompile Include="src\mru_list.cpp" />
+    <ClCompile Include="src\object_details.cpp" />
+    <ClCompile Include="src\graph_config_xml.cpp" />
+    <ClCompile Include="src\WMResizerPage.cpp" />
+    <ClCompile Include="src\xml_parser.cpp" />
+    <ClCompile Include="src\BrowserControl.cpp" />
+    <ClCompile Include="src\EVR_VideoWindow.cpp" />
+    <ClCompile Include="src\filter_list.cpp" />
+    <ClCompile Include="src\prop_tree.cpp" />
+    <ClCompile Include="src\schedule_list.cpp" />
+    <ClCompile Include="src\seeking_bar.cpp" />
+    <ClCompile Include="src\title_bar.cpp" />
+    <ClCompile Include="src\url_label.cpp" />
+    <ClCompile Include="src\filters\time_measure\filter_time.cpp" />
+    <ClCompile Include="src\filters\dump\filter_dump.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="src\filters\analyzer\analyzer.idl" />
+    <Midl Include="src\filters\dump\dump.idl" />
+    <Midl Include="src\filters\dxva_null\dxva_null.idl" />
+    <Midl Include="src\filters\psi_config\psiconfig.idl" />
+    <Midl Include="src\filters\time_measure\time_measure.idl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="baseclasses\BaseClasses.v12.vcxproj">
+      <Project>{e8a3f6fa-ae1c-4c8e-a0b6-9c8480324eaa}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\graphxml.ico" />
+    <Image Include="res\graphxml64.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="graphstudionext.rc" _x007B_8856F961-340A-11D0-A96B-00C04FD705A2_x007D_="CBrowserControl" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
