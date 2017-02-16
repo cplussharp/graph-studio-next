@@ -1267,7 +1267,12 @@ BEGIN
         MENUITEM "Show &GUID of Known Types",   ID_OPTIONS_SHOWGUIDOFKNOWNTYPES
         MENUITEM "Exact Match &Lookup Mode",    ID_OPTIONS_EXACTMATCH
         MENUITEM "Use &MediaInfo",              ID_OPTIONS_USEMEDIAINFO
-        POPUP "Filter Graph CLSI&D"
+#ifdef _WIN64
+		MENUITEM "Reserve Memor&y below &4GB",  ID_OPTIONS_RESERVELOWMEMORY
+#else
+		MENUITEM "Reserve Memor&y below &2GB",  ID_OPTIONS_RESERVELOWMEMORY
+#endif
+		POPUP "Filter Graph CLSI&D"
         BEGIN
             MENUITEM "CLSID_&FilterGraph",          ID_CLSID_FILTERGRAPH
             MENUITEM "CLSID_FilterGraph&NoThread",  ID_CLSID_FILTERGRAPH_NO_THREAD
@@ -1643,6 +1648,12 @@ BEGIN
                             "Show Console Window and redirect stdout output to the console."
     ID_OPTIONS_USEINTERNALGRFFILEPARSER 
                             "Load GRF files using internal parser. Only use if opening normally fails."
+	ID_OPTIONS_RESERVELOWMEMORY 
+#ifdef _WIN64
+		"Reserve address space and force memory allocations above 4GB to reproduce 64bit pointer truncation bugs."
+#else
+		"Reserve address space and force memory allocations above 2GB to test LargeAddressAware 32bit filters. DLLs not flagged as LargeAddressAware may fail to load or run."
+#endif
 END
 
 STRINGTABLE

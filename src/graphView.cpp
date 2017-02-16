@@ -277,6 +277,8 @@ BEGIN_MESSAGE_MAP(CGraphView, GraphStudio::DisplayView)
 	ON_UPDATE_COMMAND_UI(ID_CLSID_FILTERGRAPH, &CGraphView::OnUpdateClsidFiltergraph)
 	ON_UPDATE_COMMAND_UI(ID_CLSID_FILTERGRAPH_NO_THREAD, &CGraphView::OnUpdateClsidFiltergraphNoThread)
 	ON_UPDATE_COMMAND_UI(ID_CLSID_FILTERGRAPH_PRIVATE_THREAD, &CGraphView::OnUpdateClsidFiltergraphPrivateThread)
+	ON_COMMAND(ID_OPTIONS_RESERVELOWMEMORY, &CGraphView::OnOptionsReserveLowMemory)
+	ON_UPDATE_COMMAND_UI(ID_OPTIONS_RESERVELOWMEMORY, &CGraphView::OnUpdateOptionsReserveLowMemory)
 	ON_COMMAND(ID_NEXT_PROPERTY_PAGE, &CGraphView::OnNextPropertyPage)
 	ON_COMMAND(ID_PREVIOUS_PROPERTY_PAGE, &CGraphView::OnPreviousPropertyPage)
 	ON_UPDATE_COMMAND_UI(ID_NEXT_PROPERTY_PAGE, &CGraphView::OnUpdateNextOrPreviousPropertyPage)
@@ -2909,6 +2911,18 @@ void CGraphView::OnOptionsUseinternalgrffileparser()
 void CGraphView::OnUpdateOptionsUseinternalgrffileparser(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(CgraphstudioApp::g_useInternalGrfParser);
+}
+
+void CGraphView::OnOptionsReserveLowMemory()
+{
+	CgraphstudioApp::g_ReserveLowMemory = ! CgraphstudioApp::g_ReserveLowMemory;
+	AfxMessageBox(_T("Restart GraphStudioNext for this option to take effect."));
+	AfxGetApp()->WriteProfileInt(_T("Settings"), CgraphstudioApp::g_ReserveLowMemoryOption, CgraphstudioApp::g_ReserveLowMemory);
+}
+
+void CGraphView::OnUpdateOptionsReserveLowMemory(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(CgraphstudioApp::g_ReserveLowMemory);
 }
 
 HRESULT CGraphView::AddSourceFilter(const CString& filename)

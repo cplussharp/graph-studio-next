@@ -446,6 +446,7 @@
 #define ID_GRAPH_CONNECTPIN             32957
 #define ID_GRAPH_DISCONNECTSELECTEDFILTERS 32958
 #define ID_BUTTON_LOOP                  32959
+#define ID_OPTIONS_RESERVELOWMEMORY     32960
 #define ID_HELP_COMDLLANALYZER          32963
 
 // Next default values for new objects

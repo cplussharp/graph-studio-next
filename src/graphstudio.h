@@ -39,8 +39,11 @@ public:
 	static bool g_ClearDocumentBeforeLoad; 
     static bool g_showConsole;
     static bool g_showGuidsOfKnownTypes;
+	static bool g_ReserveLowMemory;
 	static int	g_ScreenshotFormat;
-    
+
+	static const TCHAR * const g_ReserveLowMemoryOption;
+
 	enum PinResolution
 	{
 		BY_NAME,

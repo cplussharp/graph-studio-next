@@ -46,10 +46,120 @@ bool CgraphstudioApp::g_SaveScreenshot          = true;
 bool CgraphstudioApp::g_ClearDocumentBeforeLoad = true;
 bool CgraphstudioApp::g_showConsole             = false;
 bool CgraphstudioApp::g_showGuidsOfKnownTypes   = true;
+bool CgraphstudioApp::g_ReserveLowMemory		= false;	// this should definitely default to false at least on 32bit builds as some filters may not support LARGEADDRESSAWARE and may fail to work.
 int	 CgraphstudioApp::g_ScreenshotFormat        = 0;
+
+// Maintain separate settings for 32bit and 64bit reserve low memory as they have very different effects
+const TCHAR * const CgraphstudioApp::g_ReserveLowMemoryOption = 
+#ifdef _WIN64
+	_T("ReserveLowMemory64");
+#else
+	_T("ReserveLowMemory32");
+#endif
+
 
 CgraphstudioApp::PinResolution CgraphstudioApp::g_ResolvePins = CgraphstudioApp::BY_NAME;
 
+/*
+Function to reserve address space to force memory allocations above a limit to reproduce pointer bugs
+Source: Bruce Dawson https://randomascii.wordpress.com/2012/02/14/64-bit-made-easy/ - used with permission
+*/
+void ReserveLowMemory()
+{
+	static bool s_initialized = false;
+	if (s_initialized)
+		return;
+	s_initialized = true;
+
+	// Start by reserving large blocks of address space, and then
+	// gradually reduce the size in order to capture all of the
+	// fragments. Technically we should continue down to 64 KB but
+	// stopping at 1 MB is sufficient to keep most allocators out.
+
+#ifdef _WIN64
+	const size_t LOW_MEM_LINE = 0x100000000LL;
+#else
+	const size_t LOW_MEM_LINE = 0x080000000LL;		// Test LARGEADDRESSAWARE code by reserving memory below 2GB
+#endif
+
+	size_t totalReservation = 0;
+	size_t numVAllocs = 0;
+	size_t numHeapAllocs = 0;
+	size_t oneMB = 1024 * 1024;
+	for (size_t size = 256 * oneMB; size >= oneMB; size /= 2)
+	{
+		for (;;)
+		{
+			void* p = VirtualAlloc(0, size, MEM_RESERVE, PAGE_NOACCESS);
+			if (!p)
+				break;
+
+			if ((size_t)p >= LOW_MEM_LINE)
+			{
+				// We don't need this memory, so release it completely.
+				VirtualFree(p, 0, MEM_RELEASE);
+				break;
+			}
+
+			totalReservation += size;
+			++numVAllocs;
+		}
+	}
+
+	// Now repeat the same process but making heap allocations, to use up
+	// the already reserved heap blocks that are below the 4 GB line.
+	HANDLE heap = GetProcessHeap();
+	for (size_t blockSize = 64 * 1024; blockSize >= 16; blockSize /= 2)
+	{
+		for (;;)
+		{
+			void* p = HeapAlloc(heap, 0, blockSize);
+			if (!p)
+				break;
+
+			if ((size_t)p >= LOW_MEM_LINE)
+			{
+				// We don't need this memory, so release it completely.
+				HeapFree(heap, 0, p);
+				break;
+			}
+
+			totalReservation += blockSize;
+			++numHeapAllocs;
+		}
+	}
+
+	// Perversely enough the CRT doesn't use the process heap. Suck up
+	// the memory the CRT heap has already reserved.
+	for (size_t blockSize = 64 * 1024; blockSize >= 16; blockSize /= 2)
+	{
+		for (;;)
+		{
+			void* p = malloc(blockSize);
+			if (!p)
+				break;
+
+			if ((size_t)p >= LOW_MEM_LINE)
+			{
+				// We don't need this memory, so release it completely.
+				free(p);
+				break;
+			}
+
+			totalReservation += blockSize;
+			++numHeapAllocs;
+		}
+	}
+
+	// Print diagnostics showing how many allocations we had to make in
+	// order to reserve all of low memory, typically less than 200.
+	char buffer[1000];
+	sprintf_s(buffer, "Reserve Low Memory : Reserved %1.3f MB (%d vallocs,"
+		"%d heap allocs) of low-memory.\n",
+		totalReservation / (1024 * 1024.0),
+		(int)numVAllocs, (int)numHeapAllocs);
+	OutputDebugStringA(buffer);
+}
 
 //-----------------------------------------------------------------------------
 //
@@ -150,6 +260,11 @@ BOOL CgraphstudioApp::InitInstance()
 	}
 	if (!pDocTemplate) return FALSE;
 	AddDocTemplate(pDocTemplate);
+
+	// Do this as early in the process as possible to keep memory used above low memory
+	g_ReserveLowMemory = GetProfileInt(_T("Settings"), g_ReserveLowMemoryOption, 0) ? true : false;
+	if (g_ReserveLowMemory)
+		ReserveLowMemory();
 
 	// Parse command line for standard shell commands, DDE, file open
 	ParseCommandLine(m_cmdInfo);

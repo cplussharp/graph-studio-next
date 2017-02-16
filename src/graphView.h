@@ -324,6 +324,8 @@ public:
 	afx_msg void OnClsidFiltergraph();
 	afx_msg void OnClsidFiltergraphNoThread();
 	afx_msg void OnClsidFiltergraphPrivateThread();
+	afx_msg void OnOptionsReserveLowMemory();
+	afx_msg void OnUpdateOptionsReserveLowMemory(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateClsidFiltergraph(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateClsidFiltergraphNoThread(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateClsidFiltergraphPrivateThread(CCmdUI *pCmdUI);
