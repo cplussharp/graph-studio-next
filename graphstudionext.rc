@@ -1117,8 +1117,8 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
-        MENUITEM "&Open Graph/Media file...\tCtrl+O", ID_FILE_OPEN
-        MENUITEM "Add Graph/&Media File...\tCtrl+Shift+O", ID_FILE_ADDMEDIAFILE
+        MENUITEM "&Open Graph/Media file/DLL...\tCtrl+O", ID_FILE_OPEN
+        MENUITEM "Add Graph/&Media File/DLL...\tCtrl+Shift+O", ID_FILE_ADDMEDIAFILE
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
         MENUITEM "Save &As Graph (.GRF)...\tCtrl+Shift+S", ID_FILE_SAVE_AS
         MENUITEM "Save As XML&....\tAlt+Shift+S", ID_FILE_SAVEASXML
@@ -1217,7 +1217,7 @@ BEGIN
     POPUP "&Graph"
     BEGIN
         MENUITEM "Insert &Filter...\tCtrl+F",   ID_GRAPH_INSERTFILTER
-        MENUITEM "Insert Filter from Fi&le...", ID_GRAPH_INSERTFILTERFROMFILE
+        MENUITEM "Insert F&ilter from DLL...", ID_GRAPH_INSERTFILTERFROMFILE
         MENUITEM SEPARATOR
         MENUITEM "Disconnect &all Filters\tCtrl+Del", ID_BUTTON_REMOVE_CONNECTIONS
         MENUITEM "Disconnect selected filters\tShift+Del/Backspace", ID_GRAPH_DISCONNECTSELECTEDFILTERS
@@ -1687,7 +1687,7 @@ END
 STRINGTABLE
 BEGIN
     ID_OPTIONS_CONFIGUREGLOBALDBGLOG "Configure the Global DbgLog Settings."
-    ID_GRAPH_CONNECTPIN     "Connect or disconnect and reconnect an output pin\nConnect output pin"
+    ID_GRAPH_CONNECTPIN     "Connect or disconnect and reconnect selected pins or filters\nConnect pin(s) or filter(s)"
 END
 
 #endif    // Englisch (USA) resources
