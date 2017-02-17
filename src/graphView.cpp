@@ -1441,7 +1441,7 @@ HRESULT CGraphView::InsertFilterFromDLL(CString& dll_file)
 		if (filterName.IsEmpty())
             filterName = PathFindFileName(dlg.result_file);
 
-		hr = InsertNewFilter(instance, filterName, /* connectCurrentPin = */ false);
+		hr = InsertNewFilter(instance, filterName);
 
 		if (SUCCEEDED(hr)) {
 			// Mark the filter we created as being created by a DLL class factory
@@ -2411,9 +2411,10 @@ int CGraphView::InsertFilterFromFavorite(GraphStudio::BookmarkedFilter *filter)
 	}
 
 	hr = moniker->BindToObject(NULL, NULL, IID_IBaseFilter, (void**)&instance);
-	if (SUCCEEDED(hr))
+	if (SUCCEEDED(hr) && instance)
 		hr = InsertNewFilter(instance, filter->name);
-	DSUtil::ShowError(hr, _T("Moniker bind failure"));
+	else
+		DSUtil::ShowError(hr, _T("Moniker bind failure"));
 
 	return 0;
 }

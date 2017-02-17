@@ -2247,10 +2247,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (p1->filter == p2->filter) return -1;				// not on the same filter
 		if (p1->dir == p2->dir) return -1;						// oposite directions
 
-		HRESULT hr = S_OK;
-
 		params->MarkRender(true);
-		hr = DSUtil::ConnectPin(gb, p1->ipin, p2->ipin,
+		HRESULT hr = DSUtil::ConnectPin(gb, p1->ipin, p2->ipin,
 					params->connect_mode != RenderParameters::ConnectMode_Intelligent, 
 					params->connect_mode == RenderParameters::ConnectMode_DirectWithMT);
 		params->MarkRender(false);
@@ -2261,8 +2259,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		    RefreshFilters();
 			SmartPlacement(false);
         }
-
-		DSUtil::ShowError(hr, _T("Connecting Pins"));
 
 		return hr;
 	}

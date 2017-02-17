@@ -1997,7 +1997,7 @@ namespace DSUtil
 	//				If the user cancels S_FALSE is returned and no connection is made.
 	//				The chosen media type is _not_ returned in the mediaType parameter
 	//		if chooseMediaType is false, mediaType parameter is used for connection
-	HRESULT ConnectPin(IGraphBuilder *gb, IPin *pin1, IPin *pin2, bool direct, bool chooseMediaType /* = false */, AM_MEDIA_TYPE* mediaType /* = NULL */ )
+	HRESULT ConnectPin(IGraphBuilder *gb, IPin *pin1, IPin *pin2, bool direct, bool chooseMediaType /* = false */, AM_MEDIA_TYPE* mediaType /* = NULL */, bool reportErrors /* =true */)
 	{
 		if (!gb || !pin1 || !pin2)
 			return E_POINTER;
@@ -2017,10 +2017,14 @@ namespace DSUtil
 
 		if (!direct) {
 			hr = gb->Connect(out_pin, in_pin);
+			if (reportErrors)
+				DSUtil::ShowError(hr, _T("Connecting Pins"));
 		} else {
 
             if (!chooseMediaType) {
 				hr = gb->ConnectDirect(out_pin, in_pin, mediaType);
+				if (reportErrors)
+					DSUtil::ShowError(hr, _T("Connecting Pins"));
 			} else {
 
 				do {														// attempt connection until we succeed or user cancels dialog
@@ -2059,6 +2063,7 @@ namespace DSUtil
 						mediaType = NULL;
 					}
 					hr = gb->ConnectDirect(out_pin, in_pin, mediaType);
+					// report errors even when supressed as OK dialog is an explicit user action
 					DSUtil::ShowError(hr, _T("Connecting Pins"));
 
 				} while (FAILED(hr));

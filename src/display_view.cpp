@@ -181,7 +181,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		ShowContextMenu(point, filter, pin);
 	}
 
-	bool DisplayView::ConnectSelectedFilters()
+	bool DisplayView::ConnectSelectedFilters(bool reportErrors /* =true */)
 	{
 		Filter * sel_filters[2] = { NULL, NULL }; 
 
@@ -214,7 +214,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				connection_attempted = true;
 				hr = DSUtil::ConnectPin(graph.gb, out_pin->ipin, in_pin->ipin, 
 							graph.params->connect_mode != RenderParameters::ConnectMode_Intelligent, 
-							graph.params->connect_mode == RenderParameters::ConnectMode_DirectWithMT);
+							graph.params->connect_mode == RenderParameters::ConnectMode_DirectWithMT,
+							NULL, reportErrors);
 				if (SUCCEEDED(hr) && hr != S_FALSE) {
 					graph.SetSelection(NULL, out_pin);		// success - select pin and break out of loop
 					break;
@@ -226,7 +227,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			graph.RefreshFilters();
 			graph.SmartPlacement(false);
 			Invalidate();
-			DSUtil::ShowError(hr, _T("Failed to connect pins"));
 		}
 		return connection_attempted;				// return true if we tried to connect two selected filters (even if we didn't succeed)
 	}
@@ -242,8 +242,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			reconnect = current_pin && current_pin->connected;
 		}
 		pCmdUI->SetText( reconnect ? 
-				_T("Rec&onnect Pin...\tCtrl+Shift+C") :
-				_T("C&onnect Pin...\tCtrl+Shift+C")); 
+				_T("Rec&onnect...\tCtrl+Shift+C") :
+				_T("C&onnect...\tCtrl+Shift+C")); 
 	}
 
 	void DisplayView::OnConnectPin()
@@ -300,7 +300,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			const HRESULT hr = DSUtil::ConnectPin(graph.gb, current_pin->ipin, connect_pins[pin_index]->ipin, 
 					graph.params->connect_mode != RenderParameters::ConnectMode_Intelligent, 
 					graph.params->connect_mode == RenderParameters::ConnectMode_DirectWithMT);
-			DSUtil::ShowError(hr, _T("Failed to connect pins"));
 			graph.RefreshFilters();
 			graph.SmartPlacement(false);
 			Invalidate();
@@ -1187,21 +1186,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			hr = InsertNewFilter(instance, _T("DXVA Null Renderer"));
 	}
 
-	HRESULT DisplayView::InsertNewFilter(IBaseFilter* newFilter, const CString& filterName, bool connectToCurrentPin /*= true */ )
+	HRESULT DisplayView::InsertNewFilter(IBaseFilter* new_ibasefilter, const CString& filterName)
 	{
 		HRESULT hr = S_OK;
 
-		if (!newFilter)
+		if (!new_ibasefilter)
 			return S_OK;			// Nothing to do so finish now
 
 		// now check for a few interfaces
-		const int ret = ConfigureInsertedFilter(newFilter, filterName);
-		if (ret < 0) {
+		const int ret = ConfigureInsertedFilter(new_ibasefilter, filterName);
+		if (ret < 0)
 			hr = E_FAIL;
-			if (newFilter) {
-				newFilter = NULL;
-			}
-		}
 
 		graph.Dirty();
 
@@ -1209,12 +1204,16 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		if (current_pin && current_pin->dir == PINDIR_INPUT)
 			current_pin = current_pin->peer;
 
-		// has selected pin, then get IPin interface now, because graph.AddFilter will release current_pin
-		CComPtr<IPin> outpin(connectToCurrentPin && current_pin ? current_pin->ipin : NULL);
-		hr = graph.AddFilter(newFilter, filterName);
+		// has selected pin, then get IPin interface now, because graph.AddFilter can delete current_pin
+		CComPtr<IPin> outpin(current_pin ? current_pin->ipin : NULL);
+		if (SUCCEEDED(hr))
+			hr = graph.AddFilter(new_ibasefilter, filterName);
+
 		if (FAILED(hr)) {
 			DSUtil::ShowError(hr, CString(_T("Can't add ")) + filterName);
 		} else {
+			Filter * const new_filter = graph.FindFilter(new_ibasefilter);
+
 			if (outpin) {
 				// Get previously connected IPin and media type and disconnect it
 				CComPtr<IPin> previousPin;
@@ -1227,31 +1226,34 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				}
 
 				// connect new filter to currently selected pin
-				hr = DSUtil::ConnectPinToFilter(graph.gb, outpin, newFilter, 
+				hr = DSUtil::ConnectPinToFilter(graph.gb, outpin, new_ibasefilter, 
 							graph.params->connect_mode != RenderParameters::ConnectMode_Intelligent, 
 							graph.params->connect_mode == RenderParameters::ConnectMode_DirectWithMT);
-				if (FAILED(hr))
-					DSUtil::ShowError(hr, CString(_T("Can't connect ")) + filterName);
-				else {
+				if (SUCCEEDED(hr))
+				{
 					if (previousPin) {
-						hr = DSUtil::ConnectPinToFilter(graph.gb, previousPin, newFilter, 
+						hr = DSUtil::ConnectPinToFilter(graph.gb, previousPin, new_ibasefilter, 
 								true, false, &previousMediaType);
 					}
 				}
+			} else {
+				// If no selected pin but there is a selected filter, connect new filter to selected filter
+				Filter * const current_filter = graph.GetSelectedFilter();
+				new_filter->Select(true);
+				if (current_filter && new_filter) {
+					// Don't report errors here as the user may not be intending to connect to the currently selected filter
+					ConnectSelectedFilters(/* reportErrors= */ false);
+				}
+			}
+
+			if (new_filter) {
+				graph.SetSelection(new_filter, NULL);
+				ScrollToMakeFilterVisible(new_filter);
 			}
 			graph.RefreshFilters();
 			graph.SmartPlacement();
 		}
 		
-		for (int i=0; i<graph.filters.GetCount(); i++) {
-			Filter * const filter = graph.filters[i];
-			if (newFilter == filter->filter) {
-				graph.SetSelection(filter, NULL);
-				ScrollToMakeFilterVisible(filter);
-				break;
-			}
-		}
-
 		Invalidate();
 		return hr;
 	}

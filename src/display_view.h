@@ -20,7 +20,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		DECLARE_DYNCREATE(DisplayView)
 		DECLARE_MESSAGE_MAP()
 
-		HRESULT	InsertNewFilter(IBaseFilter* newFilter, const CString& strFilterName, bool connectToCurrentPin = true);
+		HRESULT	InsertNewFilter(IBaseFilter* newFilter, const CString& strFilterName);
 
 		static Pin * GetPinFromFilterClick(Filter* filter, int clickFlags, bool findConnectedPin);
 
@@ -113,7 +113,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		void OnConnectPinClick(UINT nID);
 		void NavigateFilterGraph(bool pin, bool vertical, bool positive, bool extend_selection);
 		void ShowContextMenu(CPoint pt, GraphStudio::Filter *, GraphStudio::Pin *);
-		bool ConnectSelectedFilters();
+		bool ConnectSelectedFilters(bool reportErrors = true);
 
 		// scrolling aid
 		void UpdateScrolling();
