@@ -370,6 +370,54 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			strId = NULL;
 		}
 
+		// check internal pin connections
+		// will be E_NOTIMPL most of the time, because the BaseClasses don't implement this
+		ULONG internalPinsCount = 0;
+		hr = pin->QueryInternalConnections(NULL, &internalPinsCount);
+		if (hr != E_NOTIMPL) {
+
+			if (internalPinsCount > 0) {
+				IPin** ppPinInternal = new IPin*[internalPinsCount];
+				hr = pin->QueryInternalConnections(ppPinInternal, &internalPinsCount);
+
+				if (hr == S_OK) {
+					CStringArray pinNames;
+
+					for (ULONG i = 0; i < internalPinsCount; i++) {
+						if (ppPinInternal[i]) {
+							PIN_INFO piConnected = {};
+							ppPinInternal[i]->QueryPinInfo(&piConnected);
+							if (piConnected.pFilter)
+								piConnected.pFilter->Release();
+
+							pinNames.Add(CString(piConnected.achName));
+
+							// release pin reference
+							ppPinInternal[i]->Release();
+							ppPinInternal[i] = NULL;
+						}
+					}
+
+					if (!pinNames.IsEmpty()) {
+						CString pinNamesVal;
+						for (int i = 0; i < pinNames.GetCount(); i++)
+						{
+							if (i > 0) pinNamesVal += _T(", ");
+							pinNamesVal += pinNames[i];
+						}
+						group->AddItem(new GraphStudio::PropItem(_T("InternalConnections"), pinNamesVal, false));
+					}
+				}
+
+				// free pin array
+				delete[] ppPinInternal;
+			}
+			else {
+				// 0 internal connections => this is a renderer (deprecated)
+				group->AddItem(new GraphStudio::PropItem(_T("InternalConnections"), _T("(none)"), false));
+			}
+		}
+
 		CComPtr<IMemInputPin> mem_input_pin;
 		pin->QueryInterface(__uuidof(IMemInputPin), (void**)&mem_input_pin);
 		if (mem_input_pin) {
