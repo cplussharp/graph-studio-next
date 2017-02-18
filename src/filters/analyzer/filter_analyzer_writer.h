@@ -25,6 +25,7 @@ public:
     STDMETHODIMP NonDelegatingQueryInterface(REFIID iid, void** ppv);
 
 	STDMETHODIMP GetAllocatorRequirements(__out ALLOCATOR_PROPERTIES* pProps);
+	STDMETHODIMP QueryInternalConnections(IPin** apPin, ULONG* nPin);
 
     // IStream Methods
     STDMETHOD(Read) (void* pv, ULONG cb, ULONG* pcbRead);

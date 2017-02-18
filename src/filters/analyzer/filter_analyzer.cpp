@@ -28,6 +28,33 @@ public:
 	{
 	}
 
+#ifdef _DEBUG	
+	// if every Input is Connected to every Output this method should return E_NOTIMPL
+	// so this Debug-Implementation is just for testing
+	STDMETHODIMP QueryInternalConnections(IPin** apPin, ULONG* nPin)
+	{
+		if (!nPin) return E_POINTER;
+
+		if (!apPin) {
+			if (*nPin > 0) return E_POINTER;
+			*nPin = 1;
+			return S_FALSE;
+		}
+
+		if (*nPin < 1) {
+			*nPin = 1;
+			return S_FALSE;
+		}
+
+		// internaly connected to the output pin
+		apPin[0] = m_pTIPFilter->GetPin(1);
+		apPin[0]->AddRef();
+		*nPin = 1;
+
+		return S_OK;
+	}
+#endif
+
 protected:
 	CAnalyzer*		m_Analyzer;
 
@@ -119,6 +146,33 @@ public:
 
     DECLARE_IUNKNOWN
     STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, __deref_out void **ppv);
+
+#ifdef _DEBUG	
+	// if every Input is Connected to every Output this method should return E_NOTIMPL
+	// so this Debug-Implementation is just for testing
+	STDMETHODIMP QueryInternalConnections(IPin** apPin, ULONG* nPin)
+	{
+		if (!nPin) return E_POINTER;
+
+		if (!apPin) {
+			if (*nPin > 0) return E_POINTER;
+			*nPin = 1;
+			return S_FALSE;
+		}
+
+		if (*nPin < 1) {
+			*nPin = 1;
+			return S_FALSE;
+		}
+
+		// internaly connected to the input pin
+		apPin[0] = m_pTIPFilter->GetPin(0);
+		apPin[0]->AddRef();
+		*nPin = 1;
+
+		return S_OK;
+	}
+#endif
 
 protected:
 	CAnalyzer*					m_Analyzer;

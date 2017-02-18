@@ -115,6 +115,15 @@ CAnalyzerWriterInput::GetAllocatorRequirements(__out ALLOCATOR_PROPERTIES*pProps
 	return S_OK;
 }
 
+STDMETHODIMP CAnalyzerWriterInput::QueryInternalConnections(IPin** apPin, ULONG* nPin)
+{
+	if (!nPin) return E_POINTER;
+
+	// this is a renderer so the pin has no internal connections
+	*nPin = 0;
+	return S_OK;
+}
+
 #pragma region IStream
 
 /*********************************************************************************************
