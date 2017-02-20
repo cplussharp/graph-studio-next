@@ -140,8 +140,8 @@ void CEventsForm::OnGraphEvent(long evcode, LONG_PTR param1, LONG_PTR param2)
 		}
 		break;
 	case EC_BUILT:			{ msg = _T("EC_BUILT"); } break;
-	case EC_CLOCK_CHANGED:	{ msg = _T("EC_CLOCK_CHANGED"); } break;
-	case EC_CLOCK_UNSET:	{ msg = _T("EC_CLOCK_UNSET"); } break;
+	case EC_CLOCK_CHANGED:	{ msg = _T("EC_CLOCK_CHANGED");		view->graph.RefreshClock();  } break;
+	case EC_CLOCK_UNSET:	{ msg = _T("EC_CLOCK_UNSET");		view->graph.RefreshClock();  } break;
 	case EC_COMPLETE:		
 		{ 
 			msg = _T("EC_COMPLETE"); 
