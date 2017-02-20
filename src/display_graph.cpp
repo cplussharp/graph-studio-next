@@ -270,7 +270,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
             AddToRot();
 
-			gb->SetDefaultSyncSource();
+			// Historically, GraphStudio and GraphStudioNext used to always call SetDefaultSyncSource on startup
+			// This has been removed as appears it's not DirectShow best practice cf issue #291
+			// gb->SetDefaultSyncSource();
+			// This behaviour can be simulated by turning the graph clock off and on again
 
 			gb->QueryInterface(IID_IMediaControl, (void**)&mc);
 
