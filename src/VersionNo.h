@@ -6,16 +6,18 @@
 #define VERSION_MAJOR               0
 #define VERSION_MINOR               7
 #define VERSION_REVISION            1
-#define VERSION_BUILD               0 // todo revision from git
 
-#define VERSION_MODIFIER
- 
 // If built on appveyor, pass build version information through
-//#define APPVEYOR_BUILD_VERSION 98.8.34.1345
 #if defined(APPVEYOR_BUILD_VERSION) && defined(APPVEYOR_BUILD_NUMBER)
-#define APPVEYOR_BUILD_STRING "Appveyor " STRINGIZE(APPVEYOR_BUILD_VERSION) " : " STRINGIZE(APPVEYOR_BUILD_NUMBER)
+
+#define VERSION_BUILD APPVEYOR_BUILD_NUMBER
+#define APPVEYOR_BUILD_STRING "Appveyor build version" STRINGIZE(APPVEYOR_BUILD_VERSION)
+
 #else
+
+#define VERSION_BUILD               0 // todo revision from git
 #define APPVEYOR_BUILD_STRING ""
+
 #endif
 
 #define VER_FILE_DESCRIPTION_STR    "Built " __DATE__ " " __TIME__ " " APPVEYOR_BUILD_STRING
