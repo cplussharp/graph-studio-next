@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Von Microsoft Visual C++ generierte Includedatei.
-// Verwendet durch graphstudionext.rc
+// Microsoft Visual C++ generated include file.
+// Used by graphstudionext.rc
 //
 #define IDC_BUTTON_SET_PREROLL          3
 #define IDD_ABOUTBOX                    100
@@ -93,6 +93,7 @@
 #define IDC_SLIDER_SEEK                 1016
 #define IDC_SLIDER_VOLUME               1016
 #define IDC_SLIDER_IRATE                1016
+#define IDC_BUTTON_UNLOCK               1016
 #define IDC_STATIC_TIME                 1017
 #define IDC_SLIDER_BALANCE              1017
 #define IDC_SLIDER_PRATE                1017
@@ -104,6 +105,7 @@
 #define IDC_BUTTON_SET                  1018
 #define IDC_EDIT_DETAILS                1019
 #define IDC_BUTTON_DEF_PRATE            1019
+#define IDC_BUTTON_RECORDING_BROWSE     1019
 #define IDC_COMBO_REPORTTYPE            1020
 #define IDC_RADIO_FILE                  1021
 #define IDC_RADIO_URL                   1022
@@ -112,6 +114,7 @@
 #define IDC_BUTTON_DEF_QUALITY          1023
 #define IDC_COMBO_URL                   1024
 #define IDC_SLIDER_WINDOW               1024
+#define IDC_COMBO_RECORDING_FILE        1024
 #define IDC_TAB_PAGES                   1025
 #define IDC_BUTTON_DEF_WINDOW           1025
 #define IDC_TITLEBAR                    1027
@@ -276,8 +279,17 @@
 #define IDC_BUTTON_CLEAR_LOG            1166
 #define IDC_BUTTON_SPY_PROPERTYFRAME    1167
 #define ID_VIEW_COPYSCREENSHOTTOCLIPBOARD 1168
+#define IDC_CHECK_REFERENCE_RECORDING   1168
 #define ID_VIEW_COPYTEXTTOCLIPBOARD     1169
 #define ID_VIEW_COPYSPYTEXTTOCLIPBOARD  1170
+#define IDC_EDIT_START_TIME             1170
+#define IDC_BUTTON_STOP_RECORDING       1171
+#define IDC_BUTTON_CREATE_RECORDING     1172
+#define IDC_BUTTON_START_RECORDING      1173
+#define IDC_BUTTON_CLOSE_RECORDING      1174
+#define IDC_STATIC_START_TIME           1175
+#define IDC_STATIC_STOP_TIME            1176
+#define IDC_EDIT_STOP_TIME              1177
 #define ID_LIST_MRU_CLEAR               4999
 #define ID_LIST_MRU_FILE0               5000
 #define ID_AUDIO_SOURCE0                6000
@@ -453,9 +465,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        182
+#define _APS_NEXT_RESOURCE_VALUE        185
 #define _APS_NEXT_COMMAND_VALUE         32964
-#define _APS_NEXT_CONTROL_VALUE         1167
+#define _APS_NEXT_CONTROL_VALUE         1176
 #define _APS_NEXT_SYMED_VALUE           108
 #endif
 #endif

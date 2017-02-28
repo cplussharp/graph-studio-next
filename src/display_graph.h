@@ -121,6 +121,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// special
 		CComPtr<IBasicAudio>		basic_audio;
 		CComPtr<IReferenceClock>	clock;
+		CComPtr<IStreamBufferRecordControl> recording;	// only used to support Stream Buffer Engine recordings. Needs to have same lifetime as filter rather than lifetime of SBE property page
 		bool						is_sync_source;
 
 		// overlay icons

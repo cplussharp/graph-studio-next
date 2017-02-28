@@ -347,6 +347,17 @@ void CEventsForm::OnGraphEvent(long evcode, LONG_PTR param1, LONG_PTR param2)
 			msg = _T("EC_WMT_INDEX_EVENT");
 		}
 		break;
+	case STREAMBUFFER_EC_TIMEHOLE:							msg.Format(_T("STREAMBUFFER_EC_TIMEHOLE: start %dms, length %dms"), (int)param1, (int)param2);									break;
+	case STREAMBUFFER_EC_STALE_DATA_READ:					msg = _T("STREAMBUFFER_EC_STALE_DATA_READ");																					break;
+	case STREAMBUFFER_EC_STALE_FILE_DELETED:				msg = _T("STREAMBUFFER_EC_STALE_FILE_DELETED");																					break;
+	case STREAMBUFFER_EC_CONTENT_BECOMING_STALE:			msg = _T("STREAMBUFFER_EC_CONTENT_BECOMING_STALE");																				break;
+	case STREAMBUFFER_EC_WRITE_FAILURE:						msg = _T("STREAMBUFFER_EC_WRITE_FAILURE");																						break;
+	case STREAMBUFFER_EC_WRITE_FAILURE_CLEAR:				msg = _T("STREAMBUFFER_EC_WRITE_FAILURE_CLEAR");																				break;
+	case STREAMBUFFER_EC_READ_FAILURE:						msg.Format(_T("STREAMBUFFER_EC_READ_FAILURE (hr = 0x%08x)"), (HRESULT)param1);													break;
+	case STREAMBUFFER_EC_RATE_CHANGED:						msg.Format(_T("STREAMBUFFER_EC_RATE_CHANGED old rate %.3f, new rate %.3f"), param1/1000.0, param2/1000.0);						break;
+	case STREAMBUFFER_EC_PRIMARY_AUDIO:						msg = _T("STREAMBUFFER_EC_PRIMARY_AUDIO");																						break;
+	case STREAMBUFFER_EC_RATE_CHANGING_FOR_SETPOSITIONS:	msg.Format(_T("STREAMBUFFER_EC_RATE_CHANGING_FOR_SETPOSITIONS old rate %.3f, new rate %.3f"), param1/1000.0, param2/1000.0);	break;
+	case STREAMBUFFER_EC_SETPOSITIONS_EVENTS_DONE:			msg = _T("STREAMBUFFER_EC_SETPOSITIONS_EVENTS_DONE");																			break;
 	default:
 		{
 			msg.Format(_T("Event Code = 0x%08x"), evcode);

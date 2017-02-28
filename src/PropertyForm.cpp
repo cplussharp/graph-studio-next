@@ -314,10 +314,13 @@ int CPropertyForm::AnalyzeObject(IUnknown *obj)
 		}
 		vfw_dialogs = NULL;
 
+		// We pass in the filter object which stores the SBE recorder object
+		GraphStudio::Filter * const graph_filter = view->graph.FindFilter(filter);
+
         // Internal Property Pages
         CComQIPtr<IStreamBufferSink> sbeSink = obj;
         if(sbeSink)
-            AddPropertyPage(new CSbeSinkPage(NULL, &hr, _T("SbeSink")), obj);
+            AddPropertyPage(new CSbeSinkPage(NULL, &hr, _T("SbeSink"), graph_filter), obj);
 
 		// Add Analyzer page via GetPages for CLSID and CoCreateInstance instead
         //CComQIPtr<IAnalyzerCommon> analyzer = obj;
