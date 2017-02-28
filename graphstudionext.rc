@@ -25,7 +25,7 @@ IDI_GRAPHSTUDIO_GRAPHTYPE     ICON              "res\\graphxml.ico"
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Englisch (USA) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -39,6 +39,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_ADDFILTER           ICON                    "res\\addFilter.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1074,14 +1075,23 @@ END
 //
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+
 IDB_BITMAP_LOGO         BITMAP                  "res\\bitmap_logo.bmp"
+
 IDB_BITMAP_TREE         BITMAP                  "res\\bitmap_tree.bmp"
+
 IDB_BITMAP_VOLUME_HI    BITMAP                  "res\\bitmap_volume.bmp"
+
 IDB_BITMAP_VOLUME_LO    BITMAP                  "res\\bitmap_volume2.bmp"
+
 IDB_BITMAP_CLOCK_ACTIVE_HI BITMAP                  "res\\bitmap_clock_active_hi.bmp"
+
 IDB_BITMAP_CLOCK_ACTIVE_LO BITMAP                  "res\\bitmap_clock_active_lo.bmp"
+
 IDB_BITMAP_CLOCK_INACTIVE_HI BITMAP                  "res\\bitmap_clock_inactive_hi.bmp"
+
 IDB_BITMAP_CLOCK_INACTIVE_LO BITMAP                  "res\\bitmap_clock_inactive_lo.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1144,12 +1154,12 @@ BEGIN
             MENUITEM "Load XML Pins by &Name",      ID_FILEOPTIONS_LOADPINSBYNAME
             MENUITEM "Load XML Pins by In&dex",     ID_FILEOPTIONS_LOADPINSBYINDEX
             MENUITEM "Load XML Pins by &ID",        ID_FILEOPTIONS_LOADPINSBYID
-			MENUITEM SEPARATOR
-			MENUITEM "Always Save GRF and &XML", ID_FILEOPTIONS_SAVEASXMLANDGRF
-			MENUITEM "Always Save Graph Infor&mation", ID_FILEOPTIONS_SAVE_INFORMATION
-			MENUITEM "Always Save &Screenshot", ID_FILEOPTIONS_SAVE_SCREENHSOT
+            MENUITEM SEPARATOR
+            MENUITEM "Always Save GRF and &XML",    ID_FILEOPTIONS_SAVEASXMLANDGRF
+            MENUITEM "Always Save Graph Infor&mation", ID_FILEOPTIONS_SAVE_INFORMATION
+            MENUITEM "Always Save &Screenshot",     ID_FILEOPTIONS_SAVE_SCREENHSOT
         END
-		MENUITEM "Save Grap&h Information...\tCtrl+F11", ID_GRAPH_MAKEGRAPHINFORMATION
+        MENUITEM "Save Grap&h Information...\tCtrl+F11", ID_GRAPH_MAKEGRAPHINFORMATION
         MENUITEM "Save Graph Scr&eenshot...\tCtrl+F12", ID_GRAPH_MAKEGRAPHSCREENSHOT
         MENUITEM SEPARATOR
         MENUITEM "&Render Media File...\tCtrl+R", ID_FILE_RENDERFILE
@@ -1232,7 +1242,7 @@ BEGIN
     POPUP "&Graph"
     BEGIN
         MENUITEM "Insert &Filter...\tCtrl+F",   ID_GRAPH_INSERTFILTER
-        MENUITEM "Insert F&ilter from DLL...", ID_GRAPH_INSERTFILTERFROMFILE
+        MENUITEM "Insert F&ilter from DLL...",  ID_GRAPH_INSERTFILTERFROMFILE
         MENUITEM SEPARATOR
         MENUITEM "Disconnect &all Filters\tCtrl+Del", ID_BUTTON_REMOVE_CONNECTIONS
         MENUITEM "Disconnect selected filters\tShift+Del/Backspace", ID_GRAPH_DISCONNECTSELECTEDFILTERS
@@ -1376,7 +1386,7 @@ BEGIN
     VK_DOWN,        ID_PIN_DOWN,            VIRTKEY, SHIFT, CONTROL, NOINVERT
     VK_ESCAPE,      ID_BUTTON_CANCEL,       VIRTKEY, NOINVERT
     VK_F10,         ID_CONTEXT_MENU,        VIRTKEY, SHIFT, NOINVERT
-	VK_F11,         ID_GRAPH_MAKEGRAPHINFORMATION, VIRTKEY, CONTROL, NOINVERT
+    VK_F11,         ID_GRAPH_MAKEGRAPHINFORMATION, VIRTKEY, CONTROL, NOINVERT
     VK_F12,         ID_GRAPH_MAKEGRAPHSCREENSHOT, VIRTKEY, CONTROL, NOINVERT
     VK_F5,          ID_BUTTON_REFRESH,      VIRTKEY, NOINVERT
     VK_F5,          ID_VIEW_PROGRESSVIEW,   VIRTKEY, CONTROL, NOINVERT
@@ -1716,7 +1726,7 @@ BEGIN
     ID_GRAPH_CONNECTPIN     "Connect or disconnect and reconnect selected pins or filters\nConnect pin(s) or filter(s)"
 END
 
-#endif    // Englisch (USA) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
