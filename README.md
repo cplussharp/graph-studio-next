@@ -3,7 +3,7 @@
 GraphStudioNext is a fork of [RadScorpion's](http://blog.monogram.sk/janos/) [GraphStudio](http://blog.monogram.sk/janos/tools/monogram-graphstudio/).
 Because development had stopped on the really useful tool GraphStudio, I started this fork. I use this application every day and I needed some new features to support my workflows and wanted to fix some really annoying bugs.
 
-You're welcome to submit bugs and feature requests or just comment whether you like or hate the application [here](https://github.com/issues).
+You're welcome to submit bugs and feature requests or just comment whether you like or hate the application [here](https://github.com/cplussharp/graph-studio-next/issues).
 
 Thanks to the following for supporting the development of GraphStudioNext:
  * [ROOT6 Technology](http://www.root6technology.com/) Creators of workflow automation software.
