@@ -26,6 +26,9 @@ Release: [graphstudionext64.exe](https://ci.appveyor.com/api/projects/cplussharp
 Debug: [graphstudionext64.exe](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext64.exe?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64)
 ([.pdb](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext64.pdb?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64))
 
+## Frequently Asked Questions
+See [docs/FAQ.md](docs/FAQ.md)
+
 ## Releases
 ### Release 0.7.0.430 (2014-11-10)
 [download (x32)](https://drive.google.com/open?id=0Bwvr5qdpKXBxMjRGZC1wWmFQLW8&authuser=0)
