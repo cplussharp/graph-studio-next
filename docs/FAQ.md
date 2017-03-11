@@ -9,6 +9,12 @@ Possibly, but consider some further steps to isolate the problem:
 * Do you have other applications installed or running that are affecting the operation of DirectShow? A notable example is the excellent tool, [Filter Graph Spy](http://alax.info/blog/777), which hooks DirectShow throughout the system at a low level and can change DirectShow behaviour (as the author himself warns).
 * Some diagnostic features in the GraphStudioNext options menu can cause unexpected behaviour by design. For example, "Reserve Memory below 2GB" may cause graphs to run out of memory or fail if some filters aren't flagged as LargeAddressAware.
 
+### How do I report a bug or feature request
+* https://github.com/cplussharp/graph-studio-next/issues
+* If problem is specific to a graph, save the graph and include GRF/GRFX/PNG/TXT files in the issue
+* Include sample code if relevant
+* Report you expect to happen and what actually happened
+
 ### Do I have to install the [Windows SDK](https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk)?
 No, GraphStudioNext will work without it, but the Windows SDK does include some very important tools:
 * Graph Edit (graphedt.exe), Microsoft's own DirectShow graph editor.

@@ -31,8 +31,33 @@ See [docs/FAQ.md](docs/FAQ.md)
 
 ## Releases
 
-### More recent changes
-See [commit log comments](https://github.com/cplussharp/graph-studio-next/commits/master)
+### Recent changes
+See also [commit log comments](https://github.com/cplussharp/graph-studio-next/commits/master)
+
+*New Features:*
+ * Create stream buffer recordings from Stream Buffer Sink filter property page [issue #302](https://github.com/cplussharp/graph-studio-next/issues/302)
+ * Display IPin::QueryInternalConnections result in Pin PropertyPage [issue #300](https://github.com/cplussharp/graph-studio-next/issues/300)
+ * Connect newly created filter to previously selected filter for faster graph building [issue #265](https://github.com/cplussharp/graph-studio-next/issues/265)
+ * New option to reserve memory below 2GB/4GB for testing 32bit LargeAddressAware filters and 64bit filters for pointer truncation bugs [issue #298](https://github.com/cplussharp/graph-studio-next/issues/298)
+ * Mediainfo information display for files created by file writing filters (similar to source file filters) [issue #278](https://github.com/cplussharp/graph-studio-next/issues/278)
+ * Save text/graph information with graph and tweaks to text information [issue #277](https://github.com/cplussharp/graph-studio-next/issues/277)
+ * Show current sync source in status bar
+ * Include frames per second in video media type details [issue #295](https://github.com/cplussharp/graph-studio-next/issues/295)
+ * Implement loading from ipersistpropertybag option when loading GRFX files [issue #284](https://github.com/cplussharp/graph-studio-next/issues/284)
+ * Added count*average column to statistics windows [issue #270](https://github.com/cplussharp/graph-studio-next/issues/270)
+ * Integration with DirectShowSpy property frame helper in remote graph form [issue #264](https://github.com/cplussharp/graph-studio-next/issues/264)
+ * Display filter merit as SDK constant (as opposed to numeric value)
+
+*Bug Fixes:*
+ * Fixed bug in sync source selection in new graphs [issue #291](https://github.com/cplussharp/graph-studio-next/issues/291)
+ * EVR renderer is no longer closed and recreated when graph is refereshed [issue #293](https://github.com/cplussharp/graph-studio-next/issues/293)
+ * Fix to Analyzer Filter property page [issue #289](https://github.com/cplussharp/graph-studio-next/issues/289)
+ * Filters having no valid CLSID are showing invalid tool tip with text from another filter [issue #288](https://github.com/cplussharp/graph-studio-next/issues/288)
+ * Analzyer writer filter returns current position from IStream::Seek [issue #281](https://github.com/cplussharp/graph-studio-next/issues/281)
+ * Fixed wrong loading of current sync source in GRF and GRFX files [issue #268](https://github.com/cplussharp/graph-studio-next/issues/268)
+ * 32bit version running on 64bit OS no longer silently ignores exceptions that happen from user mode callbacks (e.g. key press handlers) [issue #269](https://github.com/cplussharp/graph-studio-next/issues/269)
+ * Better robustness against filters that delete rather than Release() pins [issue #115](https://github.com/cplussharp/graph-studio-next/issues/115)
+ * Better property page positioning [issue #213](https://github.com/cplussharp/graph-studio-next/issues/213)
 
 ### Release 0.7.0.430 (2014-11-10)
 [download (x32)](https://drive.google.com/open?id=0Bwvr5qdpKXBxMjRGZC1wWmFQLW8&authuser=0)
@@ -103,7 +128,6 @@ See [commit log comments](https://github.com/cplussharp/graph-studio-next/commit
 [download (x64)](https://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionextx64_0_6_1_265.zip)
 
 *New Features:*
-
  * Color connection lines according to the major media type (issue #110)
  * Word wrap filter names to adjustable margin (issue #62)
  * Toolbar buttons and keyboard shortcuts for seeking (issue #155)
@@ -129,7 +153,6 @@ See [commit log comments](https://github.com/cplussharp/graph-studio-next/commit
  * Projects for DLL versions of internal filters (issue #16)
 
 *Bug Fixes:*
-
  * Update favorites window when filters added or removed with context menu (issue #167)
  * Robustness improvements to file loading (issue #85)
  * Improved robustness for loading GRF files with internal parser (issue #171)
