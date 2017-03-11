@@ -3,38 +3,43 @@
 
 ### My graph behaves unexpectedly in GraphStudioNext, is it a GraphStudioNext bug?
 Possibly, but consider some further steps to isolate the problem:
-* Does the same problem happen in [Graph Edit](https://msdn.microsoft.com/en-us/library/windows/desktop/dd407274(v=vs.85).aspx), Microsoft's own graph editor in the Windows SDK?
+* Does the same problem happen in [Graph Edit](https://msdn.microsoft.com/en-us/library/windows/desktop/dd407274.aspx), Microsoft's own graph editor in the [Windows SDK](https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk)?
 * Do the filters you are using support the operation you are attempting? Many filters do not support all DirectShow features. For example some filters don't support seeking or only support specific time formats. Consult the documentation for the filters you are using.
-* If the graph throws an exception, attach a debugger to see whether the crash happens in graphstudionext.exe or a filter DLL.
+* If the graph throws an exception, attach a debugger to see whether the exception happens in graphstudionext.exe or a filter DLL.
 * Do you have other applications installed or running that are affecting the operation of DirectShow? A notable example is the excellent tool, [Filter Graph Spy](http://alax.info/blog/777), which hooks DirectShow throughout the system at a low level and can change DirectShow behaviour (as the author himself warns).
-* Some diagnostic features in the GraphStudioNext options menu can cause unexpected behaviour by design. For example, "Reserve Memory below 2GB" may cause graphs to run out of memory or fail if some filters aren't flagged as LargeAddressAware.
+* Some diagnostic features in the GraphStudioNext "Options" menu can cause unexpected behaviour by design. For example, "Reserve Memory below 2GB" may cause graphs to run out of memory or fail if some filters aren't flagged as LargeAddressAware.
 
 ### How do I report a bug or feature request
 * https://github.com/cplussharp/graph-studio-next/issues
-* If problem is specific to a graph, save the graph and include GRF/GRFX/PNG/TXT files in the issue
+* Do a search to see if the bug or feature request is a duplicate [including closed issues](https://github.com/cplussharp/graph-studio-next/issues?utf8=%E2%9C%93&q=is%3Aissue).
+* If possible, create a graph that shows the problem and save and include all the GRF/GRFX/PNG/TXT files in the issue
 * Include sample code if relevant
-* Report you expect to happen and what actually happened
+* Report what you expected to happen and what actually happened
 
 ### Do I have to install the [Windows SDK](https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk)?
 No, GraphStudioNext will work without it, but the Windows SDK does include some very important tools:
-* Graph Edit (graphedt.exe), Microsoft's own DirectShow graph editor.
+* [Graph Edit](https://msdn.microsoft.com/en-us/library/windows/desktop/dd407274.aspx), Microsoft's own graph editor in the Windows SDK
 * proppage.dll and evrprop.dll which provide property pages and the ability to connect to graphs in other processes.
-* Ole/COM Object Viewer, useful for looking at registered COM classes and looking at COM type libraries packaged inside filter DLLs.
-* Header files and import libraries for building DirectShow applications. 
-* DirectShow sample code.
-* The DirectShow baseclasses for building filters.  
-These are included in the tools for desktop development, Universal Windows App development tools are not required.
+* [OLE-COM Object Viewer](https://msdn.microsoft.com/en-us/library/d0kh9f4c.aspx), useful for looking at registered COM classes and looking at COM type libraries packaged inside filter DLLs.
+* Header files and libraries for building DirectShow applications and filters. 
+* [DirectShow sample code](https://msdn.microsoft.com/en-us/library/windows/desktop/dd375468.aspx).
+* The DirectShow [baseclasses](https://msdn.microsoft.com/en-us/library/windows/desktop/dd375456.aspx). Mainly useful for building filters though there are some classes and functions that can be used for developing DirectShow client applications.
 
-### How do I do/What is __XXX__ in DirectShow?
-* As a first step read the [MSDN DirectShow documentation](https://msdn.microsoft.com/en-us/library/windows/desktop/dd375454(v=vs.85).aspx). It is well written and is the definitive documentation for DirectShow. Many important details can be missed on the first reading, so read it again!
-* Is there a relevant [Microsoft DirectShow sample](https://msdn.microsoft.com/en-us/library/windows/desktop/dd375468(v=vs.85).aspx) to refer to?
+These tools are included in the Windows SDK tools for desktop development, there is no need to install Universal Windows App development tools unless you want to.
+
+### How do I do/What is *XXXXX* in DirectShow?
+* As a first step read the [MSDN DirectShow documentation](https://msdn.microsoft.com/en-us/library/windows/desktop/dd375454.aspx). It is well written and is the definitive documentation for DirectShow. Many important details can be missed on the first reading, so read it again!
+* Is there a relevant [Microsoft DirectShow sample](https://msdn.microsoft.com/en-us/library/windows/desktop/dd375468.aspx) to refer to?
 * Search engines are your friend. There is loads of DirectShow sample code and discussion on the web.
 
 ### I can't see the property pages for Microsoft filters
-Have you installed the Windows SDK and registered proppage.dll (using regsvr32)? Proppage.dll implements the property pages for many Microsoft filters. Similarly, registering evrprop.dll in the Windows SDK will provide extra property pages for the enhanced video renderer filter.
+Have you installed the [Windows SDK](https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk) and registered proppage.dll using [regsvr32](https://support.microsoft.com/en-gb/help/249873/how-to-use-the-regsvr32-tool-and-troubleshoot-regsvr32-error-messages)? Proppage.dll implements the property pages for many Microsoft filters. Similarly, registering evrprop.dll in the Windows SDK will provide extra property pages for the enhanced video renderer filter.
 
 ### When I attempt to connect to a remote graph I get an error
-Have you installed the Windows SDK and registered proppage.dll (using regsvr32)? Proppage.dll implements DirectShow COM proxy/stub implementations that are required for calling DirectShow interfaces on a graph in another process.
+Have you installed the Windows SDK and registered proppage.dll using [regsvr32](https://support.microsoft.com/en-gb/help/249873/how-to-use-the-regsvr32-tool-and-troubleshoot-regsvr32-error-messages)? Proppage.dll implements COM proxies and stubs that are required for calling DirectShow interfaces on a graph in another process.
 
-### Why doesn't GraphStudioNext generate C++ or C# code
-Mainly because the authors don't have an interest in writing or using such a feature themselves. It's hard to write general purpose DirectShow code that would suit all users. We are not ruling such a feature out if someone else is prepared to write it. Feel free to write some code and get involved! There is one commercial graph editor,[Graph Edit Plus](http://www.infognition.com/GraphEditPlus/), that supports code generation.
+### Why can I see property pages for a particular filter or pin in a local graph, but not in a remote graph?
+Has the filter implemented COM proxies and stubs for calling the filter's custom COM interfaces in a remote process? It's possible to build these yourself using code generated by MIDL if you have the type libraries for the filter's custom COM interfaces but it's beyond the scope of this FAQ. Sometimes the type libraries for these interfaces are included in the filter DLL and can be viewed using "View Typelib" in [OLE-COM Object Viewer](https://msdn.microsoft.com/en-us/library/d0kh9f4c.aspx) in the [Windows SDK](https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk). Generally, COM proxies and stubs and property pages for Microsoft filters are in proppage.dll in the Windows SDK.
+
+### Why doesn't GraphStudioNext generate C++ or C# code?
+Mainly because the authors don't have an interest in writing or using such a feature themselves. It's hard to write general purpose DirectShow code that would suit all users. However, we are not ruling such a feature out if someone else would like to write it. Feel free to write some code and get involved! There is one commercial graph editor, [Graph Edit Plus](http://www.infognition.com/GraphEditPlus/), that supports code generation in C++ and C#.
