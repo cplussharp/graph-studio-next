@@ -50,7 +50,7 @@ BOOL CRemoteGraphForm::OnInitDialog()
 
     // prepare ListCtrl
     list_graphs.InsertColumn(0, _T("Process ID"), LVCFMT_RIGHT, 120);
-    list_graphs.InsertColumn(1, _T("Porcess Name"), LVCFMT_LEFT, 150);
+    list_graphs.InsertColumn(1, _T("Process Name"), LVCFMT_LEFT, 150);
     list_graphs.InsertColumn(2, _T("Instance"), LVCFMT_LEFT, 80);
     list_graphs.InsertColumn(3, _T("Creation Time"), LVCFMT_LEFT, 80);
     list_graphs.InsertColumn(4, _T("Process Image File"), LVCFMT_LEFT, 350);
@@ -156,12 +156,15 @@ void CRemoteGraphForm::OnRefreshClick()
                 const CAtlREMatchContext<>::RECHAR* szEnd = 0;
                 mc.GetMatch(0, &szStart, &szEnd);
                 int nLength = (int) (szEnd - szStart);
-                CString textInstance(szStart, nLength);
+                const CString textInstance(szStart, nLength);
                 StrToInt64ExW(CStringW(L"0x") + textInstance, STIF_SUPPORT_HEX, &reinterpret_cast<LONGLONG&>(gr.instance));
 
                 mc.GetMatch(1, &szStart, &szEnd);
                 nLength = (int) (szEnd - szStart);
-                CString textPID(szStart, nLength);
+                const CString textPID(szStart, nLength);
+				CString nameSuffix(szEnd ? szEnd : _T(""));
+				nameSuffix.Trim();
+
 			    if (StrToIntExW(CStringW(L"0x") + textPID, STIF_SUPPORT_HEX, &reinterpret_cast<INT&>(gr.pid)))
                 {
                     CHandle process;
@@ -188,6 +191,13 @@ void CRemoteGraphForm::OnRefreshClick()
                                 CString textFileName(szStart, nLength);
                                 gr.processImageFileName = textFileName;
                             }
+							else if (nameSuffix.GetLength() > 0)
+							{
+								gr.processImageFileName = nameSuffix;		// as a last resort add any suffix information from the ROT name rather than leaving blank
+#ifndef _WIN64
+								gr.processImageFileName += _T(" *64");		// If we're 32bit, assume that we can't get process name because remote process is 64bit and show this on the dialog
+#endif
+							}
                         }
 
                         IsWow64Process(process, &gr.processIsWOW64);
@@ -242,6 +252,11 @@ void CRemoteGraphForm::OnRefreshClick()
 			}
 		}
 		moniker = NULL;
+	}
+
+	// Set column width automatically to fit contents refreshed above
+	for (int n=0; n<=4; n++) {
+		list_graphs.SetColumnWidth(n, LVSCW_AUTOSIZE_USEHEADER);
 	}
 }
 
