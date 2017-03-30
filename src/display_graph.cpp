@@ -3019,12 +3019,15 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 			fs = NULL;
 
-			// get from the registry
-			GetObjectName(clsid, display_name);
+			// We should already have a name from QueryFilterInfo. Only redefault this if empty
+			if (display_name.GetLength() == 0) {
+				// get from the registry
+				GetObjectName(clsid, display_name);
 
-			// sometimes the FILTER_INFO contains 128-char long truncated file name instead of the proper filter name
-			if (clsid == CLSID_AsyncReader) {
-				name = _T("File Source (Async.)");
+				// sometimes the FILTER_INFO contains 128-char long truncated file name instead of the proper filter name
+				if (clsid == CLSID_AsyncReader) {
+					display_name = _T("File Source (Async.)");
+				}
 			}
 		}
 		hr = f->QueryInterface(IID_IFileSinkFilter, (void**)&fsink);
@@ -3038,8 +3041,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 			fsink = NULL;
 
-			// get from the registry
-			GetObjectName(clsid, display_name);
+			// We should already have a name from QueryFilterInfo. Only redefault this if empty
+			if (display_name.GetLength() == 0) {
+				// get from the registry
+				GetObjectName(clsid, display_name);
+			}
 		}
 		file_name = url_name;
 
