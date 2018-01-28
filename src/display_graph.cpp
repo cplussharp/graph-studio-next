@@ -1836,6 +1836,19 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		RefreshFilters();
+
+		if (dll.GetLength() > 0) {
+			// Mark the filter we created as being created by a DLL class factory
+			const INT_PTR filter_count = filters.GetCount();
+			for (int i = 0; i < filter_count; i++) {
+				GraphStudio::Filter * const f = filters[i];
+				if (f->filter == instance) {
+					f->created_from_dll = true;
+					break;
+				}
+			}
+		}
+
 		return hr;
 	}
 
