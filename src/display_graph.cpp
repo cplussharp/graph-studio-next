@@ -1837,16 +1837,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		RefreshFilters();
 
+		// Mark the filter we created as being created by a DLL class factory
 		if (dll.GetLength() > 0) {
-			// Mark the filter we created as being created by a DLL class factory
-			const INT_PTR filter_count = filters.GetCount();
-			for (int i = 0; i < filter_count; i++) {
-				GraphStudio::Filter * const f = filters[i];
-				if (f->filter == instance) {
-					f->created_from_dll = true;
-					break;
-				}
-			}
+			GraphStudio::Filter * const f = FindFilter(instance);
+			if (f)
+				f->created_from_dll = true;
 		}
 
 		return hr;
@@ -2417,16 +2412,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	void DisplayGraph::DoubleSelected()
 	{
-		CArray<CLSID>	clsid;
-		CArray<CString>	names;
+		CArray<Filter*> selectedFilters;
         CArray<LPSTREAM> filterPersistData;
 		int				i;
 
 		for (i=0; i<filters.GetCount(); i++) {
 			Filter *filter = filters[i];
 			if (filter->selected || filter->AnyPinSelected()) {
-				clsid.Add(filter->clsid);
-				names.Add(filter->name);
+				selectedFilters.Add(filter);
 
                 // get persist data to get a real clone
                 CComQIPtr<IPersistStream> pI = filter->filter;
@@ -2460,17 +2453,36 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		// now insert them
-		for (i=0; i<clsid.GetCount(); i++) {
+		for (i=0; i<selectedFilters.GetCount(); i++) {
+
+			const Filter * const selectedFilter = selectedFilters[i];
+			if (!selectedFilter)
+				continue;
 
 			// now create an instance of this filter
 			CComPtr<IBaseFilter>	instance;
 			HRESULT					hr;
 
-			hr = CoCreateInstance(clsid[i], NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
+			// if filter created from DLL class factory, create the copy from the same class factory
+			if (selectedFilter->created_from_dll && selectedFilter->GetDllFileName().GetLength() > 0) {
+				CComPtr<IClassFactory> class_factory;
+				CString error_msg;
+				hr = DSUtil::GetClassFactoryFromDll((T2COLE(selectedFilter->GetDllFileName())), selectedFilter->clsid, &class_factory, error_msg);
+				if (!class_factory) {
+					DSUtil::ShowError(hr, error_msg);
+					hr = E_POINTER;
+				}
+				if (SUCCEEDED(hr)) {
+					hr = class_factory->CreateInstance(NULL, __uuidof(IBaseFilter), (void**)&instance);
+				}
+			}
+			else {
+				hr = CoCreateInstance(selectedFilter->clsid, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&instance);
+			}
 			if (SUCCEEDED(hr)) {
 				
 				// now check for a few interfaces
-				int ret = ConfigureInsertedFilter(instance, names[i]);
+				int ret = ConfigureInsertedFilter(instance, selectedFilter->name);
 				if (ret < 0) {
 					instance = NULL;
                     continue;
@@ -2478,7 +2490,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 				if (instance) {
 					// add the filter to graph
-					hr = AddFilter(instance, names[i]);
+					hr = AddFilter(instance, selectedFilter->name);
 					if (FAILED(hr)) {
 						// display error message
                         continue;
@@ -2491,6 +2503,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
                         pI->Load(filterPersistData[i]);
                     }
+
+					// Mark the filter we created as being created by a DLL class factory if original filter was
+					if (selectedFilter->created_from_dll) {
+						GraphStudio::Filter * const f = FindFilter(instance);
+						if (f)
+							f->created_from_dll = true;		
+					}
 				}
 				instance = NULL;
 			}

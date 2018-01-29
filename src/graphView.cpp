@@ -1445,14 +1445,9 @@ HRESULT CGraphView::InsertFilterFromDLL(CString& dll_file)
 
 		if (SUCCEEDED(hr)) {
 			// Mark the filter we created as being created by a DLL class factory
-			const INT_PTR filter_count = graph.filters.GetCount();
-			for (int i=0; i<filter_count; i++) {
-				GraphStudio::Filter * const f = graph.filters[i];
-				if (f->filter == instance) {
-					f->created_from_dll = true;
-					break;
-				}
-			}
+			GraphStudio::Filter * const f = graph.FindFilter(instance);
+			if (f)
+				f->created_from_dll = true;
 		}
     }
 
