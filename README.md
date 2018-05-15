@@ -25,8 +25,8 @@ Debug: [graphstudionext.exe](https://ci.appveyor.com/api/projects/cplussharp/gra
 Release: [graphstudionext64.exe](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext64.exe?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64)
 ([.pdb](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext64.pdb?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64))
 
-Debug: [graphstudionext64.exe](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext64.exe?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64)
-([.pdb](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext64.pdb?job=Environment%3A%20CONFIGURATION%3DRelease%2C%20PLATFORM%3Dx64))
+Debug: [graphstudionext64.exe](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext64.exe?job=Environment%3A%20CONFIGURATION%3DDebug%2C%20PLATFORM%3Dx64)
+([.pdb](https://ci.appveyor.com/api/projects/cplussharp/graph-studio-next/artifacts/bin/graphstudionext64.pdb?job=Environment%3A%20CONFIGURATION%3DDebug%2C%20PLATFORM%3Dx64))
 
 ## Frequently Asked Questions
 See [docs/FAQ.md](docs/FAQ.md)
