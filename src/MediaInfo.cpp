@@ -38,7 +38,7 @@ CMediaInfo* CMediaInfo::GetInfoForFile(LPCTSTR pszFile, bool useCache=true)
         fileName.MakeLower();
 
         // search for file in cache (backwards because newer entries are appended to the end)
-        for (int i=storedInfos.GetCount()-1; i>=0; i--)
+        for (int i = (int) storedInfos.GetCount() - 1; i >= 0; i--)
             if (storedInfos[i]->m_file == fileName)
 			    return storedInfos[i];
     }

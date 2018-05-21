@@ -144,9 +144,9 @@ bool CFilterReportGenerator::GenerateReport()
 	// Copies the content from the stream to the buffer.
 	SIZE_T cbSize = ssStreamData.cbSize.LowPart;
 	CStringW strBuffer;
-	LPWSTR pwszBuffer = strBuffer.GetBuffer(cbSize / sizeof(WCHAR));
+	LPWSTR pwszBuffer = strBuffer.GetBuffer((int) (cbSize / sizeof(WCHAR)));
 	ULONG cbRead;
-	hr = outStream->Read(pwszBuffer, cbSize, &cbRead);
+	hr = outStream->Read(pwszBuffer, (ULONG) cbSize, &cbRead);
 	if (FAILED(hr))
 	{
 		strBuffer.ReleaseBuffer(0);
@@ -243,6 +243,7 @@ bool CFilterReportGenerator::WriteFilterCategory(CComPtr<IXmlWriter> &writer, co
 	}
 
 	if (!WriteEndElement(writer)) return false;
+	return true;
 }
 
 bool CFilterReportGenerator::EnumerateFiltersOfCategory(CComPtr<IXmlWriter>& writer, const CLSID& clsid)
@@ -512,6 +513,7 @@ bool CFilterReportGenerator::WriteFilterData(CComPtr<IXmlWriter> &writer, char *
 
 		if (!WriteEndElement(writer)) return false;	// pin
 	}
+	return true;
 }
 
 bool CFilterReportGenerator::EnumerateFiltersOfDMOCategory(CComPtr<IXmlWriter>& writer, const CLSID& clsid)

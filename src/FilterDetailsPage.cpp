@@ -234,7 +234,7 @@ void CInterfaceDetailsPage::OnBuildTree()
 
 CMediaInfoPage* CMediaInfoPage::CreateInstance(LPUNKNOWN pUnk, HRESULT *phr, LPCTSTR pszFile, VARIANT_BOOL useCache)
 {
-    CMediaInfo* info = CMediaInfo::GetInfoForFile(pszFile, useCache);
+    CMediaInfo* info = CMediaInfo::GetInfoForFile(pszFile, useCache != ATL_VARIANT_FALSE);
     if (info == NULL) return NULL;
     return new CMediaInfoPage(pUnk, phr, info);
 }

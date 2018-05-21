@@ -135,7 +135,7 @@ BOOL CTextInfoForm::PreTranslateMessage(MSG *pmsg)
 	case WM_KEYDOWN:
 		// Keys 1 to 6 change the report level
 		if (pmsg->wParam > 0x30 && pmsg->wParam <= 0x36) {
-			int sel = pmsg->wParam - 0x30 - 1;
+			int sel = (int) pmsg->wParam - 0x30 - 1;
 			combo_reporttype.SetCurSel(sel);
 			OnBnClickedButtonRefresh();
 			return TRUE;
