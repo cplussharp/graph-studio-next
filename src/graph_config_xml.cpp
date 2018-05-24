@@ -122,37 +122,61 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	//
 	//-------------------------------------------------------------------------
 
-	HRESULT DisplayGraph::LoadXML_ConfigInterface(XML::XMLNode *conf, IBaseFilter *filter)
+	BOOL DirectoryExists(LPCTSTR pszPath)
+	{
+		const DWORD nAttributes = GetFileAttributes(pszPath);
+		return (nAttributes != INVALID_FILE_ATTRIBUTES) && (nAttributes & FILE_ATTRIBUTE_DIRECTORY);
+	}
+
+	HRESULT DisplayGraph::LoadXML_ConfigInterface(XML::XMLNode *conf, IBaseFilter *filter, const CPath& sBaseDirectory)
 	{
 		HRESULT hr = S_OK;
 		
 		PRESET_START()		
 
+		#pragma region ifilesourcefilter
 		PRESET("ifilesourcefilter")
 			//	<ifilesourcefilter source="d:\sga.avi"/>
 
 			CComQIPtr<IFileSourceFilter> fsource(filter);
 			if (!fsource) {
 				hr = E_NOINTERFACE;
-			} else {
-
-				CString filename = conf->GetValue(_T("source"));
-				const BOOL url = filename.Find(_T("://")) >= 0;
-
-				const DWORD file_attributes = !url ? GetFileAttributes(filename) : 0;
-
-				// Give the user a chance to fix up an invalid filename but only check file name for the first time
-				if (!url && INVALID_FILE_ATTRIBUTES == file_attributes)
-					hr = E_INVALIDARG;
-				else 
-					hr = fsource->Load(filename, NULL);
-
-				while (FAILED(hr)) {
-					CFileSrcForm form(_T("Missing source file"));
-					form.result_file = filename;
-					hr = form.ChooseSourceFile(fsource);
+			} else 
+			{
+				const CString sRelativePath = conf->GetValue(_T("relativesource"));
+				const CString sPath = conf->GetValue(_T("source"));
+				for(; ; )
+				{
+					const BOOL bUrlPath = sPath.Find(_T("://")) >= 0;
+					if(!bUrlPath)
+					{
+						const DWORD nAttributes = GetFileAttributes(sPath);
+						if(nAttributes != INVALID_FILE_ATTRIBUTES)
+						{
+							hr = fsource->Load(CStringW(sPath), NULL); 
+							if(SUCCEEDED(hr))
+								break;
+						}
+						// NOTE: Second chance load from relative path
+						if(!sRelativePath.IsEmpty())
+							//if(ATLPath::IsRelative(sRelativePath))
+							{
+								CPath sAbsolutePath;
+								sAbsolutePath.Combine(sBaseDirectory, sRelativePath);
+								hr = fsource->Load(CStringW(sAbsolutePath), NULL);
+							}
+					} else
+						hr = fsource->Load(CStringW(sPath), NULL);
+					while (FAILED(hr)) 
+					{
+						CFileSrcForm form(_T("Missing source file"));
+						form.result_file = sPath;
+						hr = form.ChooseSourceFile(fsource); // IFileSourceFilter::Load inside
+					}
+					break;
 				}
 			}
+		#pragma endregion 
 
 		#pragma region ifilesinkfilter
 		PRESET("ifilesinkfilter")
@@ -161,18 +185,46 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			CComQIPtr<IFileSinkFilter> fsink(filter);
 			if (!fsink) {
 				hr = E_NOINTERFACE;
-			} else {
-				// Give the user a chance to fix up an invalid destination path
-				CString filename = conf->GetValue(_T("dest"));
-				CPath path(filename);
-				if (!path.RemoveFileSpec() || GetFileAttributes(path) == INVALID_FILE_ATTRIBUTES) {
-					CFileSinkForm form(_T("Missing destination file"));
-					do {
-						form.result_file = filename;
+			} else 
+			{
+				const CString sRelativePath = conf->GetValue(_T("relativedest"));
+				const CString sPath = conf->GetValue(_T("dest"));
+				for(; ; )
+				{
+					BOOL bPrompt = FALSE;
+					const BOOL bUrlPath = sPath.Find(_T("://")) >= 0;
+					if(!bUrlPath)
+					{
+						CPath sDirectory = sPath;
+						if(!sDirectory.RemoveFileSpec() || !DirectoryExists(sDirectory))
+						{
+							// NOTE: Second chance load from relative path
+							if(!sRelativePath.IsEmpty())
+								//if(ATLPath::IsRelative(sRelativePath))
+								{
+									CPath sAbsolutePath;
+									sAbsolutePath.Combine(sBaseDirectory, sRelativePath);
+									sDirectory = sAbsolutePath;
+									if(sDirectory.RemoveFileSpec() && DirectoryExists(sDirectory))
+									{
+										hr = fsink->SetFileName(CStringW(sAbsolutePath), NULL);
+										if(SUCCEEDED(hr))
+											break;
+									}
+								}
+							bPrompt = TRUE;
+						} else
+							hr = fsink->SetFileName(CStringW(sPath), NULL);
+					} else
+						hr = fsink->SetFileName(CStringW(sPath), NULL);
+					while(bPrompt || FAILED(hr)) 
+					{
+						bPrompt = FALSE;
+						CFileSinkForm form(_T("Missing destination file"));
+						form.result_file = sPath;
 						hr = form.ChooseSinkFile(fsink);
-					} while (FAILED(hr));
-				} else {
-					hr = fsink->SetFileName(filename, NULL);
+					}
+					break;
 				}
 			}
 		#pragma endregion 

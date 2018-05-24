@@ -600,7 +600,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			if (persist) {
 				CLSID clsidClock;
 				persist->GetClassID(&clsidClock);
-				uses_system_clock = CLSID_SystemClock == clsidClock;
+				uses_system_clock = (CLSID_SystemClock == clsidClock) != FALSE;
 			}
 		}
 
@@ -879,37 +879,57 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	   return utf8;
 	} 
 
-	static HRESULT SaveXML_IFileSourceFilter(IBaseFilter *filter, XML::XMLWriter &xml)
+	static BOOL MakeRelative(const CPath& sBaseDirectory, CString& sPath)
+	{
+		if(!_tcslen(sBaseDirectory))
+			return FALSE; // No Base
+		CPath sRelativePath;
+		// NOTE: We prefer to restrict to containing directory (note that API returns path started with .\)
+		if(!sRelativePath.RelativePathTo(sBaseDirectory, FILE_ATTRIBUTE_DIRECTORY, sPath, FILE_ATTRIBUTE_NORMAL))
+			return FALSE; // Failed to Make Relative
+	//	if(CString(sRelativePath).Left(3).Compare(_T("..\\")) == 0)
+	//		return FALSE; // Not There or Deeper
+		if(!_tcslen(sRelativePath))
+			return FALSE; // Unexpected
+		sPath = (LPCTSTR) sRelativePath;
+		return TRUE;
+	}
+
+	static HRESULT SaveXML_IFileSourceFilter(IBaseFilter *filter, XML::XMLWriter &xml, const CPath& sBaseDirectory)
 	{
 		CComQIPtr<IFileSourceFilter> src(filter);
 		if (src) {
-			LPOLESTR		fn = NULL;
+			CComHeapPtr<OLECHAR> fn;
             CMediaType media_type;
 			if (SUCCEEDED(src->GetCurFile(&fn, &media_type))) {
 				//	<ifilesourcefilter source="d:\sga.avi"/>
 				xml.BeginNode(_T("ifilesourcefilter"));
-					xml.WriteValue(_T("source"), CString(fn));
+					CString sPath(fn);
+					CString sRelativePath = sPath;
+					if(MakeRelative(sBaseDirectory, sRelativePath))
+						xml.WriteValue(_T("relativesource"), sRelativePath);
+					xml.WriteValue(_T("source"), sPath);
 				xml.EndNode();
-				if (fn) 
-					CoTaskMemFree(fn);
 			}
 		}
 		return S_OK;
 	}
 
-	static HRESULT SaveXML_IFileSinkFilter(IBaseFilter *filter, XML::XMLWriter &xml)
+	static HRESULT SaveXML_IFileSinkFilter(IBaseFilter *filter, XML::XMLWriter &xml, const CPath& sBaseDirectory)
 	{
 		CComQIPtr<IFileSinkFilter> sink(filter);
 		if (sink) {
-			LPOLESTR		fn = NULL;
+			CComHeapPtr<OLECHAR> fn;
             CMediaType media_type;
 			if (SUCCEEDED(sink->GetCurFile(&fn, &media_type))) {
 				//	<ifilesinkfilter dest="d:\sga.avi"/>
 				xml.BeginNode(_T("ifilesinkfilter"));
-					xml.WriteValue(_T("dest"), CString(fn));
+					CString sPath(fn);
+					CString sRelativePath = sPath;
+					if(MakeRelative(sBaseDirectory, sRelativePath))
+						xml.WriteValue(_T("relativedest"), sRelativePath);
+					xml.WriteValue(_T("dest"), sPath);
 				xml.EndNode();
-				if (fn) 
-					CoTaskMemFree(fn);
 			}
 		}
 		return S_OK;
@@ -1178,7 +1198,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	}
 
-	static void SaveXML_Filter(XML::XMLWriter &xml, const Filter* filter, int index)
+	static void SaveXML_Filter(XML::XMLWriter &xml, const Filter* filter, int index, const CPath& sBaseDirectory)
 	{
 		xml.BeginNode(_T("filter"));
 			// save the filter CLSID. If the filter is a wrapper it will initialize properly
@@ -1211,14 +1231,17 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			}
 
 			// now check for interfaces
-			SaveXML_IFileSourceFilter(filter->filter, xml);
-			SaveXML_IFileSinkFilter(filter->filter, xml);
+			SaveXML_IFileSourceFilter(filter->filter, xml, sBaseDirectory);
+			SaveXML_IFileSinkFilter(filter->filter, xml, sBaseDirectory);
 			SaveXML_IPersistStream(filter->filter, xml);
 		xml.EndNode();
 	}
 
 	int DisplayGraph::SaveXML(CString fn)
 	{
+		CPath sBaseDirectory = (LPCTSTR) fn;
+		ATLVERIFY(sBaseDirectory.RemoveFileSpec());
+
 		XML::XMLWriter			xml;
 
 		xml.BeginNode(_T("graph"));
@@ -1227,7 +1250,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				xml.WriteValue(_T("clock"), _T("none"));
 
 			for (int i=0; i<filters.GetCount(); i++) {
-				SaveXML_Filter(xml, filters[i], i);
+				SaveXML_Filter(xml, filters[i], i, sBaseDirectory);
 			}
 
 			SaveXML_GraphConnections(xml, filters);
@@ -1248,6 +1271,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	HRESULT DisplayGraph::LoadXML(CString fn)
 	{
+		CPath sBaseDirectory = (LPCTSTR) fn;
+		ATLVERIFY(sBaseDirectory.RemoveFileSpec());
+
 		XML::XMLFile xml;
 		
 		HRESULT	hr = xml.LoadFromFile(fn);
@@ -1280,7 +1306,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 			if (node->name == _T("filter"))	{
 				CComPtr<IBaseFilter> created_filter;
-				hr = LoadXML_Filter(node, created_filter);
+				hr = LoadXML_Filter(node, created_filter, sBaseDirectory);
 				filters_loaded_order.Add(created_filter.p);		// Add NULL if filter failed to load to preserve correct filter indices
 				if (node->GetValue(_T("clock")).GetLength() > 0) {
 					filter_clock = created_filter;
@@ -1290,7 +1316,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			else if (node->name == _T("connect"))
 				connection_nodes.Add(node);
 			else if (node->name == _T("config")) 
-				hr = LoadXML_Config(node); 
+				hr = LoadXML_Config(node, sBaseDirectory); 
 		}
 
 		// Iterate all connections until none left or no remaining connections succeed
@@ -1694,7 +1720,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return hr;
 	}
 
-	HRESULT DisplayGraph::LoadXML_Config(XML::XMLNode *node)
+	HRESULT DisplayGraph::LoadXML_Config(XML::XMLNode *node, const CPath& sBaseDirectory)
 	{
 		const CString name = node->GetValue(_T("name"));
 		Filter * const filter = FindFilter(name);
@@ -1703,14 +1729,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		for (XML::XMLIterator it = node->nodes.begin(); it != node->nodes.end(); it++) {
 			XML::XMLNode * conf = *it;
-			const HRESULT hr = LoadXML_ConfigInterface(conf, filter->filter);
+			const HRESULT hr = LoadXML_ConfigInterface(conf, filter->filter, sBaseDirectory);
 			if (FAILED(hr)) 
 				return hr;
 		}
 		return S_OK;
 	}
 
-	HRESULT DisplayGraph::LoadXML_Filter(XML::XMLNode *node, CComPtr<IBaseFilter>& instance)
+	HRESULT DisplayGraph::LoadXML_Filter(XML::XMLNode *node, CComPtr<IBaseFilter>& instance, const CPath& sBaseDirectory)
 	{
 		const CString			name		= node->GetValue(_T("name"));
 		CString					clsid_str	= node->GetValue(_T("clsid"));
@@ -1741,6 +1767,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// create the filter
 		switch (filter_id_type) {
+		#pragma region CLSID
 		case 0:
 			{
 				// create by CLSID
@@ -1783,6 +1810,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				}
 			}
 			break;
+		#pragma endregion
+		#pragma region Display Name
 		case 1:
 			{
 				// create by display name
@@ -1807,6 +1836,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 				}
 			}
 			break;
+		#pragma endregion
 		default:
 			{
 				hr = E_FAIL;
@@ -1825,7 +1855,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		// check for known interfaces
-		hr = LoadXML_Interfaces(node, instance);
+		hr = LoadXML_Interfaces(node, instance, sBaseDirectory);
 
 		//-------------------------------------------------------------
 		//	IStreamBufferConfigure
@@ -1848,13 +1878,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 	}
 
 	// Returns S_OK if configured and S_FALSE if untouched
-	HRESULT DisplayGraph::LoadXML_Interfaces(XML::XMLNode *node, IBaseFilter *filter)
+	HRESULT DisplayGraph::LoadXML_Interfaces(XML::XMLNode *node, IBaseFilter *filter, const CPath& sBaseDirectory)
 	{
 		HRESULT hr = S_FALSE;
 
 		for (XML::XMLIterator it = node->nodes.begin(); it != node->nodes.end(); it++) {
 			XML::XMLNode * const iface = *it;
-			hr = LoadXML_ConfigInterface(iface, filter);
+			hr = LoadXML_ConfigInterface(iface, filter, sBaseDirectory);
 		}
 		return hr;
 	}
