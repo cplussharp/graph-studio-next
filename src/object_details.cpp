@@ -2172,11 +2172,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
             // Intra Matrix
             UINT8 lim = br.ReadU1();
-            if (lim)
-                shinfo->AddItem(new PropItem(_T("Load Intra Matrix"), CString(_T("Use Standard (1)"))));
+            if (!lim)
+                shinfo->AddItem(new PropItem(_T("Load Intra Matrix"), CString(_T("Use Standard (0)"))));
             else
             {
-                shinfo->AddItem(new PropItem(_T("Load Intra Matrix"), CString(_T("Load (0)"))));
+                shinfo->AddItem(new PropItem(_T("Load Intra Matrix"), CString(_T("Load (1)"))));
                 CString matrix;
                 for(int i=0;i<64;i++)
                 {
@@ -2188,11 +2188,11 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
             // Non Intra Matrix
             UINT8 lnim = br.ReadU1();
-            if (lnim)
-                shinfo->AddItem(new PropItem(_T("Load Non Intra Matrix"), CString(_T("Use Standard (1)"))));
+            if (!lnim)
+                shinfo->AddItem(new PropItem(_T("Load Non Intra Matrix"), CString(_T("Use Standard (0)"))));
             else
             {
-                shinfo->AddItem(new PropItem(_T("Load Non Intra Matrix"), CString(_T("Load (0)"))));
+                shinfo->AddItem(new PropItem(_T("Load Non Intra Matrix"), CString(_T("Load (1)"))));
                 CString matrix;
                 for(int i=0;i<64;i++)
                 {
@@ -2226,7 +2226,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
             UINT8 id = br.ReadU(4);
             if(id == 1)
             {
-                PropItem *shinfo = mtinfo->AddItem(new PropItem(_T("MPEG Sequenz Extension")));
+                PropItem *shinfo = mtinfo->AddItem(new PropItem(_T("MPEG Sequence Extension")));
 
                 // Profile
                 UINT8 profile = br.ReadU(4);
