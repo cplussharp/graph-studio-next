@@ -101,7 +101,7 @@ HRESULT CAnalyzer::AnalyzeSample(IMediaSample *pSample)
 
     AM_MEDIA_TYPE* pMediaType;
     hr = pSample->GetMediaType(&pMediaType);
-    if (SUCCEEDED(hr))
+    if (hr == S_OK) // GetMediaType returns S_FALSE when the media type has not changed from the previous sample.
     {
         entry.IsMediaTypeChange = VARIANT_TRUE;
         DeleteMediaType(pMediaType);
