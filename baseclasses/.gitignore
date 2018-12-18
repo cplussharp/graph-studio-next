@@ -1,4 +1,4 @@
 /Release_MT
 /x64
 /Debug
-/.vs
+.vs/*
