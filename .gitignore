@@ -4,6 +4,7 @@
 /Release
 /Release64
 /bin
+/.vs
 
 #MIDL output
 *_dlldata.c
