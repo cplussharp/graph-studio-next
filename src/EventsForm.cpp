@@ -359,10 +359,14 @@ void CEventsForm::OnGraphEvent(long evcode, LONG_PTR param1, LONG_PTR param2)
 	case STREAMBUFFER_EC_RATE_CHANGING_FOR_SETPOSITIONS:	msg.Format(_T("STREAMBUFFER_EC_RATE_CHANGING_FOR_SETPOSITIONS old rate %.3f, new rate %.3f"), param1/1000.0, param2/1000.0);	break;
 	case STREAMBUFFER_EC_SETPOSITIONS_EVENTS_DONE:			msg = _T("STREAMBUFFER_EC_SETPOSITIONS_EVENTS_DONE");																			break;
 	default:
-		{
+	{
+		if (evcode >= EC_USER) {
+			msg.Format(_T("EC_USER + %d (0x%08x)"), evcode-EC_USER, evcode);
+		} else {
 			msg.Format(_T("Event Code = 0x%08x"), evcode);
 		}
-		break;
+	}
+	break;
 	}
 
 	if (msg != _T("")) {
