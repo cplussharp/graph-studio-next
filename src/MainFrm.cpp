@@ -411,6 +411,7 @@ void CMainFrame::ResizeToFitClientSize(CSize client_size)
 	client_size.cy = max(client_size.cy, rect_status_bar.Height());		// Make sure we have at least a status bar height of visible client area
 
 	client_size.cy += rect_seek_bar.Height() + rect_toolbar.Height() + 2 * rect_status_bar.Height();
+	client_size.cx += rect_status_bar.Height();							// add one status bar height of extra width to match extra height added above
 
 	const CSize size_toolbar = m_wndToolBar.CalcFixedLayout(/*dynamic= */ FALSE, /* horz= */ TRUE);
 	client_size.cx = max(client_size.cx, size_toolbar.cx);				// make sure long enough to accommodate toolbar
