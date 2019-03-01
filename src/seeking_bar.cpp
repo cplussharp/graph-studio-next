@@ -167,10 +167,11 @@ BOOL CSeekingBar::Create(CMainFrame* pParent, UINT nIDTemplate, UINT nStyle, UIN
 	BOOL bReturn = CDialogBar::Create(pParent, nIDTemplate, nStyle, nID);
 	back_brush.CreateSolidBrush(RGB(212, 219, 238));
 
-	CRect	rc(0, 2, 450, 22);
+	CRect	rc(0, 2, 450, 22);					// WARNING suspicious hard-coded pixel dimensions
 	pending_seek_request = false;
-	if (!seekbar.Create(this, rc, IDC_SLIDER_SEEK)) return false;
-				   
+	if (!seekbar.Create(this, rc, IDC_SLIDER_SEEK)) 
+		return false;
+
 	// seeking timer
 	SetTimer(1, 200, NULL);
 	return bReturn;
@@ -332,9 +333,17 @@ void CSeekingBar::OnSize(UINT nType, int cx, int cy)
 {
     CDialogBar::OnSize(nType, cx, cy);
 
-    int lblSize = 150;
-    if(seekbar.GetSafeHwnd() != NULL)
-        seekbar.SetWindowPos(NULL, 0, 2, cx - lblSize - 5, 20, SWP_SHOWWINDOW | SWP_NOZORDER);
-    if(label_time.GetSafeHwnd() != NULL)
-        label_time.SetWindowPos(NULL, cx - lblSize, 6, 0,0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER);
+	if (!seekbar.m_hWnd ||
+		!label_time.m_hWnd)
+		return;					// no seekbar and label yet for sizing
+
+	CRect seekbar_rect;
+	seekbar.GetWindowRect(&seekbar_rect);
+	CRect label_rect;
+	label_time.GetWindowRect(&label_rect);
+
+	const int gap_width = GetSystemMetrics(SM_CXVSCROLL) / 4;		// use a moderate system independent offset for a gap
+
+	seekbar.SetWindowPos(NULL, gap_width, (cy-seekbar_rect.Height()) / 2, cx - label_rect.Width() - 3*gap_width, seekbar_rect.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+	label_time.SetWindowPos(NULL, cx - label_rect.Width(), (cy-label_rect.Height()) / 2, 0,0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER);
 }
