@@ -80,7 +80,6 @@ public:
 	BOOL DoCreateDialog(CWnd* parent);
 
 	void OnSize(UINT nType, int cx, int cy);
-	void OnMeasureItem(int nIDCtl, LPMEASUREITEMSTRUCT item);
 
 	void OnBnClickedButtonClose();
 	void OnBnClickedButtonAdd();

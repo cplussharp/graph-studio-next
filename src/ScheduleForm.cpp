@@ -18,7 +18,6 @@ IMPLEMENT_DYNAMIC(CScheduleForm, CGraphStudioModelessDialog)
 
 BEGIN_MESSAGE_MAP(CScheduleForm, CGraphStudioModelessDialog)
 	ON_WM_SIZE()
-	ON_WM_MEASUREITEM()
 	ON_WM_ERASEBKGND()
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON_CLOSE, &CScheduleForm::OnBnClickedButtonClose)
@@ -80,19 +79,6 @@ BOOL CScheduleForm::DoCreateDialog(CWnd* parent)
 CRect CScheduleForm::GetDefaultRect() const 
 {
 	return CRect(50, 200, 450, 450);
-}
-
-void CScheduleForm::OnMeasureItem(int nIDCtl, LPMEASUREITEMSTRUCT item)
-{
-	if (item->CtlType == ODT_LISTVIEW) {
-		if (item->CtlID == IDC_LIST_SCHEDULE) {
-			item->itemHeight = 18;
-			return ;
-		}
-	}
-
-	// base clasu
-	__super::OnMeasureItem(nIDCtl, item);
 }
 
 void CScheduleForm::OnSize(UINT nType, int cx, int cy)

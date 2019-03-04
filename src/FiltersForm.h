@@ -93,7 +93,6 @@ private:
 	CRect GetDefaultRect() const;
 	void OnInitialize();
 	void OnSize(UINT nType, int cx, int cy);
-	void OnMeasureItem(int nIDCtl, LPMEASUREITEMSTRUCT item);
 	BOOL PreTranslateMessage(MSG *pmsg);
 	virtual  BOOL OnInitDialog( );
 

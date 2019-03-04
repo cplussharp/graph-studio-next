@@ -20,7 +20,6 @@ IMPLEMENT_DYNAMIC(CFiltersForm, CGraphStudioModelessDialog)
 BEGIN_MESSAGE_MAP(CFiltersForm, CGraphStudioModelessDialog)
 	ON_CBN_SELCHANGE(IDC_COMBO_CATEGORIES, &CFiltersForm::OnComboCategoriesChange)
 	ON_WM_SIZE()
-	ON_WM_MEASUREITEM()
 	ON_BN_CLICKED(IDC_BUTTON_INSERT, &CFiltersForm::OnBnClickedButtonInsert)
 	ON_CBN_SELCHANGE(IDC_COMBO_MERIT, &CFiltersForm::OnComboMeritChange)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST_FILTERS, &CFiltersForm::OnFilterItemClick)
@@ -418,22 +417,6 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
     m_search_online.Invalidate();
 	check_blacklist.Invalidate();
 	check_favorite.Invalidate();
-}
-
-void CFiltersForm::OnMeasureItem(int nIDCtl, LPMEASUREITEMSTRUCT item)
-{
-	if (item->CtlType == ODT_LISTVIEW) {
-		if (item->CtlID == IDC_LIST_FILTERS) {
-		
-			// fixed height
-			item->itemHeight = 18;
-			return ;
-
-		}
-	}
-
-	// base clasu
-	__super::OnMeasureItem(nIDCtl, item);
 }
 
 void CFiltersForm::OnItemDblClk(int item)
