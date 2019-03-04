@@ -136,6 +136,9 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			rcText.left += dc.GetTextExtent(filter->name).cx;
 		}
 
+		// add on extra border around text to prevent type, error, merit collisions
+		rcText.left += BORDER_PIXELS;
+
 		// draw merit
 		dc.SetTextColor(color_info);
 		dc.SelectObject(&font_info);
