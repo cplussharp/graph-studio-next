@@ -133,6 +133,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 		else {
 			dc.DrawText(filter->name, &rcText, DT_VCENTER | DT_SINGLELINE);
+			rcText.left += dc.GetTextExtent(filter->name).cx;
 		}
 
 		// draw merit
