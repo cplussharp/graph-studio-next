@@ -334,6 +334,13 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 	CRect		rc, rc2;
 	GetClientRect(&rc);
 
+	btn_insert.GetWindowRect(&rc2);
+	const int btn_height = rc2.Height();
+	const int gap = btn_height / 3;
+
+	btn_register.GetWindowRect(&rc2);
+	const int btn_register_width = rc2.Width();
+
 	// compute anchor lines
 	int	right_x		= rc.Width() / 2;
     int	right_width = right_x;
@@ -342,8 +349,8 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
         right_x = rc.Width() - MIN_WIDTH_RIGHT;
         right_width = MIN_WIDTH_RIGHT;
     }
-	const int merit_combo_width = 130;
-	const int gap = 8;
+	combo_merit.GetWindowRect(&rc2);
+	const int merit_combo_width = rc2.Width();
 
 	title.GetClientRect(&rc2);
 	title.SetWindowPos(NULL, 0, 0, cx, rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
@@ -352,26 +359,21 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 	const int details_top = rc2.Height();
 	list_filters.SetWindowPos(NULL, 0, rc2.Height(), right_x, rc.Height() - rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 	list_filters.GetClientRect(&rc2);
-	list_filters.SetColumnWidth(0, rc2.Width()-10);
+	list_filters.SetColumnWidth(0, rc2.Width() - gap);
 
 	// details
-	tree_details.SetWindowPos(NULL, right_x, details_top, rc.Width()-right_x, rc.Height() - 100-details_top, SWP_SHOWWINDOW | SWP_NOZORDER);
+	tree_details.SetWindowPos(NULL, right_x, details_top, rc.Width()-right_x, rc.Height() - details_top - 5*gap - 3*btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
 
-	check_favorite.GetWindowRect(&rc2);
-    check_favorite.SetWindowPos(NULL, right_x+gap, rc.Height()-100+gap, rc2.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+    check_favorite.SetWindowPos(NULL, right_x+gap, rc.Height() - 3*(gap+btn_height), 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
 
 	// combo boxes
 	combo_categories.GetWindowRect(&rc2);
 	combo_categories.SetWindowPos(NULL, 4, 6, right_x - gap - merit_combo_width, rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
-	combo_merit.GetWindowRect(&rc2);
-	combo_merit.SetWindowPos(NULL, right_x - merit_combo_width, 6, merit_combo_width, rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+	combo_merit.SetWindowPos(NULL, right_x - merit_combo_width, 6, 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
 	combo_categories.SetMinVisibleItems(40);
 	combo_merit.SetMinVisibleItems(40);
 
 	// sizing
-	btn_register.GetWindowRect(&rc2);
-	const int	btn_height = rc2.Height();
-	const int btn_register_width = rc2.Width();
 	int current_x = right_x + (gap*2);
 
 	// edit control
@@ -381,28 +383,28 @@ void CFiltersForm::OnSize(UINT nType, int cx, int cy)
 
 	// buttons
 	btn_register.GetWindowRect(&rc2);
-	btn_register.SetWindowPos(NULL, rc.Width() - 4 - rc2.Width(), 5, rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_register.SetWindowPos(NULL, rc.Width() - 4 - rc2.Width(), 5, 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
 
 	btn_insert.GetWindowRect(&rc2);
-	btn_insert.SetWindowPos(NULL, right_x+gap, rc.Height() - 2*(gap+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
-	btn_propertypage.SetWindowPos(NULL, right_x+gap, rc.Height() - 1*(gap+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_insert.SetWindowPos(NULL, right_x+gap, rc.Height() - 2*(gap+btn_height), 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
+	btn_propertypage.SetWindowPos(NULL, right_x+gap, rc.Height() - 1*(gap+btn_height), 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
 
-	btn_merit.SetWindowPos(NULL, rc.Width() - gap - rc2.Width(), rc.Height() - 3*(gap+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
-	btn_locate.SetWindowPos(NULL, rc.Width() - gap - rc2.Width(), rc.Height() - 2*(gap+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
-	btn_unregister.SetWindowPos(NULL, rc.Width() - gap - rc2.Width(), rc.Height() - 1*(gap+btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_merit.SetWindowPos(NULL, rc.Width() - gap - rc2.Width(), rc.Height() - 3*(gap+btn_height), 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
+	btn_locate.SetWindowPos(NULL, rc.Width() - gap - rc2.Width(), rc.Height() - 2*(gap+btn_height), 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
+	btn_unregister.SetWindowPos(NULL, rc.Width() - gap - rc2.Width(), rc.Height() - 1*(gap+btn_height), 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
 
-	btn_dbglog.SetWindowPos(NULL, right_x + right_width / 2 - rc2.Width() / 2, rc.Height() - 1 * (gap + btn_height), rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_dbglog.SetWindowPos(NULL, right_x + right_width / 2 - rc2.Width() / 2, rc.Height() - 1 * (gap + btn_height), 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
 
     check_blacklist.GetWindowRect(&rc2);
-    check_blacklist.SetWindowPos(NULL, right_x + right_width / 2 - rc2.Width() / 2, rc.Height()- 100 +gap, rc2.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+    check_blacklist.SetWindowPos(NULL, right_x + right_width / 2 - rc2.Width() / 2, rc.Height() - 3*(gap+btn_height), 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
 
     m_search_online.GetWindowRect(&rc2);
-    m_search_online.SetWindowPos(NULL, right_x + right_width / 2 - rc2.Width() / 2, rc.Height()- 70 +gap, rc2.Width(), btn_height, SWP_SHOWWINDOW | SWP_NOZORDER);
+    m_search_online.SetWindowPos(NULL, right_x + right_width / 2 - rc2.Width() / 2, rc.Height() - 2*(gap+btn_height), 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
 
 	// invalidate all controls
 	title.Invalidate();
-	//combo_categories.Invalidate();
-	//combo_merit.Invalidate();
+	combo_categories.Invalidate();
+	combo_merit.Invalidate();
 	btn_register.Invalidate();
 	btn_insert.Invalidate();
 	btn_propertypage.Invalidate();
