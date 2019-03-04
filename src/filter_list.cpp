@@ -68,6 +68,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		DSUtil::FilterTemplate	*filter = (DSUtil::FilterTemplate*)item->itemData;
 		if (!filter) return ;
 
+		const int BORDER_PIXELS = GetSystemMetrics(SM_CXVSCROLL) / 2;		// use a DPI independent system border size
 		CDC		dc;
 		dc.Attach(item->hDC);
 
@@ -84,8 +85,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		// draw filter name
 		CRect	rcText = item->rcItem;
-		rcText.left += 3;
-		rcText.right -= 3;
+		GetItemRect(item->itemID, rcText, LVIR_LABEL);
 
 		CString		type_text = _T("");
 		int			idx       = 0;
@@ -136,27 +136,24 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		// draw merit
-		rcText.left = rcText.right - 70;
 		dc.SetTextColor(color_info);
 		dc.SelectObject(&font_info);
 		CString info;
 		info.Format(_T("(0x%08X)"), filter->merit);
 		dc.DrawText(info, &rcText, DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
 
+		rcText.right -= dc.GetTextExtent(info).cx + BORDER_PIXELS;
+
 		if (!filter->file_exists) {
 			CString	error_text = _T("(!)");
-			CSize	extent = dc.GetTextExtent(error_text);
 
-			rcText.right = rcText.left;
-			rcText.left = rcText.right - extent.cx - 2*2;
 			dc.SetTextColor(color_error);
-			dc.DrawText(error_text, &rcText, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+			dc.DrawText(error_text, &rcText, DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
+
+			rcText.right -= dc.GetTextExtent(error_text).cx + BORDER_PIXELS;
 		}
 
 		// draw type text
-		int		rx   = rcText.left;
-		rcText.left	 = rx - 66;
-		rcText.right = rx - 16;
 		dc.SelectObject(&font_filter);
 		dc.SetTextColor(type_colors[idx]);
 		dc.DrawText(type_text, &rcText, DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
