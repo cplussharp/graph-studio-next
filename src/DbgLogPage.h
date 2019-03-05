@@ -58,5 +58,8 @@ public:
 	afx_msg void OnUpdateFilterString();
 
 	void RefreshLog();
+
+private:
+	CRect GetButtonRect() const;
 };
 

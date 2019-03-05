@@ -45,40 +45,50 @@ CDbgLogPage::~CDbgLogPage()
 {
 }
 
+CRect CDbgLogPage::GetButtonRect() const
+{
+	CRect rc_button(0, 0, 40, 12);
+	MapDialogRect(rc_button);
+	return rc_button;
+}
 
 BOOL CDbgLogPage::OnInitDialog()
 {
 	BOOL ok = CDSPropertyPage::OnInitDialog();
-	if (!ok) return FALSE;
+	if (!ok) 
+		return FALSE;
 
 	// prepare titlebar
 	title.ModifyStyle(0, WS_CLIPCHILDREN);
 	title.ModifyStyleEx(0, WS_EX_CONTROLPARENT);
 
-	CRect	rc;
-	rc.SetRect(0, 0, 60, 23);
-	btn_refresh.Create(_T("&Refresh"), WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | WS_TABSTOP, rc, &title, IDC_BUTTON_REFRESH);
+	const CRect rc_button = GetButtonRect();
+	const int gap = rc_button.Height() / 2;
+
+	CRect rc_title;
+	title.GetClientRect(&rc_title);
+	const int button_top = (rc_title.Height() - rc_button.Height()) / 2;
+
+	btn_refresh.Create(_T("&Refresh"), WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | WS_TABSTOP, rc_button, &title, IDC_BUTTON_REFRESH);
 	btn_refresh.SetFont(GetFont());
-	btn_refresh.SetWindowPos(NULL, 4, 4, rc.Width(), rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_refresh.SetWindowPos(NULL, gap, button_top, 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
 	btn_refresh.SetCheck(refreshOnTimer ? BST_CHECKED : BST_UNCHECKED);
 
-	btn_locate.Create(_T("&Locate"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_LOCATE);
+	btn_locate.Create(_T("&Locate"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc_button, &title, IDC_BUTTON_LOCATE);
 	btn_locate.SetFont(GetFont());
-	btn_locate.SetWindowPos(NULL, 8 + rc.Width(), 4, rc.Width(), rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_locate.SetWindowPos(NULL, 2*gap + rc_button.Width(), button_top, 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
 
-	btn_settings.Create(_T("&Settings"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_DBGLOGSETTINGS);
-	btn_settings.SetWindowPos(NULL, 12 + 2*rc.Width(), 4, rc.Width() + 20, rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_settings.Create(_T("&Settings"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc_button, &title, IDC_BUTTON_DBGLOGSETTINGS);
+	btn_settings.SetWindowPos(NULL, 3*gap + 2*rc_button.Width(), button_top, 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
 	btn_settings.SetFont(GetFont());
 	btn_settings.SetShield(TRUE);
 
-	btn_clear.Create(_T("&Clear"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc, &title, IDC_BUTTON_CLEAR_LOG);
-	btn_clear.SetWindowPos(NULL, 36 + 3*rc.Width(), 4, rc.Width() + 20, rc.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+	btn_clear.Create(_T("&Clear"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_TABSTOP, rc_button, &title, IDC_BUTTON_CLEAR_LOG);
+	btn_clear.SetWindowPos(NULL, 4*gap + 3*rc_button.Width(), button_top, 0, 0, SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOSIZE);
 	btn_clear.SetFont(GetFont());
 
-	title.GetClientRect(&rc);
-	CRect edit_rect(0, 0, 320, 18);		// recommended edit control height is 14 but add a bit as 14 looks cramped
-	edit_rect.MoveToXY(rc.Width() - 354, (rc.Height() - 18) / 2);
-	edit_filter.Create(WS_BORDER | WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_LOWERCASE, edit_rect, &title, IDC_SEARCH_STRING);
+	edit_filter.Create(WS_BORDER | WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_LOWERCASE, rc_button, &title, IDC_SEARCH_STRING);
+	edit_filter.SetWindowPos(NULL, 5*gap + 4*rc_button.Width(), button_top, rc_title.Width() - 6*gap - 4*rc_button.Width(), rc_button.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 	edit_filter.SetFont(GetFont());
 	edit_filter.SetWindowText(filterString);
 
@@ -92,19 +102,21 @@ BOOL CDbgLogPage::OnInitDialog()
 void CDbgLogPage::OnSize(UINT nType, int cx, int cy)
 {
 	// resize our controls along...
-	CRect		rc;
-	GetClientRect(&rc);
+	CRect		rc_client;
+	GetClientRect(&rc_client);
 
 	if (IsWindow(edit_log)) {
-		CRect rc2;
-		title.GetClientRect(&rc2);
-		title.SetWindowPos(NULL, 0, 0, rc.Width(), rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+		CRect rc_title;
+		title.GetClientRect(&rc_title);
+		title.SetWindowPos(NULL, 0, 0, rc_client.Width(), rc_title.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
-		edit_log.SetWindowPos(NULL, 0, rc2.Height(), rc.Width(), rc.Height() - rc2.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+		const CRect rc_button = GetButtonRect();
+		const int gap = rc_button.Height() / 2;
+		const int button_top = (rc_title.Height() - rc_button.Height()) / 2;
 
-		CRect rc3;
-		edit_filter.GetWindowRect(&rc3);
-		edit_filter.SetWindowPos(NULL, rc.Width() - 4 - rc3.Width(), (rc2.Height() - rc3.Height()) / 2, rc3.Width(), rc3.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+		edit_log.SetWindowPos(NULL, 0, rc_title.Height(), rc_client.Width(), rc_client.Height() - rc_title.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
+
+		edit_filter.SetWindowPos(NULL, 5*gap + 4*rc_button.Width(), button_top, rc_title.Width() - 6*gap - 4*rc_button.Width(), rc_button.Height(), SWP_SHOWWINDOW | SWP_NOZORDER);
 
 		title.Invalidate();
 		edit_log.Invalidate();
