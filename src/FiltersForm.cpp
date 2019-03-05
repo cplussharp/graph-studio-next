@@ -641,7 +641,7 @@ void CFiltersForm::OnBnClickedButtonPropertypage()
 
 
 			CString			title = filter->name + _T(" Properties");
-			CPropertyForm	*page = new CPropertyForm();
+			CPropertyForm	*page = new CPropertyForm(this);
 			int ret = page->DisplayPages(instance, instance, title, view);
 			if (ret < 0) {
 				delete page;

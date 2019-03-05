@@ -2010,7 +2010,7 @@ void CGraphView::OnFiltersRefreshed()
 	// scan for property pages referring to filters or pins that no longer exist
 	for (int i=0; i<property_pages.GetCount(); i++) {
 		CPropertyForm * const page = property_pages[i];
-		bool close_page = true;
+		bool close_page = false;
 		GraphStudio::Filter * const filter = graph.FindFilter((IBaseFilter*)page->filter);
 		if (filter) {
 			if (page->object == page->filter)
