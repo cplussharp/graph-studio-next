@@ -83,7 +83,6 @@ BOOL CFavoritesForm::DoCreateDialog(CWnd* parent)
 
 	tree.SetImageList(&image_list, TVSIL_NORMAL);
 	tree.SetImageList(&image_list, TVSIL_STATE);
-	tree.SetItemHeight(20);
 
 	CRect rect_title;
 	title.GetWindowRect(rect_title);
