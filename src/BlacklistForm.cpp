@@ -16,10 +16,10 @@
 
 IMPLEMENT_DYNAMIC(CBlacklistForm, CGraphStudioModelessDialog)
 
-CBlacklistForm::CBlacklistForm(CWnd* pParent /*=NULL*/, BOOL isHR /*=FALSE*/)
-	: CGraphStudioModelessDialog(CBlacklistForm::IDD, pParent), m_isHR(isHR)
+CBlacklistForm::CBlacklistForm(CGraphView* parent_view, BOOL isHR /*=FALSE*/)
+	: CGraphStudioModelessDialog(CBlacklistForm::IDD, parent_view), m_isHR(isHR)
 {
-
+	view = parent_view;
 }
 
 CBlacklistForm::~CBlacklistForm()

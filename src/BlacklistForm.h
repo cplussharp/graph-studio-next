@@ -19,7 +19,7 @@ class CBlacklistForm : public CGraphStudioModelessDialog
 	DECLARE_DYNAMIC(CBlacklistForm)
 
 public:
-	CBlacklistForm(CWnd* pParent = NULL, BOOL forHR = FALSE);
+	CBlacklistForm(CGraphView* parent_view, BOOL forHR = FALSE);
 	virtual ~CBlacklistForm();
 
 	enum { IDD = IDD_DIALOG_BLACKLIST };
