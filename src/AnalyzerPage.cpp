@@ -84,23 +84,25 @@ BOOL CAnalyzerPage::OnInitDialog()
     // prepare listView
 	m_listCtrl.SetFont(&font_entries);
 
-    m_listCtrl.InsertColumn(Number,				_T("Nr"),					LVCFMT_RIGHT,	30);
-    m_listCtrl.InsertColumn(TimeStamp,			_T("TimeStamp"),		    LVCFMT_RIGHT,	110);
-    m_listCtrl.InsertColumn(TimeStampDif,		_T("TS dif (µs)"),  		LVCFMT_RIGHT,	70);
-    m_listCtrl.InsertColumn(Kind,				_T("Kind"),					LVCFMT_LEFT,	180);
-    m_listCtrl.InsertColumn(Discontinuity,		_T("Disc."),				LVCFMT_CENTER,	40);
-    m_listCtrl.InsertColumn(Sync,				_T("Sync"),					LVCFMT_CENTER,	40);
-    m_listCtrl.InsertColumn(Preroll,			_T("Prer."),				LVCFMT_CENTER,	40);
-    m_listCtrl.InsertColumn(Start,				_T("Start"),				LVCFMT_RIGHT,	80);
-    m_listCtrl.InsertColumn(Stop,				_T("Stop"),					LVCFMT_RIGHT,	80);
-    m_listCtrl.InsertColumn(MediaStart,			_T("MediaStart"),			LVCFMT_RIGHT,	80);
-    m_listCtrl.InsertColumn(MediaStop,			_T("MediaStop"),			LVCFMT_RIGHT,	80);
-    m_listCtrl.InsertColumn(TypeSpecificFlags,	_T("TypeSpecificFlags"),	LVCFMT_LEFT,	150);
-    m_listCtrl.InsertColumn(SampleFlags,		_T("SampleFlags"),			LVCFMT_LEFT,	150);
-    m_listCtrl.InsertColumn(StreamID,			_T("HRESULT / StreamID"),	LVCFMT_LEFT,	150);
-    m_listCtrl.InsertColumn(DataLength,			_T("DataLength"),			LVCFMT_RIGHT,	75);
-    m_listCtrl.InsertColumn(DataCrc,			_T("DataCRC"),			    LVCFMT_RIGHT,	75);
-    m_listCtrl.InsertColumn(Data,				_T("Data"),					LVCFMT_LEFT,	350);
+	const int fontWidth = LOWORD(GetDialogBaseUnits());
+
+    m_listCtrl.InsertColumn(Number,				_T("Nr"),					LVCFMT_RIGHT,	fontWidth * 10);
+    m_listCtrl.InsertColumn(TimeStamp,			_T("TimeStamp"),		    LVCFMT_RIGHT,	fontWidth * 27);
+    m_listCtrl.InsertColumn(TimeStampDif,		_T("TS dif (µs)"),  		LVCFMT_RIGHT,	fontWidth * 18);
+    m_listCtrl.InsertColumn(Kind,				_T("Kind"),					LVCFMT_LEFT,	fontWidth * 45);
+    m_listCtrl.InsertColumn(Discontinuity,		_T("Disc."),				LVCFMT_CENTER,	fontWidth * 10);
+    m_listCtrl.InsertColumn(Sync,				_T("Sync"),					LVCFMT_CENTER,	fontWidth * 10);
+    m_listCtrl.InsertColumn(Preroll,			_T("Prer."),				LVCFMT_CENTER,	fontWidth * 10);
+    m_listCtrl.InsertColumn(Start,				_T("Start"),				LVCFMT_RIGHT,	fontWidth * 20);
+    m_listCtrl.InsertColumn(Stop,				_T("Stop"),					LVCFMT_RIGHT,	fontWidth * 20);
+    m_listCtrl.InsertColumn(MediaStart,			_T("MediaStart"),			LVCFMT_RIGHT,	fontWidth * 22);
+    m_listCtrl.InsertColumn(MediaStop,			_T("MediaStop"),			LVCFMT_RIGHT,	fontWidth * 22);
+    m_listCtrl.InsertColumn(TypeSpecificFlags,	_T("TypeSpecificFlags"),	LVCFMT_LEFT,	fontWidth * 30);
+    m_listCtrl.InsertColumn(SampleFlags,		_T("SampleFlags"),			LVCFMT_LEFT,	fontWidth * 30);
+    m_listCtrl.InsertColumn(StreamID,			_T("HRESULT / StreamID"),	LVCFMT_LEFT,	fontWidth * 30);
+    m_listCtrl.InsertColumn(DataLength,			_T("DataLength"),			LVCFMT_RIGHT,	fontWidth * 17);
+    m_listCtrl.InsertColumn(DataCrc,			_T("DataCRC"),			    LVCFMT_RIGHT,	fontWidth * 20);
+    m_listCtrl.InsertColumn(Data,				_T("Data"),					LVCFMT_LEFT,	fontWidth * 100);
 
     m_listCtrl.SetExtendedStyle( m_listCtrl.GetExtendedStyle() | LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP );
 
