@@ -1594,50 +1594,51 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			out_filter = FindFilter(indexed_filters[ofilter_index]);
 			in_filter = FindFilter(indexed_filters[ifilter_index]);
 
-			if (out_filter && in_filter) {
-				switch (CgraphstudioApp::g_ResolvePins) {
-					case CgraphstudioApp::BY_ID: {
-						// Work around buggy filters that return unsuitable pins or NULL from IBaseFilter::FindPin by searching manually for ID match
+			if (!out_filter || !in_filter)			// reduce error noise by ignoring connections for filters that can't be created
+				return S_FALSE;
+
+			switch (CgraphstudioApp::g_ResolvePins) {
+				case CgraphstudioApp::BY_ID: {
+					// Work around buggy filters that return unsuitable pins or NULL from IBaseFilter::FindPin by searching manually for ID match
 					
-						out_id = node->GetValue(_T("outPinId"));
-						out_pin = out_filter->FindPinByID(out_id);
-						if (!out_pin || out_pin->connected || out_pin->dir == PINDIR_INPUT)
-							out_pin = out_filter->FindPinByMatchingID(out_id);
+					out_id = node->GetValue(_T("outPinId"));
+					out_pin = out_filter->FindPinByID(out_id);
+					if (!out_pin || out_pin->connected || out_pin->dir == PINDIR_INPUT)
+						out_pin = out_filter->FindPinByMatchingID(out_id);
 					
-						in_id = node->GetValue(_T("inPinId"));
-						in_pin = in_filter->FindPinByID(in_id);
-						if (!in_pin || in_pin->connected || in_pin->dir == PINDIR_OUTPUT)
-							in_pin = in_filter->FindPinByMatchingID(in_id);
+					in_id = node->GetValue(_T("inPinId"));
+					in_pin = in_filter->FindPinByID(in_id);
+					if (!in_pin || in_pin->connected || in_pin->dir == PINDIR_OUTPUT)
+						in_pin = in_filter->FindPinByMatchingID(in_id);
 					
-					}	break;
+				}	break;
 
-					case CgraphstudioApp::BY_INDEX: {
+				case CgraphstudioApp::BY_INDEX: {
 					
-						int index = node->GetValue(_T("outPinIndex"), -1);
-						if (index >= 0 && index < out_filter->output_pins.GetCount())
-							out_pin = out_filter->output_pins[index];
-						if (!out_pin)
-							out_id.Format(_T("%d"), index);
+					int index = node->GetValue(_T("outPinIndex"), -1);
+					if (index >= 0 && index < out_filter->output_pins.GetCount())
+						out_pin = out_filter->output_pins[index];
+					if (!out_pin)
+						out_id.Format(_T("%d"), index);
 
-						index = node->GetValue(_T("inPinIndex"), -1);
-						if (index >= 0 && index < in_filter->input_pins.GetCount())
-							in_pin = in_filter->input_pins[index];
-						if (!in_pin)
-							in_id.Format(_T("%d"), index); 
+					index = node->GetValue(_T("inPinIndex"), -1);
+					if (index >= 0 && index < in_filter->input_pins.GetCount())
+						in_pin = in_filter->input_pins[index];
+					if (!in_pin)
+						in_id.Format(_T("%d"), index); 
 
-					}	break;
+				}	break;
 
-					case CgraphstudioApp::BY_NAME:
-					default: {
+				case CgraphstudioApp::BY_NAME:
+				default: {
 
-						out_id = node->GetValue(_T("outPinName"));
-						out_pin = out_filter->FindPinByName(out_id);
+					out_id = node->GetValue(_T("outPinName"));
+					out_pin = out_filter->FindPinByName(out_id);
 					
-						in_id = node->GetValue(_T("inPinName"));
-						in_pin = in_filter->FindPinByName(in_id);
+					in_id = node->GetValue(_T("inPinName"));
+					in_pin = in_filter->FindPinByName(in_id);
 
-					}	break;
-				}
+				}	break;
 			}
 		}
 
@@ -1648,16 +1649,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		if (!out_pin || !in_pin) {
-			if (!out_filter || !in_filter) {
-				error_string.Format(_T("Could not find %s filter index %d"), 
-						out_filter ? _T("input")	: _T("output"),
-						out_filter ? ifilter_index : ofilter_index);
-			} else {
-				error_string.Format(_T("Could not find %s pin %s on filter %s"), 
-						out_pin ? _T("input") : _T("output"),
-						out_pin ? (LPCTSTR)in_id : (LPCTSTR)out_id,
-						out_pin ? (LPCTSTR)in_filter->display_name : (LPCTSTR)out_filter->display_name);
-			}
+			error_string.Format(_T("Could not find %s pin %s on filter %s"), 
+					out_pin ? _T("input") : _T("output"),
+					out_pin ? (LPCTSTR)in_id : (LPCTSTR)out_id,
+					out_pin ? (LPCTSTR)in_filter->display_name : (LPCTSTR)out_filter->display_name);
 			return VFW_E_NOT_FOUND;
 		}
 
