@@ -3093,10 +3093,10 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		// recognize
 		CComPtr<IVideoWindow>		vw;
 		hr = f->QueryInterface(IID_IVideoWindow, (void**)&vw);
-		if (SUCCEEDED(hr)) {
-			CString		vw_name;
-			vw_name = _T("ActiveMovie Window: ") + display_name;
-			vw->put_Caption(vw_name.GetBuffer());
+		if (SUCCEEDED(hr) && vw) {
+			CComBSTR vw_name(L"ActiveMovie Window: ");
+			vw_name += display_name;
+			vw->put_Caption(vw_name);
 			vw = NULL;
 		}
 
