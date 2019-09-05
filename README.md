@@ -8,7 +8,7 @@ Because development had stopped on the really useful tool GraphStudio, I started
 You're welcome to submit bugs and feature requests or just comment whether you like or hate the application [here](https://github.com/cplussharp/graph-studio-next/issues).
 
 Thanks to the following for supporting the development of GraphStudioNext:
- * [ROOT6 Technology](http://www.root6technology.com/) Creators of workflow automation software.
+ * [root6](http://www.root6.com/) Creators of workflow automation software.
 
 ## Latest build:
 [![Build status](https://ci.appveyor.com/api/projects/status/github/cplussharp/graph-studio-next?svg=true)](https://ci.appveyor.com/project/cplussharp/graph-studio-next)
