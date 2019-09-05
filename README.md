@@ -37,6 +37,8 @@ See [docs/FAQ.md](docs/FAQ.md)
 See also [commit log comments](https://github.com/cplussharp/graph-studio-next/commits/master)
 
 *New Features:*
+ * Better support for editing and persisting filters created directly from DLL class factory [issue #318](https://github.com/cplussharp/graph-studio-next/issues/318) [issue #317](https://github.com/cplussharp/graph-studio-next/issues/317) [issue #227](https://github.com/cplussharp/graph-studio-next/issues/227)
+ * Show internal filters in Filters dialog [issue #312](https://github.com/cplussharp/graph-studio-next/issues/312)
  * Create stream buffer recordings from Stream Buffer Sink filter property page [issue #302](https://github.com/cplussharp/graph-studio-next/issues/302)
  * Display IPin::QueryInternalConnections result in Pin PropertyPage [issue #300](https://github.com/cplussharp/graph-studio-next/issues/300)
  * Connect newly created filter to previously selected filter for faster graph building [issue #265](https://github.com/cplussharp/graph-studio-next/issues/265)
@@ -51,6 +53,11 @@ See also [commit log comments](https://github.com/cplussharp/graph-studio-next/c
  * Display filter merit as SDK constant (as opposed to numeric value)
 
 *Bug Fixes:*
+ * Fixed multiple layout problems on high DPI systems [issue #255](https://github.com/cplussharp/graph-studio-next/issues/255)
+ * Filter name not displayed for filters supporting IFileSourceFilter, IFileSinkFilter [issue #305](https://github.com/cplussharp/graph-studio-next/issues/305)
+ * Fixed registration of internal DXVA Null Renderer filter [issue #310](https://github.com/cplussharp/graph-studio-next/issues/310)
+ * Crash fix connecting to remote graph containing video renderer filter [issue #333](https://github.com/cplussharp/graph-studio-next/issues/333)
+ * Crash fix closing property page launched from filters window [issue #329](https://github.com/cplussharp/graph-studio-next/issues/329)
  * Fixed bug in sync source selection in new graphs [issue #291](https://github.com/cplussharp/graph-studio-next/issues/291)
  * EVR renderer is no longer closed and recreated when graph is refereshed [issue #293](https://github.com/cplussharp/graph-studio-next/issues/293)
  * Fix to Analyzer Filter property page [issue #289](https://github.com/cplussharp/graph-studio-next/issues/289)
