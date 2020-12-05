@@ -123,6 +123,17 @@ BOOL CEventsForm::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT *
 	return __super::OnWndMsg(message, wParam, lParam, pResult);
 }
 
+CString CEventsForm::GetHResultAsText(HRESULT hr) const
+{
+	CString text;
+	if (!GraphStudio::NameHResult(hr, text))
+	{
+		// if the HResult code is unknown, just print the hex value
+		text.Format(_T("0x%08lX"), hr);
+	}
+	return text;
+}
+
 void CEventsForm::OnGraphEvent(long evcode, LONG_PTR param1, LONG_PTR param2)
 {
 	CString	msg;
@@ -158,25 +169,25 @@ void CEventsForm::OnGraphEvent(long evcode, LONG_PTR param1, LONG_PTR param2)
 	case EC_END_OF_SEGMENT:	{ msg = _T("EC_END_OF_SEGMENT"); } break;
 	case EC_ERROR_STILLPLAYING:	
 		{
-			HRESULT hr = (HRESULT)param1;
-			msg.Format(_T("EC_ERROR_STILLPLAYING (hr = 0x%08x)"), hr);
+			CString hrText = GetHResultAsText((HRESULT)param1);
+			msg.Format(_T("EC_ERROR_STILLPLAYING (hr = %s)"), hrText);
 		}
 		break;
 	case EC_ERRORABORT:		
 		{	
-			HRESULT hr = (HRESULT)param1;
-			msg.Format(_T("EC_ERRORABORT (hr = 0x%08x)"), hr);
+			CString hrText = GetHResultAsText((HRESULT)param1);
+			msg.Format(_T("EC_ERRORABORT (hr = %s)"), hrText);
 			view->OnStopClick();
 		} 
 		break;
 	case EC_ERRORABORTEX:
 		{
-			HRESULT hr = (HRESULT)param1;
+			CString hrText = GetHResultAsText((HRESULT)param1);
 			BSTR str = (BSTR)param2;
 			if (str) {
-				msg.Format(_T("EC_ERRORABORTEX (hr = 0x%08x, %s)"), hr, str);
+				msg.Format(_T("EC_ERRORABORTEX (hr = %s, %s)"), hrText, str);
 			} else {
-				msg.Format(_T("EC_ERRORABORTEX (hr = 0x%08x)"), hr);
+				msg.Format(_T("EC_ERRORABORTEX (hr = %s)"), hrText);
 			}
 			view->OnStopClick();
 		}
@@ -299,12 +310,14 @@ void CEventsForm::OnGraphEvent(long evcode, LONG_PTR param1, LONG_PTR param2)
 	case EC_STREAM_CONTROL_STOPPED:	{ msg = _T("EC_STREAM_CONTROL_STOPPED"); } break;
 	case EC_STREAM_ERROR_STILLPLAYING:	
 		{
-			msg.Format(_T("EC_STREAM_ERROR_STILLPLAYING (hr = 0x%08x)"), (HRESULT)param1);
+			CString hrText = GetHResultAsText((HRESULT)param1);
+			msg.Format(_T("EC_STREAM_ERROR_STILLPLAYING (hr = %s)"), hrText);
 		}
 		break;
 	case EC_STREAM_ERROR_STOPPED:	
 		{
-			msg.Format(_T("EC_STREAM_ERROR_STOPPED (hr = 0x%08x)"), (HRESULT)param1);
+			CString hrText = GetHResultAsText((HRESULT)param1);
+			msg.Format(_T("EC_STREAM_ERROR_STOPPED (hr = %s)"), hrText);
 		}
 		break;
 	case EC_UNBUILT:		{ msg = _T("EC_UNBUILT"); } break;
@@ -325,7 +338,8 @@ void CEventsForm::OnGraphEvent(long evcode, LONG_PTR param1, LONG_PTR param2)
 	case EC_VIDEOFRAMEREADY:	{ msg = _T("EC_VIDEOFRAMEREADY"); } break;
 	case EC_VMR_RECONNECTION_FAILED:
 		{
-			msg.Format(_T("EC_VMR_RECONNECTION_FAILED (hr = 0x%08x)"), (HRESULT)param1);
+			CString hrText = GetHResultAsText((HRESULT)param1);
+			msg.Format(_T("EC_VMR_RECONNECTION_FAILED (hr = %s)"), hrText);
 		}
 		break;
 	case EC_VMR_RENDERDEVICE_SET:
@@ -353,7 +367,7 @@ void CEventsForm::OnGraphEvent(long evcode, LONG_PTR param1, LONG_PTR param2)
 	case STREAMBUFFER_EC_CONTENT_BECOMING_STALE:			msg = _T("STREAMBUFFER_EC_CONTENT_BECOMING_STALE");																				break;
 	case STREAMBUFFER_EC_WRITE_FAILURE:						msg = _T("STREAMBUFFER_EC_WRITE_FAILURE");																						break;
 	case STREAMBUFFER_EC_WRITE_FAILURE_CLEAR:				msg = _T("STREAMBUFFER_EC_WRITE_FAILURE_CLEAR");																				break;
-	case STREAMBUFFER_EC_READ_FAILURE:						msg.Format(_T("STREAMBUFFER_EC_READ_FAILURE (hr = 0x%08x)"), (HRESULT)param1);													break;
+	case STREAMBUFFER_EC_READ_FAILURE:						msg.Format(_T("STREAMBUFFER_EC_READ_FAILURE (hr = %s)"), GetHResultAsText((HRESULT)param1));									break;
 	case STREAMBUFFER_EC_RATE_CHANGED:						msg.Format(_T("STREAMBUFFER_EC_RATE_CHANGED old rate %.3f, new rate %.3f"), param1/1000.0, param2/1000.0);						break;
 	case STREAMBUFFER_EC_PRIMARY_AUDIO:						msg = _T("STREAMBUFFER_EC_PRIMARY_AUDIO");																						break;
 	case STREAMBUFFER_EC_RATE_CHANGING_FOR_SETPOSITIONS:	msg.Format(_T("STREAMBUFFER_EC_RATE_CHANGING_FOR_SETPOSITIONS old rate %.3f, new rate %.3f"), param1/1000.0, param2/1000.0);	break;
