@@ -52,7 +52,6 @@
 #include "..\..\HiResTimer.h"
 
 #include "analyzer_h.h"
-#include "..\..\..\lib\sqlite\sqlite3.h"
 #include "analyzer.h"
 
 #include "filter_analyzer.h"

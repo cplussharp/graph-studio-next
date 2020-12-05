@@ -139,7 +139,6 @@ using namespace std;
 #pragma comment(lib, "Version.lib")
 #include "xml_parser.h"
 
-#include "..\lib\sqlite\sqlite3.h"
 #include "Crc32.h"
 #include "dsutil.h"
 
@@ -173,12 +172,6 @@ using namespace std;
 
 #include "filters\h264_analyzer\h264_analyzer.h"
 #include "filters\h264_analyzer\filter_h264_analyzer.h"
-
-#include "filters\video_analyzer\video_analyzer.h"
-#include "filters\video_analyzer\filter_video_analyzer.h"
-
-#include "filters\audio_analyzer\audio_analyzer.h"
-#include "filters\audio_analyzer\filter_audio_analyzer.h"
 
 #include "mtypes_ext.h"
 

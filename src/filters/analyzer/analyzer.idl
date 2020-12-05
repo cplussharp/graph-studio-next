@@ -254,26 +254,6 @@ interface IAnalyzerH264 : IAnalyzerBase
 };
 
 
-
-
-
-
-
-[object, uuid("88512FA3-2AD2-4E5C-A266-E9AB6E8B1AA7")]
-interface IAnalyzerVideo : IAnalyzerBase
-{
-    // TODO
-};
-
-[object, uuid("77363364-8A9F-45EF-A524-D02C49B3FE38")]
-interface IAnalyzerAudio : IUnknown
-{
-    // TODO
-};
-
-
-
-
 [
 	uuid("CA6B3460-28B3-4A6E-A7FC-A83CF1DEEC48"), 
     helpstring("Analyzer Filter Type Library"),
@@ -294,8 +274,6 @@ library AnalyzerFilterLib
     interface IAnalyzerBase;
     interface IAnalyzerCommon;
     interface IAnalyzerH264;
-    interface IAnalyzerAudio;
-    interface IAnalyzerVideo;
 
     [uuid("CA6B3460-28B3-4A6E-A7FC-A83CF1DEEC49")]
     coclass AnalyzerFilter
@@ -333,19 +311,5 @@ library AnalyzerFilterLib
     {
         [default] interface IBaseFilter;
         interface IAnalyzerH264;
-    }
-
-    [uuid("BF41C054-221E-4596-99AC-5AD555FD9548")]
-    coclass VideoAnalyzerFilter
-    {
-        interface IBaseFilter;
-        [default] interface IAnalyzerVideo;
-    }
-
-    [uuid("F896EF1A-3FE4-4D22-9B61-1288240FD39F")]
-    coclass AudioAnalyzerFilter
-    {
-        interface IBaseFilter;
-        [default] interface IAnalyzerAudio;
     }
 };

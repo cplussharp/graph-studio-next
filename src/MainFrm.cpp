@@ -68,8 +68,6 @@ static void RegisterInternalFiltersForCurrentApartment(void)
     (new DSUtil::CClassFactory(&CAnalyzerFilter::g_Template))->Register();
     (new DSUtil::CClassFactory(&CAnalyzerWriterFilter::g_Template))->Register();
     (new DSUtil::CClassFactory(&CH264AnalyzerFilter::g_Template))->Register();
-    (new DSUtil::CClassFactory(&CVideoAnalyzerFilter::g_Template))->Register();
-	(new DSUtil::CClassFactory(&CAudioAnalyzerFilter::g_Template))->Register();
 	(new DSUtil::CClassFactory(&CDxvaNullRenderer::g_Template))->Register();
 
     (new DSUtil::CClassFactory(&CAnalyzerPage::g_Template))->Register();

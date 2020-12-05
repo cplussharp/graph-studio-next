@@ -1208,14 +1208,6 @@ namespace DSUtil
         filter.name = _T("H264 Analyzer");
         filter.clsid = __uuidof(H264AnalyzerFilter);
         filters.Add(filter);
-
-        filter.name = _T("Video Analyzer");
-        filter.clsid = __uuidof(VideoAnalyzerFilter);
-        filters.Add(filter);
-
-        filter.name = _T("Audio Analyzer");
-        filter.clsid = __uuidof(AudioAnalyzerFilter);
-        filters.Add(filter);
 #endif
 
         return (int) filters.GetCount();

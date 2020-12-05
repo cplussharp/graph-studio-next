@@ -44,12 +44,6 @@
     <Filter Include="Filters\filter_analyzer">
       <UniqueIdentifier>{2868a6b0-dc6c-408f-9245-3344a448df7c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Filters\filter_audio_analyzer">
-      <UniqueIdentifier>{3409fca2-71a4-485f-82f3-658415d3c095}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Filters\filter_video_analyzer">
-      <UniqueIdentifier>{72cfcfa2-271e-41a6-a860-6502e7d3481b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Filters\filter_h264_analyzer">
       <UniqueIdentifier>{beb37750-0515-42b1-9f9c-643c0b54ec3a}</UniqueIdentifier>
     </Filter>
@@ -327,18 +321,6 @@
     <ClInclude Include="src\filters\analyzer\filter_analyzer_writer.h">
       <Filter>Filters\filter_analyzer</Filter>
     </ClInclude>
-    <ClInclude Include="src\filters\video_analyzer\filter_video_analyzer.h">
-      <Filter>Filters\filter_video_analyzer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\filters\audio_analyzer\filter_audio_analyzer.h">
-      <Filter>Filters\filter_audio_analyzer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\filters\video_analyzer\video_analyzer.h">
-      <Filter>Filters\filter_video_analyzer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\filters\audio_analyzer\audio_analyzer.h">
-      <Filter>Filters\filter_audio_analyzer</Filter>
-    </ClInclude>
     <ClInclude Include="src\StatisticForm.h">
       <Filter>Dialogs</Filter>
     </ClInclude>
@@ -349,12 +331,6 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="src\time_utils.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\sqlite\sqlite3.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\sqlite\sqlite3_forcelib.h">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="src\filters\analyzer\analyzer_pospassthru.h">
@@ -623,18 +599,6 @@
     <ClCompile Include="src\filters\analyzer\filter_analyzer_writer.cpp">
       <Filter>Filters\filter_analyzer</Filter>
     </ClCompile>
-    <ClCompile Include="src\filters\video_analyzer\filter_video_analyzer.cpp">
-      <Filter>Filters\filter_video_analyzer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\filters\audio_analyzer\filter_audio_analyzer.cpp">
-      <Filter>Filters\filter_audio_analyzer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\filters\video_analyzer\video_analyzer.cpp">
-      <Filter>Filters\filter_video_analyzer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\filters\audio_analyzer\audio_analyzer.cpp">
-      <Filter>Filters\filter_audio_analyzer</Filter>
-    </ClCompile>
     <ClCompile Include="src\StatisticForm.cpp">
       <Filter>Dialogs</Filter>
     </ClCompile>
@@ -645,9 +609,6 @@
       <Filter>Application</Filter>
     </ClCompile>
     <ClCompile Include="src\time_utils.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\sqlite\sqlite3.c">
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\Crc32.cpp">

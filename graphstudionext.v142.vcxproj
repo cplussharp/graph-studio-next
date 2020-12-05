@@ -245,8 +245,6 @@
     <ResourceCompile Include="src\filters\analyzer\analyzer_proppage.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lib\sqlite\sqlite3.h" />
-    <ClInclude Include="lib\sqlite\sqlite3_forcelib.h" />
     <ClInclude Include="src\AnalyzerPage.h" />
     <ClInclude Include="src\BlacklistForm.h" />
     <ClInclude Include="src\CliOptionsForm.h" />
@@ -270,15 +268,11 @@
     <ClInclude Include="src\filters\analyzer\analyzer_proppage_resource.h" />
     <ClInclude Include="src\filters\analyzer\filter_analyzer.h" />
     <ClInclude Include="src\filters\analyzer\filter_analyzer_writer.h" />
-    <ClInclude Include="src\filters\audio_analyzer\audio_analyzer.h" />
-    <ClInclude Include="src\filters\audio_analyzer\filter_audio_analyzer.h" />
     <ClInclude Include="src\filters\dxva_null\filter_dxva_null.h" />
     <ClInclude Include="src\filters\fake_m2ts\filter_fake_m2ts_device.h" />
     <ClInclude Include="src\filters\h264_analyzer\filter_h264_analyzer.h" />
     <ClInclude Include="src\filters\h264_analyzer\h264_analyzer.h" />
     <ClInclude Include="src\filters\psi_config\psiconfig.h" />
-    <ClInclude Include="src\filters\video_analyzer\filter_video_analyzer.h" />
-    <ClInclude Include="src\filters\video_analyzer\video_analyzer.h" />
     <ClInclude Include="src\graphCli.h" />
     <ClInclude Include="src\graphDoc.h" />
     <ClInclude Include="src\GraphReportGenerator.h" />
@@ -349,12 +343,6 @@
     <ClInclude Include="src\filters\dump\filter_dump.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lib\sqlite\sqlite3.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="src\AnalyzerPage.cpp" />
     <ClCompile Include="src\BlacklistForm.cpp" />
     <ClCompile Include="src\CliOptionsForm.cpp" />
@@ -380,15 +368,11 @@
     </ClCompile>
     <ClCompile Include="src\filters\analyzer\filter_analyzer.cpp" />
     <ClCompile Include="src\filters\analyzer\filter_analyzer_writer.cpp" />
-    <ClCompile Include="src\filters\audio_analyzer\audio_analyzer.cpp" />
-    <ClCompile Include="src\filters\audio_analyzer\filter_audio_analyzer.cpp" />
     <ClCompile Include="src\filters\dxva_null\filter_dxva_null.cpp" />
     <ClCompile Include="src\filters\fake_m2ts\filter_fake_m2ts_device.cpp" />
     <ClCompile Include="src\filters\h264_analyzer\filter_h264_analyzer.cpp" />
     <ClCompile Include="src\filters\h264_analyzer\h264_analyzer.cpp" />
     <ClCompile Include="src\filters\psi_config\psiconfig.cpp" />
-    <ClCompile Include="src\filters\video_analyzer\filter_video_analyzer.cpp" />
-    <ClCompile Include="src\filters\video_analyzer\video_analyzer.cpp" />
     <ClCompile Include="src\graphCli.cpp" />
     <ClCompile Include="src\graphDoc.cpp" />
     <ClCompile Include="src\GraphReportGenerator.cpp" />
