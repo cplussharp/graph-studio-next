@@ -316,13 +316,13 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		int SaveXML(CString fn);
 
 		HRESULT LoadXML(CString fn);
-		HRESULT LoadXML_Filter(XML::XMLNode *node, CComPtr<IBaseFilter>& created_filter);
+		HRESULT LoadXML_Filter(XML::XMLNode *node, CComPtr<IBaseFilter>& created_filter, const CPath& sBaseDirectory);
 		HRESULT LoadXML_Render(XML::XMLNode *node);
 		HRESULT LoadXML_Connect(XML::XMLNode *node, const CArray<IBaseFilter *> & indexed_filters, CString& error_string);
 		HRESULT LoadXML_Schedule(XML::XMLNode *node);
-		HRESULT LoadXML_Config(XML::XMLNode *node);
-		HRESULT LoadXML_Interfaces(XML::XMLNode *node, IBaseFilter *filter);
-		HRESULT LoadXML_ConfigInterface(XML::XMLNode *conf, IBaseFilter *filter);
+		HRESULT LoadXML_Config(XML::XMLNode *node, const CPath& sBaseDirectory);
+		HRESULT LoadXML_Interfaces(XML::XMLNode *node, IBaseFilter *filter, const CPath& sBaseDirectory);
+		HRESULT LoadXML_ConfigInterface(XML::XMLNode *conf, IBaseFilter *filter, const CPath& sBaseDirectory);
 		HRESULT LoadXML_Command(XML::XMLNode *node);
 		HRESULT LoadXML_IAMGraphStreams(XML::XMLNode *node);
 
