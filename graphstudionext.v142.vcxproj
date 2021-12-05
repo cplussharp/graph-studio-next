@@ -118,6 +118,10 @@
       <LargeAddressAware>true</LargeAddressAware>
       <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
     </Link>
+    <Manifest>
+      <AdditionalManifestFiles>$(ProjectDir)res\graphstudionext.exe.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <EnableDpiAwareness>false</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
@@ -152,6 +156,10 @@
       <LargeAddressAware>true</LargeAddressAware>
       <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
     </Link>
+    <Manifest>
+      <AdditionalManifestFiles>$(ProjectDir)res\graphstudionext.exe.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <EnableDpiAwareness>false</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -187,6 +195,10 @@
       <LargeAddressAware>true</LargeAddressAware>
       <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
     </Link>
+    <Manifest>
+      <AdditionalManifestFiles>$(ProjectDir)res\graphstudionext.exe.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <EnableDpiAwareness>false</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Midl>
@@ -221,6 +233,10 @@
       <LargeAddressAware>true</LargeAddressAware>
       <DelayLoadDLLs>d3d9.dll</DelayLoadDLLs>
     </Link>
+    <Manifest>
+      <AdditionalManifestFiles>$(ProjectDir)res\graphstudionext.exe.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <EnableDpiAwareness>false</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -463,6 +479,9 @@
   <ItemGroup>
     <Image Include="res\graphxml.ico" />
     <Image Include="res\graphxml64.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="res\graphstudionext.exe.manifest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
