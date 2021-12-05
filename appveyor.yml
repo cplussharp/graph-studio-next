@@ -1,6 +1,6 @@
 build: false
-version: 0.7.1.{build}
-image: Visual Studio 2013
+version: 0.7.2.{build}
+image: Visual Studio 2019
 clone_depth: 1
 environment:
     
@@ -15,7 +15,7 @@ environment:
           PLATFORM: x64
 
 test_script:
-  - Msbuild.exe graphstudionext.v12.sln /m /t:graphstudionext /p:Configuration=%CONFIGURATION%;Platform=%PLATFORM%
+  - Msbuild.exe graphstudionext.v142.sln /m /t:graphstudionext /p:Configuration=%CONFIGURATION%;Platform=%PLATFORM%
 
 artifacts:
 
