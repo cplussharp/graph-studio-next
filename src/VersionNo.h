@@ -5,7 +5,7 @@
 
 #define VERSION_MAJOR               0
 #define VERSION_MINOR               7
-#define VERSION_REVISION            1
+#define VERSION_REVISION            2
 
 #if ENV_BUILD_NR > 0
 #define VERSION_BUILD               ENV_BUILD_NR
