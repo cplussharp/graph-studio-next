@@ -17,7 +17,7 @@ jobs:
     
     strategy:
       matrix:
-        target: [Release, Debug]
+        target: [Release]
         platform: [x64, Win32]
 
     steps:
@@ -32,8 +32,14 @@ jobs:
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild /m /t:graphstudionext /p:Configuration=${{matrix.target}} /p:Platform=${{matrix.platform}} ${{env.SOLUTION_FILE_PATH}}
     
-    - name: Upload build files
+    - name: Upload build files (exe)
       uses: actions/upload-artifact@v2 
       with:
-        name: ${{matrix.target}}_${{matrix.platform}}
-        path: bin\*
+        name: ${{matrix.target}}_${{matrix.platform}}_exe
+        path: bin\*.exe
+
+    - name: Upload build files (pdb)
+      uses: actions/upload-artifact@v2 
+      with:
+        name: ${{matrix.target}}_${{matrix.platform}}_pdb
+        path: bin\*.pdb
