@@ -93,8 +93,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;.\src;.\baseclasses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'==''">WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'!=''">WIN32;_WINDOWS;_DEBUG;ENV_BUILD_NR=$(APPVEYOR_BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'==''">WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'!=''">WIN32;_WINDOWS;_DEBUG;ENV_BUILD_NR=$(GITHUB_RUN_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -105,8 +105,8 @@
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'==''">_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'!=''">_DEBUG;ENV_BUILD_NR=$(APPVEYOR_BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'==''">_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'!=''">_DEBUG;ENV_BUILD_NR=$(GITHUB_RUN_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
@@ -128,8 +128,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;.\src;.\baseclasses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'==''">WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'!=''">WIN32;_WINDOWS;_DEBUG;ENV_BUILD_NR=$(APPVEYOR_BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'==''">WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'!=''">WIN32;_WINDOWS;_DEBUG;ENV_BUILD_NR=$(GITHUB_RUN_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -140,8 +140,8 @@
       <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'==''">_DEBUG;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'!=''">_DEBUG;_WIN64;ENV_BUILD_NR=$(APPVEYOR_BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'==''">_DEBUG;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'!=''">_DEBUG;_WIN64;ENV_BUILD_NR=$(GITHUB_RUN_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
@@ -161,8 +161,8 @@
     </Midl>
     <ClCompile>
       <AdditionalIncludeDirectories>.;.\src;.\baseclasses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'==''">WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'!=''">WIN32;_WINDOWS;NDEBUG;ENV_BUILD_NR=$(APPVEYOR_BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'==''">WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'!=''">WIN32;_WINDOWS;NDEBUG;ENV_BUILD_NR=$(GITHUB_RUN_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -173,8 +173,8 @@
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'==''">NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'!=''">NDEBUG;ENV_BUILD_NR=$(APPVEYOR_BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'==''">NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'!=''">NDEBUG;ENV_BUILD_NR=$(GITHUB_RUN_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
@@ -197,8 +197,8 @@
     </Midl>
     <ClCompile>
       <AdditionalIncludeDirectories>.;.\src;.\baseclasses;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'==''">WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'!=''">WIN32;_WINDOWS;NDEBUG;ENV_BUILD_NR=$(APPVEYOR_BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'==''">WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'!=''">WIN32;_WINDOWS;NDEBUG;ENV_BUILD_NR=$(GITHUB_RUN_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -209,8 +209,8 @@
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'==''">NDEBUG;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(APPVEYOR_BUILD_NUMBER)'!=''">NDEBUG;_WIN64;ENV_BUILD_NR=$(APPVEYOR_BUILD_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'==''">NDEBUG;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(GITHUB_RUN_NUMBER)'!=''">NDEBUG;_WIN64;ENV_BUILD_NR=$(GITHUB_RUN_NUMBER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>

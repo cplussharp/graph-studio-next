@@ -9,8 +9,6 @@
 
 #if ENV_BUILD_NR > 0
 #define VERSION_BUILD               ENV_BUILD_NR
-#elif GITHUB_RUN_NUMBER > 0
-#define VERSION_BUILD               GITHUB_RUN_NUMBER
 #else
 #define VERSION_BUILD               0
 #endif
