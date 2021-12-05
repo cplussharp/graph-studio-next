@@ -54,6 +54,8 @@ See also [commit log comments](https://github.com/cplussharp/graph-studio-next/c
  * Display filter merit as SDK constant (as opposed to numeric value)
 
 *Bug Fixes:*
+ * Disable DPI awareness so windows scales the application [issue #335](https://github.com/cplussharp/graph-studio-next/issues/335)
+ * Targeting for Windows 8.1 and 10 with manifest file [issue #331](https://github.com/cplussharp/graph-studio-next/issues/331)
  * Apply short-cuts in the main window only if it is active (e.g. copy text with Ctrl+C in property page) [issue #342](https://github.com/cplussharp/graph-studio-next/issues/342)
  * Fixed multiple layout problems on high DPI systems [issue #255](https://github.com/cplussharp/graph-studio-next/issues/255)
  * Filter name not displayed for filters supporting IFileSourceFilter, IFileSinkFilter [issue #305](https://github.com/cplussharp/graph-studio-next/issues/305)
