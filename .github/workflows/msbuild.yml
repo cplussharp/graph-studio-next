@@ -19,8 +19,6 @@ jobs:
       matrix:
         target: [Release, Debug]
         platform: [x64, Win32]
-    env:
-      ENV_BUILD_NR: ${{env.GITHUB_RUN_NUMBER}}
 
     steps:
     - uses: actions/checkout@v2
