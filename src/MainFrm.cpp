@@ -147,7 +147,11 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 // Translate a key down message into a keyboard accelerator, return true iff successful
 bool CMainFrame::TranslateKeyboardAccelerator(MSG *pMSG)	
 {
-	return m_hAccelTable && ::TranslateAccelerator(m_hWnd, m_hAccelTable, pMSG);
+	if(!m_hAccelTable)
+		return false;
+	if(GetActiveWindow() != this)
+		return false;
+	return ::TranslateAccelerator(m_hWnd, m_hAccelTable, pMSG);
 }
 
 void CMainFrame::OnFileClose()
