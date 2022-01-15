@@ -15,7 +15,6 @@
 #define IDS_SHOW_GRAPH_CONSTRUCTION_REPORT 112
 #define IDR_MAINFRAME                   128
 #define IDI_GRAPHSTUDIO_GRAPHTYPE       129
-#define IDB_BITMAP_LOGO                 130
 #define IDD_DIALOG_FILTERS              134
 #define IDD_DIALOG_EVENTS               135
 #define IDD_DIALOG_TEXTVIEW             136

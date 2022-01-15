@@ -231,7 +231,6 @@
     <None Include="res\bitmap_clock_active_lo.bmp" />
     <None Include="res\bitmap_clock_inactive_hi.bmp" />
     <None Include="res\bitmap_clock_inactive_lo.bmp" />
-    <None Include="res\bitmap_logo.bmp" />
     <None Include="res\bitmap_tree.bmp" />
     <None Include="res\bitmap_volume.bmp" />
     <None Include="res\bitmap_volume2.bmp" />

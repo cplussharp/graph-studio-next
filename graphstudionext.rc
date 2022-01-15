@@ -1076,8 +1076,6 @@ END
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
 
-IDB_BITMAP_LOGO         BITMAP                  "res\\bitmap_logo.bmp"
-
 IDB_BITMAP_TREE         BITMAP                  "res\\bitmap_tree.bmp"
 
 IDB_BITMAP_VOLUME_HI    BITMAP                  "res\\bitmap_volume.bmp"

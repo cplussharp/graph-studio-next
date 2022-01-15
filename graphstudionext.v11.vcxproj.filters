@@ -64,9 +64,6 @@
     <None Include="res\bitmap_clock_inactive_lo.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\bitmap_logo.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="res\bitmap_tree.bmp">
       <Filter>Resource Files</Filter>
     </None>
