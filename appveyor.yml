@@ -1,5 +1,5 @@
 build: false
-version: 0.7.2.{build}
+version: 0.7.3.{build}
 image: Visual Studio 2019
 clone_depth: 1
 environment:

@@ -36,6 +36,8 @@ See [docs/FAQ.md](docs/FAQ.md)
 ### Recent changes
 See also [commit log comments](https://github.com/cplussharp/graph-studio-next/commits/master)
 
+### Release 0.7.3.1 (2022-01-15)
+
 *New Features:*
  * Relative paths to reference media files in GRFX [issue #319](https://github.com/cplussharp/graph-studio-next/issues/319)
  * Better support for editing and persisting filters created directly from DLL class factory [issue #318](https://github.com/cplussharp/graph-studio-next/issues/318) [issue #317](https://github.com/cplussharp/graph-studio-next/issues/317) [issue #227](https://github.com/cplussharp/graph-studio-next/issues/227)
