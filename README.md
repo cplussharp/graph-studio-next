@@ -73,8 +73,6 @@ See also [commit log comments](https://github.com/cplussharp/graph-studio-next/c
  * Better property page positioning [issue #213](https://github.com/cplussharp/graph-studio-next/issues/213)
 
 ### Release 0.7.0.430 (2014-11-10)
-[download (x32)](https://drive.google.com/open?id=0Bwvr5qdpKXBxMjRGZC1wWmFQLW8&authuser=0)
-[download (x64)](https://drive.google.com/open?id=0Bwvr5qdpKXBxbGNpMl9lTy1PcjQ&authuser=0)
 
 *New Features:*
  * Navigate around filter graph using keyboard. Arrow keys navigate between filters, control-arrow navigates between pins, shift key extends the selection. Newly created filters are connected to the currently selected output pin. Escape key to clear filter and pin selection. Shift F10 or menu key for context menu. Enter or Alt Enter for properties. Delete or Backspace to delete filter(s) or disconnect pin(s). Shift Delete or Backspace to disconnect filter(s).  (issue #217, #issue 252, issue #254)
@@ -137,8 +135,6 @@ See also [commit log comments](https://github.com/cplussharp/graph-studio-next/c
  * Hide tooltip if no text to show (issue #170)
 
 ### Release 0.6.1.265 (2013-07-17)
-[download (x32)](https://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext_0_6_1_265.zip)
-[download (x64)](https://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionextx64_0_6_1_265.zip)
 
 *New Features:*
  * Color connection lines according to the major media type (issue #110)
@@ -192,8 +188,6 @@ See also [commit log comments](https://github.com/cplussharp/graph-studio-next/c
 
 
 ### Release 0.6.0.191 (2013-04-25)
-[download (x32)](https://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext.zip)
-[download (x64)](https://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext64.zip)
 
 *New Features:*
  * Show search string in edit control in filters dialog (issue #36)
@@ -223,8 +217,6 @@ See also [commit log comments](https://github.com/cplussharp/graph-studio-next/c
 See Help/Help Information... menu item for some details of keyboard/mouse bindings
 
 ### Release 0.5.1.117 (2013-01-28)
-[download (x32)](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext_0_5_1_117.zip)
-[download (x64)](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionextx64_0_5_1_117.zip)
 
 *New Features:*
  * Search within filter dialog by typing (also backspace and delete) in filter list control (Thanks to erofeev.info) (issue #36)
@@ -260,8 +252,6 @@ See Help/Help Information... menu item for some details of keyboard/mouse bindin
  * Specify media type for GetCurFile in dialogs to prevent problems with remote graphs (issue #53)
 
 ### Release 0.5.0.1 (2012-08-30)
-[download (x32)](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext_0_5_0_1.zip)
-[download (x64)](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext64_0_5_0_1.zip)
 
 *New Features:*
  * Change Playback Rate
@@ -289,8 +279,6 @@ See Help/Help Information... menu item for some details of keyboard/mouse bindin
 
 
 ### Release 0.4.9.0 (2012-01-22)
-[download (x32)](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext_0_4_9_0.zip)
-[download (x64)](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext64_0_4_9_0.zip)
 
 *New Features:*
  * Lookup/Search Dialog for all known GUIDs and HRESULTs
@@ -315,7 +303,6 @@ See Help/Help Information... menu item for some details of keyboard/mouse bindin
 
 
 ### Release 0.4.5.5 (2011-12-22)
-[download (x32 and x64)](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext_0_4_5_5.zip)
 
 *New Features:*
  * x64 build
@@ -331,7 +318,6 @@ See Help/Help Information... menu item for some details of keyboard/mouse bindin
 
 
 ### Release 0.4.5.1 (2011-11-03)
-[download](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext_0_4_5_1.exe)
 
 *New Features:*
   * support for [http://mediainfo.sourceforge.net MediaInfo] -> more details in the graph-report and in the property-page of a filter with IFileSourceFilter interface (issue 25)
@@ -347,7 +333,6 @@ See Help/Help Information... menu item for some details of keyboard/mouse bindin
 
 
 ### Release 0.4.0.0 (2011-09-27)
-[download](http://code.google.com/p/graph-studio-next/downloads/detail?name=graphstudionext_0_4_0_0.exe)
 
 *New Features:*
   * insert multiple selected filters (issue 4)
