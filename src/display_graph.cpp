@@ -12,6 +12,7 @@
 
 #include "MediaTypeSelectForm.h"
 #include "GRF_File.h"
+#include "../GMFBridge/GMFBridge_h.h"
 
 #include <atlenc.h>
 #include <set>
@@ -22,6 +23,12 @@
 
 
 GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
+
+static const GUID nullGUID =     {0x00, 0x00, 0x00, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+static const GUID clsid_GMFBridgeController={0x08E3287F, 0x3A5C, 0x47e9, {0x81, 0x79, 0xA9, 0xE9, 0x22, 0x1A, 0x5C, 0xDE}};
+IGMFBridgeController *pIBridgeController=NULL;
+IUnknown* pBridgeSource=NULL;
+IUnknown* pBridgeSink=NULL;
 
 	static bool CanSeekByTimeFormat(IMediaSeeking * ims, const GUID & time_format)
 	{
@@ -145,6 +152,21 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 	DisplayGraph::~DisplayGraph()
 	{
+		if (pBridgeSink||pBridgeSource) {
+			if (pBridgeSink) {
+				pBridgeSink->Release();
+				pBridgeSink=NULL;
+			}
+			if (pBridgeSource) {
+				pBridgeSource->Release();
+				pBridgeSource=NULL;
+			}
+			pIBridgeController->BridgeGraphs(NULL, NULL);
+			if (!pBridgeSink && !pBridgeSource) {
+				pIBridgeController->Release();
+				pIBridgeController=NULL;
+			}
+		}
 		CloseLogFile();
 		if (graph_callback) {
 			graph_callback->NonDelegatingRelease();
@@ -1913,7 +1935,34 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			NameGuid(filter.clsid, guidStr, true);
 			_tprintf(_T("Creating filter %d %s, CLSID %s\n"), filter.index, (LPCTSTR)filter.name, (LPCTSTR)guidStr); 
 
-			hr = filter.ibasefilter.CoCreateInstance(filter.clsid, NULL, CLSCTX_INPROC_SERVER);
+			if (memcmp(&nullGUID, &filter.clsid, sizeof(filter.clsid))!=0) {
+				hr = filter.ibasefilter.CoCreateInstance(filter.clsid, NULL, CLSCTX_INPROC_SERVER);
+			}
+			else {
+				//check for 'Bridge Source filter' or 'Bridge Sink filter'
+				if (!pIBridgeController) {
+					hr = CoCreateInstance(clsid_GMFBridgeController, NULL, CLSCTX_INPROC_SERVER, __uuidof(pIBridgeController), (void **)&pIBridgeController);
+				}
+				if (_tcscmp(filter.name, _T("Bridge Sink filter"))==0) {
+					if (pIBridgeController)
+						pIBridgeController->InsertSinkFilter(gb, (IUnknown **) &pBridgeSink);
+					if (pBridgeSink) {
+						IBaseFilter *pSinkFilter=NULL;
+						pBridgeSink->QueryInterface(IID_IBaseFilter, (void**)&pSinkFilter);
+						filter.ibasefilter=pSinkFilter;
+					}
+				}
+				else if (_tcscmp(filter.name, _T("Bridge Source filter"))==0) {
+					if (pIBridgeController)
+						pIBridgeController->InsertSourceFilter(NULL/*pSinkFilter*/, gb, (IUnknown**)&pBridgeSource);
+					if (pBridgeSource) {
+						IBaseFilter *pSourceFilter=NULL;
+						pBridgeSource->QueryInterface(IID_IBaseFilter, (void**)&pSourceFilter);
+						filter.ibasefilter=pSourceFilter;
+					}
+					
+				}
+			}
 
 			ASSERT(filter.ibasefilter);
 
