@@ -453,6 +453,21 @@ void GetInterfaceInfo_IPersistStream(GraphStudio::PropItem* group, IUnknown* pUn
 	}
 }
 
+void GetInterfaceInfo_IPersistStreamInit(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IPersistStreamInit> pI = pUnk;
+    if (pI)
+    {
+        ULARGE_INTEGER sizeMax;
+        sizeMax.QuadPart = 0ULL;
+        if (pI->GetSizeMax(&sizeMax) == S_OK)
+            group->AddItem(new GraphStudio::PropItem(_T("SizeMax"), sizeMax.QuadPart));
+        const HRESULT hr = pI->IsDirty();
+        if (SUCCEEDED(hr))
+            group->AddItem(new GraphStudio::PropItem(_T("IsDirty"), S_OK == hr));
+    }
+}
+
 void GetInterfaceInfo_IFileSinkFilter2(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<IFileSinkFilter2> pI = pUnk;
@@ -1391,7 +1406,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{5738E040-B67F-11D0-BD4D-00A0C911CE86}"), TEXT("IPersistMediaPropertyBag"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390387.aspx")),
     CInterfaceInfo(TEXT("{0000010a-0000-0000-C000-000000000046}"), TEXT("IPersistStorage"), TEXT("objidl.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms679731.aspx")),
     CInterfaceInfo(TEXT("{00000109-0000-0000-C000-000000000046}"), TEXT("IPersistStream"), TEXT("objidl.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms690091.aspx"), GetInterfaceInfo_IPersistStream),
-    CInterfaceInfo(TEXT("{7FD52380-4E07-101B-AE2D-08002B2EC713}"), TEXT("IPersistStreamInit"), TEXT("objidl.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms682273.aspx")),
+    CInterfaceInfo(TEXT("{7FD52380-4E07-101B-AE2D-08002B2EC713}"), TEXT("IPersistStreamInit"), TEXT("objidl.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/ms682273.aspx"), GetInterfaceInfo_IPersistStreamInit),
     CInterfaceInfo(TEXT("{56A86891-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IPin"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390397.aspx")),
     CInterfaceInfo(TEXT("{4A9A62D3-27D4-403D-91E9-89F540E55534}"), TEXT("IPinConnection"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390398.aspx")),
     CInterfaceInfo(TEXT("{C56E9858-DBF3-4F6B-8119-384AF2060DEB}"), TEXT("IPinFlowControl"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390403.aspx")),
