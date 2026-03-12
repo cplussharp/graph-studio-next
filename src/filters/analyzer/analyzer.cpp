@@ -409,6 +409,89 @@ HRESULT CAnalyzer::AddMSSetTimeFormat(HRESULT hr, const GUID * pFormat)
 	return S_OK;
 }
 
+HRESULT CAnalyzer::StoreConfig(IPropertyBag* pPropBag)
+{
+    CheckPointer(pPropBag, E_POINTER);
+
+    HRESULT hr = S_OK;
+    VARIANT var;
+    VariantInit(&var);
+
+    // 1. Store bool Enabled
+    var.vt = VT_BOOL;
+    var.boolVal = m_enabled;
+    hr = pPropBag->Write(L"Enabled", &var);
+    if (FAILED(hr)) return hr;
+
+    // 2. Store int CaptureConfiguration (see StatisticCaptureFlags)
+    var.vt = VT_I4;
+    var.lVal = m_config;
+    hr = pPropBag->Write(L"CaptureConfiguration", &var);
+    if (FAILED(hr)) return hr;
+
+    // 3. Store unsigned short PreviewSampleByteCount
+    var.vt = VT_UI2;
+    var.uiVal = m_previewSampleByteCount;
+    hr = pPropBag->Write(L"PreviewSampleByteCount", &var);
+    if (FAILED(hr)) return hr;
+
+    return S_OK;
+}
+
+HRESULT CAnalyzer::LoadConfig(IPropertyBag* pPropBag, IErrorLog* pErrorLog)
+{
+    CheckPointer(pPropBag, E_POINTER);
+
+    HRESULT hr = S_OK;
+    VARIANT var;
+    VariantInit(&var);
+
+    // Helper lambda or function to log errors to make the code cleaner
+    auto LogLoadError = [&](LPCWSTR propName, HRESULT hrErr) {
+        EXCEPINFO excepInfo = { 0 };
+        excepInfo.scode = hrErr;
+        excepInfo.bstrSource = SysAllocString(L"CAnalyzer");
+        excepInfo.bstrDescription = SysAllocString(L"Failed to read property from Bag");
+
+        pErrorLog->AddError(propName, &excepInfo);
+
+        SysFreeString(excepInfo.bstrSource);
+        SysFreeString(excepInfo.bstrDescription);
+    };
+
+    // 1. Load Enabled
+    var.vt = VT_BOOL;
+    hr = pPropBag->Read(L"Enabled", &var, pErrorLog);
+    if (SUCCEEDED(hr)) {
+        m_enabled = var.boolVal;
+    } else if (pErrorLog) {
+        LogLoadError(L"Enabled", hr);
+    }
+
+    // 2. Load CaptureConfiguration
+    VariantClear(&var);
+    var.vt = VT_I4;
+    hr = pPropBag->Read(L"CaptureConfiguration", &var, pErrorLog);
+    if (SUCCEEDED(hr)) {
+        m_config = var.lVal;
+    } else if (pErrorLog) {
+        LogLoadError(L"CaptureConfiguration", hr);
+    }
+
+    // 3. Load PreviewSampleByteCount
+    VariantClear(&var);
+    var.vt = VT_UI2;
+    hr = pPropBag->Read(L"PreviewSampleByteCount", &var, pErrorLog);
+    if (SUCCEEDED(hr)) {
+        m_previewSampleByteCount = var.uiVal;
+    } else if (pErrorLog) {
+        LogLoadError(L"PreviewSampleByteCount", hr);
+    }
+
+    VariantClear(&var);
+    return S_OK;
+}
+
 
 #pragma region IAnalyzerCommon Members
 

@@ -54,7 +54,7 @@ protected:
 //
 //-----------------------------------------------------------------------------
 
-class CAnalyzerWriterFilter : public CBaseRenderer, public IFileSinkFilter2, public IAMFilterMiscFlags, public ISpecifyPropertyPages
+class CAnalyzerWriterFilter : public CBaseRenderer, public IFileSinkFilter2, public IAMFilterMiscFlags, public ISpecifyPropertyPages, public IPersistPropertyBag
 {
 private:
     CAnalyzer*  m_analyzer;
@@ -98,6 +98,11 @@ public:
 
     // ISpecifyPropertyPages interface
     STDMETHODIMP GetPages(CAUUID *pPages);
+
+    // IPersistPropertyBag interface
+    STDMETHODIMP InitNew();
+    STDMETHODIMP Load(IPropertyBag* pPropBag, IErrorLog* pErrorLog);
+    STDMETHODIMP Save(IPropertyBag* pPropBag, BOOL fClearDirty, BOOL fSaveAllProperties);
 
 protected:
     WCHAR m_szFileName[MAX_PATH];

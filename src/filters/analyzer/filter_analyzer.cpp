@@ -306,9 +306,13 @@ STDMETHODIMP CAnalyzerFilter::NonDelegatingQueryInterface(REFIID riid, void ** p
 	if (riid == __uuidof(IAnalyzerCommon)) {
 		return m_analyzer->NonDelegatingQueryInterface(riid, ppv);
 	}
-    else if (riid == IID_ISpecifyPropertyPages) {
-        return GetInterface(static_cast<ISpecifyPropertyPages*>(this), ppv);
-    }
+	else if (riid == IID_ISpecifyPropertyPages) {
+		return GetInterface(static_cast<ISpecifyPropertyPages*>(this), ppv);
+	}
+	else if (IID_IPersistPropertyBag == riid) {
+		return GetInterface(static_cast<IPersistPropertyBag*>(this), ppv);
+	}
+
 	return __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
@@ -393,6 +397,33 @@ STDMETHODIMP CAnalyzerFilter::GetPages(CAUUID *pPages)
     pPages->pElems[0] = __uuidof(AnalyzerPropPageLog);
     pPages->pElems[1] = __uuidof(AnalyzerPropPageConfig);
     return NOERROR;
+}
+
+// IPersistPropertyBag overrides ////////////////////////////////////////////////////////////////
+STDMETHODIMP CAnalyzerFilter::GetClassID(CLSID* pClsID)
+{
+	CheckPointer(pClsID, E_POINTER);
+	*pClsID = __uuidof(AnalyzerFilter);
+	return S_OK;
+}
+
+STDMETHODIMP CAnalyzerFilter::InitNew()
+{
+	return S_OK;
+}
+
+STDMETHODIMP CAnalyzerFilter::Load(IPropertyBag* pPropBag, IErrorLog* pErrorLog)
+{
+	if (!m_analyzer) return E_FAIL;
+
+	return m_analyzer->LoadConfig(pPropBag, pErrorLog);
+}
+
+STDMETHODIMP CAnalyzerFilter::Save(IPropertyBag* pPropBag, BOOL fClearDirty, BOOL fSaveAllProperties)
+{
+	if (!m_analyzer) return S_OK;	// nothing to save
+
+	return m_analyzer->StoreConfig(pPropBag);
 }
 
 #pragma endregion

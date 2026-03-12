@@ -65,6 +65,10 @@ public:
 	virtual HRESULT AddHRESULT(StatisticRecordKind kind, HRESULT hr);
 	virtual HRESULT AddRefTime(StatisticRecordKind kind, REFERENCE_TIME tStart, HRESULT hr);
 
+    // IPersistPropertyBag helper
+	virtual HRESULT StoreConfig(IPropertyBag* pPropBag);
+    virtual HRESULT LoadConfig(IPropertyBag* pPropBag, IErrorLog* pErrorLog);
+
 	// IAnalyzerFilter
     STDMETHODIMP get_Enabled(VARIANT_BOOL *pVal);
     STDMETHODIMP put_Enabled(VARIANT_BOOL val);

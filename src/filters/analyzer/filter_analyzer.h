@@ -14,7 +14,7 @@
 //
 //-----------------------------------------------------------------------------
 
-class CAnalyzerFilter : public CTransInPlaceFilter, public ISpecifyPropertyPages
+class CAnalyzerFilter : public CTransInPlaceFilter, public ISpecifyPropertyPages, public IPersistPropertyBag
 {
 private:
     CAnalyzer*			m_analyzer;
@@ -38,6 +38,12 @@ private:
 
     // ISpecifyPropertyPages interface
     STDMETHODIMP GetPages(CAUUID *pPages);
+
+	// IPersistPropertyBag interface
+	STDMETHODIMP GetClassID(CLSID* pClsID);
+	STDMETHODIMP InitNew();
+	STDMETHODIMP Load(IPropertyBag* pPropBag, IErrorLog* pErrorLog);
+	STDMETHODIMP Save(IPropertyBag* pPropBag, BOOL fClearDirty, BOOL fSaveAllProperties);
 
     static CUnknown * WINAPI CreateInstance(LPUNKNOWN punk, HRESULT *phr);
 

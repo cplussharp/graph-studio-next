@@ -343,6 +343,8 @@ STDMETHODIMP CAnalyzerWriterFilter::NonDelegatingQueryInterface(REFIID riid, voi
 		return m_analyzer->NonDelegatingQueryInterface(riid, ppv);
 	else if (IID_ISpecifyPropertyPages == riid)
 		return GetInterface(static_cast<ISpecifyPropertyPages*>(this), ppv);
+    else if (IID_IPersistPropertyBag == riid)
+        return GetInterface(static_cast<IPersistPropertyBag*>(this), ppv);
 
     return __super::NonDelegatingQueryInterface(riid, ppv);
 }
@@ -600,6 +602,28 @@ STDMETHODIMP CAnalyzerWriterFilter::GetPages(CAUUID *pPages)
     pPages->pElems[0] = __uuidof(AnalyzerPropPageLog);
     pPages->pElems[1] = __uuidof(AnalyzerPropPageConfig);
     return NOERROR;
+}
+
+/*********************************************************************************************
+* Implementation of IPersistPropertyBag
+*********************************************************************************************/
+STDMETHODIMP CAnalyzerWriterFilter::InitNew()
+{
+    return S_OK;
+}
+
+STDMETHODIMP CAnalyzerWriterFilter::Load(IPropertyBag* pPropBag, IErrorLog* pErrorLog)
+{
+    if (!m_analyzer) return E_FAIL;
+
+	return m_analyzer->LoadConfig(pPropBag, pErrorLog);
+}
+
+STDMETHODIMP CAnalyzerWriterFilter::Save(IPropertyBag* pPropBag, BOOL fClearDirty, BOOL fSaveAllProperties)
+{
+    if (!m_analyzer) return S_OK;	// nothing to save
+
+    return m_analyzer->StoreConfig(pPropBag);
 }
 
 #pragma endregion

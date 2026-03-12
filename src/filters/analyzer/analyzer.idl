@@ -280,6 +280,7 @@ library AnalyzerFilterLib
     {
         [default] interface IBaseFilter;
         interface ISpecifyPropertyPages;
+        interface IPersistPropertyBag;
         interface IAnalyzerCommon;
     }
 
@@ -291,6 +292,7 @@ library AnalyzerFilterLib
         interface IAMFilterMiscFlags;
         interface IMediaSeeking;
         interface ISpecifyPropertyPages;
+        interface IPersistPropertyBag;
         interface IAnalyzerCommon;
     }
 
