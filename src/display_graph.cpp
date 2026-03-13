@@ -12,6 +12,8 @@
 
 #include "MediaTypeSelectForm.h"
 #include "GRF_File.h"
+#include "VariantTypeHelper.h"
+#include "PropertyBagXMLWriter.h"
 
 #include <atlenc.h>
 #include <set>
@@ -990,6 +992,35 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		return S_OK;
 	}
 
+	static HRESULT SaveXML_IPersistPropertyBag(IBaseFilter* filter, XML::XMLWriter& xml)
+	{
+		CComQIPtr<IPersistPropertyBag> persist_property_bag(filter);
+		if (!persist_property_bag) {
+			// not implemented, not an error, just nothing to save
+			return S_FALSE;
+		}
+
+		// Create the property bag writer and call Save
+		CComPtr<CPropertyBagXMLWriter> writer(new CPropertyBagXMLWriter(nullptr, xml));
+		if (!writer)
+			return E_OUTOFMEMORY;
+
+		// create the XML node for this interface before calling Save so that properties can be written to it
+		xml.BeginNode(_T("ipersistpropertybag"));
+
+		// store the properties in the property bag writer which will write them to XML as they're added
+		HRESULT hr = persist_property_bag->Save(writer, TRUE, TRUE);
+		if (FAILED(hr)) {
+			// Not an error, just nothing to save
+			DbgLog((LOG_TRACE, 3, _T("IPersistPropertyBag::Save failed with hr=0x%08x, no properties to save for this filter"), hr));
+		}
+
+		// close the XML node for this interface after writing properties to it
+		xml.EndNode();
+
+		return S_OK;
+	}
+
 	static void SaveXML_MediaType(XML::XMLWriter &xml, const CMediaType& mt)
 	{
 		xml.BeginNode(_T("mediaType"));
@@ -1234,6 +1265,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			SaveXML_IFileSourceFilter(filter->filter, xml, sBaseDirectory);
 			SaveXML_IFileSinkFilter(filter->filter, xml, sBaseDirectory);
 			SaveXML_IPersistStream(filter->filter, xml);
+			SaveXML_IPersistPropertyBag(filter->filter, xml);
 		xml.EndNode();
 	}
 

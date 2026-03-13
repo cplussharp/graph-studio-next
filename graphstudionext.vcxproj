@@ -331,6 +331,9 @@
     <ClInclude Include="src\url_label.h" />
     <ClInclude Include="src\filters\time_measure\filter_time.h" />
     <ClInclude Include="src\filters\dump\filter_dump.h" />
+    <ClInclude Include="src\VariantTypeHelper.h" />
+    <ClInclude Include="src\PropertyBagXMLReader.h" />
+    <ClInclude Include="src\PropertyBagXMLWriter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AnalyzerPage.cpp" />
@@ -431,6 +434,9 @@
     <ClCompile Include="src\url_label.cpp" />
     <ClCompile Include="src\filters\time_measure\filter_time.cpp" />
     <ClCompile Include="src\filters\dump\filter_dump.cpp" />
+    <ClCompile Include="src\VariantTypeHelper.cpp" />
+    <ClCompile Include="src\PropertyBagXMLReader.cpp" />
+    <ClCompile Include="src\PropertyBagXMLWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="src\filters\analyzer\analyzer.idl" />

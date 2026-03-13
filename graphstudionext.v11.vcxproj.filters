@@ -387,6 +387,15 @@
     <ClInclude Include="src\ComDllAnalyzerForm.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\VariantTypeHelper.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PropertyBagXMLReader.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PropertyBagXMLWriter.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
     <ClInclude Include="src\RegistryExporter.h">
       <Filter>Utils</Filter>
     </ClInclude>
@@ -648,6 +657,15 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\ComDllAnalyzerForm.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VariantTypeHelper.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PropertyBagXMLReader.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PropertyBagXMLWriter.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\RegistryExporter.cpp">

@@ -10,6 +10,7 @@
 #include <atlbase.h>
 #include <atlpath.h>
 #include <atlenc.h>
+#include "PropertyBagXMLReader.h"
 
 #pragma warning(disable: 4244)			// DWORD -> BYTE warning
 
@@ -40,81 +41,6 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 
 		return TRUE;
 	}
-
-	////////////////////////////////////////////////////////
-	// CPropertyBag
-
-	// TODO: Possibly make it a normal COM class instead of quick patch
-
-	class CPropertyBag :
-		public IPropertyBag
-	{
-	private:
-		XML::XMLList& m_List;
-
-	public:
-	// CPropertyBag
-		CPropertyBag(XML::XMLList& List) :
-			m_List(List)
-		{
-		}
-
-	// IUnknown
-        STDMETHOD(QueryInterface)(REFIID, VOID**) override
-		{
-			return E_NOINTERFACE;
-		}
-        STDMETHOD_(ULONG, AddRef)() override
-		{
-			return 2;
-		}
-        STDMETHOD_(ULONG, Release)() override
-		{
-			return 1;
-		}
-
-	// IPropertyBag
-        STDMETHOD(Read)(LPCOLESTR pszPropertyName, VARIANT* pvValue, IErrorLog* pErrorLog) override
-		{
-			ATLTRACE(atlTraceCOM, 4, _T("pszPropertyName \"%s\"\n"), CString(pszPropertyName));
-			_ATLTRY
-			{
-				ATLENSURE_THROW(pszPropertyName, E_INVALIDARG);
-				ATLENSURE_THROW(pvValue, E_POINTER);
-				pErrorLog;
-				const CString sPropertyNameT(pszPropertyName);
-				BOOL bFound = FALSE;
-				for(auto it = m_List.begin(); it != m_List.end(); ++it)
-				{
-          XML::XMLNode* pNode = *it;
-					const CString sName = pNode->GetValue(_T("name"));
-					if(sName.CompareNoCase(sPropertyNameT) == 0)
-					{
-						const CString sValue = pNode->GetValue(_T("value"));
-						CComVariant vValue(sValue);
-						if(pvValue->vt > VT_NULL)
-							ATLENSURE_SUCCEEDED(vValue.ChangeType(pvValue->vt));
-						reinterpret_cast<CComVariant&>(*pvValue) = vValue;
-						bFound = TRUE;
-						break;
-					}
-				}
-				//if(!bFound)
-				//	return E_INVALIDARG;
-			}
-			_ATLCATCH(Exception)
-			{
-				//return Exception;
-				return COleException::Process(Exception);
-			}
-			return S_OK;
-		}
-        STDMETHOD(Write)(LPCOLESTR pszPropertyName, VARIANT* pvValue) override
-		{
-			pszPropertyName; pvValue;
-			return E_NOTIMPL;
-		}
-	};
 
 	//-------------------------------------------------------------------------
 	//
@@ -288,7 +214,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			{
 				const CComQIPtr<IPersistPropertyBag> pPersistPropertyBag(filter);
 				ATLENSURE_THROW(pPersistPropertyBag, E_NOINTERFACE);
-				CPropertyBag PropertyBag(conf->nodes);
+				CPropertyBagXMLReader PropertyBag(nullptr, conf->nodes);
 				ATLENSURE_SUCCEEDED(pPersistPropertyBag->Load(&PropertyBag, NULL));
 			}
 			_ATLCATCH(Exception)

@@ -306,6 +306,8 @@
     <ClInclude Include="src\MediaInfoDLL.h" />
     <ClInclude Include="src\MediaTypeSelectForm.h" />
     <ClInclude Include="src\moreuuids.h" />
+    <ClInclude Include="src\PropertyBagXMLReader.h" />
+    <ClInclude Include="src\PropertyBagXMLWriter.h" />
     <ClInclude Include="src\RegistryExporter.h" />
     <ClInclude Include="src\RenderParameters.h" />
     <ClInclude Include="src\SbeConfigForm.h" />
@@ -356,6 +358,7 @@
     <ClInclude Include="src\url_label.h" />
     <ClInclude Include="src\filters\time_measure\filter_time.h" />
     <ClInclude Include="src\filters\dump\filter_dump.h" />
+    <ClInclude Include="src\VariantTypeHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AnalyzerPage.cpp" />
@@ -413,6 +416,8 @@
     <ClCompile Include="src\MeritForm.cpp" />
     <ClCompile Include="src\NewGroupForm.cpp" />
     <ClCompile Include="src\ProgressForm.cpp" />
+    <ClCompile Include="src\PropertyBagXMLReader.cpp" />
+    <ClCompile Include="src\PropertyBagXMLWriter.cpp" />
     <ClCompile Include="src\RegistryExporter.cpp" />
     <ClCompile Include="src\RemoteGraphForm.cpp" />
     <ClCompile Include="src\RenderParameters.cpp" />
@@ -457,6 +462,7 @@
     <ClCompile Include="src\url_label.cpp" />
     <ClCompile Include="src\filters\time_measure\filter_time.cpp" />
     <ClCompile Include="src\filters\dump\filter_dump.cpp" />
+    <ClCompile Include="src\VariantTypeHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="src\filters\analyzer\analyzer.idl" />
