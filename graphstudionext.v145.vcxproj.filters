@@ -402,6 +402,9 @@
     <ClInclude Include="src\PropertyBagXMLReader.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\PropertyBagListWriter.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\display_graph.cpp">
@@ -678,6 +681,9 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\PropertyBagXMLReader.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PropertyBagListWriter.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>

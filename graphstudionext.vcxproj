@@ -332,6 +332,7 @@
     <ClInclude Include="src\filters\time_measure\filter_time.h" />
     <ClInclude Include="src\filters\dump\filter_dump.h" />
     <ClInclude Include="src\VariantTypeHelper.h" />
+    <ClInclude Include="src\PropertyBagListWriter.h" />
     <ClInclude Include="src\PropertyBagXMLReader.h" />
     <ClInclude Include="src\PropertyBagXMLWriter.h" />
   </ItemGroup>
@@ -435,6 +436,7 @@
     <ClCompile Include="src\filters\time_measure\filter_time.cpp" />
     <ClCompile Include="src\filters\dump\filter_dump.cpp" />
     <ClCompile Include="src\VariantTypeHelper.cpp" />
+    <ClCompile Include="src\PropertyBagListWriter.cpp" />
     <ClCompile Include="src\PropertyBagXMLReader.cpp" />
     <ClCompile Include="src\PropertyBagXMLWriter.cpp" />
   </ItemGroup>

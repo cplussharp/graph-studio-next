@@ -390,6 +390,9 @@
     <ClInclude Include="src\VariantTypeHelper.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\PropertyBagListWriter.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
     <ClInclude Include="src\PropertyBagXMLReader.h">
       <Filter>Utils</Filter>
     </ClInclude>
@@ -660,6 +663,9 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\VariantTypeHelper.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PropertyBagListWriter.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\PropertyBagXMLReader.cpp">

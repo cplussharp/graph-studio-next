@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Videoacc.h"
+#include "PropertyBagListWriter.h"
 
 CInterfaceInfo::CInterfaceInfo()
 {
@@ -465,6 +466,25 @@ void GetInterfaceInfo_IPersistStreamInit(GraphStudio::PropItem* group, IUnknown*
         const HRESULT hr = pI->IsDirty();
         if (SUCCEEDED(hr))
             group->AddItem(new GraphStudio::PropItem(_T("IsDirty"), S_OK == hr));
+    }
+}
+
+void GetInterfaceInfo_IPersistPropertyBag(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IPersistPropertyBag> pI = pUnk;
+    if (!pI) return;
+
+    CPropertyBagListWriter propBag(nullptr);
+	HRESULT hr = pI->Save(&propBag, FALSE, TRUE);
+    if (FAILED(hr)) {
+        DbgLog((LOG_MEMORY, 1, TEXT("failed to Save to IPropertyBag [%0x]"), hr));
+        return;
+    }
+
+	for (const auto& entry : propBag.GetEntries()) {
+        CString propertyName;
+        propertyName.Format(_T("\"%s\" [%s]"), entry.name, entry.type);
+        group->AddItem(new GraphStudio::PropItem(propertyName, entry.value));
     }
 }
 
@@ -1412,7 +1432,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{C56E9858-DBF3-4F6B-8119-384AF2060DEB}"), TEXT("IPinFlowControl"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd390403.aspx")),
     CInterfaceInfo(TEXT("{01F3B398-9527-4736-94DB-5195878E97A8}"), TEXT("IPMT"), TEXT("mpeg2psiparser.cs"), TEXT("")),
     CInterfaceInfo(TEXT("{55272A00-42CB-11CE-8135-00AA004BB851}"), TEXT("IPropertyBag"), TEXT("oaidl.h"), TEXT("")),
-    CInterfaceInfo(TEXT("{37D84F60-42CB-11CE-8135-00AA004BB851}"), TEXT("IPersistPropertyBag"), TEXT("ocidl.h"), TEXT("https://learn.microsoft.com/en-us/windows/win32/api/ocidl/nn-ocidl-ipersistpropertybag")),
+    CInterfaceInfo(TEXT("{37D84F60-42CB-11CE-8135-00AA004BB851}"), TEXT("IPersistPropertyBag"), TEXT("ocidl.h"), TEXT("https://learn.microsoft.com/en-us/windows/win32/api/ocidl/nn-ocidl-ipersistpropertybag"), GetInterfaceInfo_IPersistPropertyBag),
     CInterfaceInfo(TEXT("{AE9472BD-B0C3-11D2-8D24-00A0C9441E20}"), TEXT("IPropertySetter"), TEXT("qedit.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376901.aspx")),
     CInterfaceInfo(TEXT("{56A868A5-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IQualityControl"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376912.aspx")),
     CInterfaceInfo(TEXT("{1BD0ECB0-F8E2-11CE-AAC6-0020AF0B99A3}"), TEXT("IQualProp"), TEXT("uuids.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd376915.aspx")),

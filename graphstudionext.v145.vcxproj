@@ -306,6 +306,7 @@
     <ClInclude Include="src\MediaInfoDLL.h" />
     <ClInclude Include="src\MediaTypeSelectForm.h" />
     <ClInclude Include="src\moreuuids.h" />
+    <ClInclude Include="src\PropertyBagListWriter.h" />
     <ClInclude Include="src\PropertyBagXMLReader.h" />
     <ClInclude Include="src\PropertyBagXMLWriter.h" />
     <ClInclude Include="src\RegistryExporter.h" />
@@ -416,6 +417,7 @@
     <ClCompile Include="src\MeritForm.cpp" />
     <ClCompile Include="src\NewGroupForm.cpp" />
     <ClCompile Include="src\ProgressForm.cpp" />
+    <ClCompile Include="src\PropertyBagListWriter.cpp" />
     <ClCompile Include="src\PropertyBagXMLReader.cpp" />
     <ClCompile Include="src\PropertyBagXMLWriter.cpp" />
     <ClCompile Include="src\RegistryExporter.cpp" />
