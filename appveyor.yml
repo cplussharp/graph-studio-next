@@ -2,22 +2,24 @@ build: false
 version: 0.7.3.{build}
 image: Visual Studio 2019
 clone_depth: 1
-environment:
-    
-    matrix:
-        - CONFIGURATION: Release
-          PLATFORM: Win32
-        - CONFIGURATION: Debug
-          PLATFORM: Win32
-        - CONFIGURATION: Release
-          PLATFORM: x64
-        - CONFIGURATION: Debug
-          PLATFORM: x64
 
-test_script:
-  - Msbuild.exe graphstudionext.v142.sln /m /t:graphstudionext /p:Configuration=%CONFIGURATION%;Platform=%PLATFORM%
+environment:
+  matrix:
+    - CONFIGURATION: Release
+      PLATFORM: Win32
+    - CONFIGURATION: Debug
+      PLATFORM: Win32
+    - CONFIGURATION: Release
+      PLATFORM: x64
+    - CONFIGURATION: Debug
+      PLATFORM: x64
+
+build_script:
+  - msbuild "graphstudionext.v142.sln" ^
+      /m ^
+      /t:graphstudionext ^
+      /p:Configuration=%CONFIGURATION% ^
+      /p:Platform=%PLATFORM%
 
 artifacts:
-
-  # pushing a single file with environment variable in path and "Deployment name" specified
-  - path: bin\*
+  - path: bin\**\*
