@@ -1237,13 +1237,26 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 			xml.WriteValue(_T("name"), filter->name);
 			xml.WriteValue(_T("index"), index);
 
+			// special handling for Analyzer Writer filter
+			// as it presents itself as File Writer filter,
+			// but we want to save/load it as the real CLSID to preserve its identity and settings
+			CLSID filterClsid = filter->clsid;
+			if (filterClsid == CLSID_FileWriter) {
+				// check if we are really an Analyzer Writer filter
+				CComQIPtr<IAnalyzerCommon> analyzer(filter->filter);
+				if (analyzer) {
+					// we are an Analyzer Writer filter, save as such
+					filterClsid = __uuidof(AnalyzerWriterFilter);
+				}
+			}
+
 			CString guid_name;
-			if (NameGuid(filter->clsid, guid_name, false)) {		
+			if (NameGuid(filterClsid, guid_name, false)) {
 				xml.WriteValue(_T("class"), guid_name);
 			}
 
 			LPOLESTR	strclsid = NULL;
-			HRESULT hr = StringFromCLSID(filter->clsid, &strclsid);
+			HRESULT hr = StringFromCLSID(filterClsid, &strclsid);
 			if (SUCCEEDED(hr) && strclsid)
 			{
 				xml.WriteValue(_T("clsid"), strclsid);
