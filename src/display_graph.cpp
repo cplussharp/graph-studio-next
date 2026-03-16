@@ -13,7 +13,7 @@
 #include "MediaTypeSelectForm.h"
 #include "GRF_File.h"
 #include "VariantTypeHelper.h"
-#include "PropertyBagXMLWriter.h"
+#include "PropertyBagListWriter.h"
 
 #include <atlenc.h>
 #include <set>
@@ -1001,18 +1001,29 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		}
 
 		// Create the property bag writer and call Save
-		CComPtr<CPropertyBagXMLWriter> writer(new CPropertyBagXMLWriter(nullptr, xml));
-		if (!writer)
-			return E_OUTOFMEMORY;
-
-		// create the XML node for this interface before calling Save so that properties can be written to it
-		xml.BeginNode(_T("ipersistpropertybag"));
-
-		// store the properties in the property bag writer which will write them to XML as they're added
-		HRESULT hr = persist_property_bag->Save(writer, TRUE, TRUE);
+		CPropertyBagListWriter propBag(nullptr);
+		HRESULT hr = persist_property_bag->Save(&propBag, TRUE, TRUE);
 		if (FAILED(hr)) {
 			// Not an error, just nothing to save
 			DbgLog((LOG_TRACE, 3, _T("IPersistPropertyBag::Save failed with hr=0x%08x, no properties to save for this filter"), hr));
+			return S_FALSE;
+		}
+
+		if (propBag.GetEntries().empty()) {
+			// No properties to save, not an error
+			return S_FALSE;
+		}
+
+		// create the XML node for this interface
+		xml.BeginNode(_T("ipersistpropertybag"));
+
+		// store the properties
+		for (const auto& entry : propBag.GetEntries()) {
+			xml.BeginNode(_T("property"));
+			xml.WriteValue(_T("name"), entry.name);
+			xml.WriteValue(_T("type"), entry.type);
+			xml.WriteValue(_T("value"), entry.value);
+			xml.EndNode();
 		}
 
 		// close the XML node for this interface after writing properties to it
