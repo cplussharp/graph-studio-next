@@ -97,6 +97,58 @@ void GetInterfaceInfo_IBasicAudio(GraphStudio::PropItem* group, IUnknown* pUnk)
     }
 }
 
+void GetInterfaceInfo_IBasicVideo(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IBasicVideo> pI = pUnk;
+    if (!pI) return;
+
+	REFTIME avgTimePerFrame;
+    if (SUCCEEDED(pI->get_AvgTimePerFrame(&avgTimePerFrame)))
+		group->AddItem(new GraphStudio::PropItem(_T("AvgTimePerFrame (s)"), avgTimePerFrame));
+    long bitrate;
+	if (SUCCEEDED(pI->get_BitRate(&bitrate)))
+        group->AddItem(new GraphStudio::PropItem(_T("BitRate (bps)"), bitrate));
+	long bitErrorRate;
+    if (SUCCEEDED(pI->get_BitErrorRate(&bitErrorRate)))
+		group->AddItem(new GraphStudio::PropItem(_T("BitErrorRate"), bitErrorRate));
+
+    SIZE videoSize;
+    if (SUCCEEDED(pI->GetVideoSize(&videoSize.cx, &videoSize.cy))) {
+        group->AddItem(new GraphStudio::PropItem(_T("VideoSize"), videoSize));
+    }
+
+    RECT srcPos;
+    if (SUCCEEDED(pI->GetSourcePosition(&srcPos.left, &srcPos.top, &srcPos.right, &srcPos.bottom))) {
+        group->AddItem(new GraphStudio::PropItem(_T("SourcePosition"), srcPos));
+    }
+
+    RECT dstPos;
+    if (SUCCEEDED(pI->GetSourcePosition(&dstPos.left, &dstPos.top, &dstPos.right, &dstPos.bottom))) {
+        group->AddItem(new GraphStudio::PropItem(_T("DestinationPosition"), dstPos));
+    }
+
+	bool isUsingDefaultSource = pI->IsUsingDefaultSource() == S_OK;
+    group->AddItem(new GraphStudio::PropItem(_T("UsingDefaultSource"), isUsingDefaultSource));
+
+	bool isUsingDefaultDestination = pI->IsUsingDefaultDestination() == S_OK;
+	group->AddItem(new GraphStudio::PropItem(_T("UsingDefaultDestination"), isUsingDefaultDestination));
+}
+
+void GetInterfaceInfo_IBasicVideo2(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+	CComQIPtr<IBasicVideo2> pI = pUnk;
+	if (!pI) return;
+
+	// same properties as IBasicVideo
+    GetInterfaceInfo_IBasicVideo(group, pUnk);
+
+	// plus the preferred aspect ratio
+	SIZE aspectRatio;
+    if (SUCCEEDED(pI->GetPreferredAspectRatio(&aspectRatio.cx, &aspectRatio.cy))) {
+        group->AddItem(new GraphStudio::PropItem(_T("PreferredAspectRatio"), aspectRatio));
+	}
+}
+
 void GetInterfaceInfo_ISpecifyPropertyPages(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     CComQIPtr<ISpecifyPropertyPages> pI = pUnk;
@@ -1270,8 +1322,8 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{B10931ED-8BFE-4AB0-9DCE-E469C29A9729}"), TEXT("IAuxInTuningSpace2"), TEXT("tuner.h"), TEXT("")),
     CInterfaceInfo(TEXT("{56A86895-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IBaseFilter"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389526.aspx"),GetInterfaceInfo_IBaseFilter),
     CInterfaceInfo(TEXT("{56A868B3-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IBasicAudio"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389532.aspx"),GetInterfaceInfo_IBasicAudio),
-    CInterfaceInfo(TEXT("{56A868B5-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IBasicVideo"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389540.aspx")),
-    CInterfaceInfo(TEXT("{329BB360-F6EA-11D1-9038-00A0C9697298}"), TEXT("IBasicVideo2"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389541.aspx")),
+    CInterfaceInfo(TEXT("{56A868B5-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IBasicVideo"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389540.aspx"),GetInterfaceInfo_IBasicVideo),
+    CInterfaceInfo(TEXT("{329BB360-F6EA-11D1-9038-00A0C9697298}"), TEXT("IBasicVideo2"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd389541.aspx"),GetInterfaceInfo_IBasicVideo2),
     CInterfaceInfo(TEXT("{DDF15B12-BD25-11D2-9CA0-00C04F7971E0}"), TEXT("IBDA_AutoDemodulate"), TEXT("bdaiface.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd693252.aspx")),
     CInterfaceInfo(TEXT("{34518D13-1182-48e6-B28F-B24987787326}"), TEXT("IBDA_AutoDemodulateEx"), TEXT("bdaiface.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd693253.aspx")),
     CInterfaceInfo(TEXT("{FD0A5AF3-B41D-11D2-9C95-00C04F7971E0}"), TEXT("IBDA_DeviceControl"), TEXT("bdaiface.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd693278.aspx")),

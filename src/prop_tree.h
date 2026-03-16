@@ -37,7 +37,8 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
             TYPE_URL        = 7,
             TYPE_DOUBLE     = 8,
             TYPE_LARGEINT   = 9,
-            TYPE_TIME       = 10
+            TYPE_TIME       = 10,
+			TYPE_SIZE		= 11,
 		};
 
 		int					type;
@@ -56,6 +57,7 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
         PropItem(CString n, CString str, bool isUrl);
 		PropItem(CString n, bool val);
 		PropItem(CString n, RECT rc);
+		PropItem(CString n, SIZE size);
 		PropItem(CString n, __int64 val);
         PropItem(CString n, unsigned __int64 val);
         PropItem(CString n, CTime val);

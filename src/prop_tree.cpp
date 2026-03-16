@@ -63,6 +63,14 @@ GRAPHSTUDIO_NAMESPACE_START			// cf stdafx.h for explanation
 		value.Format(_T("%f"), val);
 	}
 
+	PropItem::PropItem(CString n, SIZE size) :
+		name(n),
+		type(TYPE_SIZE),
+		expand(false)
+	{
+		value.Format(_T("[%d, %d]"), size.cx, size.cy);
+	}
+
 	PropItem::PropItem(CString n, RECT rc) :
 		name(n),
 		type(TYPE_RECT),
