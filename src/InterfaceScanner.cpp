@@ -764,6 +764,48 @@ void GetInterfaceInfo_IMediaParams(GraphStudio::PropItem* group, IUnknown* pUnk)
     
 }
 
+void GetInterfaceInfo_IMediaPosition(GraphStudio::PropItem* group, IUnknown* pUnk)
+{
+    CComQIPtr<IMediaPosition> pI = pUnk;
+    if (!pI) return;
+
+    HRESULT hr;
+    REFTIME currentPos;
+    hr = pI->get_CurrentPosition(&currentPos);
+    if (SUCCEEDED(hr))
+        group->AddItem(new GraphStudio::PropItem(_T("CurrentPosition (s)"), currentPos));
+    else {
+        CString errorMsg;
+        GraphStudio::NameHResult(hr, errorMsg);
+        group->AddItem(new GraphStudio::PropItem(_T("CurrentPosition (s)"), errorMsg));
+		return; // the other methods probably also won't work
+    }
+
+    REFTIME duration;
+    if (SUCCEEDED(pI->get_Duration(&duration)))
+        group->AddItem(new GraphStudio::PropItem(_T("Duration (s)"), duration));
+
+    REFTIME prerollTime;
+    if (SUCCEEDED(pI->get_PrerollTime(&prerollTime)))
+        group->AddItem(new GraphStudio::PropItem(_T("PrerollTime (s)"), prerollTime));
+
+    REFTIME stopTime;
+    if (SUCCEEDED(pI->get_StopTime(&stopTime)))
+        group->AddItem(new GraphStudio::PropItem(_T("StopTime (s)"), stopTime));
+
+    double rate;
+	if (SUCCEEDED(pI->get_Rate(&rate)))
+        group->AddItem(new GraphStudio::PropItem(_T("Rate"), rate));
+
+    long canSeekForwards;
+	if (SUCCEEDED(pI->CanSeekForward(&canSeekForwards)))
+        group->AddItem(new GraphStudio::PropItem(_T("CanSeekForward"), canSeekForwards != OAFALSE));
+
+    long canSeekBackwards;
+    if (SUCCEEDED(pI->CanSeekBackward(&canSeekBackwards)))
+        group->AddItem(new GraphStudio::PropItem(_T("CanSeekBackward"), canSeekForwards != OAFALSE));
+}
+
 void GetInterfaceInfo_IUnknown(GraphStudio::PropItem* group, IUnknown* pUnk)
 {
     pUnk->AddRef();
@@ -1444,7 +1486,7 @@ const CInterfaceInfo CInterfaceScanner::m_knownInterfaces[] =
     CInterfaceInfo(TEXT("{651B9AD0-0FC7-4AA9-9538-D89931010741}"), TEXT("IMediaObjectInPlace"), TEXT("mediaobj.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406939.aspx")),
     CInterfaceInfo(TEXT("{6D6CBB60-A223-44AA-842F-A2F06750BE6D}"), TEXT("IMediaParamInfo"), TEXT("medparam.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406964.aspx"), GetInterfaceInfo_IMediaParamInfo),
     CInterfaceInfo(TEXT("{6D6CBB61-A223-44AA-842F-A2F06750BE6E}"), TEXT("IMediaParams"), TEXT("medparam.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406971.aspx"), GetInterfaceInfo_IMediaParams),
-    CInterfaceInfo(TEXT("{56A868B2-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IMediaPosition"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406977.aspx")),
+    CInterfaceInfo(TEXT("{56A868B2-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IMediaPosition"), TEXT("control.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406977.aspx"), GetInterfaceInfo_IMediaPosition),
     CInterfaceInfo(TEXT("{6025A880-C0D5-11D0-BD4E-00A0C911CE86}"), TEXT("IMediaPropertyBag"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd406997.aspx")),
     CInterfaceInfo(TEXT("{56A8689A-0AD4-11CE-B03A-0020AF0BA770}"), TEXT("IMediaSample"), TEXT("strmif.h"), TEXT("")),
     CInterfaceInfo(TEXT("{36B73880-C2C8-11CF-8B46-00805F6CEF60}"), TEXT("IMediaSeeking"), TEXT("strmif.h"), TEXT("http://msdn.microsoft.com/en-us/library/windows/desktop/dd407023.aspx"), GetInterfaceInfo_IMediaSeeking),
